@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="50dp"
+    android:layout_height="30dp"
+    android:background="@android:color/black"
+    tools:targetApi="jelly_bean">
+
+    <nhdphuong.com.manga.views.customs.MyTextView
+        android:id="@+id/tvPageNumber"
+        style="@style/PageNotSelected"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/bg_circle_grey_1"
+        android:gravity="center"
+        android:minWidth="30dp"
+        android:text="@string/page_number"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:myFont="@string/NotoSansRegular" />
+
+</android.support.constraint.ConstraintLayout>

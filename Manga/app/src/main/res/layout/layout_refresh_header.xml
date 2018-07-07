@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/greyDDD">
+
+        <ImageView
+            android:id="@+id/ivRefresh"
+            android:layout_width="50dp"
+            android:layout_height="100dp"
+            android:alpha="0.5"
+            android:contentDescription="@string/release_to_refresh"
+            android:src="@drawable/ic_dashed_arrow_down_black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/clRefreshLabels"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/pbRefresh"
+            android:layout_width="30dp"
+            android:layout_height="0dp"
+            android:indeterminateDrawable="@drawable/bg_progress_refresh"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/clRefreshLabels"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/clRefreshLabels"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtvRefresh"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:alpha="0.6"
+                android:gravity="center"
+                android:text="@string/release_to_refresh"
+                android:textColor="@android:color/black"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toTopOf="@id/mtvLastUpdate"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:myFont="@string/NotoSansRegular" />
+
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtvLastUpdate"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:alpha="0.45"
+                android:gravity="center"
+                android:text="@string/last_update"
+                android:textColor="@android:color/black"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/mtvRefresh"
+                app:myFont="@string/NotoSansItalic" />
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

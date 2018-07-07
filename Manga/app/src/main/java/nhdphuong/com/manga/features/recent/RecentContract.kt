@@ -1,0 +1,28 @@
+package nhdphuong.com.manga.features.recent
+
+import nhdphuong.com.manga.Base
+import nhdphuong.com.manga.data.entity.book.Book
+
+/*
+ * Created by nhdphuong on 6/10/18.
+ */
+interface RecentContract {
+    interface View : Base.View<Presenter> {
+        fun setUpRecentBookList(recentBookList: List<Book>)
+        fun refreshRecentBookList()
+        fun refreshRecentPagination(pageCount: Int)
+        fun showRecentBooks(recentList: List<Int>)
+        fun showFavoriteBooks(favoriteList: List<Int>)
+        fun showLastBookListRefreshTime(lastRefreshTimeStamp: String)
+    }
+
+    interface Presenter : Base.Presenter {
+        fun setType(@RecentType recentType: String)
+        fun reloadRecentMarks()
+        fun jumpToPage(pageNumber: Int)
+        fun jumToFirstPage()
+        fun jumToLastPage()
+        fun reloadLastBookListRefreshTime()
+        fun saveLastBookListRefreshTime()
+    }
+}

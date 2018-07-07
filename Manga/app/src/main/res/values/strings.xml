@@ -1,0 +1,106 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">nHentai</string>
+    <string name="main_logo">nhentai logo</string>
+    <string name="main_search_button">Main search button</string>
+    <string name="main_item">Main item</string>
+    <string name="main_item_description">Main item description</string>
+    <string name="random">Random</string>
+    <string name="tags">Tags</string>
+    <string name="artists">Artists</string>
+    <string name="groups">Groups</string>
+    <string name="info">Info</string>
+    <string name="parodies">Parodies</string>
+    <string name="characters">Characters</string>
+    <string name="search">Search</string>
+    <string name="loading">Loading, please be patient</string>
+    <string name="previous">\f054</string>
+    <string name="next">Next</string>
+
+    <string name="tags_label">Tags:</string>
+    <string name="artists_label">Artists:</string>
+    <string name="languages_label">Languages:</string>
+    <string name="categories_label">Categories:</string>
+    <string name="parodies_label">Parodies:</string>
+    <string name="characters_label">Characters:</string>
+    <string name="groups_label">Groups:</string>
+
+    <string name="count">(%s)</string>
+
+    <string name="main_item_chinese_sample">[Achromic (Musouduki)] Loli &amp; Futa Vol. 8 | 蘿莉&amp;扶她 Vol.8 (Kantai Collection -KanColle-) [Chinese] [Lolipoi汉化组] [Digital]</string>
+    <string name="main_item_japanese_sample">(C93) [studio A (Inanaki Shiki)] Iyarashii Houshi-bu no Kanojo-tachi. (Yahari Ore no Seishun Love Come wa Machigatteiru.) [Chinese] [無邪氣漢化组]</string>
+    <string name="main_item_english_sample">(C93) [studio A (Inanaki Shiki)] Iyarashii Houshi-bu no Kanojo-tachi. (Yahari Ore no Seishun Love Come wa Machigatteiru.) [Chinese] [無邪氣漢化组]</string>
+    <string name="page_number">1</string>
+    <string name="nothing_to_show">Nothing here</string>
+    <string name="internet_error">Look like you lost your connection!</string>
+    <string name="book_cover">Book cover</string>
+    <string name="title_1">Title 1</string>
+
+    <string name="years_elapsed">%s years ago</string>
+    <string name="year_elapsed">1 year ago</string>
+    <string name="months_elapsed">%s months ago</string>
+    <string name="month_elapsed">1 month ago</string>
+    <string name="weeks_elapsed">%s weeks ago</string>
+    <string name="week_elapsed">1 week ago</string>
+    <string name="days_elapsed">%s days ago</string>
+    <string name="day_elapsed">1 day ago</string>
+    <string name="hours_elapsed">%s hours ago</string>
+    <string name="hour_elapsed">1 hour ago</string>
+    <string name="minutes_elapsed">%s minutes ago</string>
+    <string name="minute_elapsed">1 minute ago</string>
+    <string name="just_now">just now</string>
+
+    <string name="page_count">%s pages</string>
+    <string name="uploaded">Uploaded %s</string>
+
+    <string name="NotoSansRegular" translatable="false">fonts/NotoSans-Regular.ttf</string>
+    <string name="NotoSansBold" translatable="false">fonts/NotoSans-Bold.ttf</string>
+    <string name="NotoSansItalic" translatable="false">fonts/NotoSans-Italic.ttf</string>
+    <string name="NotoSansBoldItalic" translatable="false">fonts/NotoSans-BoldItalic.ttf</string>
+    <string name="favorite">Favorite</string>
+    <string name="download">Download</string>
+    <string name="preview">Preview</string>
+    <string name="page_thumbnail">Page thumbnail</string>
+    <string name="recommend_for_you">Recommend for you</string>
+    <string name="book_page">Book page</string>
+    <string name="back">Back</string>
+    <string name="book_title">Book title</string>
+    <string name="bottom_reader">Page %s of %s</string>
+    <string name="back_to_gallery">Back to gallery</string>
+    <string name="close">Close</string>
+    <string name="download_progress">Page %s is downloaded</string>
+    <string name="all_pages_downloaded">All pages are downloaded</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="ok">OK</string>
+    <string name="view">View</string>
+    <string name="done">Done</string>
+    <string name="permission_require">Permission Requirement</string>
+    <string name="storage_permission_require">We need you to allow us to store the downloaded data.</string>
+    <string name="toast_storage_permission_require">Please allow us to store data in your device!</string>
+    <string name="preview_download_progress">Downloaded %s of %s</string>
+    <string name="fail_to_download">Downloading %s items failed</string>
+    <string name="is_book_being_downloaded">Book downloading</string>
+    <string name="is_downloading_this_book">This book is being downloaded.\nPlease wait until it completes.</string>
+    <string name="is_downloading_another_book">The book with id %s being downloaded, please try again later.</string>
+    <string name="reload_library">Reload library</string>
+    <string name="book_list_refreshing_title">Book list is refreshing</string>
+    <string name="book_list_refreshing_description">Book list is now refreshing.\nPlease try again later.</string>
+    <string name="page_refreshing">This page is refreshing</string>
+    <string name="page_refreshing_description">This is now refreshing.\nPlease try again later.</string>
+    <string name="pull_down">Pull it down</string>
+    <string name="release_to_refresh">Release to refresh</string>
+    <string name="updating">Updating%s</string>
+    <string name="updated">Updated</string>
+    <string name="last_update">Last update: %s</string>
+
+    <string name="under_construction_title">Not available</string>
+    <string name="tag_under_construction_description">Tags are under construction.\nPlease try again later</string>
+    <string name="refresh">Refresh</string>
+    <string name="recent">Recent</string>
+    <string name="switch_recent_list">Switch</string>
+
+    <string-array name="dots" tools:ignore="TypographyEllipsis">
+        <item>.</item>
+        <item>..</item>
+        <item>...</item>
+    </string-array>
+</resources>

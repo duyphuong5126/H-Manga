@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="3dp"
+    android:layout_marginStart="3dp"
+    android:background="@drawable/bg_grey_all_corners_radius_2"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingEnd="5dp"
+    android:paddingStart="5dp"
+    android:weightSum="3"
+    tools:ignore="RtlCompat">
+
+    <nhdphuong.com.manga.views.customs.MyTextView
+        android:id="@+id/tvLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="3dp"
+        android:layout_weight="3"
+        android:gravity="center_vertical"
+        android:maxLines="3"
+        android:text="@string/tags"
+        android:textColor="@color/greyD9D9D9"
+        android:textSize="15sp"
+        app:myFont="@string/NotoSansBold"
+        tools:targetApi="jelly_bean" />
+
+    <nhdphuong.com.manga.views.customs.MyTextView
+        android:id="@+id/tvCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:layout_weight="2"
+        android:gravity="center_vertical"
+        android:text="@string/tags"
+        android:textColor="@color/grey767676"
+        android:textSize="15sp"
+        app:myFont="@string/NotoSansRegular"
+        tools:targetApi="jelly_bean" />
+
+</LinearLayout>

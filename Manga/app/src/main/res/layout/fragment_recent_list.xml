@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:cube_ptr="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="RtlCompat"
+    tools:targetApi="lollipop">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/clRecentTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            app:layout_constraintBottom_toTopOf="@+id/clRecent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/ibBack"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/back"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_back_white_1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/mtvRecentTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtvRecentTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="30dp"
+                android:gravity="center"
+                android:text="@string/recent"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ibBack"
+                app:layout_constraintTop_toTopOf="parent"
+                app:myFont="@string/NotoSansBold" />
+
+            <ImageButton
+                android:id="@+id/ibSwitch"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="10dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/switch_recent_list"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_recent_white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/clRecent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/clRecentTitle">
+
+            <in.srain.cube.views.ptr.PtrFrameLayout
+                android:id="@+id/srlPullToReload"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@color/greyDDD"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                cube_ptr:ptr_duration_to_close="300"
+                cube_ptr:ptr_duration_to_close_header="2000"
+                cube_ptr:ptr_keep_header_when_refresh="true"
+                cube_ptr:ptr_pull_to_fresh="false"
+                cube_ptr:ptr_ratio_of_header_height_to_refresh="1.2"
+                cube_ptr:ptr_resistance="1.7">
+
+                <in.srain.cube.views.ptr.PtrClassicDefaultHeader
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/greyDDD">
+
+                    <include
+                        android:id="@+id/refreshHeader"
+                        layout="@layout/layout_refresh_header" />
+
+                </in.srain.cube.views.ptr.PtrClassicDefaultHeader>
+
+                <android.support.v4.widget.NestedScrollView
+                    android:id="@+id/nsvMainList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/black">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rvMainList"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false" />
+
+                        <android.support.constraint.ConstraintLayout
+                            android:id="@+id/clNavigation"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_margin="10dp"
+                            android:visibility="visible">
+
+                            <android.support.constraint.ConstraintLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/btnLast"
+                                app:layout_constraintStart_toEndOf="@id/btnFirst"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <android.support.v7.widget.RecyclerView
+                                    android:id="@+id/rvPagination"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="5dp"
+                                    android:layout_marginStart="5dp"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent" />
+                            </android.support.constraint.ConstraintLayout>
+
+                            <ImageView
+                                android:id="@+id/btnFirst"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:contentDescription="@string/previous"
+                                android:src="@drawable/ic_previous_white"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <ImageView
+                                android:id="@+id/btnLast"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:contentDescription="@string/next"
+                                android:src="@drawable/ic_next_white"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+                        </android.support.constraint.ConstraintLayout>
+                    </LinearLayout>
+                </android.support.v4.widget.NestedScrollView>
+            </in.srain.cube.views.ptr.PtrFrameLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/clNothing"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@color/grey_4"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/ivNothing"
+                        android:layout_width="350dp"
+                        android:layout_height="350dp"
+                        android:contentDescription="@string/nothing_to_show"
+                        android:src="@drawable/ic_nothing_here_grey"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <nhdphuong.com.manga.views.customs.MyTextView
+                        android:id="@+id/tvNothing"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/internet_error"
+                        android:textColor="@color/grey_3"
+                        android:textSize="20sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/ivNothing"
+                        app:myFont="@string/NotoSansBold" />
+
+                    <android.support.constraint.ConstraintLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvNothing">
+
+                        <nhdphuong.com.manga.views.customs.MyTextView
+                            android:id="@+id/mtvReload"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
+                            android:gravity="center"
+                            android:text="@string/reload_library"
+                            android:textColor="@color/grey_3"
+                            android:textSize="15sp"
+                            app:layout_constraintBottom_toTopOf="@id/vLine"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:myFont="@string/NotoSansItalic" />
+
+                        <View
+                            android:id="@+id/vLine"
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:background="@color/grey_3"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/mtvReload" />
+                    </android.support.constraint.ConstraintLayout>
+                </android.support.constraint.ConstraintLayout>
+
+            </android.support.constraint.ConstraintLayout>
+        </android.support.constraint.ConstraintLayout>
+    </android.support.constraint.ConstraintLayout>
+</layout>

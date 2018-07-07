@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="30dp"
+    android:layout_marginEnd="3dp"
+    android:layout_marginStart="3dp"
+    android:background="@drawable/bg_grey_all_corners_radius_2"
+    android:paddingEnd="5dp"
+    android:paddingStart="5dp"
+    tools:ignore="RtlCompat">
+
+    <nhdphuong.com.manga.views.customs.MyTextView
+        android:id="@+id/tvLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="center_vertical"
+        android:text="@string/tags"
+        android:textColor="@color/greyD9D9D9"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:myFont="@string/NotoSansBold"
+        tools:targetApi="jelly_bean" />
+
+    <nhdphuong.com.manga.views.customs.MyTextView
+        android:id="@+id/tvCount"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="3dp"
+        android:gravity="center_vertical"
+        android:text="@string/tags"
+        android:textColor="@color/grey767676"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tvLabel"
+        app:layout_constraintTop_toTopOf="parent"
+        app:myFont="@string/NotoSansRegular"
+        tools:targetApi="jelly_bean" />
+
+</android.support.constraint.ConstraintLayout>

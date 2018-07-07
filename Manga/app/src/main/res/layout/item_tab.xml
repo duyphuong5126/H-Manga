@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="80dp"
+    android:layout_height="match_parent"
+    android:layout_marginEnd="5dp"
+    android:layout_marginStart="5dp"
+    tools:targetApi="jelly_bean">
+
+    <nhdphuong.com.manga.views.customs.MyTextView
+        android:id="@+id/tvTabLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/groups"
+        android:textColor="@color/redED2553"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@id/vTabIndicator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:myFont="@string/NotoSansRegular"
+        android:paddingTop="3dp"/>
+
+    <View
+        android:id="@+id/vTabIndicator"
+        android:layout_width="0dp"
+        android:layout_height="3dp"
+        android:background="@color/redED2553"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTabLabel" />
+
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,31 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="PageNotSelected">
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="PageSelected">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Favorite">
+        <item name="android:drawableStart">@drawable/ic_heart_red</item>
+        <item name="android:textColor">@color/redED2553</item>
+        <item name="android:background">@drawable/bg_white_all_corners_radius_1</item>
+    </style>
+
+    <style name="NotFavorite">
+        <item name="android:drawableStart">@drawable/ic_heart_white</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@drawable/bg_red_all_corners_radius_1</item>
+    </style>
+
+</resources>
