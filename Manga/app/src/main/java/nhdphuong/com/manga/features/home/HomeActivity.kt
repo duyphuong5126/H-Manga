@@ -24,7 +24,7 @@ import nhdphuong.com.manga.features.header.HeaderPresenter
 
 class HomeActivity : AppCompatActivity(), HomeContract {
     companion object {
-        private val TAG = HomeActivity::class.java.simpleName
+        private const val TAG = "HomeActivity"
     }
 
     private inner class TagSelectedBroadcastReceiver : BroadcastReceiver() {

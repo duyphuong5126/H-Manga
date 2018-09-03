@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch
  */
 class BookRemoteDataSource(private val mBookApiService: BookApiService) : BookDataSource.Remote {
     companion object {
-        private val TAG = BookRemoteDataSource::class.java.simpleName
+        private const val TAG = "BookRemoteDataSource"
     }
 
     override suspend fun getBookByPage(page: Int): RemoteBook? {

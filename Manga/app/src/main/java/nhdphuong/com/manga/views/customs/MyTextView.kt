@@ -13,7 +13,7 @@ import nhdphuong.com.manga.R
  */
 class MyTextView(context: Context, attrs: AttributeSet?, defStyle: Int) : TextView(context, attrs, defStyle) {
     companion object {
-        private val TAG = MyTextView::class.java.simpleName
+        private const val TAG = "MyTextView"
     }
 
     constructor(context: Context) : this(context, null, 0)

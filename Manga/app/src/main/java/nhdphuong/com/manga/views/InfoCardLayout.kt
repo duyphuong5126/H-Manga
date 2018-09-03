@@ -18,7 +18,7 @@ import java.util.*
  */
 class InfoCardLayout(private val layoutInflater: LayoutInflater, private val tagList: List<Tag>, private val mContext: Context) {
     companion object {
-        private val TAG = InfoCardLayout::class.java.simpleName
+        private const val TAG = "InfoCardLayout"
     }
 
     @SuppressLint("InflateParams")

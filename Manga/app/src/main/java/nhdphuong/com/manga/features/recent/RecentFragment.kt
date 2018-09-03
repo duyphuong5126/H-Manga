@@ -32,7 +32,7 @@ import nhdphuong.com.manga.views.adapters.PaginationAdapter
  */
 class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     companion object {
-        private val TAG = RecentFragment::class.java.simpleName
+        private const val TAG = "RecentFragment"
 
         private const val GRID_COLUMNS = 2
         private const val LANDSCAPE_GRID_COLUMNS = 3

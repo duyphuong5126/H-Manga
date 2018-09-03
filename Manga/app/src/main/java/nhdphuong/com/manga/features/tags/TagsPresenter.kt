@@ -10,7 +10,7 @@ import javax.inject.Inject
 class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                                         @Tag private var mTagType: String) : TagsContract.Presenter {
     companion object {
-        private val TAG = TagsPresenter::class.java.simpleName
+        private const val TAG = "TagsPresenter"
     }
 
     init {

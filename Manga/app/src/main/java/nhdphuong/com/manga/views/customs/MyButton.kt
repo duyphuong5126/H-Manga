@@ -12,7 +12,7 @@ import nhdphuong.com.manga.R
  */
 class MyButton(context: Context, attrs: AttributeSet?, defStyle: Int) : Button(context, attrs, defStyle) {
     companion object {
-        private val TAG = MyButton::class.java.simpleName
+        private const val TAG = "MyButton"
     }
 
     init {

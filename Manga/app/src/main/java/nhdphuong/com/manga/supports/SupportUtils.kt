@@ -20,7 +20,7 @@ import java.net.URL
 
 class SupportUtils {
     companion object {
-        private val TAG = SupportUtils::class.java.simpleName
+        private const val TAG = "SupportUtils"
 
         private const val MILLISECOND: Long = 1000
         private const val MINUTE: Long = MILLISECOND * 60

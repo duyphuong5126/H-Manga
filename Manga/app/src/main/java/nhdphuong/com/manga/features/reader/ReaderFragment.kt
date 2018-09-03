@@ -26,7 +26,7 @@ import nhdphuong.com.manga.views.adapters.BookReaderAdapter
  */
 class ReaderFragment : Fragment(), ReaderContract.View {
     companion object {
-        private val TAG = ReaderFragment::class.java.simpleName
+        private const val TAG = "ReaderFragment"
         private const val REQUEST_STORAGE_PERMISSION = 2364
     }
 

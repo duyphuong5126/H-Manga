@@ -35,7 +35,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                                                private val mBookRepository: BookRepository) : BookPreviewContract.Presenter, DownloadManager.DownloadCallback {
 
     companion object {
-        private val TAG = BookPreviewPresenter::class.java.simpleName
+        private const val TAG = "BookPreviewPresenter"
         private const val MILLISECOND: Long = 1000
 
         private const val BATCH_COUNT = 5

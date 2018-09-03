@@ -28,7 +28,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                                           private val mContext: Context,
                                           private val mBookRepository: BookRepository) : ReaderContract.Presenter {
     companion object {
-        private val TAG = ReaderPresenter::class.java.simpleName
+        private const val TAG = "ReaderPresenter"
     }
 
     private lateinit var mBookPages: LinkedList<String>

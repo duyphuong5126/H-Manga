@@ -13,7 +13,7 @@ import javax.inject.Inject
 class HeaderPresenter @Inject constructor(private val mView: HeaderContract.View,
                                           private val mContext: Context) : HeaderContract.Presenter {
     companion object {
-        private val TAG = HeaderPresenter::class.java.simpleName
+        private const val TAG = "HeaderPresenter"
     }
 
     init {

@@ -38,7 +38,7 @@ import nhdphuong.com.manga.views.adapters.PaginationAdapter
 class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     companion object {
-        private val TAG = HomeFragment::class.java.simpleName
+        private const val TAG = "HomeFragment"
         private const val GRID_COLUMNS = 2
         private const val LANDSCAPE_GRID_COLUMNS = 3
     }

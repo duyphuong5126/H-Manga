@@ -22,7 +22,7 @@ import nhdphuong.com.manga.views.customs.MyTextView
 class BookReaderAdapter(private val mContext: Context, private val mPageUrlList: List<String>,
                         private val mOnTapListener: View.OnClickListener) : PagerAdapter() {
     companion object {
-        private val TAG = BookReaderAdapter::class.java.simpleName
+        private const val TAG = "BookReaderAdapter"
     }
 
     private val mPageMap: HashMap<Int, BookReaderViewHolder> = HashMap()

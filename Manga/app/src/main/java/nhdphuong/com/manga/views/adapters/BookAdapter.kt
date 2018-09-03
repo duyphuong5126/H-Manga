@@ -24,7 +24,7 @@ import java.util.*
 class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: Int, private val mBookClickCallback: OnBookClick)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
-        private val TAG = BookAdapter::class.java.simpleName
+        private const val TAG = "BookAdapter"
         const val HOME_PREVIEW_BOOK = 1
         const val RECOMMEND_BOOK = 2
     }

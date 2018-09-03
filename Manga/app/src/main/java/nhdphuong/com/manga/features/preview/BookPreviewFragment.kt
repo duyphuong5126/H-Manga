@@ -45,7 +45,7 @@ import nhdphuong.com.manga.views.adapters.PreviewAdapter
  */
 class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout.TagSelectedListener {
     companion object {
-        private val TAG = BookPreviewFragment::class.java.simpleName
+        private const val TAG = "BookPreviewFragment"
         private const val NUM_OF_ROWS = 2
         private const val REQUEST_STORAGE_PERMISSION = 3142
     }
