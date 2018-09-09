@@ -3,11 +3,11 @@ package nhdphuong.com.manga.features.reader
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Handler
-import android.util.Log
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.api.ApiConstants
@@ -57,7 +57,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
     }
 
     override fun start() {
-        Log.d(TAG, "Start reading: ${mBook.previewTitle}")
+        Logger.d(TAG, "Start reading: ${mBook.previewTitle}")
         saveRecentBook()
         mPreloadTime = 0
 
@@ -75,27 +75,19 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
             mView.showPageIndicator(String.format(mContext.getString(R.string.bottom_reader), mCurrentPage + 1, mBookPages.size))
         }
 
-        if (mStartReadingPage != 0) {
-            launch {
-                delay(1000)
-                launch(UI) {
-                    mView.jumpToPage(mStartReadingPage)
-                }
-            }
-        }
-
         if (mCacheSize == 0) {
             return
         }
         mView.showLoading()
         launch {
-            var taskCount = mCacheSize
-            for (i in 0 until mCacheSize) {
+            var taskCount = Math.min(mBookPages.size, Math.max(mCacheSize, mStartReadingPage))
+            for (i in 0 until taskCount) {
                 mBook.bookImages.pages[i].let { image ->
                     launch {
                         mBookPages[i].let { imageUrl ->
+                            Logger.d(TAG, "Start downloading: $imageUrl with size (w: ${image.width}, h: ${image.height})")
                             GlideUtils.downloadImage(mContext, imageUrl, image.width, image.height)
-                            Log.d(TAG, "Downloaded $imageUrl with size (w: ${image.width}, h: ${image.height}), remain tasks: ${--taskCount}")
+                            Logger.d(TAG, "Downloaded $imageUrl, remain tasks: ${--taskCount}")
                         }
                     }
                 }
@@ -104,8 +96,17 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
             mPreloadTime++
 
             launch (UI) {
-                Log.d(TAG, "Done downloading initial data")
+                Logger.d(TAG, "Done downloading initial data")
                 mView.hideLoading()
+            }
+
+            if (mStartReadingPage != 0) {
+                launch {
+                    delay(1000)
+                    launch(UI) {
+                        mView.jumpToPage(mStartReadingPage)
+                    }
+                }
             }
         }
     }
@@ -122,15 +123,15 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
         }
         (mPreloadTime * mCacheSize).let { currentLoadedId ->
             if (currentLoadedId - mPrefetchDistance in 1..page) {
-                Log.d(TAG, "Load more book pages from page $page")
+                Logger.d(TAG, "Load more book pages from page $page")
                 Math.min(((++mPreloadTime) * mCacheSize), mBookPages.size).let { endPreloadId ->
-                    Log.d(TAG, "endPreloadId: $endPreloadId")
+                    Logger.d(TAG, "endPreloadId: $endPreloadId")
                     for (i in currentLoadedId until endPreloadId) {
                         mBook.bookImages.pages[i].let { image ->
                             launch {
                                 mBookPages[i].let { imageUrl ->
                                     GlideUtils.downloadImage(mContext, imageUrl, image.width, image.height)
-                                    Log.d(TAG, "Downloaded $imageUrl with size (w: ${image.width}, h: ${image.height})")
+                                    Logger.d(TAG, "Downloaded $imageUrl with size (w: ${image.width}, h: ${image.height})")
                                 }
                             }
                         }
@@ -173,13 +174,13 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                             val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
                             val resultPath = SupportUtils.compressBitmap(result, resultFilePath, fileName, format)
                             resultList.add(resultPath)
-                            Log.d(TAG, "$fileName is saved successfully")
+                            Logger.d(TAG, "$fileName is saved successfully")
                         }
                         launch(UI) {
                             mView.updateDownloadPopupTitle(String.format(mContext.getString(R.string.download_progress), downloadPage + 1))
                             mView.showDownloadPopup()
                         }
-                        Log.d(TAG, "Download page ${downloadPage + 1} completed")
+                        Logger.d(TAG, "Download page ${downloadPage + 1} completed")
                     }
                     nHentaiApp.refreshGallery(*resultList.toTypedArray())
                     isDownloading = false
@@ -190,7 +191,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                             mView.hideDownloadPopup()
                         }, 3000)
                     }
-                    Log.d(TAG, "All pages downloaded")
+                    Logger.d(TAG, "All pages downloaded")
                 }
             }
         }
@@ -201,7 +202,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
     }
 
     override fun stop() {
-        Log.d(TAG, "End reading: ${mBook.previewTitle}")
+        Logger.d(TAG, "End reading: ${mBook.previewTitle}")
         isDownloading = false
     }
 

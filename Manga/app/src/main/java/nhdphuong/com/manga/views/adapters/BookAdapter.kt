@@ -9,10 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.util.Log
 import jp.shts.android.library.TriangleLabelView
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.supports.GlideUtils
 import nhdphuong.com.manga.supports.SupportUtils
@@ -139,11 +139,11 @@ class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: I
             }
             mIvLanguage.setImageResource(languageIconResId)
 
-            Log.d(TAG, "Thumbnail: ${item.thumbnail}")
+            Logger.d(TAG, "Thumbnail: ${item.thumbnail}")
             GlideUtils.loadImage(item.thumbnail, R.drawable.ic_404_not_found, mIvItemThumbnail)
 
             mTv1stTitle.text = item.previewTitle
-            mTv1stTitle.viewTreeObserver.addOnGlobalLayoutListener({
+            mTv1stTitle.viewTreeObserver.addOnGlobalLayoutListener {
                 if (mIsTitleModifiable) {
                     val fullText = item.previewTitle
                     val ellipsizedText = SupportUtils.getEllipsizedText(mTv1stTitle)
@@ -152,7 +152,7 @@ class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: I
                     mTv2ndTitle.text = remainText
                     mIsTitleModifiable = false
                 }
-            })
+            }
         }
     }
 

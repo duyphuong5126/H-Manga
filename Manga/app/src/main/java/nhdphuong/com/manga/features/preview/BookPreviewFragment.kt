@@ -15,7 +15,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,11 +28,11 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.Tag
 import nhdphuong.com.manga.databinding.FragmentBookPreviewBinding
-import nhdphuong.com.manga.supports.GlideUtils
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.InfoCardLayout
 import nhdphuong.com.manga.views.MyGridLayoutManager
@@ -64,20 +63,20 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate")
+        Logger.d(TAG, "onCreate")
         mRequestManager = Glide.with(this)
         mRequestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL).error(R.drawable.ic_404_not_found)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Log.d(TAG, "onCreateView")
+        Logger.d(TAG, "onCreateView")
         mBinding = DataBindingUtil.inflate(inflater!!, R.layout.fragment_book_preview, container, false)
         return mBinding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
-        Log.d(TAG, "onViewCreated")
+        Logger.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
         mBinding.svBookCover.let { svBookCover ->
             val scrollDownAnimator = ObjectAnimator.ofInt(svBookCover, "scrollY", 1000)
@@ -108,10 +107,12 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
         // Gingerbread
         mBinding.hsvPreviewThumbNail.overScrollMode = View.OVER_SCROLL_NEVER
         mBinding.hsvRecommendList.overScrollMode = View.OVER_SCROLL_NEVER
+        mBinding.svPreview.overScrollMode = View.OVER_SCROLL_NEVER
+        mBinding.svBookCover.overScrollMode = View.OVER_SCROLL_NEVER
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        Log.d(TAG, "onActivityCreated")
+        Logger.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
         mPresenter.start()
         mBinding.root.viewTreeObserver.addOnGlobalLayoutListener {
@@ -131,14 +132,13 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
                 }
             }
             val result = if (permissionGranted) "granted" else "denied"
-            Log.d(TAG, "Storage permission is $result")
+            Logger.d(TAG, "Storage permission is $result")
         }
     }
 
     override fun onStop() {
         super.onStop()
         mPresenter.stop()
-        GlideUtils.clear(mBinding.ivBookCover)
     }
 
     override fun showBookCoverImage(coverUrl: String) {
@@ -265,7 +265,7 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
             spanCount++
         }
 
-        Log.d(TAG, "thumbnails: ${thumbnailList.size}, number of rows: $NUM_OF_ROWS, spanCount: $spanCount")
+        Logger.d(TAG, "thumbnails: ${thumbnailList.size}, number of rows: $NUM_OF_ROWS, spanCount: $spanCount")
         val previewLayoutManager = MyGridLayoutManager(context, spanCount)
         previewLayoutManager.isAutoMeasureEnabled = true
         mBinding.rvPreviewList.layoutManager = previewLayoutManager
@@ -277,7 +277,7 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     }
 
     override fun showRecommendBook(bookList: List<Book>) {
-        Log.d(TAG, "recommended books, spanCount: ${bookList.size}")
+        Logger.d(TAG, "recommended books, spanCount: ${bookList.size}")
         mBinding.mtvRecommendBook.visibility = View.VISIBLE
         val gridLayoutManager = MyGridLayoutManager(context, bookList.size)
         gridLayoutManager.isAutoMeasureEnabled = true

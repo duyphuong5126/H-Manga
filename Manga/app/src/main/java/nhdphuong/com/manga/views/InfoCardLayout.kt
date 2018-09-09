@@ -2,12 +2,12 @@ package nhdphuong.com.manga.views
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Tag
 import nhdphuong.com.manga.supports.SupportUtils
@@ -39,7 +39,7 @@ class InfoCardLayout(private val layoutInflater: LayoutInflater, private val tag
         if (viewList.size >= 3) {
             sortViewList(viewList, totalWidth, totalMargin / 2)
         }
-        Log.d(TAG, "Total width: $totalWidth")
+        Logger.d(TAG, "Total width: $totalWidth")
         var widthCount = 0
         for (view in viewList) {
             if (view.measuredWidth > totalWidth - totalMargin) {
@@ -47,7 +47,7 @@ class InfoCardLayout(private val layoutInflater: LayoutInflater, private val tag
             }
             val itemWidth = view.measuredWidth + totalMargin
             widthCount += itemWidth
-            Log.d(TAG, "Item: $itemWidth, widthCount: $widthCount, total: $totalWidth")
+            Logger.d(TAG, "Item: $itemWidth, widthCount: $widthCount, total: $totalWidth")
             if (widthCount > totalWidth) {
                 tagLine = layoutInflater.inflate(R.layout.item_tag_line, viewGroup, false).findViewById(R.id.lineRoot)
                 viewGroup.addView(tagLine)

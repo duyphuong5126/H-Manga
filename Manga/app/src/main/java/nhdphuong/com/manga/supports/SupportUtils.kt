@@ -11,7 +11,7 @@ import java.io.FileOutputStream
 import java.text.NumberFormat
 import java.util.*
 import android.graphics.BitmapFactory
-import android.util.Log
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import java.io.BufferedInputStream
@@ -126,7 +126,7 @@ class SupportUtils {
                 bufferedInputStream.close()
                 inputStream.close()
             } catch (e: Exception) {
-                Log.d(TAG, "Downloading $urlString causes exception: $e")
+                Logger.d(TAG, "Downloading $urlString causes exception: $e")
             }
 
             return bitmap

@@ -1,6 +1,6 @@
 package nhdphuong.com.manga.features.tags
 
-import android.util.Log
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.Tag
 import javax.inject.Inject
 
@@ -22,7 +22,7 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
     }
 
     override fun changeCurrentTag(newTag: String) {
-        Log.d(TAG, "Changed from $mTagType to $newTag")
+        Logger.d(TAG, "Changed from $mTagType to $newTag")
         mTagType = newTag
     }
 

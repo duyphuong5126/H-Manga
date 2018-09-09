@@ -3,7 +3,6 @@ package nhdphuong.com.manga.views.adapters
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.support.v4.view.PagerAdapter
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +11,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.ortiz.touchview.TouchImageView
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.GlideUtils
 import nhdphuong.com.manga.views.customs.MyTextView
@@ -52,7 +52,7 @@ class BookReaderAdapter(private val mContext: Context, private val mPageUrlList:
     override fun getCount(): Int = mPageUrlList.size
 
     override fun destroyItem(container: ViewGroup?, position: Int, `object`: Any?) {
-        Log.d(TAG, "Remove item $position")
+        Logger.d(TAG, "Remove item $position")
         mPageMap[position]?.ivPage?.let { ivPage ->
             GlideUtils.clear(ivPage)
         }
@@ -87,12 +87,12 @@ class BookReaderAdapter(private val mContext: Context, private val mPageUrlList:
             GlideUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, object : RequestListener<Drawable>{
                 override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                     mtvPageTitle.visibility = View.GONE
-                    Log.d(TAG, "Page is loaded successfully")
+                    Logger.d(TAG, "Page is loaded successfully")
                     return false
                 }
 
                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                    Log.d(TAG, "Page loading failed")
+                    Logger.d(TAG, "Page loading failed")
                     return true
                 }
             })

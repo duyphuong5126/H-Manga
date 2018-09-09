@@ -1,10 +1,10 @@
 package nhdphuong.com.manga.features.recent
 
 import android.annotation.SuppressLint
-import android.util.Log
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.repository.BookRepository
@@ -210,12 +210,12 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
         isLoadingPreventiveData = true
         val countDownLatch = CountDownLatch(NUMBER_OF_PREVENTIVE_PAGES - mCurrentPage)
         for (page in mCurrentPage + 1..NUMBER_OF_PREVENTIVE_PAGES) {
-            Log.d(TAG, "Start loading page $page")
+            Logger.d(TAG, "Start loading page $page")
             mPreventiveData[page] = getRecentBook(page - 1)
             countDownLatch.countDown()
         }
         countDownLatch.await()
-        Log.d(TAG, "Load preventive data successfully")
+        Logger.d(TAG, "Load preventive data successfully")
         isLoadingPreventiveData = false
     }
 
@@ -250,6 +250,6 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
             message += "${listInt[i]}, "
         }
         message += "${listInt[listInt.size - 1]}]"
-        Log.d(TAG, message)
+        Logger.d(TAG, message)
     }
 }

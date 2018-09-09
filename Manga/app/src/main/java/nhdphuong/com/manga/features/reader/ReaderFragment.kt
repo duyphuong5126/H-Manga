@@ -10,12 +10,12 @@ import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.Toast
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.databinding.FragmentReaderBinding
 import nhdphuong.com.manga.supports.AnimationHelper
@@ -98,7 +98,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
                 showRequestStoragePermission()
             }
             val result = if (permissionGranted) "granted" else "denied"
-            Log.d(TAG, "Storage permission is $result")
+            Logger.d(TAG, "Storage permission is $result")
         }
     }
 

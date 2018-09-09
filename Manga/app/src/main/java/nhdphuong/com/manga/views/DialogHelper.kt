@@ -6,11 +6,11 @@ import android.app.Dialog
 import android.graphics.drawable.ColorDrawable
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.GlideUtils
 import nhdphuong.com.manga.views.customs.MyButton
@@ -30,10 +30,10 @@ class DialogHelper {
             val ivLoading: ImageView = contentView.findViewById(R.id.ivLoading)
             dialog.setContentView(contentView)
             dialog.setCancelable(false)
-            dialog.window.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+            dialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
             GlideUtils.loadGifImage(R.raw.ic_loading_cat_transparent, ivLoading)
             val onFinishTask = runScheduledTaskOnMainThread({
-                Log.d("Dialog", "Current pos: $currentPos")
+                Logger.d("Dialog", "Current pos: $currentPos")
                 tvLoading.text = loadingString + dotsArray[currentPos]
                 if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
             }, 700)

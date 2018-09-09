@@ -3,16 +3,12 @@ package nhdphuong.com.manga.features.preview
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.ConnectivityManager
-import android.util.Log
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
-import nhdphuong.com.manga.Constants
-import nhdphuong.com.manga.DownloadManager
-import nhdphuong.com.manga.NHentaiApp
-import nhdphuong.com.manga.R
+import nhdphuong.com.manga.*
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.ImageMeasurements
@@ -196,7 +192,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
     }
 
     override fun saveCurrentAvailableCoverUrl(url: String) {
-        Log.d(TAG, "Current available url: $url")
+        Logger.d(TAG, "Current available url: $url")
         mCacheCoverUrl = url
     }
 
@@ -230,7 +226,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                                 runBlocking {
                                     val countDownLatch = CountDownLatch(lastPage - currentPage)
                                     for (downloadPage in currentPage until lastPage) {
-                                        async {
+                                        launch {
                                             try {
                                                 mBook.bookImages.pages[downloadPage].let { page ->
                                                     val result = SupportUtils.downloadImageBitmap(bookPages[downloadPage], false)!!
@@ -245,14 +241,14 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                                                     val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
                                                     val resultPath = SupportUtils.compressBitmap(result, resultFilePath, fileName, format)
                                                     resultList.add(resultPath)
-                                                    Log.d(TAG, "$fileName is saved successfully")
+                                                    Logger.d(TAG, "$fileName is saved successfully")
                                                     countDownLatch.countDown()
                                                 }
                                                 launch(UI) {
                                                     progress++
                                                     DownloadManager.updateProgress(mBook.bookId, progress)
                                                 }
-                                                Log.d(TAG, "Download page ${downloadPage + 1} completed")
+                                                Logger.d(TAG, "Download page ${downloadPage + 1} completed")
                                             } catch (exception: Exception) {
                                                 countDownLatch.countDown()
                                             }
@@ -385,7 +381,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                         }
                     }
                 }
-                Log.d(TAG, "Number of recommend book of book ${mBook.bookId}: ${bookList.size}")
+                Logger.d(TAG, "Number of recommend book of book ${mBook.bookId}: ${bookList.size}")
                 launch(UI) {
                     if (!bookList.isEmpty()) {
                         mView.showRecommendBook(bookList)
@@ -407,7 +403,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
         val countDownLatch = CountDownLatch(1)
         launch {
             isFavoriteBook = mBookRepository.isFavoriteBook(mBook.bookId)
-            Log.d(TAG, "isFavoriteBook: $isFavoriteBook")
+            Logger.d(TAG, "isFavoriteBook: $isFavoriteBook")
             countDownLatch.countDown()
         }
         countDownLatch.await()

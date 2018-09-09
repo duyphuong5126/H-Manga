@@ -1,8 +1,7 @@
 package nhdphuong.com.manga.features.header
 
 import android.content.Context
-import android.util.Log
-import nhdphuong.com.manga.data.Tab
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.Tag
 import nhdphuong.com.manga.features.tags.TagsActivity
 import javax.inject.Inject
@@ -21,7 +20,7 @@ class HeaderPresenter @Inject constructor(private val mView: HeaderContract.View
     }
 
     override fun start() {
-        Log.d(TAG, "This is ${hashCode()}")
+        Logger.d(TAG, "This is ${hashCode()}")
     }
 
     override fun goToTagList(@Tag tag: String) {

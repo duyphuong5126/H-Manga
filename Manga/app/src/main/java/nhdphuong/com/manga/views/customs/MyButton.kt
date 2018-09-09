@@ -3,8 +3,8 @@ package nhdphuong.com.manga.views.customs
 import android.content.Context
 import android.graphics.Typeface
 import android.util.AttributeSet
-import android.util.Log
 import android.widget.Button
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 
 /*
@@ -34,7 +34,7 @@ class MyButton(context: Context, attrs: AttributeSet?, defStyle: Int) : Button(c
         try {
             tf = Typeface.createFromAsset(ctx.assets, asset)
         } catch (e: Exception) {
-            Log.e(TAG, "Could not get typeface: " + e.message)
+            Logger.e(TAG, "Could not get typeface: " + e.message)
             return false
         }
 

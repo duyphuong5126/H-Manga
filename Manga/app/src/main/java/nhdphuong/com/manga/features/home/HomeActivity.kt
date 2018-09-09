@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v4.app.Fragment
-import android.util.Log
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import javax.inject.Inject
@@ -17,6 +16,7 @@ import android.support.v4.content.LocalBroadcastManager
 import android.text.TextUtils
 import android.view.KeyEvent
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.features.header.HeaderFragment
 import nhdphuong.com.manga.features.header.HeaderModule
 import nhdphuong.com.manga.features.header.HeaderPresenter
@@ -53,7 +53,7 @@ class HomeActivity : AppCompatActivity(), HomeContract {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.e(TAG, "onCreate")
+        Logger.e(TAG, "onCreate")
         setContentView(R.layout.activity_home)
         LocalBroadcastManager.getInstance(this).registerReceiver(mTagSelectedBroadcastReceiver, IntentFilter(Constants.TAG_SELECTED_ACTION))
         showFragments()
@@ -61,72 +61,72 @@ class HomeActivity : AppCompatActivity(), HomeContract {
 
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
         super.onSaveInstanceState(outState, outPersistentState)
-        Log.e(TAG, "onSaveInstanceState 3 params")
+        Logger.e(TAG, "onSaveInstanceState 3 params")
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        Log.e(TAG, "onSaveInstanceState 1 param")
+        Logger.e(TAG, "onSaveInstanceState 1 param")
     }
 
     override fun onStart() {
         super.onStart()
-        Log.e(TAG, "onStart")
+        Logger.e(TAG, "onStart")
     }
 
     override fun onRestart() {
         super.onRestart()
-        Log.e(TAG, "onRestart")
+        Logger.e(TAG, "onRestart")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.e(TAG, "onResume")
+        Logger.e(TAG, "onResume")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.e(TAG, "onPause")
+        Logger.e(TAG, "onPause")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.e(TAG, "onStop")
+        Logger.e(TAG, "onStop")
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        Log.e(TAG, "onAttachedToWindow")
+        Logger.e(TAG, "onAttachedToWindow")
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        Log.e(TAG, "onDetachedFromWindow")
+        Logger.e(TAG, "onDetachedFromWindow")
     }
 
     override fun onAttachFragment(fragment: Fragment?) {
         super.onAttachFragment(fragment)
-        Log.e(TAG, "onAttachFragment")
+        Logger.e(TAG, "onAttachFragment")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.e(TAG, "onDestroy")
+        Logger.e(TAG, "onDestroy")
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mTagSelectedBroadcastReceiver)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
-        Log.e(TAG, "onConfigurationChanged")
+        Logger.e(TAG, "onConfigurationChanged")
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        Log.e(TAG, "onWindowFocusChanged hasFocus=$hasFocus")
+        Logger.e(TAG, "onWindowFocusChanged hasFocus=$hasFocus")
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        Log.e(TAG, "onKeyDown keyCode=$keyCode, event=${event.action}")
+        Logger.e(TAG, "onKeyDown keyCode=$keyCode, event=${event.action}")
         when (keyCode) {
             KeyEvent.KEYCODE_BACK -> {
                 return if (isTaskRoot) {

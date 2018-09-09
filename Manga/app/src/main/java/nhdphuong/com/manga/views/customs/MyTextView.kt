@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.TextView
 import android.graphics.Typeface
-import android.util.Log
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 
 
@@ -35,7 +35,7 @@ class MyTextView(context: Context, attrs: AttributeSet?, defStyle: Int) : TextVi
         try {
             tf = Typeface.createFromAsset(ctx.assets, asset)
         } catch (e: Exception) {
-            Log.e(TAG, "Could not get typeface: " + e.message)
+            Logger.e(TAG, "Could not get typeface: " + e.message)
             return false
         }
 

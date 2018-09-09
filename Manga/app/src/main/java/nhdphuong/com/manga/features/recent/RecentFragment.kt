@@ -14,11 +14,11 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.databinding.FragmentRecentListBinding
@@ -98,7 +98,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         super.onActivityCreated(savedInstanceState)
         mPresenter.start()
 
-        val recentType = activity.intent.extras.getString(Constants.RECENT_TYPE, Constants.RECENT)
+        val recentType = activity?.intent?.extras?.getString(Constants.RECENT_TYPE, Constants.RECENT) ?: Constants.RECENT
         mPresenter.setType(recentType)
     }
 
@@ -140,7 +140,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         }
         mPaginationAdapter = PaginationAdapter(context, pageCount, object : PaginationAdapter.OnPageSelectCallback {
             override fun onPageSelected(page: Int) {
-                Log.d(TAG, "Page $page is selected")
+                Logger.d(TAG, "Page $page is selected")
                 mPresenter.jumpToPage(page)
             }
         })
@@ -184,7 +184,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     override fun isActive(): Boolean = isAdded
 
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
-        Log.d(TAG, "onUIRefreshComplete")
+        Logger.d(TAG, "onUIRefreshComplete")
         endUpdateDotsTask()
         mBinding.refreshHeader?.mtvRefresh?.text = getString(R.string.updated)
         mPresenter.saveLastBookListRefreshTime()
@@ -195,7 +195,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     }
 
     override fun onUIPositionChange(frame: PtrFrameLayout?, isUnderTouch: Boolean, status: Byte, ptrIndicator: PtrIndicator?) {
-        Log.d(TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
+        Logger.d(TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
                 "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
                 "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}")
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
@@ -205,7 +205,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
-        Log.d(TAG, "onUIRefreshBegin")
+        Logger.d(TAG, "onUIRefreshBegin")
         mBinding.refreshHeader?.ivRefresh?.visibility = View.GONE
         mBinding.refreshHeader?.pbRefresh?.visibility = View.VISIBLE
         mBinding.refreshHeader?.mtvRefresh?.text = String.format(getString(R.string.updating), "")
@@ -213,12 +213,12 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     }
 
     override fun onUIRefreshPrepare(frame: PtrFrameLayout?) {
-        Log.d(TAG, "onUIRefreshPrepare")
+        Logger.d(TAG, "onUIRefreshPrepare")
         mPresenter.reloadLastBookListRefreshTime()
     }
 
     override fun onUIReset(frame: PtrFrameLayout?) {
-        Log.d(TAG, "onUIReset")
+        Logger.d(TAG, "onUIReset")
         mBinding.refreshHeader?.mtvRefresh?.text = getString(R.string.pull_down)
     }
 
@@ -229,7 +229,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
-            Log.d("Dialog", "Current pos: $currentPos")
+            Logger.d("Dialog", "Current pos: $currentPos")
             mBinding.refreshHeader?.mtvRefresh?.text = String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }

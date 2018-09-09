@@ -19,11 +19,11 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.data.entity.book.Book
@@ -57,24 +57,25 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate")
+        Logger.d(TAG, "onCreate")
     }
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        Log.d(TAG, "onAttach")
+        Logger.d(TAG, "onAttach")
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Log.d(TAG, "onCreateView")
+        Logger.d(TAG, "onCreateView")
         mBinding = DataBindingUtil.inflate(inflater!!, R.layout.fragment_book_list, container, false)
         return mBinding.root
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "onViewCreated")
+        Logger.d(TAG, "onViewCreated")
 
+        mBinding.nsvMainList.overScrollMode = View.OVER_SCROLL_NEVER
         mBinding.btnFirst.setOnClickListener {
             mHomePresenter.jumToFirstPage()
             mHomePaginationAdapter.selectFirstPage()
@@ -109,59 +110,59 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        Log.d(TAG, "onActivityCreated")
+        Logger.d(TAG, "onActivityCreated")
         mHomePresenter.start()
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart")
+        Logger.d(TAG, "onStart")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume")
+        Logger.d(TAG, "onResume")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d(TAG, "onStop")
+        Logger.d(TAG, "onStop")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.d(TAG, "onPause")
+        Logger.d(TAG, "onPause")
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        Log.d(TAG, "onSaveInstanceState")
+        Logger.d(TAG, "onSaveInstanceState")
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        Log.d(TAG, "onViewStateRestored")
+        Logger.d(TAG, "onViewStateRestored")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d(TAG, "onDestroyView")
+        Logger.d(TAG, "onDestroyView")
     }
 
     override fun onDetach() {
         super.onDetach()
-        Log.d(TAG, "onDetach")
+        Logger.d(TAG, "onDetach")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "onDestroy")
+        Logger.d(TAG, "onDestroy")
         mHomePresenter.stop()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
-        Log.d(TAG, "onConfigurationChanged")
+        Logger.d(TAG, "onConfigurationChanged")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -206,7 +207,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         }
         mHomePaginationAdapter = PaginationAdapter(context, pageCount.toInt(), object : PaginationAdapter.OnPageSelectCallback {
             override fun onPageSelected(page: Int) {
-                Log.d(TAG, "Page $page is selected")
+                Logger.d(TAG, "Page $page is selected")
                 mHomePresenter.jumpToPage(page)
             }
         })
@@ -264,7 +265,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun isActive(): Boolean = isAdded
 
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
-        Log.d(TAG, "onUIRefreshComplete")
+        Logger.d(TAG, "onUIRefreshComplete")
         endUpdateDotsTask()
         mBinding.refreshHeader?.mtvRefresh?.text = getString(R.string.updated)
         mHomePresenter.saveLastBookListRefreshTime()
@@ -275,7 +276,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     }
 
     override fun onUIPositionChange(frame: PtrFrameLayout?, isUnderTouch: Boolean, status: Byte, ptrIndicator: PtrIndicator?) {
-        Log.d(TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
+        Logger.d(TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
                 "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
                 "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}")
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
@@ -285,7 +286,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
-        Log.d(TAG, "onUIRefreshBegin")
+        Logger.d(TAG, "onUIRefreshBegin")
         mBinding.refreshHeader?.ivRefresh?.visibility = View.GONE
         mBinding.refreshHeader?.pbRefresh?.visibility = View.VISIBLE
         mBinding.refreshHeader?.mtvRefresh?.text = String.format(getString(R.string.updating), "")
@@ -294,12 +295,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     }
 
     override fun onUIRefreshPrepare(frame: PtrFrameLayout?) {
-        Log.d(TAG, "onUIRefreshPrepare")
+        Logger.d(TAG, "onUIRefreshPrepare")
         mHomePresenter.reloadLastBookListRefreshTime()
     }
 
     override fun onUIReset(frame: PtrFrameLayout?) {
-        Log.d(TAG, "onUIReset")
+        Logger.d(TAG, "onUIReset")
         mBinding.refreshHeader?.mtvRefresh?.text = getString(R.string.pull_down)
     }
 
@@ -317,7 +318,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
-            Log.d("Dialog", "Current pos: $currentPos")
+            Logger.d("Dialog", "Current pos: $currentPos")
             mBinding.refreshHeader?.mtvRefresh?.text = String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }
