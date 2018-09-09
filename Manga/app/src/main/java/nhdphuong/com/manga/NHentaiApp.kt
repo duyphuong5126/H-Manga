@@ -14,6 +14,7 @@ class NHentaiApp : Application() {
         private lateinit var mInstance: NHentaiApp
         val instance
             get() = mInstance
+        private const val TAG = "NHentaiApp"
     }
 
     private lateinit var mApplicationComponent: ApplicationComponent
@@ -51,7 +52,13 @@ class NHentaiApp : Application() {
 
     fun refreshGallery(vararg galleryPaths: String) {
         MediaScannerConnection.scanFile(this, galleryPaths, null) { _, _ ->
-
+            galleryPaths.size.let { pathCount ->
+                if (pathCount > 1) {
+                    Logger.d(TAG, "$pathCount paths of galleries are refreshed")
+                } else {
+                    Logger.d(TAG, "$pathCount path of gallery is refreshed")
+                }
+            }
         }
     }
 }
