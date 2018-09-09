@@ -104,6 +104,10 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
         val changeFavoriteListener = View.OnClickListener { mPresenter.changeBookFavorite() }
         mBinding.mtvFavorite.setOnClickListener(changeFavoriteListener)
         mBinding.mtvNotFavorite.setOnClickListener(changeFavoriteListener)
+
+        // Gingerbread
+        mBinding.hsvPreviewThumbNail.overScrollMode = View.OVER_SCROLL_NEVER
+        mBinding.hsvRecommendList.overScrollMode = View.OVER_SCROLL_NEVER
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -261,6 +265,7 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
             spanCount++
         }
 
+        Log.d(TAG, "thumbnails: ${thumbnailList.size}, number of rows: $NUM_OF_ROWS, spanCount: $spanCount")
         val previewLayoutManager = MyGridLayoutManager(context, spanCount)
         previewLayoutManager.isAutoMeasureEnabled = true
         mBinding.rvPreviewList.layoutManager = previewLayoutManager
@@ -272,6 +277,8 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     }
 
     override fun showRecommendBook(bookList: List<Book>) {
+        Log.d(TAG, "recommended books, spanCount: ${bookList.size}")
+        mBinding.mtvRecommendBook.visibility = View.VISIBLE
         val gridLayoutManager = MyGridLayoutManager(context, bookList.size)
         gridLayoutManager.isAutoMeasureEnabled = true
 
@@ -282,6 +289,10 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
             }
         })
         mBinding.rvRecommendList.adapter = mRecommendBookAdapter
+    }
+
+    override fun showNoRecommendBook() {
+        mBinding.mtvRecommendBook.visibility = View.GONE
     }
 
     override fun showRequestStoragePermission() {

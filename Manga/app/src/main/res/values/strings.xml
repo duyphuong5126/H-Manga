@@ -60,7 +60,7 @@
     <string name="download">Download</string>
     <string name="preview">Preview</string>
     <string name="page_thumbnail">Page thumbnail</string>
-    <string name="recommend_for_you">Recommend for you</string>
+    <string name="recommend_for_you">More like this</string>
     <string name="book_page">Book page</string>
     <string name="back">Back</string>
     <string name="book_title">Book title</string>
@@ -74,7 +74,7 @@
     <string name="view">View</string>
     <string name="done">Done</string>
     <string name="permission_require">Permission Requirement</string>
-    <string name="storage_permission_require">We need you to allow us to store the downloaded data.</string>
+    <string name="storage_permission_require">We need to be to allowed to store the downloaded data.</string>
     <string name="toast_storage_permission_require">Please allow us to store data in your device!</string>
     <string name="preview_download_progress">Downloaded %s of %s</string>
     <string name="fail_to_download">Downloading %s items failed</string>

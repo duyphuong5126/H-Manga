@@ -1,6 +1,7 @@
 package nhdphuong.com.manga.features.reader
 
 import android.annotation.TargetApi
+import android.app.Dialog
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
 import android.os.Build
@@ -34,6 +35,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     private lateinit var mBinding: FragmentReaderBinding
     private lateinit var mRotationAnimation: Animation
     private lateinit var mBookReaderAdapter: BookReaderAdapter
+    private lateinit var mLoadingDialog: Dialog
 
     override fun setPresenter(presenter: ReaderContract.Presenter) {
         mPresenter = presenter
@@ -48,6 +50,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity.window.statusBarColor = ContextCompat.getColor(context, R.color.grey_1)
+        mLoadingDialog = DialogHelper.showLoadingDialog(activity)
         mBinding.ibBack.setOnClickListener {
             navigateToGallery()
         }
@@ -107,7 +110,6 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun showBookTitle(bookTitle: String) {
-
         mBinding.mtvBookTitle.let { mtvBookTitle ->
             mtvBookTitle.text = bookTitle
             AnimationHelper.startTextRunning(mtvBookTitle)
@@ -117,19 +119,19 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     override fun showBookPages(pageList: List<String>) {
         mBookReaderAdapter = BookReaderAdapter(context, pageList, View.OnClickListener {
             if (mBinding.clReaderBottom.visibility == View.VISIBLE) {
-                AnimationHelper.startSlideOutTop(activity, mBinding.clReaderTop, {
+                AnimationHelper.startSlideOutTop(activity, mBinding.clReaderTop) {
                     mBinding.clReaderTop.visibility = View.GONE
-                })
-                AnimationHelper.startSlideOutBottom(activity, mBinding.clReaderBottom, {
+                }
+                AnimationHelper.startSlideOutBottom(activity, mBinding.clReaderBottom) {
                     mBinding.clReaderBottom.visibility = View.GONE
-                })
+                }
             } else {
-                AnimationHelper.startSlideInTop(activity, mBinding.clReaderTop, {
+                AnimationHelper.startSlideInTop(activity, mBinding.clReaderTop) {
                     mBinding.clReaderTop.visibility = View.VISIBLE
-                })
-                AnimationHelper.startSlideInBottom(activity, mBinding.clReaderBottom, {
+                }
+                AnimationHelper.startSlideInBottom(activity, mBinding.clReaderBottom) {
                     mBinding.clReaderBottom.visibility = View.VISIBLE
-                })
+                }
             }
         })
         mBinding.vpPages.adapter = mBookReaderAdapter
@@ -187,10 +189,12 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun showLoading() {
+        mLoadingDialog.show()
         mBinding.ibRefresh.startAnimation(mRotationAnimation)
     }
 
     override fun hideLoading() {
+        mLoadingDialog.hide()
         mBinding.ibRefresh.clearAnimation()
     }
 

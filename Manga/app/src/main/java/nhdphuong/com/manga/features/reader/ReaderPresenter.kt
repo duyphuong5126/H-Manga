@@ -29,12 +29,17 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                                           private val mBookRepository: BookRepository) : ReaderContract.Presenter {
     companion object {
         private const val TAG = "ReaderPresenter"
+        private const val DEFAULT_CACHE_SIZE = 10
     }
 
     private lateinit var mBookPages: LinkedList<String>
     private var mCurrentPage: Int = -1
     private val mDownloadQueue = LinkedBlockingQueue<Int>()
     private var isDownloading = false
+
+    private val mCacheSize: Int = if (mBook.numOfPages > DEFAULT_CACHE_SIZE) DEFAULT_CACHE_SIZE else mBook.numOfPages / 2
+    private val mPrefetchDistance: Int = mCacheSize / 3
+    @Volatile private var mPreloadTime: Int = 0
 
     private val mPrefixNumber: Int
         get() {
@@ -54,6 +59,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
     override fun start() {
         Log.d(TAG, "Start reading: ${mBook.previewTitle}")
         saveRecentBook()
+        mPreloadTime = 0
 
         mView.showBookTitle(mBook.previewTitle)
         mDownloadQueue.clear()
@@ -77,6 +83,31 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                 }
             }
         }
+
+        if (mCacheSize == 0) {
+            return
+        }
+        mView.showLoading()
+        launch {
+            var taskCount = mCacheSize
+            for (i in 0 until mCacheSize) {
+                mBook.bookImages.pages[i].let { image ->
+                    launch {
+                        mBookPages[i].let { imageUrl ->
+                            GlideUtils.downloadImage(mContext, imageUrl, image.width, image.height)
+                            Log.d(TAG, "Downloaded $imageUrl with size (w: ${image.width}, h: ${image.height}), remain tasks: ${--taskCount}")
+                        }
+                    }
+                }
+            }
+            while (taskCount > 0);
+            mPreloadTime++
+
+            launch (UI) {
+                Log.d(TAG, "Done downloading initial data")
+                mView.hideLoading()
+            }
+        }
     }
 
     override fun updatePageIndicator(page: Int) {
@@ -88,6 +119,24 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                 String.format(mContext.getString(R.string.bottom_reader), page + 1, pageCount)
             }
             mView.showPageIndicator(pageString)
+        }
+        (mPreloadTime * mCacheSize).let { currentLoadedId ->
+            if (currentLoadedId - mPrefetchDistance in 1..page) {
+                Log.d(TAG, "Load more book pages from page $page")
+                Math.min(((++mPreloadTime) * mCacheSize), mBookPages.size).let { endPreloadId ->
+                    Log.d(TAG, "endPreloadId: $endPreloadId")
+                    for (i in currentLoadedId until endPreloadId) {
+                        mBook.bookImages.pages[i].let { image ->
+                            launch {
+                                mBookPages[i].let { imageUrl ->
+                                    GlideUtils.downloadImage(mContext, imageUrl, image.width, image.height)
+                                    Log.d(TAG, "Downloaded $imageUrl with size (w: ${image.width}, h: ${image.height})")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -152,6 +201,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
     }
 
     override fun stop() {
+        Log.d(TAG, "End reading: ${mBook.previewTitle}")
         isDownloading = false
     }
 

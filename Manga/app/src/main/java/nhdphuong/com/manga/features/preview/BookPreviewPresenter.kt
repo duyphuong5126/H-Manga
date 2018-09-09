@@ -387,12 +387,16 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                 }
                 Log.d(TAG, "Number of recommend book of book ${mBook.bookId}: ${bookList.size}")
                 launch(UI) {
-                    mView.showRecommendBook(bookList)
-                    if (!recentList.isEmpty()) {
-                        mView.showRecentBooks(recentList)
-                    }
-                    if (!favoriteList.isEmpty()) {
-                        mView.showFavoriteBooks(favoriteList)
+                    if (!bookList.isEmpty()) {
+                        mView.showRecommendBook(bookList)
+                        if (!recentList.isEmpty()) {
+                            mView.showRecentBooks(recentList)
+                        }
+                        if (!favoriteList.isEmpty()) {
+                            mView.showFavoriteBooks(favoriteList)
+                        }
+                    } else {
+                        mView.showNoRecommendBook()
                     }
                 }
             }
