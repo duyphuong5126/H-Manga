@@ -115,9 +115,11 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
         Logger.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
         mPresenter.start()
-        mBinding.root.viewTreeObserver.addOnGlobalLayoutListener {
-            mPresenter.loadInfoLists()
-        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mPresenter.loadInfoLists()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

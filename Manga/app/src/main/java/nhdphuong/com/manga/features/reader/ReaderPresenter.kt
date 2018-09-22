@@ -3,6 +3,8 @@ package nhdphuong.com.manga.features.reader
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Handler
+import android.os.Looper
+import android.support.annotation.MainThread
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import nhdphuong.com.manga.Constants
@@ -17,6 +19,7 @@ import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
+import kotlin.collections.HashSet
 
 /*
  * Created by nhdphuong on 5/5/18.
@@ -28,17 +31,14 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                                           private val mBookRepository: BookRepository) : ReaderContract.Presenter {
     companion object {
         private const val TAG = "ReaderPresenter"
-        private const val DEFAULT_CACHE_SIZE = 10
+        private const val PREFETCH_RADIUS = 2
     }
 
     private lateinit var mBookPages: LinkedList<String>
     private var mCurrentPage: Int = -1
     private val mDownloadQueue = LinkedBlockingQueue<Int>()
     private var isDownloading = false
-
-    private val mCacheSize: Int = if (mBook.numOfPages > DEFAULT_CACHE_SIZE) DEFAULT_CACHE_SIZE else mBook.numOfPages / 2
-    private val mPrefetchDistance: Int = mCacheSize / 3
-    @Volatile private var mPreloadPages: Int = 0
+    private val mPreFetchedPages = HashSet<Int>()
 
     private val mPrefixNumber: Int
         get() {
@@ -56,9 +56,9 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
     }
 
     override fun start() {
-        Logger.d(TAG, "Start reading: ${mBook.previewTitle}")
+        Logger.d(TAG, "Start reading: ${mBook.previewTitle} from $mStartReadingPage")
         saveRecentBook()
-        mPreloadPages = 0
+        mPreFetchedPages.clear()
 
         mView.showBookTitle(mBook.previewTitle)
         mDownloadQueue.clear()
@@ -74,52 +74,10 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
             mView.showPageIndicator(String.format(mContext.getString(R.string.bottom_reader), mCurrentPage + 1, mBookPages.size))
         }
 
-        if (mCacheSize == 0) {
-            return
-        }
-        mView.showLoading()
-        launch {
-            val totalPreloadPages = Math.min(mBookPages.size, Math.max(mCacheSize, mStartReadingPage))
-            var taskCount = totalPreloadPages
-            for (i in 0 until taskCount) {
-                mBook.bookImages.pages[i].let { image ->
-                    launch {
-                        mBookPages[i].let { imageUrl ->
-                            Logger.d(TAG, "Start downloading: $imageUrl with size (w: ${image.width}, h: ${image.height})")
-                            GlideUtils.downloadImage(mContext, imageUrl, image.width, image.height).let { bitmap ->
-                                Logger.d(TAG, "Downloaded bitmap $bitmap will be recycled")
-                                bitmap.recycle()
-                            }
-                            Logger.d(TAG, "Downloaded $imageUrl, remain tasks: ${--taskCount}")
-                        }
-                    }
-                }
-            }
-            var jumpedToStartReadingPage = false
-            while (taskCount > 0) {
-                if (taskCount <= totalPreloadPages - mCacheSize && !jumpedToStartReadingPage) {
-                    if (mStartReadingPage != 0) {
-                        launch(UI) {
-                            mView.jumpToPage(mStartReadingPage)
-                        }
-                    }
-                    jumpedToStartReadingPage = true
-                }
-            }
-            mPreloadPages = totalPreloadPages
+        preloadPagesAround(mStartReadingPage)
 
-            launch (UI) {
-                Logger.d(TAG, "Done downloading initial data")
-                mView.hideLoading()
-            }
-
-            if (mStartReadingPage != 0 && !jumpedToStartReadingPage) {
-                launch {
-                    launch(UI) {
-                        mView.jumpToPage(mStartReadingPage)
-                    }
-                }
-            }
+        if (mStartReadingPage >= 0) {
+            mView.jumpToPage(mStartReadingPage)
         }
     }
 
@@ -133,29 +91,8 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
             }
             mView.showPageIndicator(pageString)
         }
-        Logger.d(TAG, "mPreloadPages: $mPreloadPages")
-        mPreloadPages.let { currentLoadedId ->
-            if (currentLoadedId - mPrefetchDistance in 1..page) {
-                Logger.d(TAG, "Load more book pages from page $page")
-                Math.min((mPreloadPages + mCacheSize), mBookPages.size).let { endPreloadId ->
-                    Logger.d(TAG, "endPreloadId: $endPreloadId")
-                    for (i in currentLoadedId until endPreloadId) {
-                        mBook.bookImages.pages[i].let { image ->
-                            launch {
-                                mBookPages[i].let { imageUrl ->
-                                    GlideUtils.downloadImage(mContext, imageUrl, image.width, image.height).let { bitmap ->
-                                        Logger.d(TAG, "Downloaded bitmap $bitmap will be recycled")
-                                        bitmap.recycle()
-                                    }
-                                    Logger.d(TAG, "Downloaded $imageUrl with size (w: ${image.width}, h: ${image.height})")
-                                }
-                            }
-                        }
-                    }
-                    mPreloadPages = endPreloadId
-                }
-            }
-        }
+
+        preloadPagesAround(page)
     }
 
     override fun backToGallery() {
@@ -227,6 +164,26 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
         launch {
             if (!mBookRepository.isFavoriteBook(mBook.bookId)) {
                 mBookRepository.saveRecentBook(mBook.bookId)
+            }
+        }
+    }
+
+    @MainThread
+    private fun preloadPagesAround(page: Int) {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post {
+            val startPrefetch = Math.max(0, page - PREFETCH_RADIUS)
+            val endPrefetch = Math.min(mBookPages.size - 1, page + PREFETCH_RADIUS)
+            for (i in startPrefetch..endPrefetch) {
+                if (!mPreFetchedPages.contains(i)) {
+                    mBook.bookImages.pages[i].let { image ->
+                        GlideUtils.downloadImage(mContext, mBookPages[i], image.width, image.height) { bitmap ->
+                            Logger.d(TAG, "Pre-fetched bitmap $i will be recycled")
+                            bitmap?.recycle()
+                            mPreFetchedPages.add(i)
+                        }
+                    }
+                }
             }
         }
     }
