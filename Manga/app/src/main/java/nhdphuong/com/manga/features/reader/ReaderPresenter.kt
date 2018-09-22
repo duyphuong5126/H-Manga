@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Handler
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
@@ -39,7 +38,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
 
     private val mCacheSize: Int = if (mBook.numOfPages > DEFAULT_CACHE_SIZE) DEFAULT_CACHE_SIZE else mBook.numOfPages / 2
     private val mPrefetchDistance: Int = mCacheSize / 3
-    @Volatile private var mPreloadTime: Int = 0
+    @Volatile private var mPreloadPages: Int = 0
 
     private val mPrefixNumber: Int
         get() {
@@ -59,7 +58,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
     override fun start() {
         Logger.d(TAG, "Start reading: ${mBook.previewTitle}")
         saveRecentBook()
-        mPreloadTime = 0
+        mPreloadPages = 0
 
         mView.showBookTitle(mBook.previewTitle)
         mDownloadQueue.clear()
@@ -80,29 +79,42 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
         }
         mView.showLoading()
         launch {
-            var taskCount = Math.min(mBookPages.size, Math.max(mCacheSize, mStartReadingPage))
+            val totalPreloadPages = Math.min(mBookPages.size, Math.max(mCacheSize, mStartReadingPage))
+            var taskCount = totalPreloadPages
             for (i in 0 until taskCount) {
                 mBook.bookImages.pages[i].let { image ->
                     launch {
                         mBookPages[i].let { imageUrl ->
                             Logger.d(TAG, "Start downloading: $imageUrl with size (w: ${image.width}, h: ${image.height})")
-                            GlideUtils.downloadImage(mContext, imageUrl, image.width, image.height)
+                            GlideUtils.downloadImage(mContext, imageUrl, image.width, image.height).let { bitmap ->
+                                Logger.d(TAG, "Downloaded bitmap $bitmap will be recycled")
+                                bitmap.recycle()
+                            }
                             Logger.d(TAG, "Downloaded $imageUrl, remain tasks: ${--taskCount}")
                         }
                     }
                 }
             }
-            while (taskCount > 0);
-            mPreloadTime++
+            var jumpedToStartReadingPage = false
+            while (taskCount > 0) {
+                if (taskCount <= totalPreloadPages - mCacheSize && !jumpedToStartReadingPage) {
+                    if (mStartReadingPage != 0) {
+                        launch(UI) {
+                            mView.jumpToPage(mStartReadingPage)
+                        }
+                    }
+                    jumpedToStartReadingPage = true
+                }
+            }
+            mPreloadPages = totalPreloadPages
 
             launch (UI) {
                 Logger.d(TAG, "Done downloading initial data")
                 mView.hideLoading()
             }
 
-            if (mStartReadingPage != 0) {
+            if (mStartReadingPage != 0 && !jumpedToStartReadingPage) {
                 launch {
-                    delay(1000)
                     launch(UI) {
                         mView.jumpToPage(mStartReadingPage)
                     }
@@ -121,21 +133,26 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
             }
             mView.showPageIndicator(pageString)
         }
-        (mPreloadTime * mCacheSize).let { currentLoadedId ->
+        Logger.d(TAG, "mPreloadPages: $mPreloadPages")
+        mPreloadPages.let { currentLoadedId ->
             if (currentLoadedId - mPrefetchDistance in 1..page) {
                 Logger.d(TAG, "Load more book pages from page $page")
-                Math.min(((++mPreloadTime) * mCacheSize), mBookPages.size).let { endPreloadId ->
+                Math.min((mPreloadPages + mCacheSize), mBookPages.size).let { endPreloadId ->
                     Logger.d(TAG, "endPreloadId: $endPreloadId")
                     for (i in currentLoadedId until endPreloadId) {
                         mBook.bookImages.pages[i].let { image ->
                             launch {
                                 mBookPages[i].let { imageUrl ->
-                                    GlideUtils.downloadImage(mContext, imageUrl, image.width, image.height)
+                                    GlideUtils.downloadImage(mContext, imageUrl, image.width, image.height).let { bitmap ->
+                                        Logger.d(TAG, "Downloaded bitmap $bitmap will be recycled")
+                                        bitmap.recycle()
+                                    }
                                     Logger.d(TAG, "Downloaded $imageUrl with size (w: ${image.width}, h: ${image.height})")
                                 }
                             }
                         }
                     }
+                    mPreloadPages = endPreloadId
                 }
             }
         }

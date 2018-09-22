@@ -90,7 +90,7 @@ class DialogHelper {
             }
             dialog.setContentView(contentView)
             dialog.show()
-            dialog.window.let { window ->
+            dialog.window?.let { window ->
                 window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 window.setGravity(Gravity.CENTER)
                 window.decorView.setBackgroundResource(android.R.color.transparent)
@@ -120,7 +120,7 @@ class DialogHelper {
             }
             dialog.setContentView(contentView)
             dialog.show()
-            dialog.window.let { window ->
+            dialog.window?.let { window ->
                 window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 window.setGravity(Gravity.CENTER)
                 window.decorView.setBackgroundResource(android.R.color.transparent)
@@ -129,16 +129,20 @@ class DialogHelper {
 
         private fun runScheduledTaskOnMainThread(task: () -> Unit, timeInterval: Long): () -> Unit {
             val handler = Handler(Looper.getMainLooper())
+            var canFinish = false
             val updateTask = object : Runnable {
                 override fun run() {
-                    task()
-                    handler.postDelayed(this, timeInterval)
+                    if (!canFinish) {
+                        task()
+                        handler.postDelayed(this, timeInterval)
+                    }
                 }
             }
             handler.post {
                 updateTask.run()
             }
             return {
+                canFinish = true
                 handler.removeCallbacksAndMessages(null)
             }
         }
