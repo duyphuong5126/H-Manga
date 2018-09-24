@@ -83,5 +83,8 @@ class Constants {
         const val NHENTAI_DB = "nHentai"
         const val BOOK_ID = "bookId"
         const val IS_FAVORITE = "isFavorite"
+
+        // Notifications
+        const val NOTIFICATION_CHANNEL_ID = "nHentaiApp"
     }
 }

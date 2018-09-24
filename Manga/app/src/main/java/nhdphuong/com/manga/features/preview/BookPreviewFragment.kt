@@ -426,6 +426,6 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
             percentage >= Constants.DOWNLOAD_GREEN_LEVEL -> R.drawable.bg_download_green
             percentage >= Constants.DOWNLOAD_YELLOW_LEVEL -> R.drawable.bg_download_yellow
             else -> R.drawable.bg_download_red
-        })
+        })!!
     }
 }

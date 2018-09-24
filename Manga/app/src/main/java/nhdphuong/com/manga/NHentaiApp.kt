@@ -1,6 +1,8 @@
 package nhdphuong.com.manga
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
@@ -48,6 +50,7 @@ class NHentaiApp : Application() {
         super.onCreate()
         mInstance = this
         mApplicationComponent = DaggerApplicationComponent.builder().applicationModule(ApplicationModule(this)).build()
+        createNotificationChannel()
     }
 
     fun refreshGallery(vararg galleryPaths: String) {
@@ -58,6 +61,21 @@ class NHentaiApp : Application() {
                 } else {
                     Logger.d(TAG, "$pathCount path of gallery is refreshed")
                 }
+            }
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelId = Constants.NOTIFICATION_CHANNEL_ID
+            val channelName = getString(R.string.notification_channel_name)
+            val channelDescription = getString(R.string.notification_channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val notificationChannel = NotificationChannel(channelId, channelName, importance)
+            notificationChannel.description = channelDescription
+            getSystemService(NotificationManager::class.java)?.let { notificationManager ->
+                Logger.d(TAG, "Create notification channel")
+                notificationManager.createNotificationChannel(notificationChannel)
             }
         }
     }

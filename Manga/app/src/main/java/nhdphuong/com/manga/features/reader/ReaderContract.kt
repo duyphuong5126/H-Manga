@@ -16,6 +16,8 @@ interface ReaderContract {
         fun showDownloadPopup()
         fun hideDownloadPopup()
         fun updateDownloadPopupTitle(downloadTitle: String)
+        fun removeNotification(notificationId: Int)
+        fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int)
     }
 
     interface Presenter : Base.Presenter {
@@ -23,5 +25,6 @@ interface ReaderContract {
         fun backToGallery()
         fun downloadCurrentPage()
         fun reloadCurrentPage(onForceReload: (Int) -> Unit)
+        fun updateNotificationId(notificationId: Int)
     }
 }

@@ -98,6 +98,12 @@
     <string name="recent">Recent</string>
     <string name="switch_recent_list">Switch</string>
 
+    <string name="notification_channel_name">NHentai App</string>
+    <string name="notification_channel_description">Hentai manga</string>
+
+    <string name="now_reading">Now reading</string>
+    <string name="now_reading_description">Page number: %s - total: %s</string>
+
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>
         <item>..</item>

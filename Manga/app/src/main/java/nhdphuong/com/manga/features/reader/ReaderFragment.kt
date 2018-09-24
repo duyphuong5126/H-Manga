@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
+import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
@@ -16,6 +17,7 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.Toast
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.databinding.FragmentReaderBinding
 import nhdphuong.com.manga.supports.AnimationHelper
@@ -186,6 +188,17 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
     override fun updateDownloadPopupTitle(downloadTitle: String) {
         mBinding.mtvDownloadTitle.text = downloadTitle
+    }
+
+    override fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int) {
+        NotificationHelper.sendNotification(getString(R.string.now_reading), NotificationCompat.PRIORITY_DEFAULT, readingTitle,
+                true).let { notificationId ->
+            mPresenter.updateNotificationId(notificationId)
+        }
+    }
+
+    override fun removeNotification(notificationId: Int) {
+        NotificationHelper.cancelNotification(notificationId)
     }
 
     override fun showLoading() {

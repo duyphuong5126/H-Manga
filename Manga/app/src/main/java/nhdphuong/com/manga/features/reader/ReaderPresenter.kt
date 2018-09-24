@@ -39,6 +39,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
     private val mDownloadQueue = LinkedBlockingQueue<Int>()
     private var isDownloading = false
     private val mPreFetchedPages = HashSet<Int>()
+    private var mNotificationId: Int = -1
 
     private val mPrefixNumber: Int
         get() {
@@ -79,6 +80,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
         if (mStartReadingPage >= 0) {
             mView.jumpToPage(mStartReadingPage)
         }
+        mView.pushNowReadingNotification(mBook.previewTitle, mStartReadingPage + 1, mBookPages.size)
     }
 
     override fun updatePageIndicator(page: Int) {
@@ -155,9 +157,17 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
         onForceReload(mCurrentPage)
     }
 
+    override fun updateNotificationId(notificationId: Int) {
+        mNotificationId = notificationId
+    }
+
     override fun stop() {
         Logger.d(TAG, "End reading: ${mBook.previewTitle}")
         isDownloading = false
+        if (mNotificationId != -1) {
+            mView.removeNotification(mNotificationId)
+            mNotificationId = -1
+        }
     }
 
     private fun saveRecentBook() {
