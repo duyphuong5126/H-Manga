@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.features.header
 
+import android.content.Context
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -33,8 +34,8 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         mPresenter = presenter
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mBinding = DataBindingUtil.inflate(inflater!!, R.layout.fragment_header, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_header, container, false)
         return mBinding.root
     }
 
@@ -43,8 +44,9 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         mPresenter.start()
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val context: Context = context!!
         mTabAdapter = TabAdapter(context, object : TabAdapter.OnMainTabClick {
             override fun onTabClick(tab: Tab) {
                 when (tab) {
@@ -71,10 +73,10 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                             mTabAdapter.reset()
                         }*/
 
-                        DialogHelper.showTagsNotAvailable(activity, {
+                        DialogHelper.showTagsNotAvailable(activity!!) {
                             mTabAdapter.reset()
                             toggleTagsLayout()
-                        })
+                        }
                     }
                 }
             }

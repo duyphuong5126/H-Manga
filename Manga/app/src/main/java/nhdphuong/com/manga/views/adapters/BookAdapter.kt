@@ -42,7 +42,7 @@ class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: I
         return MainListViewHolder(view, mBookClickCallback)
     }
 
-    override fun onViewRecycled(holder: RecyclerView.ViewHolder?) {
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
         val mainListViewHolder = holder as MainListViewHolder
         GlideUtils.clear(mainListViewHolder.ivThumbnail)
@@ -52,7 +52,7 @@ class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: I
 
     override fun getItemViewType(position: Int): Int = mAdapterType
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val mainLisViewHolder = holder as MainListViewHolder
         mainLisViewHolder.setData(mItemList[position])
 

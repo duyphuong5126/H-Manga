@@ -14,24 +14,20 @@ import nhdphuong.com.manga.views.customs.MyTextView
  */
 class PreviewAdapter(private val mNumOfRows: Int, private val mPreviewUrlList: List<String>,
                      private val callback: ThumbnailClickCallback) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent?.context).inflate(R.layout.item_preview, parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_preview, parent, false)
         return PreviewViewHolder(view, callback)
     }
 
     override fun getItemCount(): Int = mPreviewUrlList.size
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
-        if (holder == null) {
-            return
-        }
-
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val vhPreview = holder as PreviewViewHolder
         val zigzagPosition = getDisplayPositionByZigzag(position)
         vhPreview.setData(mPreviewUrlList[zigzagPosition], zigzagPosition)
     }
 
-    override fun onViewRecycled(holder: RecyclerView.ViewHolder?) {
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
         val previewViewHolder = holder as PreviewViewHolder
         GlideUtils.clear(previewViewHolder.ivPageThumbnail)

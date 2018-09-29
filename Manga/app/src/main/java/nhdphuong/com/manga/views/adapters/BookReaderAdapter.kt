@@ -31,14 +31,14 @@ class BookReaderAdapter(private val mContext: Context, private val mPageUrlList:
         mPageMap.clear()
     }
 
-    override fun instantiateItem(container: ViewGroup?, position: Int): Any {
+    override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val readerViewHolder = BookReaderViewHolder(
                 LayoutInflater.from(mContext).inflate(R.layout.item_book_page, container, false),
                 mPageUrlList[position],
                 position + 1
         )
         mPageMap[position] = readerViewHolder
-        container?.addView(readerViewHolder.view)
+        container.addView(readerViewHolder.view)
         readerViewHolder.ivPage.let { ivPage ->
             ivPage.setOnClickListener {
                 mOnTapListener.onClick(ivPage)
@@ -47,16 +47,16 @@ class BookReaderAdapter(private val mContext: Context, private val mPageUrlList:
         return readerViewHolder.view
     }
 
-    override fun isViewFromObject(view: View?, `object`: Any?): Boolean = view == `object`
+    override fun isViewFromObject(view: View, `object`: Any): Boolean = view == `object`
 
     override fun getCount(): Int = mPageUrlList.size
 
-    override fun destroyItem(container: ViewGroup?, position: Int, `object`: Any?) {
+    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
         Logger.d(TAG, "Remove item $position")
         mPageMap[position]?.ivPage?.let { ivPage ->
             GlideUtils.clear(ivPage)
         }
-        container?.removeView(`object` as View)
+        container.removeView(`object` as View)
     }
 
     override fun getPageTitle(position: Int): CharSequence = "Page number ${position + 1}"
@@ -84,7 +84,7 @@ class BookReaderAdapter(private val mContext: Context, private val mPageUrlList:
         }
 
         fun reloadImage() {
-            GlideUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, object : RequestListener<Drawable>{
+            GlideUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, object : RequestListener<Drawable> {
                 override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                     mtvPageTitle.visibility = View.GONE
                     Logger.d(TAG, "Page is loaded successfully")

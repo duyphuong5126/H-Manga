@@ -43,16 +43,16 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         mPresenter = presenter
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mBinding = DataBindingUtil.inflate(inflater!!, R.layout.fragment_reader, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_reader, container, false)
         return mBinding.root
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.window.statusBarColor = ContextCompat.getColor(context, R.color.grey_1)
-        mLoadingDialog = DialogHelper.showLoadingDialog(activity)
+        activity?.window?.statusBarColor = ContextCompat.getColor(context!!, R.color.grey_1)
+        mLoadingDialog = DialogHelper.showLoadingDialog(activity!!)
         mBinding.ibBack.setOnClickListener {
             navigateToGallery()
         }
@@ -72,7 +72,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         mBinding.ibDownloadPopupClose.setOnClickListener {
             hideDownloadPopup()
         }
-        mRotationAnimation = AnimationHelper.getRotationAnimation(context)
+        mRotationAnimation = AnimationHelper.getRotationAnimation(context!!)
         mBinding.ibRefresh.let { ibRefresh ->
             ibRefresh.setOnClickListener {
                 ibRefresh.startAnimation(mRotationAnimation)
@@ -107,7 +107,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onStop() {
         super.onStop()
-        activity.window.statusBarColor = ContextCompat.getColor(context, R.color.colorPrimary)
+        activity?.window?.statusBarColor = ContextCompat.getColor(context!!, R.color.colorPrimary)
         mPresenter.stop()
     }
 
@@ -119,7 +119,8 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun showBookPages(pageList: List<String>) {
-        mBookReaderAdapter = BookReaderAdapter(context, pageList, View.OnClickListener {
+        val activity = activity!!
+        mBookReaderAdapter = BookReaderAdapter(context!!, pageList, View.OnClickListener {
             if (mBinding.clReaderBottom.visibility == View.VISIBLE) {
                 AnimationHelper.startSlideOutTop(activity, mBinding.clReaderTop) {
                     mBinding.clReaderTop.visibility = View.GONE
@@ -167,11 +168,11 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun navigateToGallery() {
-        activity.onBackPressed()
+        activity?.onBackPressed()
     }
 
     override fun showRequestStoragePermission() {
-        DialogHelper.showStoragePermissionDialog(activity, onOk = {
+        DialogHelper.showStoragePermissionDialog(activity!!, onOk = {
             requestStoragePermission()
         }, onDismiss = {
             Toast.makeText(context, getString(R.string.toast_storage_permission_require), Toast.LENGTH_SHORT).show()

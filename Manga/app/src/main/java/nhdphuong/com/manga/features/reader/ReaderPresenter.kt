@@ -187,7 +187,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
             for (i in startPrefetch..endPrefetch) {
                 if (!mPreFetchedPages.contains(i)) {
                     mBook.bookImages.pages[i].let { image ->
-                        GlideUtils.downloadImage(mContext, mBookPages[i], image.width, image.height) { bitmap ->
+                        GlideUtils.downloadImage(mContext, mBookPages[i]) { bitmap ->
                             Logger.d(TAG, "Pre-fetched bitmap $i will be recycled")
                             bitmap?.recycle()
                             mPreFetchedPages.add(i)

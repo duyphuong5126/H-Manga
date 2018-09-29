@@ -36,7 +36,7 @@ class TabAdapter(context: Context, private val mOnMainTabClick: OnMainTabClick) 
 
     override fun getItemCount(): Int = mTabList.size
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val tabViewHolder = holder as MainTabViewHolder
         mTabList[position].let { tab ->
             tabViewHolder.setTab(tab)

@@ -20,14 +20,14 @@ class PaginationAdapter(context: Context, pageCount: Int, private val onPageSele
     val maxVisible: Int
         get() = mMaxVisible
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent?.context).inflate(R.layout.item_home_pagination, parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_home_pagination, parent, false)
         return HomePaginationViewHolder(view, onPageSelectCallback)
     }
 
     override fun getItemCount(): Int = mPageList.size
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val homePaginationViewHolder = holder as HomePaginationViewHolder
         homePaginationViewHolder.setData(mPageList[position])
         homePaginationViewHolder.setPageSelected(mPageList[position])

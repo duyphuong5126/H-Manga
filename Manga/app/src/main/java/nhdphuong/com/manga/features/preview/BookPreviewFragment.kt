@@ -68,14 +68,14 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
         mRequestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL).error(R.drawable.ic_404_not_found)
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Logger.d(TAG, "onCreateView")
-        mBinding = DataBindingUtil.inflate(inflater!!, R.layout.fragment_book_preview, container, false)
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_book_preview, container, false)
         return mBinding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Logger.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
         mBinding.svBookCover.let { svBookCover ->
@@ -268,8 +268,11 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
         }
 
         Logger.d(TAG, "thumbnails: ${thumbnailList.size}, number of rows: $NUM_OF_ROWS, spanCount: $spanCount")
-        val previewLayoutManager = MyGridLayoutManager(context, spanCount)
-        previewLayoutManager.isAutoMeasureEnabled = true
+        val previewLayoutManager = object : MyGridLayoutManager(context!!, spanCount) {
+            override fun isAutoMeasureEnabled(): Boolean {
+                return true
+            }
+        }
         mBinding.rvPreviewList.layoutManager = previewLayoutManager
         mBinding.rvPreviewList.adapter = PreviewAdapter(NUM_OF_ROWS, thumbnailList, object : PreviewAdapter.ThumbnailClickCallback {
             override fun onThumbnailClicked(page: Int) {
@@ -281,8 +284,11 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     override fun showRecommendBook(bookList: List<Book>) {
         Logger.d(TAG, "recommended books, spanCount: ${bookList.size}")
         mBinding.mtvRecommendBook.visibility = View.VISIBLE
-        val gridLayoutManager = MyGridLayoutManager(context, bookList.size)
-        gridLayoutManager.isAutoMeasureEnabled = true
+        val gridLayoutManager = object : MyGridLayoutManager(context!!, bookList.size) {
+            override fun isAutoMeasureEnabled(): Boolean {
+                return true
+            }
+        }
 
         mBinding.rvRecommendList.layoutManager = gridLayoutManager
         mRecommendBookAdapter = BookAdapter(bookList, BookAdapter.RECOMMEND_BOOK, object : BookAdapter.OnBookClick {
@@ -298,7 +304,7 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     }
 
     override fun showRequestStoragePermission() {
-        DialogHelper.showStoragePermissionDialog(activity, onOk = {
+        DialogHelper.showStoragePermissionDialog(activity!!, onOk = {
             requestStoragePermission()
         }, onDismiss = {
             Toast.makeText(context, getString(R.string.toast_storage_permission_require), Toast.LENGTH_SHORT).show()
@@ -343,7 +349,7 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     }
 
     override fun showBookBeingDownloaded(bookId: String) {
-        DialogHelper.showBookDownloadingDialog(activity, bookId, onOk = {
+        DialogHelper.showBookDownloadingDialog(activity!!, bookId, onOk = {
             mPresenter.restartBookPreview(bookId)
         }, onDismiss = {
 
@@ -351,7 +357,7 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     }
 
     override fun showThisBookBeingDownloaded() {
-        DialogHelper.showThisBookDownloadingDialog(activity, onOk = {
+        DialogHelper.showThisBookDownloadingDialog(activity!!, onOk = {
 
         })
     }
@@ -387,12 +393,12 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     override fun onTagSelected(tag: Tag) {
         val intent = Intent(Constants.TAG_SELECTED_ACTION)
         intent.putExtra(Constants.SELECTED_TAG, tag.name)
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-        activity.onBackPressed()
+        LocalBroadcastManager.getInstance(context!!).sendBroadcast(intent)
+        activity?.onBackPressed()
     }
 
     private fun loadInfoList(layout: ViewGroup, infoList: List<Tag>) {
-        val infoCardLayout = InfoCardLayout(activity.layoutInflater, infoList, context)
+        val infoCardLayout = InfoCardLayout(activity?.layoutInflater!!, infoList, context!!)
         infoCardLayout.loadInfoList(layout)
         infoCardLayout.setTagSelectedListener(this)
     }
@@ -422,7 +428,7 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
 
     private fun getProgressDrawableId(progress: Int, max: Int): Drawable {
         val percentage = (progress * 1f) / (max * 1f)
-        return ActivityCompat.getDrawable(context, when {
+        return ActivityCompat.getDrawable(context!!, when {
             percentage >= Constants.DOWNLOAD_GREEN_LEVEL -> R.drawable.bg_download_green
             percentage >= Constants.DOWNLOAD_YELLOW_LEVEL -> R.drawable.bg_download_yellow
             else -> R.drawable.bg_download_red
