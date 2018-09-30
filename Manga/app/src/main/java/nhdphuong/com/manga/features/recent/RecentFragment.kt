@@ -78,7 +78,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
         mBinding.mtvRecentTitle.text = getString(if (recentType == Constants.RECENT) R.string.recent else R.string.favorite).toUpperCase()
         mBinding.ibSwitch.setImageResource(
-                if (recentType == Constants.RECENT) R.drawable.ic_heart_white else R.drawable.ic_recent_white
+                if (recentType == Constants.RECENT) R.drawable.ic_recent_white else R.drawable.ic_heart_white
         )
 
         mBinding.ibSwitch.setOnClickListener {

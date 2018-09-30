@@ -104,6 +104,11 @@
     <string name="now_reading">Now reading</string>
     <string name="now_reading_description">Page number: %s - total: %s</string>
 
+    <string name="enter_admin_page_title">Admin Pages</string>
+    <string name="enter_admin_page_description">App will navigate to admin pages.</string>
+    <string name="_continue">Continue</string>
+    <string name="exit">Exit</string>
+
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>
         <item>..</item>

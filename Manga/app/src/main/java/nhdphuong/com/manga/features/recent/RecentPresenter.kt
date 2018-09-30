@@ -21,7 +21,7 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
                                           private val mSharedPreferencesManager: SharedPreferencesManager) : RecentContract.Presenter {
     companion object {
         private const val TAG = "RecentPresenter"
-        private const val MAX_PER_PAGE = 3
+        private const val MAX_PER_PAGE = 10
         private const val NUMBER_OF_PREVENTIVE_PAGES = 5
     }
 

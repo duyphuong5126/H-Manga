@@ -47,23 +47,29 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val context: Context = context!!
+        val activity = activity!!
         mTabAdapter = TabAdapter(context, object : TabAdapter.OnMainTabClick {
             override fun onTabClick(tab: Tab) {
                 when (tab) {
                     Tab.RECENT -> {
                         RecentActivity.start(context, Constants.RECENT)
-                        mTabAdapter.reset()
-                        toggleTagsLayout()
+                        resetTabBar()
                         return
                     }
                     Tab.FAVORITE -> {
                         RecentActivity.start(context, Constants.FAVORITE)
-                        mTabAdapter.reset()
-                        toggleTagsLayout()
+                        resetTabBar()
                         return
                     }
                     Tab.INFO -> {
                         mTabAdapter.reset()
+                    }
+                    Tab.ADMIN -> {
+                        DialogHelper.showAdminEntryDialog(activity, onOk = {
+                            resetTabBar()
+                        }, onDismiss = {
+                            resetTabBar()
+                        })
                     }
                     else -> {
                         /*if (::mTagChangeListener.isInitialized) {
@@ -73,9 +79,8 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                             mTabAdapter.reset()
                         }*/
 
-                        DialogHelper.showTagsNotAvailable(activity!!) {
-                            mTabAdapter.reset()
-                            toggleTagsLayout()
+                        DialogHelper.showTagsNotAvailable(activity) {
+                            resetTabBar()
                         }
                     }
                 }
@@ -128,6 +133,11 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     }
 
     override fun isActive(): Boolean = isAdded
+
+    private fun resetTabBar() {
+        mTabAdapter.reset()
+        toggleTagsLayout()
+    }
 
     private fun toggleTagsLayout() {
         mBinding.rvMainTabs.let { tabSelector ->

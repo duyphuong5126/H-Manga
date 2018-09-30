@@ -17,6 +17,8 @@ enum class Tab(val defaultName: String) {
     PARODIES(Constants.PARODIES),
     INFO(Constants.INFO),
 
+    ADMIN(Constants.ADMIN),
+
     NONE(Constants.RANDOM);
 
     companion object {

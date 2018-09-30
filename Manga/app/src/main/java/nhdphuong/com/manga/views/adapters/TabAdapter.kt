@@ -1,12 +1,14 @@
 package nhdphuong.com.manga.views.adapters
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
 import java.util.*
@@ -19,12 +21,19 @@ class TabAdapter(context: Context, private val mOnMainTabClick: OnMainTabClick) 
     private var mCurrentTab: Tab = Tab.NONE
     private val mEnableTextColor = ContextCompat.getColor(context, R.color.colorPrimaryDark)
     private val mDisableTextColor = ContextCompat.getColor(context, R.color.greyBBB)
+    private val isDebugVersion: Boolean = (NHentaiApp.instance.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
     init {
         mTabList.clear()
         for (tab in Tab.values()) {
             if (tab != Tab.NONE) {
-                mTabList.add(tab)
+                if (tab == Tab.ADMIN) {
+                    if (isDebugVersion) {
+                        mTabList.add(tab)
+                    }
+                } else {
+                    mTabList.add(tab)
+                }
             }
         }
     }

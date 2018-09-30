@@ -63,6 +63,14 @@ class DialogHelper {
             showOkDismissDialog(activity, title, message, okString, dismissString, onOk, onDismiss)
         }
 
+        fun showAdminEntryDialog(activity: Activity, onOk: () -> Unit, onDismiss: () -> Unit) {
+            val title = activity.getString(R.string.enter_admin_page_title)
+            val message = activity.getString(R.string.enter_admin_page_description)
+            val okString = activity.getString(R.string._continue)
+            val dismissString = activity.getString(R.string.exit)
+            showOkDismissDialog(activity, title, message, okString, dismissString, onOk, onDismiss)
+        }
+
         fun showThisBookDownloadingDialog(activity: Activity, onOk: () -> Unit) {
             val message = activity.getString(R.string.is_downloading_this_book)
             showOkDialog(activity, activity.getString(R.string.is_book_being_downloaded), message, onOk)
