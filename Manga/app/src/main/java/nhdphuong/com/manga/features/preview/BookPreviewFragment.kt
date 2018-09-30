@@ -19,20 +19,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.Tag
 import nhdphuong.com.manga.databinding.FragmentBookPreviewBinding
+import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.InfoCardLayout
 import nhdphuong.com.manga.views.MyGridLayoutManager
@@ -52,8 +45,6 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     private lateinit var mPresenter: BookPreviewContract.Presenter
     private lateinit var mBinding: FragmentBookPreviewBinding
     private lateinit var mRecommendBookAdapter: BookAdapter
-    private lateinit var mRequestOptions: RequestOptions
-    private lateinit var mRequestManager: RequestManager
     private lateinit var mAnimatorSet: AnimatorSet
     private var isDownloadRequested = false
 
@@ -64,8 +55,6 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Logger.d(TAG, "onCreate")
-        mRequestManager = Glide.with(this)
-        mRequestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL).error(R.drawable.ic_404_not_found)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -144,18 +133,12 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     }
 
     override fun showBookCoverImage(coverUrl: String) {
-        mRequestManager.load(coverUrl).apply(mRequestOptions).listener(object : RequestListener<Drawable> {
-            override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
-                mAnimatorSet.start()
-                return false
-            }
-
-            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                mPresenter.reloadCoverImage()
-                return true
-            }
-        }).into(mBinding.ivBookCover)
+        ImageUtils.loadImage(coverUrl, R.drawable.ic_404_not_found, mBinding.ivBookCover, onLoadSuccess = {
+            mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
+            mAnimatorSet.start()
+        }, onLoadFailed = {
+            mPresenter.reloadCoverImage()
+        })
     }
 
     override fun show1stTitle(firstTitle: String) {

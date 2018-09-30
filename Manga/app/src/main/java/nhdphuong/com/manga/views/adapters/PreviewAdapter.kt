@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import nhdphuong.com.manga.R
-import nhdphuong.com.manga.supports.GlideUtils
+import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.customs.MyTextView
 
 /*
@@ -30,7 +30,7 @@ class PreviewAdapter(private val mNumOfRows: Int, private val mPreviewUrlList: L
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
         val previewViewHolder = holder as PreviewViewHolder
-        GlideUtils.clear(previewViewHolder.ivPageThumbnail)
+        ImageUtils.clear(previewViewHolder.ivPageThumbnail)
     }
 
     private inner class PreviewViewHolder(itemView: View, private val thumbnailClickCallback: ThumbnailClickCallback)
@@ -51,7 +51,7 @@ class PreviewAdapter(private val mNumOfRows: Int, private val mPreviewUrlList: L
         fun setData(url: String, pageNumber: Int) {
             mPageNumber = pageNumber
             mtvPageNumber.text = (pageNumber + 1).toString()
-            GlideUtils.loadOriginalImage(url, R.drawable.ic_404_not_found, ivPageThumbnail)
+            ImageUtils.loadOriginalImage(url, R.drawable.ic_404_not_found, ivPageThumbnail)
         }
     }
 

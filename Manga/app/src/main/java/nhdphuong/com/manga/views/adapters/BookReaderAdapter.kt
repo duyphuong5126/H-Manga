@@ -1,19 +1,14 @@
 package nhdphuong.com.manga.views.adapters
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.support.v4.view.PagerAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import com.ortiz.touchview.TouchImageView
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
-import nhdphuong.com.manga.supports.GlideUtils
+import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.customs.MyTextView
 
 /*
@@ -54,7 +49,7 @@ class BookReaderAdapter(private val mContext: Context, private val mPageUrlList:
     override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
         Logger.d(TAG, "Remove item $position")
         mPageMap[position]?.ivPage?.let { ivPage ->
-            GlideUtils.clear(ivPage)
+            ImageUtils.clear(ivPage)
         }
         container.removeView(`object` as View)
     }
@@ -84,17 +79,11 @@ class BookReaderAdapter(private val mContext: Context, private val mPageUrlList:
         }
 
         fun reloadImage() {
-            GlideUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, object : RequestListener<Drawable> {
-                override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                    mtvPageTitle.visibility = View.GONE
-                    Logger.d(TAG, "Page is loaded successfully")
-                    return false
-                }
-
-                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                    Logger.d(TAG, "Page loading failed")
-                    return true
-                }
+            ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, onLoadSuccess = {
+                mtvPageTitle.visibility = View.GONE
+                Logger.d(TAG, "$pageUrl is loaded successfully")
+            }, onLoadFailed = {
+                Logger.d(TAG, "$pageUrl loading failed")
             })
         }
     }

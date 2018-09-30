@@ -13,14 +13,18 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.DrawableImageViewTarget
 import com.bumptech.glide.request.target.Target
+import nhdphuong.com.manga.Logger
 
-class GlideUtils {
+class ImageUtils {
     companion object {
+        private const val TAG = "ImageUtils"
+        private const val TIME_OUT = 10000
         @SuppressLint("CheckResult")
         fun <IV : ImageView> loadOriginalImage(url: String, defaultResource: Int, imageView: IV) {
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .error(defaultResource)
                     .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                    .timeout(TIME_OUT)
                     .skipMemoryCache(true)
             Glide.with(imageView).load(url).apply(requestOptions).into(imageView)
         }
@@ -29,15 +33,27 @@ class GlideUtils {
         fun <IV : ImageView> loadImage(url: String, defaultResource: Int, imageView: IV) {
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .error(defaultResource)
+                    .timeout(TIME_OUT)
                     .skipMemoryCache(true)
             Glide.with(imageView).load(url).apply(requestOptions).into(imageView)
         }
 
-        fun <IV : ImageView> loadImage(url: String, defaultResource: Int, imageView: IV, listener: RequestListener<Drawable>) {
+        fun <IV : ImageView> loadImage(url: String, defaultResource: Int, imageView: IV, onLoadSuccess: () -> Unit, onLoadFailed: () -> Unit) {
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .error(defaultResource)
+                    .timeout(TIME_OUT)
                     .skipMemoryCache(true)
-            Glide.with(imageView).load(url).apply(requestOptions).listener(listener).into(imageView)
+            Glide.with(imageView).load(url).apply(requestOptions).listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                    onLoadFailed()
+                    return true
+                }
+
+                override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                    onLoadSuccess()
+                    return false
+                }
+            }).into(imageView)
         }
 
         fun <IV : ImageView> loadGifImage(gifResource: Int, imageView: IV) {
@@ -52,6 +68,7 @@ class GlideUtils {
         @SuppressLint("CheckResult")
         fun downloadImage(context: Context, url: String, onBitmapReady: (bitmap: Bitmap?) -> Unit) {
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                    .timeout(TIME_OUT)
                     .skipMemoryCache(true)
             Glide.with(context)
                     .asBitmap()
@@ -65,13 +82,14 @@ class GlideUtils {
 
                         override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                             onBitmapReady(resource)
-                            return true
+                            return false
                         }
                     })
         }
 
         fun downloadImage(context: Context, url: String, width: Int, height: Int): Bitmap {
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                    .timeout(TIME_OUT)
                     .skipMemoryCache(true)
             val future = Glide.with(context)
                     .asBitmap()

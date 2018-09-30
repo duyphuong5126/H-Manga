@@ -14,7 +14,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.repository.BookRepository
-import nhdphuong.com.manga.supports.GlideUtils
+import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
@@ -118,7 +118,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                     while (!mDownloadQueue.isEmpty()) {
                         val downloadPage = mDownloadQueue.take()
                         mBook.bookImages.pages[downloadPage].let { page ->
-                            val result = GlideUtils.downloadImage(mContext, mBookPages[downloadPage], page.width, page.height)
+                            val result = ImageUtils.downloadImage(mContext, mBookPages[downloadPage], page.width, page.height)
 
                             val resultFilePath = nHentaiApp.getImageDirectory(mBook.mediaId)
 
@@ -187,7 +187,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
             for (i in startPrefetch..endPrefetch) {
                 if (!mPreFetchedPages.contains(i)) {
                     mBook.bookImages.pages[i].let { image ->
-                        GlideUtils.downloadImage(mContext, mBookPages[i]) { bitmap ->
+                        ImageUtils.downloadImage(mContext, mBookPages[i]) { bitmap ->
                             Logger.d(TAG, "Pre-fetched bitmap $i will be recycled")
                             bitmap?.recycle()
                             mPreFetchedPages.add(i)

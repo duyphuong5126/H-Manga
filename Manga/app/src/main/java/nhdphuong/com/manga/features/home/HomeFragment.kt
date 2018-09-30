@@ -276,6 +276,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         mBinding.refreshHeader.ivRefresh?.rotation = 0F
         mBinding.refreshHeader.ivRefresh?.visibility = View.VISIBLE
         mBinding.refreshHeader.pbRefresh?.visibility = View.GONE
+        mUpdateDotsHandler.removeCallbacksAndMessages(null)
     }
 
     override fun onUIPositionChange(frame: PtrFrameLayout?, isUnderTouch: Boolean, status: Byte, ptrIndicator: PtrIndicator?) {
@@ -321,7 +322,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
-            Logger.d("Dialog", "Current pos: $currentPos")
+            Logger.d(TAG, "Current pos: $currentPos")
             mBinding.refreshHeader.mtvRefresh?.text = String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }

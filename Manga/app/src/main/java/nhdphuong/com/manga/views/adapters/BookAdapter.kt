@@ -14,7 +14,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.entity.book.Book
-import nhdphuong.com.manga.supports.GlideUtils
+import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 
@@ -45,7 +45,7 @@ class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: I
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
         val mainListViewHolder = holder as MainListViewHolder
-        GlideUtils.clear(mainListViewHolder.ivThumbnail)
+        ImageUtils.clear(mainListViewHolder.ivThumbnail)
     }
 
     override fun getItemCount(): Int = mItemList.size
@@ -140,7 +140,7 @@ class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: I
             mIvLanguage.setImageResource(languageIconResId)
 
             Logger.d(TAG, "Thumbnail: ${item.thumbnail}")
-            GlideUtils.loadImage(item.thumbnail, R.drawable.ic_404_not_found, mIvItemThumbnail)
+            ImageUtils.loadImage(item.thumbnail, R.drawable.ic_404_not_found, mIvItemThumbnail)
 
             mTv1stTitle.text = item.previewTitle
             mTv1stTitle.viewTreeObserver.addOnGlobalLayoutListener {

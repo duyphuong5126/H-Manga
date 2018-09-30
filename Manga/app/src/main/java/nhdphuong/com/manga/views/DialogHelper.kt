@@ -12,12 +12,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
-import nhdphuong.com.manga.supports.GlideUtils
+import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.customs.MyButton
 import nhdphuong.com.manga.views.customs.MyTextView
 
 class DialogHelper {
     companion object {
+        private const val TAG = "DialogHelper"
+
         @SuppressLint("InflateParams", "SetTextI18n")
         fun showLoadingDialog(activity: Activity): Dialog {
             val dotsArray = activity.resources.getStringArray(R.array.dots)
@@ -31,9 +33,9 @@ class DialogHelper {
             dialog.setContentView(contentView)
             dialog.setCancelable(false)
             dialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
-            GlideUtils.loadGifImage(R.raw.ic_loading_cat_transparent, ivLoading)
+            ImageUtils.loadGifImage(R.raw.ic_loading_cat_transparent, ivLoading)
             val onFinishTask = runScheduledTaskOnMainThread({
-                Logger.d("Dialog", "Current pos: $currentPos")
+                Logger.d(TAG, "Current pos: $currentPos")
                 tvLoading.text = loadingString + dotsArray[currentPos]
                 if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
             }, 700)
@@ -142,6 +144,7 @@ class DialogHelper {
                 updateTask.run()
             }
             return {
+                Logger.d(TAG, "Task cancelled")
                 canFinish = true
                 handler.removeCallbacksAndMessages(null)
             }
