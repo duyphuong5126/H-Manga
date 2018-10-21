@@ -31,7 +31,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                                           private val mBookRepository: BookRepository) : ReaderContract.Presenter {
     companion object {
         private const val TAG = "ReaderPresenter"
-        private const val PREFETCH_RADIUS = 2
+        private const val PREFETCH_RADIUS = 5
     }
 
     private lateinit var mBookPages: LinkedList<String>
@@ -84,6 +84,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
     }
 
     override fun updatePageIndicator(page: Int) {
+        Logger.d(TAG, "Current page: $page")
         mCurrentPage = page
         mBookPages.size.let { pageCount ->
             val pageString = if (page == pageCount - 1) {
@@ -180,18 +181,17 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
 
     @MainThread
     private fun preloadPagesAround(page: Int) {
-        val handler = Handler(Looper.getMainLooper())
-        handler.post {
-            val startPrefetch = Math.max(0, page - PREFETCH_RADIUS)
-            val endPrefetch = Math.min(mBookPages.size - 1, page + PREFETCH_RADIUS)
-            for (i in startPrefetch..endPrefetch) {
-                if (!mPreFetchedPages.contains(i)) {
-                    mBook.bookImages.pages[i].let { image ->
-                        ImageUtils.downloadImage(mContext, mBookPages[i]) { bitmap ->
-                            Logger.d(TAG, "Pre-fetched bitmap $i will be recycled")
-                            bitmap?.recycle()
-                            mPreFetchedPages.add(i)
-                        }
+        val startPrefetch = Math.max(0, page - PREFETCH_RADIUS)
+        val endPrefetch = Math.min(mBookPages.size - 1, page + PREFETCH_RADIUS)
+        Logger.d(TAG, "Prefetch from $startPrefetch to $endPrefetch")
+        for (i in startPrefetch..endPrefetch) {
+            if (!mPreFetchedPages.contains(i)) {
+                Logger.d(TAG, "Pre-load page $i")
+                mBook.bookImages.pages[i].run {
+                    ImageUtils.downloadImage(mContext, mBookPages[i]) { bitmap ->
+                        Logger.d(TAG, "Pre-fetched bitmap $i will be recycled")
+                        bitmap?.recycle()
+                        mPreFetchedPages.add(i)
                     }
                 }
             }

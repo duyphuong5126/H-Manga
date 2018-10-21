@@ -74,17 +74,19 @@ class ImageUtils {
                     .asBitmap()
                     .load(url)
                     .apply(requestOptions)
-                    .addListener(object : RequestListener<Bitmap> {
+                    .listener(object : RequestListener<Bitmap> {
                         override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                            Logger.d(TAG, "Downloading image: $url failed")
                             onBitmapReady(null)
                             return true
                         }
 
                         override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                            Logger.d(TAG, "Downloading image: $url succeeded")
                             onBitmapReady(resource)
                             return false
                         }
-                    })
+                    }).submit()
         }
 
         fun downloadImage(context: Context, url: String, width: Int, height: Int): Bitmap {

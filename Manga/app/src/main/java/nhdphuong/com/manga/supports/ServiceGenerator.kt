@@ -2,7 +2,6 @@ package nhdphuong.com.manga.supports
 
 import android.text.TextUtils
 import com.google.gson.GsonBuilder
-import nhdphuong.com.manga.BuildConfig
 import nhdphuong.com.manga.gson.GsonUTCDateAdapter
 import nhdphuong.com.manga.gson.SerializationExclusionStrategy
 import okhttp3.Interceptor
@@ -26,7 +25,7 @@ object ServiceGenerator {
             )
     )
     private var mRetrofit: Retrofit? = null
-    private val mLoggingInterceptor = HttpLoggingInterceptor().setLevel(if (BuildConfig.BUILD_TYPE.equals("debug")) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.BASIC)
+    private val mLoggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
     private val mHttpClientBuilder = OkHttpClient.Builder().addInterceptor(mLoggingInterceptor)
             .connectTimeout(30000, TimeUnit.MILLISECONDS)
             .readTimeout(30000, TimeUnit.MILLISECONDS)
