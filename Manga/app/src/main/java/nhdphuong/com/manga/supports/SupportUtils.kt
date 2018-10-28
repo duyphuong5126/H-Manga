@@ -11,10 +11,13 @@ import java.io.FileOutputStream
 import java.text.NumberFormat
 import java.util.*
 import android.graphics.BitmapFactory
+import android.os.Environment
+import android.support.annotation.WorkerThread
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import java.io.BufferedInputStream
+import java.io.OutputStreamWriter
 import java.net.URL
 
 
@@ -185,6 +188,32 @@ class SupportUtils {
                 }
                 return context.getString(R.string.just_now)
             }
+        }
+
+        @WorkerThread
+        fun saveStringFile(data: String, fileName: String, filePath: String): Boolean {
+            Logger.d(TAG, "File name: $fileName, path: $filePath")
+            val directories = File(filePath)
+            if (!directories.exists()) {
+                directories.mkdirs()
+            }
+
+            val dataFile = File(directories, "$fileName.txt")
+            try {
+                dataFile.createNewFile()
+                val fileOutputStream = FileOutputStream(dataFile)
+                val outputStreamWriter = OutputStreamWriter(fileOutputStream)
+
+                outputStreamWriter.append(data)
+                outputStreamWriter.close()
+
+                fileOutputStream.flush()
+                fileOutputStream.close()
+                return true
+            } catch (exception: Exception) {
+                Logger.d(TAG, "String isn't saved successfully, error=$exception")
+            }
+            return false
         }
     }
 }

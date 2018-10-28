@@ -34,8 +34,18 @@ class NHentaiApp : Application() {
             }
             return "$rootDirectory/${Constants.NHENTAI_DIRECTORY}"
         }
+    private val tagsDirectory: String
+        get() {
+            val rootDirectory = if (isExternalStorageWritable) {
+                Environment.getExternalStorageDirectory().toString()
+            } else {
+                applicationContext.filesDir.toString()
+            }
+            return "$rootDirectory/${Constants.NHENTAI_DIRECTORY}"
+        }
 
     fun getImageDirectory(mediaId: String): String = "$imagesDirectory/$mediaId"
+    fun getTagDirectory(): String = "$tagsDirectory/${Constants.TAGS.toLowerCase()}"
 
     val isStoragePermissionAccepted: Boolean
         get() {

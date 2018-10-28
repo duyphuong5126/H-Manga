@@ -14,6 +14,7 @@ import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
 import nhdphuong.com.manga.databinding.FragmentHeaderBinding
+import nhdphuong.com.manga.features.admin.AdminActivity
 import nhdphuong.com.manga.features.home.HomeContract
 import nhdphuong.com.manga.features.recent.RecentActivity
 import nhdphuong.com.manga.features.tags.TagsContract
@@ -66,6 +67,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                     }
                     Tab.ADMIN -> {
                         DialogHelper.showAdminEntryDialog(activity, onOk = {
+                            AdminActivity.start(context)
                             resetTabBar()
                         }, onDismiss = {
                             resetTabBar()

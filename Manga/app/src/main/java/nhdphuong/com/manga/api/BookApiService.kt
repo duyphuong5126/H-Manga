@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.api
 
+import io.reactivex.Flowable
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.data.entity.book.RemoteBook
@@ -23,4 +24,7 @@ interface BookApiService {
 
     @GET("/api/gallery/{bookId}/related")
     fun getRecommendBook(@Path("bookId") bookId: String): Call<RecommendBook>
+
+    @GET("/api/galleries/all")
+    fun getBookListOfPage(@Query("page") pageNumber: Int): Flowable<RemoteBook>
 }
