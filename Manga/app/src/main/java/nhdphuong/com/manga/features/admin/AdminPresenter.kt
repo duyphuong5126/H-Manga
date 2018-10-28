@@ -78,7 +78,7 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
             saveTagsFiles(mGroups, Constants.GROUP)
             saveTagsFiles(mTags, Constants.TAG)
             saveTagsFiles(mUnknownTypes, "unknown")
-            saveChangeLogFile()
+            saveChangeLogsFile()
         }
     }
 
@@ -152,32 +152,34 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
         }
     }
 
-    private fun saveChangeLogFile() {
-        val stringBuffer = StringBuffer("")
-        val calendar = Calendar.getInstance(Locale.US)
-        val total = mArtists.size + mCategories.size + mCharacters.size + mLanguages.size + mParodies.size + mGroups.size + mTags.size + mUnknownTypes.size
-        stringBuffer.append("===========================NHentai Data===========================\n")
-        stringBuffer.append("Created date: ${calendar.get(Calendar.DAY_OF_MONTH)}/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.YEAR)}\n")
-        stringBuffer.append("Total: $total items\n")
-        stringBuffer.append("Categories: ${mCategories.size} items, number of old items: ${mSharedPreferencesManager.lastCategoriesCount}\n")
-        stringBuffer.append("Characters: ${mCharacters.size} items, number of old items: ${mSharedPreferencesManager.lastCharactersCount}\n")
-        stringBuffer.append("Languages: ${mLanguages.size} items, number of old items: ${mSharedPreferencesManager.lastLanguagesCount}\n")
-        stringBuffer.append("Parodies: ${mParodies.size} items, number of old items: ${mSharedPreferencesManager.lastParodiesCount}\n")
-        stringBuffer.append("Artists: ${mArtists.size} items, number of old items: ${mSharedPreferencesManager.lastArtistsCount}\n")
-        stringBuffer.append("Groups: ${mGroups.size} items, number of old items: ${mSharedPreferencesManager.lastGroupsCount}\n")
-        stringBuffer.append("mTags: ${mTags.size} items, number of old items: ${mSharedPreferencesManager.lastTagsCount}\n")
-        stringBuffer.append("UnknownTypes: ${mUnknownTypes.size} items, number of old items: ${mSharedPreferencesManager.lastUnknownTypesCount}\n")
-        stringBuffer.append("==================================================================")
-        val saveResult = SupportUtils.saveStringFile(stringBuffer.toString(), "NHentai.txt", NHentaiApp.instance.getTagDirectory())
-        Logger.d(TAG, "NHentai.txt list saving result=$saveResult")
-        mSharedPreferencesManager.lastCategoriesCount = mCategories.size
-        mSharedPreferencesManager.lastCharactersCount = mCharacters.size
-        mSharedPreferencesManager.lastLanguagesCount = mLanguages.size
-        mSharedPreferencesManager.lastParodiesCount = mParodies.size
-        mSharedPreferencesManager.lastArtistsCount = mArtists.size
-        mSharedPreferencesManager.lastGroupsCount = mGroups.size
-        mSharedPreferencesManager.lastTagsCount = mTags.size
-        mSharedPreferencesManager.lastUnknownTypesCount = mUnknownTypes.size
+    private fun saveChangeLogsFile() {
+        launch {
+            val stringBuffer = StringBuffer("")
+            val calendar = Calendar.getInstance(Locale.US)
+            val total = mArtists.size + mCategories.size + mCharacters.size + mLanguages.size + mParodies.size + mGroups.size + mTags.size + mUnknownTypes.size
+            stringBuffer.append("===========================NHentai Data===========================\n")
+            stringBuffer.append("Created date: ${calendar.get(Calendar.DAY_OF_MONTH)}/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.YEAR)}\n")
+            stringBuffer.append("Total: $total items\n")
+            stringBuffer.append("Categories: ${mCategories.size} items, number of old items: ${mSharedPreferencesManager.lastCategoriesCount}\n")
+            stringBuffer.append("Characters: ${mCharacters.size} items, number of old items: ${mSharedPreferencesManager.lastCharactersCount}\n")
+            stringBuffer.append("Languages: ${mLanguages.size} items, number of old items: ${mSharedPreferencesManager.lastLanguagesCount}\n")
+            stringBuffer.append("Parodies: ${mParodies.size} items, number of old items: ${mSharedPreferencesManager.lastParodiesCount}\n")
+            stringBuffer.append("Artists: ${mArtists.size} items, number of old items: ${mSharedPreferencesManager.lastArtistsCount}\n")
+            stringBuffer.append("Groups: ${mGroups.size} items, number of old items: ${mSharedPreferencesManager.lastGroupsCount}\n")
+            stringBuffer.append("mTags: ${mTags.size} items, number of old items: ${mSharedPreferencesManager.lastTagsCount}\n")
+            stringBuffer.append("UnknownTypes: ${mUnknownTypes.size} items, number of old items: ${mSharedPreferencesManager.lastUnknownTypesCount}\n")
+            stringBuffer.append("==================================================================")
+            val saveResult = SupportUtils.saveStringFile(stringBuffer.toString(), "ChangeLogs", NHentaiApp.instance.getTagDirectory())
+            Logger.d(TAG, "NHentai.txt list saving result=$saveResult")
+            mSharedPreferencesManager.lastCategoriesCount = mCategories.size
+            mSharedPreferencesManager.lastCharactersCount = mCharacters.size
+            mSharedPreferencesManager.lastLanguagesCount = mLanguages.size
+            mSharedPreferencesManager.lastParodiesCount = mParodies.size
+            mSharedPreferencesManager.lastArtistsCount = mArtists.size
+            mSharedPreferencesManager.lastGroupsCount = mGroups.size
+            mSharedPreferencesManager.lastTagsCount = mTags.size
+            mSharedPreferencesManager.lastUnknownTypesCount = mUnknownTypes.size
+        }
     }
 
     private fun clearData() {
