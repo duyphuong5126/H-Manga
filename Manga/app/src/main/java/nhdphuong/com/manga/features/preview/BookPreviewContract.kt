@@ -29,6 +29,7 @@ interface BookPreviewContract {
         fun showPageCount(pageCount: String)
         fun showUploadedTime(uploadedTime: String)
         fun showBookThumbnailList(thumbnailList: List<String>)
+        fun updateBookThumbnailList()
         fun showRecommendBook(bookList: List<Book>)
         fun showNoRecommendBook()
         fun showRequestStoragePermission()
@@ -51,5 +52,6 @@ interface BookPreviewContract {
         fun downloadBook()
         fun restartBookPreview(bookId: String)
         fun changeBookFavorite()
+        fun loadMoreThumbnails()
     }
 }

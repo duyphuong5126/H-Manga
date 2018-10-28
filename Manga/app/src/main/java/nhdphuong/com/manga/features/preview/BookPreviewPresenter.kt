@@ -3,11 +3,8 @@ package nhdphuong.com.manga.features.preview
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.ConnectivityManager
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import nhdphuong.com.manga.*
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
@@ -21,6 +18,7 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 /*
  * Created by nhdphuong on 4/14/18.
@@ -35,6 +33,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
         private const val MILLISECOND: Long = 1000
 
         private const val BATCH_COUNT = 5
+        private const val THUMBNAILS_LIMIT = 30
     }
 
     private var isTagListInitialized = false
@@ -56,6 +55,10 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
     private lateinit var mCharacterList: LinkedList<Tag>
     private lateinit var mGroupList: LinkedList<Tag>
 
+    private val mBookThumbnailList = ArrayList<String>()
+
+    private var mCurrentThumbnailPosition = 0
+
     private val mPrefixNumber: Int
         get() {
             var totalPages = mBook.numOfPages
@@ -76,6 +79,8 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
     }
 
     override fun start() {
+        mBookThumbnailList.clear()
+        mCurrentThumbnailPosition = 0
         if (!this::mCacheCoverUrl.isInitialized) {
             mView.showBookCoverImage(ApiConstants.getBookCover(mBook.mediaId))
         } else {
@@ -172,6 +177,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
             }
 
             loadBookThumbnails()
+            mView.showBookThumbnailList(mBookThumbnailList)
 
             loadRecommendBook()
         }
@@ -181,9 +187,9 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
         if (!isBookCoverReloaded) {
             isBookCoverReloaded = true
             launch {
-                val coverUrl = async {
+                val coverUrl = withContext(DefaultDispatcher) {
                     getReachableBookCover()
-                }.await()
+                }
                 launch(UI) {
                     mView.showBookCoverImage(coverUrl)
                 }
@@ -323,6 +329,15 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
         }
     }
 
+    override fun loadMoreThumbnails() {
+        if (mBookThumbnailList.size < mBook.numOfPages) {
+            loadBookThumbnails()
+            mView.updateBookThumbnailList()
+        } else {
+            Logger.d(TAG, "End of thumbnails list")
+        }
+    }
+
     private fun getReachableBookCover(): String {
         val connectivityManager = mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
@@ -354,15 +369,18 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
     }
 
     private fun loadBookThumbnails() {
-        val thumbnails = LinkedList<String>()
         val mediaId = mBook.mediaId
         val bookPages: List<ImageMeasurements> = mBook.bookImages.pages
-        for (pageId in 0 until bookPages.size) {
+        if (bookPages.isEmpty()) {
+            return
+        }
+        val maxPosition = Math.min(bookPages.size, mCurrentThumbnailPosition + THUMBNAILS_LIMIT)
+        for (pageId in mCurrentThumbnailPosition until maxPosition) {
             val page = bookPages[pageId]
             val url = ApiConstants.getThumbnailByPage(mediaId, pageId + 1, page.imageType)
-            thumbnails.add(url)
+            mBookThumbnailList.add(url)
         }
-        mView.showBookThumbnailList(thumbnails)
+        mCurrentThumbnailPosition += THUMBNAILS_LIMIT
         isInfoLoaded = true
     }
 

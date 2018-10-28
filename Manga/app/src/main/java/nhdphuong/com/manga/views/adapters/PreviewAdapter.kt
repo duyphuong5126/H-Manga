@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.customs.MyTextView
@@ -14,12 +15,18 @@ import nhdphuong.com.manga.views.customs.MyTextView
  */
 class PreviewAdapter(private val mNumOfRows: Int, private val mPreviewUrlList: List<String>,
                      private val callback: ThumbnailClickCallback) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    companion object {
+        private const val TAG = "PreviewAdapter"
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_preview, parent, false)
         return PreviewViewHolder(view, callback)
     }
 
-    override fun getItemCount(): Int = mPreviewUrlList.size
+    override fun getItemCount(): Int {
+        Logger.d(TAG, "Item count: ${mPreviewUrlList.size}")
+        return mPreviewUrlList.size
+    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val vhPreview = holder as PreviewViewHolder

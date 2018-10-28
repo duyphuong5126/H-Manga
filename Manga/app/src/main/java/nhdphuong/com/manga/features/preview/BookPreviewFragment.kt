@@ -44,9 +44,12 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
 
     private lateinit var mPresenter: BookPreviewContract.Presenter
     private lateinit var mBinding: FragmentBookPreviewBinding
+    private lateinit var mPreviewAdapter: PreviewAdapter
     private lateinit var mRecommendBookAdapter: BookAdapter
     private lateinit var mAnimatorSet: AnimatorSet
     private var isDownloadRequested = false
+
+    private lateinit var mPreviewLayoutManager: MyGridLayoutManager
 
     override fun setPresenter(presenter: BookPreviewContract.Presenter) {
         mPresenter = presenter
@@ -251,17 +254,38 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
         }
 
         Logger.d(TAG, "thumbnails: ${thumbnailList.size}, number of rows: $NUM_OF_ROWS, spanCount: $spanCount")
-        val previewLayoutManager = object : MyGridLayoutManager(context!!, spanCount) {
+        mPreviewLayoutManager = object : MyGridLayoutManager(context!!, spanCount) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
             }
         }
-        mBinding.rvPreviewList.layoutManager = previewLayoutManager
-        mBinding.rvPreviewList.adapter = PreviewAdapter(NUM_OF_ROWS, thumbnailList, object : PreviewAdapter.ThumbnailClickCallback {
-            override fun onThumbnailClicked(page: Int) {
-                mPresenter.startReadingFrom(page)
+        mBinding.rvPreviewList.run {
+            layoutManager = mPreviewLayoutManager
+            mPreviewAdapter = PreviewAdapter(NUM_OF_ROWS, thumbnailList, object : PreviewAdapter.ThumbnailClickCallback {
+                override fun onThumbnailClicked(page: Int) {
+                    mPresenter.startReadingFrom(page)
+                }
+            })
+            adapter = mPreviewAdapter
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mBinding.hsvPreviewThumbNail.setOnScrollChangeListener { _, _, _, _, _ ->
+                if (!mBinding.hsvPreviewThumbNail.canScrollHorizontally(1)) {
+                    Logger.d(TAG, "End of list, load more thumbnails")
+                    mPresenter.loadMoreThumbnails()
+                }
             }
-        })
+        }
+    }
+
+    override fun updateBookThumbnailList() {
+        var spanCount = mPreviewAdapter.itemCount / NUM_OF_ROWS
+        if (mPreviewAdapter.itemCount % NUM_OF_ROWS != 0) {
+            spanCount++
+        }
+        mPreviewLayoutManager.spanCount = spanCount
+        mPreviewAdapter.notifyDataSetChanged()
     }
 
     override fun showRecommendBook(bookList: List<Book>) {
