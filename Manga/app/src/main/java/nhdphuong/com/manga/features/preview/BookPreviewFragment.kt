@@ -49,6 +49,9 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     private lateinit var mAnimatorSet: AnimatorSet
     private var isDownloadRequested = false
 
+    @Volatile
+    private var isPresenterStarted: Boolean = false
+
     private lateinit var mPreviewLayoutManager: MyGridLayoutManager
 
     override fun setPresenter(presenter: BookPreviewContract.Presenter) {
@@ -111,7 +114,12 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
 
     override fun onResume() {
         super.onResume()
-        mPresenter.loadInfoLists()
+        mBinding.root.viewTreeObserver.addOnGlobalLayoutListener {
+            if (!isPresenterStarted) {
+                isPresenterStarted = true
+                mPresenter.loadInfoLists()
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -133,6 +141,7 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     override fun onStop() {
         super.onStop()
         mPresenter.stop()
+        isPresenterStarted = false
     }
 
     override fun showBookCoverImage(coverUrl: String) {
