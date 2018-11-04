@@ -1,15 +1,12 @@
 package nhdphuong.com.manga.features.reader
 
-import android.annotation.TargetApi
 import android.app.Dialog
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v4.app.NotificationCompat
-import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
@@ -48,10 +45,8 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         return mBinding.root
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.window?.statusBarColor = ContextCompat.getColor(context!!, R.color.grey_1)
         mLoadingDialog = DialogHelper.showLoadingDialog(activity!!)
         mBinding.ibBack.setOnClickListener {
             navigateToGallery()
@@ -104,10 +99,8 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onStop() {
         super.onStop()
-        activity?.window?.statusBarColor = ContextCompat.getColor(context!!, R.color.colorPrimary)
         mPresenter.stop()
     }
 

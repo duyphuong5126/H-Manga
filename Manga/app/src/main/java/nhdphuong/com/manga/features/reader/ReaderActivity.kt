@@ -1,9 +1,12 @@
 package nhdphuong.com.manga.features.reader
 
+import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -39,5 +42,11 @@ class ReaderActivity : AppCompatActivity() {
         val book = intent.getSerializableExtra(Constants.BOOK) as Book
         val startReadingPage = intent.getIntExtra(Constants.START_PAGE, 0)
         NHentaiApp.instance.applicationComponent.plus(ReaderModule(readerFragment, book, startReadingPage)).inject(this)
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    override fun onResume() {
+        super.onResume()
+        window?.statusBarColor = ContextCompat.getColor(this@ReaderActivity, R.color.grey_1)
     }
 }

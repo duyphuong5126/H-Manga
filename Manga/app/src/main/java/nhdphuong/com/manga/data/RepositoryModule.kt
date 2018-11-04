@@ -4,9 +4,13 @@ import android.support.annotation.NonNull
 import dagger.Module
 import dagger.Provides
 import nhdphuong.com.manga.api.BookApiService
+import nhdphuong.com.manga.api.TagApiService
 import nhdphuong.com.manga.data.local.BookLocalDataSource
 import nhdphuong.com.manga.data.local.RecentBookDAO
+import nhdphuong.com.manga.data.local.TagDAO
+import nhdphuong.com.manga.data.local.TagLocalDataSource
 import nhdphuong.com.manga.data.remote.BookRemoteDataSource
+import nhdphuong.com.manga.data.remote.TagRemoteDataSource
 import nhdphuong.com.manga.scope.Local
 import nhdphuong.com.manga.scope.Remote
 import javax.inject.Singleton
@@ -27,4 +31,16 @@ class RepositoryModule {
     @Singleton
     @Local
     fun providesBookLocalDataSource(recentBookDAO: RecentBookDAO): BookDataSource.Local = BookLocalDataSource(recentBookDAO)
+
+    @Provides
+    @NonNull
+    @Singleton
+    @Remote
+    fun provideTagRemoteDataSource(tagApiService: TagApiService): TagDataSource.Remote = TagRemoteDataSource(tagApiService)
+
+    @Provides
+    @NonNull
+    @Singleton
+    @Local
+    fun providesTagLocalDataSource(tagDAO: TagDAO): TagDataSource.Local = TagLocalDataSource(tagDAO)
 }

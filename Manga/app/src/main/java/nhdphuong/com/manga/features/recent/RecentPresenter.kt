@@ -46,7 +46,7 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
         mRecentBookList.clear()
         mView.setUpRecentBookList(mRecentBookList)
 
-        runBlocking {
+        launch {
             val job = launch {
                 mRecentCount = mBookRepository.getRecentCount()
                 mFavoriteCount = mBookRepository.getFavoriteCount()

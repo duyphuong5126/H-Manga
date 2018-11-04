@@ -9,7 +9,7 @@ import nhdphuong.com.manga.*
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.ImageMeasurements
-import nhdphuong.com.manga.data.entity.book.Tag
+import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.SupportUtils

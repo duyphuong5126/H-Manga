@@ -2,7 +2,7 @@ package nhdphuong.com.manga.features.preview
 
 import nhdphuong.com.manga.Base
 import nhdphuong.com.manga.data.entity.book.Book
-import nhdphuong.com.manga.data.entity.book.Tag
+import nhdphuong.com.manga.data.entity.book.tags.Tag
 
 /*
  * Created by nhdphuong on 4/14/18.

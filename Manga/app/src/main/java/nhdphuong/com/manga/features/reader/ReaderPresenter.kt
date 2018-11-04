@@ -3,7 +3,6 @@ package nhdphuong.com.manga.features.reader
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Handler
-import android.os.Looper
 import android.support.annotation.MainThread
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -74,12 +73,12 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
             mView.showBookPages(mBookPages)
             mView.showPageIndicator(String.format(mContext.getString(R.string.bottom_reader), mCurrentPage + 1, mBookPages.size))
         }
-
-        preloadPagesAround(mStartReadingPage)
-
         if (mStartReadingPage >= 0) {
             mView.jumpToPage(mStartReadingPage)
         }
+
+        preloadPagesAround(mStartReadingPage)
+
         mView.pushNowReadingNotification(mBook.previewTitle, mStartReadingPage + 1, mBookPages.size)
     }
 

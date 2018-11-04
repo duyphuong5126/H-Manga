@@ -4,6 +4,7 @@ package nhdphuong.com.manga.api
  * Created by nhdphuong on 3/24/18.
  */
 object ApiConstants {
+    const val NHENTAI_DB = "https://raw.githubusercontent.com/duyphuong5126/NHentaiDB/master"
     const val NHENTAI_HOME = "https://nhentai.net"
     private const val NHENTAI_I = "https://i.nhentai.net"
     private const val NHENTAI_T = "https://t.nhentai.net"

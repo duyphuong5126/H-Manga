@@ -9,7 +9,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
-import nhdphuong.com.manga.data.entity.book.Tag
+import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 

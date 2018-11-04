@@ -11,7 +11,7 @@ import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.data.entity.book.RemoteBook
-import nhdphuong.com.manga.data.entity.book.Tag
+import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 import javax.inject.Inject
@@ -92,6 +92,9 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
         if (mNumberOfPage <= 0) {
             mNumberOfPage = remoteBook.numOfPages
             mView.showNumberOfPages(mNumberOfPage)
+            mSharedPreferencesManager.run {
+                mView.updateDownloadingStatistics(mCurrentPage, lastArtistsCount, lastCharactersCount, lastCategoriesCount, lastLanguagesCount, lastParodiesCount, lastGroupsCount, lastTagsCount, lastUnknownTypesCount)
+            }
         } else {
             for (book in remoteBook.bookList) {
                 for (tag in book.tags) {

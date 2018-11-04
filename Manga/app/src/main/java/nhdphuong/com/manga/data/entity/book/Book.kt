@@ -4,6 +4,7 @@ import android.text.TextUtils
 import com.google.gson.annotations.SerializedName
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.data.entity.book.tags.Tag
 import java.io.Serializable
 
 /*

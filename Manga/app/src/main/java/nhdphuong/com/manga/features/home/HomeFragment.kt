@@ -16,9 +16,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.StaggeredGridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -182,11 +182,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         })
         val mainList: RecyclerView = mBinding.rvMainList
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
-        val mainListLayoutManager = object : GridLayoutManager(context, if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS) {
+        val mainListLayoutManager = object : StaggeredGridLayoutManager(if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS, StaggeredGridLayoutManager.VERTICAL) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
             }
         }
+        mainListLayoutManager.gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
         mainList.layoutManager = mainListLayoutManager
         mainList.adapter = mHomeListAdapter
     }
@@ -230,7 +231,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {
         val lastRefresh = String.format(getString(R.string.last_update), lastRefreshTimeStamp)
-        mBinding.refreshHeader.mtvLastUpdate?.text = lastRefresh
+        mBinding.refreshHeader.mtvLastUpdate.text = lastRefresh
     }
 
     override fun showNothingView(isEmpty: Boolean) {
@@ -270,12 +271,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshComplete")
         endUpdateDotsTask()
-        mBinding.refreshHeader.mtvRefresh?.text = getString(R.string.updated)
+        mBinding.refreshHeader.mtvRefresh.text = getString(R.string.updated)
         mHomePresenter.saveLastBookListRefreshTime()
         mHomePresenter.reloadLastBookListRefreshTime()
-        mBinding.refreshHeader.ivRefresh?.rotation = 0F
-        mBinding.refreshHeader.ivRefresh?.visibility = View.VISIBLE
-        mBinding.refreshHeader.pbRefresh?.visibility = View.GONE
+        mBinding.refreshHeader.ivRefresh.rotation = 0F
+        mBinding.refreshHeader.ivRefresh.visibility = View.VISIBLE
+        mBinding.refreshHeader.pbRefresh.visibility = View.GONE
         mUpdateDotsHandler.removeCallbacksAndMessages(null)
     }
 
@@ -284,16 +285,16 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                 "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
                 "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}")
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
-            mBinding.refreshHeader.mtvRefresh?.text = getString(R.string.release_to_refresh)
-            mBinding.refreshHeader.ivRefresh?.rotation = 180F
+            mBinding.refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
+            mBinding.refreshHeader.ivRefresh.rotation = 180F
         }
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshBegin")
-        mBinding.refreshHeader.ivRefresh?.visibility = View.GONE
-        mBinding.refreshHeader.pbRefresh?.visibility = View.VISIBLE
-        mBinding.refreshHeader.mtvRefresh?.text = String.format(getString(R.string.updating), "")
+        mBinding.refreshHeader.ivRefresh.visibility = View.GONE
+        mBinding.refreshHeader.pbRefresh.visibility = View.VISIBLE
+        mBinding.refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
         runUpdateDotsTask()
 
     }
@@ -305,7 +306,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     override fun onUIReset(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIReset")
-        mBinding.refreshHeader.mtvRefresh?.text = getString(R.string.pull_down)
+        mBinding.refreshHeader.mtvRefresh.text = getString(R.string.pull_down)
     }
 
     private fun jumpTo(pageNumber: Int) {
@@ -323,7 +324,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
             Logger.d(TAG, "Current pos: $currentPos")
-            mBinding.refreshHeader.mtvRefresh?.text = String.format(loadingString, dotsArray[currentPos])
+            mBinding.refreshHeader.mtvRefresh.text = String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }
         val runnable = object : Runnable {

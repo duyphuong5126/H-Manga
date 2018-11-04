@@ -9,6 +9,7 @@ import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.repository.BookRepository
+import nhdphuong.com.manga.data.repository.TagRepository
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -21,6 +22,7 @@ import kotlin.collections.HashMap
 
 class HomePresenter @Inject constructor(private val mView: HomeContract.View,
                                         private val mBookRepository: BookRepository,
+                                        private val mTagRepository: TagRepository,
                                         private val mSharedPreferencesManager: SharedPreferencesManager) : HomeContract.Presenter {
     companion object {
         private const val TAG = "HomePresenter"
@@ -46,6 +48,14 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
     override fun start() {
         Logger.d(TAG, "start")
         reload()
+        if (!mSharedPreferencesManager.tagsDataDownloaded) {
+            mTagRepository.fetchAllTagLists { isSuccess ->
+                Logger.d(TAG, "Tags fetching completed, isSuccess=$isSuccess")
+                if (isSuccess) {
+                    mSharedPreferencesManager.tagsDataDownloaded = true
+                }
+            }
+        }
     }
 
     override fun jumpToPage(pageNumber: Int) {

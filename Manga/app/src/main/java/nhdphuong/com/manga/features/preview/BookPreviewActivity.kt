@@ -4,6 +4,7 @@ import android.annotation.TargetApi
 import android.app.Activity
 import android.support.v4.app.Fragment
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -12,6 +13,7 @@ import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import javax.inject.Inject
+import android.view.WindowManager
 
 
 class BookPreviewActivity : AppCompatActivity() {
@@ -42,7 +44,7 @@ class BookPreviewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_book_preview)
         mInstance = this
 
-        val book = intent.extras.getSerializable(Constants.BOOK) as Book
+        val book = intent.extras?.getSerializable(Constants.BOOK) as Book
 
         var bookPreviewFragment = supportFragmentManager.findFragmentById(R.id.clBookPreview) as BookPreviewFragment?
         if (bookPreviewFragment == null) {
@@ -53,6 +55,14 @@ class BookPreviewActivity : AppCompatActivity() {
         }
 
         NHentaiApp.instance.applicationComponent.plus(BookPreviewModule(bookPreviewFragment, book)).inject(this)
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    override fun onResume() {
+        super.onResume()
+        val window = window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = Color.BLACK
     }
 
     override fun finish() {

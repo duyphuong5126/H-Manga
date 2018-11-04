@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.features.home
 
+import android.annotation.TargetApi
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.res.Configuration
@@ -12,6 +13,8 @@ import nhdphuong.com.manga.R
 import javax.inject.Inject
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.text.TextUtils
 import android.view.KeyEvent
@@ -79,9 +82,11 @@ class HomeActivity : AppCompatActivity(), HomeContract {
         Logger.e(TAG, "onRestart")
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onResume() {
         super.onResume()
         Logger.e(TAG, "onResume")
+        window?.statusBarColor = ContextCompat.getColor(this@HomeActivity, R.color.colorPrimary)
     }
 
     override fun onPause() {

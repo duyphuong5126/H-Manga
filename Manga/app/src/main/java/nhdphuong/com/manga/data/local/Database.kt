@@ -13,7 +13,9 @@ class Database {
         val instance: NHentaiDB
         get() {
             if (mInstance == null) {
-                mInstance = Room.databaseBuilder(NHentaiApp.instance.applicationContext, NHentaiDB::class.java, Constants.NHENTAI_DB).build()
+                mInstance = Room.databaseBuilder(NHentaiApp.instance.applicationContext, NHentaiDB::class.java, Constants.NHENTAI_DB)
+                        .fallbackToDestructiveMigration()
+                        .build()
             }
             return mInstance!!
         }

@@ -4,8 +4,10 @@ import dagger.Module
 import dagger.Provides
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.api.BookApiService
+import nhdphuong.com.manga.api.TagApiService
 import nhdphuong.com.manga.data.local.Database
 import nhdphuong.com.manga.data.local.RecentBookDAO
+import nhdphuong.com.manga.data.local.TagDAO
 import nhdphuong.com.manga.supports.ServiceGenerator
 import javax.inject.Singleton
 
@@ -22,10 +24,17 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
 
     @Singleton
     @Provides
-    fun provideHomeApiService(): BookApiService {
+    fun provideBookApiService(): BookApiService {
         ServiceGenerator.setBaseUrl(ApiConstants.NHENTAI_HOME)
         ServiceGenerator.setInterceptor(null)
         return ServiceGenerator.createService(BookApiService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideTagApiService(): TagApiService {
+        ServiceGenerator.setInterceptor(null)
+        return ServiceGenerator.createService(TagApiService::class.java)
     }
 
     @Singleton
@@ -35,4 +44,8 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
     @Singleton
     @Provides
     fun providesRecentBookDAO(): RecentBookDAO = Database.instance.getRecentBookDAO()
+
+    @Singleton
+    @Provides
+    fun providesTagDAO(): TagDAO = Database.instance.getTagDAO()
 }

@@ -23,7 +23,7 @@ import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
-import nhdphuong.com.manga.data.entity.book.Tag
+import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.databinding.FragmentBookPreviewBinding
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.DialogHelper
