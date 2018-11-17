@@ -209,12 +209,13 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             mainPagination.visibility = View.GONE
             return
         }
-        mHomePaginationAdapter = PaginationAdapter(context!!, pageCount.toInt(), object : PaginationAdapter.OnPageSelectCallback {
+        mHomePaginationAdapter = PaginationAdapter(context!!, pageCount.toInt())
+        mHomePaginationAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
             override fun onPageSelected(page: Int) {
                 Logger.d(TAG, "Page $page is selected")
                 mHomePresenter.jumpToPage(page)
             }
-        })
+        }
         mainPagination.visibility = View.VISIBLE
         mainPagination.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
         mainPagination.adapter = mHomePaginationAdapter

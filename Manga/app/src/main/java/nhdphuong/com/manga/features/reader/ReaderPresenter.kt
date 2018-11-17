@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Handler
 import android.support.annotation.MainThread
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -13,6 +13,8 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.repository.BookRepository
+import nhdphuong.com.manga.scope.corountine.IO
+import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
@@ -27,7 +29,9 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                                           private val mBook: Book,
                                           private val mStartReadingPage: Int,
                                           private val mContext: Context,
-                                          private val mBookRepository: BookRepository) : ReaderContract.Presenter {
+                                          private val mBookRepository: BookRepository,
+                                          @IO private val io: CoroutineScope,
+                                          @Main private val main: CoroutineScope) : ReaderContract.Presenter {
     companion object {
         private const val TAG = "ReaderPresenter"
         private const val PREFETCH_RADIUS = 5
@@ -113,7 +117,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
             if (!isDownloading) {
                 isDownloading = true
                 mView.showLoading()
-                launch {
+                io.launch {
                     val resultList = LinkedList<String>()
                     while (!mDownloadQueue.isEmpty()) {
                         val downloadPage = mDownloadQueue.take()
@@ -132,7 +136,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                             resultList.add(resultPath)
                             Logger.d(TAG, "$fileName is saved successfully")
                         }
-                        launch(UI) {
+                        main.launch {
                             mView.updateDownloadPopupTitle(String.format(mContext.getString(R.string.download_progress), downloadPage + 1))
                             mView.showDownloadPopup()
                         }
@@ -140,7 +144,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                     }
                     nHentaiApp.refreshGallery(*resultList.toTypedArray())
                     isDownloading = false
-                    launch(UI) {
+                    main.launch {
                         mView.hideLoading()
                         val handler = Handler()
                         handler.postDelayed({
@@ -171,7 +175,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
     }
 
     private fun saveRecentBook() {
-        launch {
+        io.launch {
             if (!mBookRepository.isFavoriteBook(mBook.bookId)) {
                 mBookRepository.saveRecentBook(mBook.bookId)
             }

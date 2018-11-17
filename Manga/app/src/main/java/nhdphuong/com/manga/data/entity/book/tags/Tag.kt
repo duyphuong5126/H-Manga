@@ -1,9 +1,6 @@
 package nhdphuong.com.manga.data.entity.book.tags
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Index
-import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.*
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import nhdphuong.com.manga.Constants
@@ -17,7 +14,7 @@ class Tag(@field:SerializedName(Constants.ID) @PrimaryKey @ColumnInfo(name = Con
           @field:SerializedName(Constants.TYPE) @ColumnInfo(name = Constants.TYPE) var type: String,
           @field:SerializedName(Constants.NAME) @ColumnInfo(name = Constants.NAME) var name: String,
           @field:SerializedName(Constants.URL) @ColumnInfo(name = Constants.URL) var url: String,
-          @field:SerializedName(Constants.COUNT) @ColumnInfo(name = Constants.COUNT) var count: Long) : Serializable {
+          @field:SerializedName(Constants.COUNT) @ColumnInfo(name = Constants.COUNT) var count: Long) : Serializable, ITag {
 
     val jsonValue: JsonObject
         get() {
@@ -29,6 +26,21 @@ class Tag(@field:SerializedName(Constants.ID) @PrimaryKey @ColumnInfo(name = Con
             jsonObject.addProperty(Constants.COUNT, count)
             return jsonObject
         }
+
+    @Ignore
+    override fun id(): Long = tagId
+
+    @Ignore
+    override fun type(): String = type
+
+    @Ignore
+    override fun name(): String = name
+
+    @Ignore
+    override fun url(): String = url
+
+    @Ignore
+    override fun count(): Long = count
 
     override fun toString(): String {
         return "Tag $type - id: $tagId - name: $name"

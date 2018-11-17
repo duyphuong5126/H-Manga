@@ -3,6 +3,8 @@ package nhdphuong.com.manga.data
 import android.support.annotation.NonNull
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.api.TagApiService
 import nhdphuong.com.manga.data.local.BookLocalDataSource
@@ -42,5 +44,5 @@ class RepositoryModule {
     @NonNull
     @Singleton
     @Local
-    fun providesTagLocalDataSource(tagDAO: TagDAO): TagDataSource.Local = TagLocalDataSource(tagDAO)
+    fun providesTagLocalDataSource(tagDAO: TagDAO): TagDataSource.Local = TagLocalDataSource(tagDAO, CoroutineScope(Dispatchers.IO))
 }

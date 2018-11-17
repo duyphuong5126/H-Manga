@@ -1,15 +1,17 @@
 package nhdphuong.com.manga.features.home
 
 import android.text.TextUtils
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.data.repository.TagRepository
+import nhdphuong.com.manga.scope.corountine.IO
+import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -23,7 +25,9 @@ import kotlin.collections.HashMap
 class HomePresenter @Inject constructor(private val mView: HomeContract.View,
                                         private val mBookRepository: BookRepository,
                                         private val mTagRepository: TagRepository,
-                                        private val mSharedPreferencesManager: SharedPreferencesManager) : HomeContract.Presenter {
+                                        private val mSharedPreferencesManager: SharedPreferencesManager,
+                                        @IO private val io: CoroutineScope,
+                                        @Main private val main: CoroutineScope) : HomeContract.Presenter {
     companion object {
         private const val TAG = "HomePresenter"
         private const val NUMBER_OF_PREVENTIVE_PAGES = 10
@@ -78,7 +82,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
     override fun reloadCurrentPage(onRefreshed: () -> Unit) {
         if (!isRefreshing) {
             isRefreshing = true
-            launch {
+            io.launch {
                 val remoteBooks = getBooksListByPage(mCurrentPage)
                 mCurrentNumOfPages = remoteBooks?.numOfPages ?: 0L
                 val isCurrentPageEmpty = if (remoteBooks != null) {
@@ -96,7 +100,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
                 }
                 isRefreshing = false
 
-                launch(UI) {
+                main.launch {
                     if (!isCurrentPageEmpty) {
                         mView.refreshHomeBookList()
                         mView.refreshHomePagination(mCurrentNumOfPages)
@@ -117,7 +121,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
     }
 
     override fun reloadRecentBooks() {
-        launch {
+        io.launch {
             val recentList = LinkedList<Int>()
             val favoriteList = LinkedList<Int>()
             for (id in 0 until mMainList.size) {
@@ -131,7 +135,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
                 }
             }
 
-            launch(UI) {
+            main.launch {
                 if (!recentList.isEmpty()) {
                     mView.showRecentBooks(recentList)
                 }
@@ -157,7 +161,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
 
     override fun stop() {
         Logger.d(TAG, "stop")
-        launch {
+        io.launch {
             while (mJobStack.size > 0) {
                 val job = mJobStack.pop()
                 job.cancel()
@@ -171,7 +175,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
 
         mView.showLoading()
         mView.setUpHomeBookList(mMainList)
-        val downloadingJob = launch {
+        val downloadingJob = io.launch {
             val startTime = System.currentTimeMillis()
             getBooksListByPage(mCurrentPage).let { remoteBook ->
                 Logger.d(TAG, "Time spent=${System.currentTimeMillis() - startTime}")
@@ -187,7 +191,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
 
                 loadPreventiveData()
 
-                launch(UI) {
+                main.launch {
                     mView.refreshHomeBookList()
                     if (mCurrentNumOfPages > 0) {
                         mView.refreshHomePagination(mCurrentNumOfPages)
@@ -204,14 +208,14 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
 
     private fun onPageChange(pageNumber: Int) {
         mCurrentPage = pageNumber
-        launch {
+        io.launch {
             mMainList.clear()
             var newPage = false
             val currentList: LinkedList<Book> = if (mPreventiveData.containsKey(mCurrentPage)) {
                 mPreventiveData[mCurrentPage] as LinkedList<Book>
             } else {
                 newPage = true
-                launch(UI) {
+                main.launch {
                     mView.showLoading()
                 }
                 val bookList = getBooksListByPage(mCurrentPage)?.bookList ?: LinkedList()
@@ -252,7 +256,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
             }
             logListInt("Final page list: ", LinkedList(mPreventiveData.keys))
 
-            launch(UI) {
+            main.launch {
                 mView.refreshHomeBookList()
                 if (newPage) {
                     mView.hideLoading()
@@ -290,7 +294,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
         val countDownLatch = CountDownLatch(NUMBER_OF_PREVENTIVE_PAGES - mCurrentPage)
         for (page in mCurrentPage + 1..NUMBER_OF_PREVENTIVE_PAGES) {
             Logger.d(TAG, "Start loading page $page")
-            launch {
+            io.launch {
                 val remoteBook = getBooksListByPage(page)
                 Logger.d(TAG, "Done loading page $page")
                 remoteBook?.bookList?.let { bookList ->

@@ -1,11 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="RtlCompat">
 
-    <android.support.constraint.ConstraintLayout
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/holo_red_dark">
+        android:background="@android:color/black">
 
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    </android.support.constraint.ConstraintLayout>
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="40dp"
+                android:gravity="center_vertical"
+                android:text="@string/tags"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:myFont="@string/NotoSansBold" />
+
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtv_count"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:layout_weight="2"
+                android:gravity="center_vertical"
+                android:maxLines="1"
+                android:text="@string/tags"
+                android:textColor="@color/grey767676"
+                android:textSize="17sp"
+                app:layout_constraintBottom_toBottomOf="@id/mtv_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/mtv_title"
+                app:layout_constraintTop_toTopOf="@id/mtv_title"
+                app:myFont="@string/NotoSansRegular" />
+
+            <nhdphuong.com.manga.views.customs.MyButton
+                android:id="@+id/mb_alphabet"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_black_bottom_border_white"
+                android:gravity="center"
+                android:paddingBottom="10dp"
+                android:text="@string/a_z"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toStartOf="@id/mb_popularity"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/mtv_title"
+                app:myButtonFont="@string/NotoSansBold" />
+
+            <nhdphuong.com.manga.views.customs.MyButton
+                android:id="@+id/mb_popularity"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:background="@android:color/transparent"
+                android:gravity="center"
+                android:paddingBottom="10dp"
+                android:text="@string/popular"
+                android:textColor="@color/grey767676"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/mb_alphabet"
+                app:layout_constraintTop_toBottomOf="@id/mtv_title"
+                app:myButtonFont="@string/NotoSansBold" />
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/clNavigation"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_margin="10dp"
+                android:visibility="visible"
+                app:layout_constraintTop_toBottomOf="@+id/mb_alphabet">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_last"
+                    app:layout_constraintStart_toEndOf="@id/btn_first"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/rv_alphabet_pagination"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:overScrollMode="never"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+                </android.support.constraint.ConstraintLayout>
+
+                <ImageView
+                    android:id="@+id/btn_first"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@string/previous"
+                    android:src="@drawable/ic_previous_white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/btn_last"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@string/next"
+                    android:src="@drawable/ic_next_white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_tags_list"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/clNavigation" />
+
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v4.widget.NestedScrollView>
 </layout>

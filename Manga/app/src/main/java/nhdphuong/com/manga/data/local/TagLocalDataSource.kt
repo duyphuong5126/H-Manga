@@ -1,56 +1,71 @@
 package nhdphuong.com.manga.data.local
 
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import nhdphuong.com.manga.data.TagDataSource
 import nhdphuong.com.manga.data.entity.book.tags.*
+import nhdphuong.com.manga.scope.corountine.IO
 import javax.inject.Inject
 
-class TagLocalDataSource @Inject constructor(private val mTagDAO: TagDAO) : TagDataSource.Local {
+class TagLocalDataSource @Inject constructor(private val mTagDAO: TagDAO,
+                                             @IO private val io: CoroutineScope) : TagDataSource.Local {
     override fun insertArtistsList(artistsList: List<Artist>) {
-        launch {
-            mTagDAO.insertArtist(*artistsList.toTypedArray())
+        io.launch {
+            mTagDAO.insertArtist(artistsList)
         }
     }
 
     override fun insertCharactersList(charactersList: List<Character>) {
-        launch {
-            mTagDAO.insertCharacters(*charactersList.toTypedArray())
+        io.launch {
+            mTagDAO.insertCharacters(charactersList)
         }
     }
 
     override fun insertCategoriesList(categoriesList: List<Category>) {
-        launch {
-            mTagDAO.insertCategories(*categoriesList.toTypedArray())
+        io.launch {
+            mTagDAO.insertCategories(categoriesList)
         }
     }
 
     override fun insertGroupsList(groupsList: List<Group>) {
-        launch {
-            mTagDAO.insertGroups(*groupsList.toTypedArray())
+        io.launch {
+            mTagDAO.insertGroups(groupsList)
         }
     }
 
     override fun insertParodiesList(parodiesList: List<Parody>) {
-        launch {
-            mTagDAO.insertParodies(*parodiesList.toTypedArray())
+        io.launch {
+            mTagDAO.insertParodies(parodiesList)
         }
     }
 
     override fun insertLanguagesList(languagesList: List<Language>) {
-        launch {
-            mTagDAO.insertLanguages(*languagesList.toTypedArray())
+        io.launch {
+            mTagDAO.insertLanguages(languagesList)
         }
     }
 
     override fun insertTagsList(tagsList: List<Tag>) {
-        launch {
-            mTagDAO.insertTags(*tagsList.toTypedArray())
+        io.launch {
+            mTagDAO.insertTags(tagsList)
         }
     }
 
+    override suspend fun getTagCount(): Int = mTagDAO.getTagCount()
+
+    override suspend fun getTagCountByPrefix(prefix: String): Int = mTagDAO.getTagCountByPrefix(prefix)
+
+    override fun getTagsByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPrefixAscending(prefixString, limit, offset)
+
+    override fun getTagsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPrefixDescending(prefixString, limit, offset)
+
+    override fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPopularityAscending(limit, offset)
+
+    override fun getTagsByPopularityDescending(limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPopularityDescending(limit, offset)
+
     override fun insertUnknownTypesList(unknownTagsList: List<UnknownTag>) {
-        launch {
-            mTagDAO.insertUnknownTags(*unknownTagsList.toTypedArray())
+        io.launch {
+            mTagDAO.insertUnknownTags(unknownTagsList)
         }
     }
 }

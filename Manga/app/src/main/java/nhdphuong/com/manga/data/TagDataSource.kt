@@ -23,6 +23,12 @@ interface TagDataSource {
         fun insertParodiesList(parodiesList: List<Parody>)
         fun insertLanguagesList(languagesList: List<Language>)
         fun insertTagsList(tagsList: List<Tag>)
+        suspend fun getTagCount(): Int
+        suspend fun getTagCountByPrefix(prefix: String): Int
+        fun getTagsByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Tag>
+        fun getTagsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Tag>
+        fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag>
+        fun getTagsByPopularityDescending(limit: Int, offset: Int): List<Tag>
         fun insertUnknownTypesList(unknownTagsList: List<UnknownTag>)
     }
 }

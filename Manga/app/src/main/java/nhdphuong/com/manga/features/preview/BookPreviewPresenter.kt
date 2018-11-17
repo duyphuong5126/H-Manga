@@ -3,8 +3,7 @@ package nhdphuong.com.manga.features.preview
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.ConnectivityManager
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.*
 import nhdphuong.com.manga.*
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
@@ -12,13 +11,16 @@ import nhdphuong.com.manga.data.entity.book.ImageMeasurements
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.features.reader.ReaderActivity
+import nhdphuong.com.manga.scope.corountine.IO
+import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
-import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 import kotlin.collections.ArrayList
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /*
  * Created by nhdphuong on 4/14/18.
@@ -26,7 +28,9 @@ import kotlin.collections.ArrayList
 class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewContract.View,
                                                private val mBook: Book,
                                                private val mContext: Context,
-                                               private val mBookRepository: BookRepository) : BookPreviewContract.Presenter, DownloadManager.DownloadCallback {
+                                               private val mBookRepository: BookRepository,
+                                               @IO private val io: CoroutineScope,
+                                               @Main private val main: CoroutineScope) : BookPreviewContract.Presenter, DownloadManager.DownloadCallback {
 
     companion object {
         private const val TAG = "BookPreviewPresenter"
@@ -186,11 +190,10 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
     override fun reloadCoverImage() {
         if (!isBookCoverReloaded) {
             isBookCoverReloaded = true
-            launch {
-                val coverUrl = withContext(DefaultDispatcher) {
-                    getReachableBookCover()
-                }
-                launch(UI) {
+            io.launch {
+                val coverUrl: String = getReachableBookCover()
+
+                main.launch {
                     mView.showBookCoverImage(coverUrl)
                 }
             }
@@ -223,14 +226,13 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                     if (total > 0) {
                         DownloadManager.setDownloadCallback(this)
                         DownloadManager.startDownloading(mBook.bookId, total)
-                        launch {
+                        io.launch {
                             var progress = 0
                             val resultList = LinkedList<String>()
                             var currentPage = 0
                             while (currentPage < total) {
                                 val lastPage = if (currentPage + BATCH_COUNT <= total) currentPage + BATCH_COUNT else total
-                                runBlocking {
-                                    val countDownLatch = CountDownLatch(lastPage - currentPage)
+                                suspendCoroutine<Boolean> { booleanContinuation ->
                                     for (downloadPage in currentPage until lastPage) {
                                         launch {
                                             try {
@@ -248,24 +250,26 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                                                     val resultPath = SupportUtils.compressBitmap(result, resultFilePath, fileName, format)
                                                     resultList.add(resultPath)
                                                     Logger.d(TAG, "$fileName is saved successfully")
-                                                    countDownLatch.countDown()
                                                 }
-                                                launch(UI) {
+                                                main.launch {
                                                     progress++
                                                     DownloadManager.updateProgress(mBook.bookId, progress)
                                                 }
-                                                Logger.d(TAG, "Download page ${downloadPage + 1} completed")
+                                                Logger.d(TAG, "Downloading page ${downloadPage + 1} completed")
+                                                if (downloadPage == lastPage - 1) {
+                                                    booleanContinuation.resume(true)
+                                                }
                                             } catch (exception: Exception) {
-                                                countDownLatch.countDown()
+                                                Logger.d(TAG, "Downloading page ${downloadPage + 1} failed")
+                                                booleanContinuation.resume(false)
                                             }
                                         }
                                     }
-                                    countDownLatch.await()
                                 }
                                 currentPage += BATCH_COUNT
                             }
                             delay(1000)
-                            launch(UI) {
+                            main.launch {
                                 nHentaiApp.refreshGallery(*resultList.toTypedArray())
                                 DownloadManager.endDownloading(progress, total)
                             }
@@ -283,10 +287,10 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
     }
 
     override fun restartBookPreview(bookId: String) {
-        launch {
+        io.launch {
             val bookDetails = mBookRepository.getBookDetails(bookId)
             bookDetails?.let {
-                launch(UI) {
+                main.launch {
                     BookPreviewActivity.restart(bookDetails)
                 }
             }
@@ -294,10 +298,10 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
     }
 
     override fun changeBookFavorite() {
-        launch {
+        io.launch {
             mBookRepository.saveFavoriteBook(mBook.bookId, !isFavoriteBook)
             refreshBookFavorite()
-            launch(UI) {
+            main.launch {
                 mView.showFavoriteBookSaved(isFavoriteBook)
             }
         }
@@ -385,7 +389,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
     }
 
     private fun loadRecommendBook() {
-        launch {
+        io.launch {
             mBookRepository.getRecommendBook(mBook.bookId)?.bookList?.let { bookList ->
                 val recentList = LinkedList<Int>()
                 val favoriteList = LinkedList<Int>()
@@ -400,7 +404,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                     }
                 }
                 Logger.d(TAG, "Number of recommend book of book ${mBook.bookId}: ${bookList.size}")
-                launch(UI) {
+                main.launch {
                     if (!bookList.isEmpty()) {
                         mView.showRecommendBook(bookList)
                         if (!recentList.isEmpty()) {
@@ -418,12 +422,13 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
     }
 
     private fun refreshBookFavorite() {
-        val countDownLatch = CountDownLatch(1)
-        launch {
-            isFavoriteBook = mBookRepository.isFavoriteBook(mBook.bookId)
+        runBlocking {
+            isFavoriteBook = suspendCoroutine { continuation ->
+                io.launch {
+                    continuation.resume(mBookRepository.isFavoriteBook(mBook.bookId))
+                }
+            }
             Logger.d(TAG, "isFavoriteBook: $isFavoriteBook")
-            countDownLatch.countDown()
         }
-        countDownLatch.await()
     }
 }

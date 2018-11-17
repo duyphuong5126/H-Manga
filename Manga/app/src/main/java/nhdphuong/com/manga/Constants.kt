@@ -84,16 +84,18 @@ class Constants {
         const val NHENTAI_DB = "nHentai"
         const val BOOK_ID = "bookId"
         const val IS_FAVORITE = "isFavorite"
-        const val TABLE_ARTIST = "Artist"
-        const val TABLE_CHARACTER = "Character"
-        const val TABLE_CATEGORY = "Category"
-        const val TABLE_LANGUAGE = "Language"
-        const val TABLE_PARODY = "Parody"
-        const val TABLE_GROUP = "Group"
-        const val TABLE_TAG = "Tag"
+        const val TABLE_ARTIST = "Artists"
+        const val TABLE_CHARACTER = "Characters"
+        const val TABLE_CATEGORY = "Categories"
+        const val TABLE_LANGUAGE = "Languages"
+        const val TABLE_PARODY = "Parodies"
+        const val TABLE_GROUP = "Groups"
+        const val TABLE_TAG = "Tags"
         const val TABLE_UNKNOWN = "UnknownTags"
 
         // Notifications
         const val NOTIFICATION_CHANNEL_ID = "nHentaiApp"
+
+        const val TAG_PREFIXES = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     }
 }

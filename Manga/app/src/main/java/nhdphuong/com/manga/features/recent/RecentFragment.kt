@@ -143,12 +143,13 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             recentPagination.visibility = View.GONE
             return
         }
-        mPaginationAdapter = PaginationAdapter(context!!, pageCount, object : PaginationAdapter.OnPageSelectCallback {
+        mPaginationAdapter = PaginationAdapter(context!!, pageCount)
+        mPaginationAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
             override fun onPageSelected(page: Int) {
                 Logger.d(TAG, "Page $page is selected")
                 mPresenter.jumpToPage(page)
             }
-        })
+        }
         recentPagination.visibility = View.VISIBLE
         recentPagination.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
         recentPagination.adapter = mPaginationAdapter

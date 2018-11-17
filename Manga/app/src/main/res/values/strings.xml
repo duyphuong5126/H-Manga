@@ -120,6 +120,10 @@
     <string name="number_of_tags">Tags: %d</string>
     <string name="number_of_unknown">Unknown: %d</string>
 
+    <string name="tags_count">"(%s items)"</string>
+    <string name="a_z">A-Z</string>
+    <string name="popular">Popular</string>
+
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>
         <item>..</item>

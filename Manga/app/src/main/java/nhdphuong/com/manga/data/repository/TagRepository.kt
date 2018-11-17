@@ -1,23 +1,26 @@
 package nhdphuong.com.manga.data.repository
 
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.TagDataSource
 import nhdphuong.com.manga.scope.Local
 import nhdphuong.com.manga.scope.Remote
+import nhdphuong.com.manga.scope.corountine.IO
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class TagRepository @Inject constructor(@Remote private val mTagRemoteDataSource: TagDataSource.Remote,
-                                        @Local private val mTagLocalDataSource: TagDataSource.Local){
+                                        @Local private val mTagLocalDataSource: TagDataSource.Local,
+                                        @IO private val io: CoroutineScope) {
     companion object {
         private const val TAG = "TagRepository"
         private const val TOTAL_TAG_TYPES = 8
     }
 
-    fun fetchAllTagLists(onComplete:(Boolean) -> Unit) {
+    fun fetchAllTagLists(onComplete: (Boolean) -> Unit) {
         val tagCount = AtomicInteger(0)
         val handleSuccess = {
             if (tagCount.incrementAndGet() >= TOTAL_TAG_TYPES) {
@@ -30,7 +33,7 @@ class TagRepository @Inject constructor(@Remote private val mTagRemoteDataSource
             }
         }
 
-        launch {
+        io.launch {
             launch {
                 mTagRemoteDataSource.fetchArtistsList(onSuccess = { artists ->
                     Logger.d(TAG, "artists=${artists?.size ?: 0}")
@@ -137,4 +140,8 @@ class TagRepository @Inject constructor(@Remote private val mTagRemoteDataSource
             }
         }
     }
+
+    suspend fun getTagsCountByPrefix(firstChar: Char): Int = mTagLocalDataSource.getTagCountByPrefix("$firstChar%")
+
+    suspend fun getTagCount(): Int = mTagLocalDataSource.getTagCount()
 }

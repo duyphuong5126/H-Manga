@@ -1,13 +1,16 @@
 package nhdphuong.com.manga.features.recent
 
 import android.annotation.SuppressLint
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.repository.BookRepository
+import nhdphuong.com.manga.scope.corountine.IO
+import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -18,7 +21,9 @@ import javax.inject.Inject
  */
 class RecentPresenter @Inject constructor(private val mView: RecentContract.View,
                                           private val mBookRepository: BookRepository,
-                                          private val mSharedPreferencesManager: SharedPreferencesManager) : RecentContract.Presenter {
+                                          private val mSharedPreferencesManager: SharedPreferencesManager,
+                                          @IO private val io: CoroutineScope,
+                                          @Main private val main: CoroutineScope) : RecentContract.Presenter {
     companion object {
         private const val TAG = "RecentPresenter"
         private const val MAX_PER_PAGE = 10
@@ -46,7 +51,7 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
         mRecentBookList.clear()
         mView.setUpRecentBookList(mRecentBookList)
 
-        launch {
+        io.launch {
             val job = launch {
                 mRecentCount = mBookRepository.getRecentCount()
                 mFavoriteCount = mBookRepository.getFavoriteCount()
@@ -62,13 +67,12 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
                         mCurrentPageCount++
                     }
                 }
-                launch(UI) {
+                main.launch {
                     if (mView.isActive()) {
                         mView.refreshRecentPagination(mCurrentPageCount)
                     }
                 }
             }
-            job.joinChildren()
             mJobStack.push(job)
         }
     }
@@ -77,9 +81,9 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
         mType = recentType
 
         mView.showLoading()
-        launch {
+        io.launch {
             mRecentBookList.addAll(getRecentBook(mCurrentPage - 1))
-            launch(UI) {
+            main.launch {
                 if (mView.isActive()) {
                     mView.refreshRecentBookList()
                     mView.hideLoading()
@@ -91,7 +95,7 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
 
     override fun reloadRecentMarks() {
         val bookList = LinkedList<Int>()
-        launch {
+        io.launch {
             if (mType == Constants.RECENT) {
                 for (id in 0 until mRecentBookList.size) {
                     mRecentBookList[id].bookId.let { bookId ->
@@ -103,7 +107,7 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
                     }
                 }
 
-                launch(UI) {
+                main.launch {
                     if (!bookList.isEmpty()) {
                         mView.showRecentBooks(bookList)
                     }
@@ -119,7 +123,7 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
                     }
                 }
 
-                launch(UI) {
+                main.launch {
                     if (!bookList.isEmpty()) {
                         mView.showFavoriteBooks(bookList)
                     }
@@ -154,7 +158,7 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
     }
 
     override fun stop() {
-        launch {
+        io.launch {
             while (mJobStack.size > 0) {
                 val job = mJobStack.pop()
                 job.cancel()
@@ -169,14 +173,14 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
     }
 
     private fun onPageChange() {
-        launch {
+        io.launch {
             mRecentBookList.clear()
             var newPage = false
             val currentList: LinkedList<Book> = if (mPreventiveData.containsKey(mCurrentPage)) {
                 mPreventiveData[mCurrentPage] as LinkedList<Book>
             } else {
                 newPage = true
-                launch(UI) {
+                main.launch {
                     mView.showLoading()
                 }
                 val bookList = getRecentBook(mCurrentPage - 1)
@@ -197,7 +201,7 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
             }
             logListInt("Final page list: ", LinkedList(mPreventiveData.keys))
 
-            launch(UI) {
+            main.launch {
                 mView.refreshRecentBookList()
                 if (newPage) {
                     mView.hideLoading()

@@ -4,7 +4,8 @@ import com.google.gson.JsonArray
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -12,13 +13,17 @@ import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.entity.book.tags.Tag
+import nhdphuong.com.manga.scope.corountine.IO
+import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 import javax.inject.Inject
 
 class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
                                          private val mBookApiService: BookApiService,
-                                         private val mSharedPreferencesManager: SharedPreferencesManager) : AdminContract.Presenter {
+                                         private val mSharedPreferencesManager: SharedPreferencesManager,
+                                         @IO private val io: CoroutineScope,
+                                         @Main private val main: CoroutineScope) : AdminContract.Presenter {
     companion object {
         private const val TAG = "AdminPresenter"
     }
@@ -145,7 +150,7 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
     }
 
     private fun saveTagsFiles(tagsMap: Map<Long, Tag>, tagName: String) {
-        launch {
+        io.launch {
             val jsonArray = JsonArray()
             for (entry in tagsMap.entries) {
                 jsonArray.add(entry.value.jsonValue)
@@ -156,7 +161,7 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
     }
 
     private fun saveChangeLogsFile() {
-        launch {
+        io.launch {
             val stringBuffer = StringBuffer("")
             val calendar = Calendar.getInstance(Locale.US)
             val total = mArtists.size + mCategories.size + mCharacters.size + mLanguages.size + mParodies.size + mGroups.size + mTags.size + mUnknownTypes.size

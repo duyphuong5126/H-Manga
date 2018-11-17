@@ -8,13 +8,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.SupportUtils
 
-class PaginationAdapter(context: Context, pageCount: Int, private val onPageSelectCallback: OnPageSelectCallback) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class PaginationAdapter(context: Context, private var pageCount: Int,
+                        private var paginationMode: PaginationMode = PaginationMode.NUMBER) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    companion object {
+        private const val TAG_PREFIXES = Constants.TAG_PREFIXES
+    }
+
     private val mPageList: List<Int> = (1..pageCount).toList()
-    private var mCurrentPage = mPageList[0]
+    private var mCurrentPage: Int = if (paginationMode == PaginationMode.NUMBER) mPageList[0] else 0
     private val mDefaultTextSize = SupportUtils.dp2Pixel(context, 30)
+
+    var onPageSelectCallback: OnPageSelectCallback? = null
+    var onCharacterSelectCallback: OnCharacterSelectCallback? = null
 
     private var mMaxVisible: Int = 0
     val maxVisible: Int
@@ -22,19 +31,33 @@ class PaginationAdapter(context: Context, pageCount: Int, private val onPageSele
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_home_pagination, parent, false)
-        return HomePaginationViewHolder(view, onPageSelectCallback)
+        return if (paginationMode == PaginationMode.NUMBER) {
+            NumberPaginationViewHolder(view, onPageSelectCallback!!)
+        } else {
+            CharacterPaginationViewHolder(view, onCharacterSelectCallback!!)
+        }
     }
 
-    override fun getItemCount(): Int = mPageList.size
+    override fun getItemCount(): Int = pageCount
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val homePaginationViewHolder = holder as HomePaginationViewHolder
-        homePaginationViewHolder.setData(mPageList[position])
-        homePaginationViewHolder.setPageSelected(mPageList[position])
-        mMaxVisible++
+        when (paginationMode) {
+            PaginationMode.CHARACTER -> {
+                val characterPaginationViewHolder = holder as CharacterPaginationViewHolder
+                characterPaginationViewHolder.setData(position, TAG_PREFIXES[position])
+                characterPaginationViewHolder.setPageSelected(position)
+                mMaxVisible++
+            }
+            else -> {
+                val numberPaginationViewHolder = holder as NumberPaginationViewHolder
+                numberPaginationViewHolder.setData(mPageList[position])
+                numberPaginationViewHolder.setPageSelected(mPageList[position])
+                mMaxVisible++
+            }
+        }
     }
 
-    private inner class HomePaginationViewHolder(itemView: View, private val onPageSelectCallback: OnPageSelectCallback) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    private inner class NumberPaginationViewHolder(itemView: View, private val onPageSelectCallback: OnPageSelectCallback) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private val mTvPageNumber: TextView = itemView.findViewById(R.id.tvPageNumber)
         private var mPage = -1
 
@@ -72,6 +95,40 @@ class PaginationAdapter(context: Context, pageCount: Int, private val onPageSele
         }
     }
 
+    private inner class CharacterPaginationViewHolder(itemView: View, private val onPageSelectCallback: OnCharacterSelectCallback) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        private val mTvPageNumber: TextView = itemView.findViewById(R.id.tvPageNumber)
+        private var mPage = -1
+
+        init {
+            itemView.setOnClickListener(this)
+            mTvPageNumber.setOnClickListener(this)
+        }
+
+        override fun onClick(p0: View?) {
+            onPageSelectCallback.onPageSelected(TAG_PREFIXES[mPage])
+            val lastSelectedPage = mCurrentPage
+            mCurrentPage = mPage
+            notifyItemChanged(lastSelectedPage)
+            notifyItemChanged(mCurrentPage)
+        }
+
+        fun setData(pageNumber: Int, character: Char) {
+            mPage = pageNumber
+            mTvPageNumber.text = character.toString()
+        }
+
+        fun setPageSelected(pageSelected: Int) {
+            val selected = pageSelected == mCurrentPage
+            if (selected) {
+                TextViewCompat.setTextAppearance(mTvPageNumber, R.style.PageSelected)
+                mTvPageNumber.setBackgroundResource(R.drawable.bg_circle_grey_1)
+            } else {
+                TextViewCompat.setTextAppearance(mTvPageNumber, R.style.PageNotSelected)
+                mTvPageNumber.setBackgroundResource(0)
+            }
+        }
+    }
+
     fun selectFirstPage() {
         val lastSelectedPage = mCurrentPage
         mCurrentPage = 1
@@ -88,5 +145,14 @@ class PaginationAdapter(context: Context, pageCount: Int, private val onPageSele
 
     interface OnPageSelectCallback {
         fun onPageSelected(page: Int)
+    }
+
+    interface OnCharacterSelectCallback {
+        fun onPageSelected(character: Char)
+    }
+
+    enum class PaginationMode {
+        NUMBER,
+        CHARACTER
     }
 }
