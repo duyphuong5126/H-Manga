@@ -37,3 +37,4 @@
 -dontwarn Type_mirror_extKt
 -dontwarn Type_mirror_extKt$WhenMappings
 -keepattributes SourceFile,LineNumberTable
+-keepnames class kotlinx.** { *; }
