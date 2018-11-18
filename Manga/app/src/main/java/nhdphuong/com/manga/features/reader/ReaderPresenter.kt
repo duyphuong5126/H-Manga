@@ -83,7 +83,7 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
 
         preloadPagesAround(mStartReadingPage)
 
-        //mView.pushNowReadingNotification(mBook.previewTitle, mStartReadingPage + 1, mBookPages.size)
+        mView.pushNowReadingNotification(mBook.previewTitle, mStartReadingPage + 1, mBookPages.size)
     }
 
     override fun updatePageIndicator(page: Int) {
@@ -168,10 +168,10 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
     override fun stop() {
         Logger.d(TAG, "End reading: ${mBook.previewTitle}")
         isDownloading = false
-        /*if (mNotificationId != -1) {
+        if (mNotificationId != -1) {
             mView.removeNotification(mNotificationId)
             mNotificationId = -1
-        }*/
+        }
     }
 
     private fun saveRecentBook() {
