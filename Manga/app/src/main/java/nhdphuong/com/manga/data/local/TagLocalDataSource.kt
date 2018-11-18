@@ -55,13 +55,19 @@ class TagLocalDataSource @Inject constructor(private val mTagDAO: TagDAO,
 
     override suspend fun getTagCountByPrefix(prefix: String): Int = mTagDAO.getTagCountByPrefix(prefix)
 
-    override fun getTagsByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPrefixAscending(prefixString, limit, offset)
+    override suspend fun getTagCountBySpecialCharactersPrefix(): Int = mTagDAO.getTagCountBySpecialCharactersPrefix()
 
-    override fun getTagsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPrefixDescending(prefixString, limit, offset)
+    override suspend fun getTagsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsBySpecialCharactersPrefixAscending(limit, offset)
 
-    override fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPopularityAscending(limit, offset)
+    override suspend fun getTagsBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsBySpecialCharactersPrefixDescending(limit, offset)
 
-    override fun getTagsByPopularityDescending(limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPopularityDescending(limit, offset)
+    override suspend fun getTagsByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPrefixAscending(prefixString, limit, offset)
+
+    override suspend fun getTagsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPrefixDescending(prefixString, limit, offset)
+
+    override suspend fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPopularityAscending(limit, offset)
+
+    override suspend fun getTagsByPopularityDescending(limit: Int, offset: Int): List<Tag> = mTagDAO.getTagsByPopularityDescending(limit, offset)
 
     override fun insertUnknownTypesList(unknownTagsList: List<UnknownTag>) {
         io.launch {

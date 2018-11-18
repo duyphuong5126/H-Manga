@@ -14,6 +14,9 @@ interface TagDAO {
 
         private const val COLUMN_NAME = Constants.NAME
         private const val COLUMN_COUNT = Constants.COUNT
+
+        private const val ALPHABET_CHARACTERS_CONDITION = "('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', " +
+                "'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z')"
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -42,23 +45,24 @@ interface TagDAO {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTags(tags: List<Tag>)
-
     @Query("SELECT count(*) FROM $TABLE_TAG")
     fun getTagCount(): Int
-
     // From A-Z only
-    @Query("SELECT count(*) FROM $TABLE_TAG WHERE $COLUMN_NAME like :prefixString")
+    @Query("SELECT count(*) FROM $TABLE_TAG WHERE $COLUMN_NAME LIKE :prefixString")
     fun getTagCountByPrefix(prefixString: String): Int
-
-    @Query("SELECT * FROM $TABLE_TAG WHERE $COLUMN_NAME like :prefixString ORDER BY $COLUMN_NAME ASC limit :limit offset :offset")
+    // From special characters only
+    @Query("SELECT count(*) FROM $TABLE_TAG WHERE SUBSTR($COLUMN_NAME, 1, 1) NOT IN $ALPHABET_CHARACTERS_CONDITION")
+    fun getTagCountBySpecialCharactersPrefix(): Int
+    @Query("SELECT * FROM $TABLE_TAG WHERE SUBSTR($COLUMN_NAME, 1, 1) NOT IN $ALPHABET_CHARACTERS_CONDITION ORDER BY $COLUMN_NAME ASC LIMIT :limit OFFSET :offset")
+    fun getTagsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Tag>
+    @Query("SELECT * FROM $TABLE_TAG WHERE SUBSTR($COLUMN_NAME, 1, 1) NOT IN $ALPHABET_CHARACTERS_CONDITION ORDER BY $COLUMN_NAME DESC LIMIT :limit OFFSET :offset")
+    fun getTagsBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Tag>
+    @Query("SELECT * FROM $TABLE_TAG WHERE $COLUMN_NAME LIKE :prefixString ORDER BY $COLUMN_NAME ASC LIMIT :limit OFFSET :offset")
     fun getTagsByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Tag>
-
-    @Query("SELECT * FROM $TABLE_TAG WHERE $COLUMN_NAME like :prefixString ORDER BY $COLUMN_NAME DESC limit :limit offset :offset")
+    @Query("SELECT * FROM $TABLE_TAG WHERE $COLUMN_NAME LIKE :prefixString ORDER BY $COLUMN_NAME DESC LIMIT :limit OFFSET :offset")
     fun getTagsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Tag>
-
-    @Query("SELECT * FROM $TABLE_TAG ORDER BY $COLUMN_COUNT ASC limit :limit offset :offset")
+    @Query("SELECT * FROM $TABLE_TAG ORDER BY $COLUMN_COUNT ASC LIMIT :limit OFFSET :offset")
     fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag>
-
-    @Query("SELECT * FROM $TABLE_TAG ORDER BY $COLUMN_COUNT DESC limit :limit offset :offset")
+    @Query("SELECT * FROM $TABLE_TAG ORDER BY $COLUMN_COUNT DESC LIMIT :limit OFFSET :offset")
     fun getTagsByPopularityDescending(limit: Int, offset: Int): List<Tag>
 }

@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.TagDataSource
+import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.scope.Local
 import nhdphuong.com.manga.scope.Remote
 import nhdphuong.com.manga.scope.corountine.IO
@@ -141,7 +142,17 @@ class TagRepository @Inject constructor(@Remote private val mTagRemoteDataSource
         }
     }
 
+    suspend fun getTagCount(): Int = mTagLocalDataSource.getTagCount()
+
     suspend fun getTagsCountByPrefix(firstChar: Char): Int = mTagLocalDataSource.getTagCountByPrefix("$firstChar%")
 
-    suspend fun getTagCount(): Int = mTagLocalDataSource.getTagCount()
+    suspend fun getTagCountBySpecialCharactersPrefix(): Int = mTagLocalDataSource.getTagCountBySpecialCharactersPrefix()
+
+    suspend fun getTagsByPrefixAscending(prefixChar: Char, limit: Int, offset: Int): List<Tag> = mTagLocalDataSource.getTagsByPrefixAscending("$prefixChar%", limit, offset)
+
+    suspend fun getTagsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Tag> = mTagLocalDataSource.getTagsBySpecialCharactersPrefixAscending(limit, offset)
+
+    suspend fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag> = mTagLocalDataSource.getTagsByPopularityAscending(limit, offset)
+
+    suspend fun getTagsByPopularityDescending(limit: Int, offset: Int): List<Tag> = mTagLocalDataSource.getTagsByPopularityDescending(limit, offset)
 }

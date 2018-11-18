@@ -25,10 +25,13 @@ interface TagDataSource {
         fun insertTagsList(tagsList: List<Tag>)
         suspend fun getTagCount(): Int
         suspend fun getTagCountByPrefix(prefix: String): Int
-        fun getTagsByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Tag>
-        fun getTagsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Tag>
-        fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag>
-        fun getTagsByPopularityDescending(limit: Int, offset: Int): List<Tag>
+        suspend fun getTagCountBySpecialCharactersPrefix(): Int
+        suspend fun getTagsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Tag>
+        suspend fun getTagsBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Tag>
+        suspend fun getTagsByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Tag>
+        suspend fun getTagsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Tag>
+        suspend fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag>
+        suspend fun getTagsByPopularityDescending(limit: Int, offset: Int): List<Tag>
         fun insertUnknownTypesList(unknownTagsList: List<UnknownTag>)
     }
 }

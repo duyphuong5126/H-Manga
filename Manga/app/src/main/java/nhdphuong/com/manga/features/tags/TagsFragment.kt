@@ -15,9 +15,11 @@ import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tag
 import nhdphuong.com.manga.data.TagFilter
+import nhdphuong.com.manga.data.entity.book.tags.ITag
 import nhdphuong.com.manga.databinding.FragmentTagsBinding
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
+import nhdphuong.com.manga.views.adapters.TagItemAdapter
 import nhdphuong.com.manga.views.customs.MyButton
 
 /*
@@ -34,7 +36,9 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     private val mCharacterCount = Constants.TAG_PREFIXES.length
     private val mTagCountString = NHentaiApp.instance.getString(R.string.tags_count)
 
-    private lateinit var mPaginationAdapter: PaginationAdapter
+    private lateinit var mCharacterAdapter: PaginationAdapter
+    private lateinit var mNumberAdapter: PaginationAdapter
+    private lateinit var mTagItemAdapter: TagItemAdapter
     override fun setPresenter(presenter: TagsContract.Presenter) {
         mPresenter = presenter
     }
@@ -46,18 +50,19 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mPaginationAdapter = PaginationAdapter(context!!, mCharacterCount, PaginationAdapter.PaginationMode.CHARACTER)
-        mPaginationAdapter.onCharacterSelectCallback = object : PaginationAdapter.OnCharacterSelectCallback {
+        mCharacterAdapter = PaginationAdapter(context!!, mCharacterCount, PaginationAdapter.PaginationMode.CHARACTER)
+        mCharacterAdapter.onCharacterSelectCallback = object : PaginationAdapter.OnCharacterSelectCallback {
             override fun onPageSelected(character: Char) {
                 Logger.d(TAG, "character=$character")
+                mPresenter.filterByCharacter(character)
             }
         }
         mBinding.run {
             rvAlphabetPagination.run {
-                adapter = mPaginationAdapter
+                adapter = mCharacterAdapter
                 visibility = View.VISIBLE
                 layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-                adapter = mPaginationAdapter
+                adapter = mCharacterAdapter
             }
 
             mbAlphabet.setOnClickListener {
@@ -87,6 +92,55 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
         mBinding.mtvCount.text = String.format(mTagCountString, SupportUtils.formatBigNumber(tagCount.toLong()))
     }
 
+    override fun refreshPages(pagesCount: Int) {
+        mBinding.run {
+            if (pagesCount == 0) {
+                btnFirstPage.visibility = View.GONE
+                btnLastPage.visibility = View.GONE
+                rvPagination.visibility = View.GONE
+                return
+            }
+            mNumberAdapter = PaginationAdapter(context!!, pagesCount)
+            mNumberAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
+                override fun onPageSelected(page: Int) {
+                    Logger.d(TAG, "Page $page is selected")
+                    mPresenter.jumpToPage(page)
+                }
+            }
+            rvPagination.visibility = View.VISIBLE
+            rvPagination.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+            rvPagination.adapter = mNumberAdapter
+        }
+    }
+
+    override fun setUpTagsList(source: ArrayList<ITag>, tags: List<ITag>) {
+        if (!this::mTagItemAdapter.isInitialized) {
+            mTagItemAdapter = TagItemAdapter(source, object : TagItemAdapter.OnTagClickListener {
+                override fun onTagClick(iTag: ITag) {
+                    Logger.d(TAG, "Tag: ${iTag.name()}")
+                }
+            })
+            mBinding.rvTagsList.apply {
+                val linearLayoutManager = object : LinearLayoutManager(context) {
+                    override fun isAutoMeasureEnabled(): Boolean {
+                        return true
+                    }
+                }
+                linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
+                layoutManager = linearLayoutManager
+                adapter = mTagItemAdapter
+            }
+        }
+        mTagItemAdapter.submitList(tags)
+    }
+
+    override fun refreshTagsList(tags: List<ITag>) {
+        mTagItemAdapter.submitList(tags)
+        if (mTagItemAdapter.itemCount > 0) {
+            mBinding.nsvContainer.scrollTo(0, 0)
+        }
+    }
+
     override fun showLoading() {
 
     }
@@ -100,9 +154,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     private fun changeTagFilterType(tagFilter: TagFilter) {
         mPresenter.changeTagFilterType(tagFilter)
         mBinding.run {
-            rvAlphabetPagination.visibility = if (tagFilter == TagFilter.ALPHABET) View.VISIBLE else View.GONE
-            btnFirst.visibility = if (tagFilter == TagFilter.ALPHABET) View.VISIBLE else View.GONE
-            btnLast.visibility = if (tagFilter == TagFilter.ALPHABET) View.VISIBLE else View.GONE
+            clAlphabetNavigation.visibility = if (tagFilter == TagFilter.ALPHABET) View.VISIBLE else View.GONE
         }
     }
 
