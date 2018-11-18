@@ -165,13 +165,16 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
         mNotificationId = notificationId
     }
 
-    override fun stop() {
-        Logger.d(TAG, "End reading: ${mBook.previewTitle}")
-        isDownloading = false
+    override fun endReading() {
         if (mNotificationId != -1) {
             mView.removeNotification(mNotificationId)
             mNotificationId = -1
         }
+    }
+
+    override fun stop() {
+        Logger.d(TAG, "End reading: ${mBook.previewTitle}")
+        isDownloading = false
     }
 
     private fun saveRecentBook() {

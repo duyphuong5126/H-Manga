@@ -8,6 +8,7 @@ import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v4.app.NotificationCompat
 import android.support.v4.view.ViewPager
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -80,6 +81,14 @@ class ReaderFragment : Fragment(), ReaderContract.View {
                 }
             }
         }
+        view.isFocusableInTouchMode = true
+        view.requestFocus()
+        view.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == KeyEvent.ACTION_UP) {
+                mPresenter.endReading()
+            }
+            return@OnKeyListener false
+        })
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -161,6 +170,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun navigateToGallery() {
+        mPresenter.endReading()
         activity?.onBackPressed()
     }
 

@@ -26,5 +26,6 @@ interface ReaderContract {
         fun downloadCurrentPage()
         fun reloadCurrentPage(onForceReload: (Int) -> Unit)
         fun updateNotificationId(notificationId: Int)
+        fun endReading()
     }
 }
