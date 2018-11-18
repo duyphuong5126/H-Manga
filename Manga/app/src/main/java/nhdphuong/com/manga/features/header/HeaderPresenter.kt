@@ -23,10 +23,6 @@ class HeaderPresenter @Inject constructor(private val mView: HeaderContract.View
         Logger.d(TAG, "This is ${hashCode()}")
     }
 
-    override fun goToTagList(@Tag tag: String) {
-        TagsActivity.start(mContext, tag)
-    }
-
     override fun stop() {
 
     }

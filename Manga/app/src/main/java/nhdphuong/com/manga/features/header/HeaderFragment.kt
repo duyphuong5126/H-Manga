@@ -1,6 +1,8 @@
 package nhdphuong.com.manga.features.header
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -14,9 +16,10 @@ import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
 import nhdphuong.com.manga.databinding.FragmentHeaderBinding
+import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.features.admin.AdminActivity
-import nhdphuong.com.manga.features.home.HomeContract
 import nhdphuong.com.manga.features.recent.RecentActivity
+import nhdphuong.com.manga.features.tags.TagsActivity
 import nhdphuong.com.manga.features.tags.TagsContract
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.views.DialogHelper
@@ -26,11 +29,16 @@ import nhdphuong.com.manga.views.adapters.TabAdapter
  * Created by nhdphuong on 4/10/18.
  */
 class HeaderFragment : Fragment(), HeaderContract.View {
+    companion object {
+        private const val TAG_REQUEST_CODE = 10007
+    }
+
     private lateinit var mPresenter: HeaderContract.Presenter
     private lateinit var mBinding: FragmentHeaderBinding
     private lateinit var mTabAdapter: TabAdapter
     private lateinit var mTagChangeListener: TagsContract
-    private lateinit var mHomeContract: HomeContract
+    private lateinit var mSearchContract: SearchContract
+
     override fun setPresenter(presenter: HeaderContract.Presenter) {
         mPresenter = presenter
     }
@@ -77,8 +85,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                         if (::mTagChangeListener.isInitialized) {
                             mTagChangeListener.onTagChange(tab.defaultName)
                         } else {
-                            mPresenter.goToTagList(tab.defaultName)
-                            mTabAdapter.reset()
+                            TagsActivity.start(this@HeaderFragment, tab.defaultName, TAG_REQUEST_CODE)
                         }
                     }
                     else -> {
@@ -105,7 +112,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
             toggleTagsLayout()
         }
         mBinding.ibSearch.setOnClickListener {
-            mHomeContract.onSearchInputted(mBinding.edtSearch.text.toString())
+            mSearchContract.onSearchInputted(mBinding.edtSearch.text.toString())
         }
     }
 
@@ -123,12 +130,22 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        resetTabBar()
+        if (resultCode == Activity.RESULT_OK && requestCode == TAG_REQUEST_CODE) {
+            val searchData = data?.getStringExtra(Constants.TAG_RESULT) ?: ""
+            mSearchContract.onSearchInputted(searchData)
+            mBinding.edtSearch.setText(searchData)
+        }
+    }
+
     override fun setTagChangeListener(tagsContract: TagsContract) {
         mTagChangeListener = tagsContract
     }
 
-    override fun setSearchInputListener(homeContract: HomeContract) {
-        mHomeContract = homeContract
+    override fun setSearchInputListener(searchContract: SearchContract) {
+        mSearchContract = searchContract
     }
 
     override fun updateSearchBar(searchContent: String) {

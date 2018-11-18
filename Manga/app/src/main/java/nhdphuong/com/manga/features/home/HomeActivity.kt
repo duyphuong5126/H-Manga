@@ -20,12 +20,13 @@ import android.text.TextUtils
 import android.view.KeyEvent
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.features.header.HeaderFragment
 import nhdphuong.com.manga.features.header.HeaderModule
 import nhdphuong.com.manga.features.header.HeaderPresenter
 
 
-class HomeActivity : AppCompatActivity(), HomeContract {
+class HomeActivity : AppCompatActivity(), SearchContract {
     companion object {
         private const val TAG = "HomeActivity"
     }

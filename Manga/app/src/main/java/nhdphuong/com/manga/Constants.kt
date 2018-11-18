@@ -97,5 +97,7 @@ class Constants {
         const val NOTIFICATION_CHANNEL_ID = "nHentaiApp"
 
         const val TAG_PREFIXES = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+        const val TAG_RESULT = "TAG_RESULT"
     }
 }

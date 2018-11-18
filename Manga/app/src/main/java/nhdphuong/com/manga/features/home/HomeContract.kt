@@ -7,8 +7,6 @@ import nhdphuong.com.manga.data.entity.book.Book
  * Created by nhdphuong on 3/18/18.
  */
 interface HomeContract {
-    fun onSearchInputted(data: String)
-
     interface View : Base.View<Presenter> {
         fun setUpHomeBookList(homeBookList: List<Book>)
         fun refreshHomeBookList()

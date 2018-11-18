@@ -32,9 +32,9 @@ class PaginationAdapter(context: Context, private var pageCount: Int,
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_home_pagination, parent, false)
         return if (paginationMode == PaginationMode.NUMBER) {
-            NumberPaginationViewHolder(view, onPageSelectCallback!!)
+            NumberPaginationViewHolder(view)
         } else {
-            CharacterPaginationViewHolder(view, onCharacterSelectCallback!!)
+            CharacterPaginationViewHolder(view)
         }
     }
 
@@ -57,7 +57,7 @@ class PaginationAdapter(context: Context, private var pageCount: Int,
         }
     }
 
-    private inner class NumberPaginationViewHolder(itemView: View, private val onPageSelectCallback: OnPageSelectCallback) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    private inner class NumberPaginationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private val mTvPageNumber: TextView = itemView.findViewById(R.id.tvPageNumber)
         private var mPage = -1
 
@@ -67,11 +67,7 @@ class PaginationAdapter(context: Context, private var pageCount: Int,
         }
 
         override fun onClick(p0: View?) {
-            onPageSelectCallback.onPageSelected(mPage)
-            val lastSelectedPage = mCurrentPage
-            mCurrentPage = mPage
-            notifyItemChanged(mPageList.indexOf(lastSelectedPage))
-            notifyItemChanged(mPageList.indexOf(mCurrentPage))
+            moveToItem(mPage)
         }
 
         fun setData(pageNumber: Int) {
@@ -95,7 +91,7 @@ class PaginationAdapter(context: Context, private var pageCount: Int,
         }
     }
 
-    private inner class CharacterPaginationViewHolder(itemView: View, private val onPageSelectCallback: OnCharacterSelectCallback) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    private inner class CharacterPaginationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private val mTvPageNumber: TextView = itemView.findViewById(R.id.tvPageNumber)
         private var mPage = -1
 
@@ -105,11 +101,7 @@ class PaginationAdapter(context: Context, private var pageCount: Int,
         }
 
         override fun onClick(p0: View?) {
-            onPageSelectCallback.onPageSelected(TAG_PREFIXES[mPage])
-            val lastSelectedPage = mCurrentPage
-            mCurrentPage = mPage
-            notifyItemChanged(lastSelectedPage)
-            notifyItemChanged(mCurrentPage)
+            moveToItem(mPage)
         }
 
         fun setData(pageNumber: Int, character: Char) {
@@ -141,6 +133,40 @@ class PaginationAdapter(context: Context, private var pageCount: Int,
         mCurrentPage = mPageList[mPageList.size - 1]
         notifyItemChanged(mPageList.indexOf(lastSelectedPage))
         notifyItemChanged(mPageList.indexOf(mCurrentPage))
+    }
+
+    private fun moveToItem(index: Int) {
+        val lastSelectedPage = mCurrentPage
+        mCurrentPage = index
+        if (paginationMode == PaginationMode.NUMBER) {
+            onPageSelectCallback?.onPageSelected(index)
+            notifyItemChanged(mPageList.indexOf(lastSelectedPage))
+            notifyItemChanged(mPageList.indexOf(mCurrentPage))
+        } else {
+            onCharacterSelectCallback?.onPageSelected(TAG_PREFIXES[index])
+            notifyItemChanged(lastSelectedPage)
+            notifyItemChanged(mCurrentPage)
+        }
+    }
+
+    fun jumpToFirst() {
+        if (paginationMode == PaginationMode.NUMBER) {
+            if (!mPageList.isEmpty()) {
+                moveToItem(mPageList[0])
+            }
+        } else {
+            moveToItem(0)
+        }
+    }
+
+    fun jumpToLast() {
+        if (paginationMode == PaginationMode.NUMBER) {
+            if (!mPageList.isEmpty()) {
+                moveToItem(mPageList[mPageList.size - 1])
+            }
+        } else {
+            moveToItem(itemCount - 1)
+        }
     }
 
     interface OnPageSelectCallback {

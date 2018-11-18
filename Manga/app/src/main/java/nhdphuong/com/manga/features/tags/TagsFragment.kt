@@ -17,6 +17,7 @@ import nhdphuong.com.manga.data.Tag
 import nhdphuong.com.manga.data.TagFilter
 import nhdphuong.com.manga.data.entity.book.tags.ITag
 import nhdphuong.com.manga.databinding.FragmentTagsBinding
+import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import nhdphuong.com.manga.views.adapters.TagItemAdapter
@@ -39,6 +40,8 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     private lateinit var mCharacterAdapter: PaginationAdapter
     private lateinit var mNumberAdapter: PaginationAdapter
     private lateinit var mTagItemAdapter: TagItemAdapter
+    private lateinit var mSearchContract: SearchContract
+
     override fun setPresenter(presenter: TagsContract.Presenter) {
         mPresenter = presenter
     }
@@ -64,7 +67,6 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
                 layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
                 adapter = mCharacterAdapter
             }
-
             mbAlphabet.setOnClickListener {
                 changeTagFilterType(TagFilter.ALPHABET)
                 toggleTabButton(true, mbAlphabet)
@@ -74,6 +76,30 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
                 changeTagFilterType(TagFilter.POPULARITY)
                 toggleTabButton(false, mbAlphabet)
                 toggleTabButton(true, mbPopularity)
+            }
+            btnFirst.setOnClickListener {
+                mCharacterAdapter.jumpToFirst()
+                if (mCharacterAdapter.itemCount > 0) {
+                    rvAlphabetPagination.scrollToPosition(0)
+                }
+            }
+            btnLast.setOnClickListener {
+                mCharacterAdapter.jumpToLast()
+                if (mCharacterAdapter.itemCount > 0) {
+                    rvAlphabetPagination.scrollToPosition(mCharacterAdapter.itemCount - 1)
+                }
+            }
+            btnFirstPage.setOnClickListener {
+                mNumberAdapter.jumpToFirst()
+                if (mNumberAdapter.itemCount > 0) {
+                    rvPagination.scrollToPosition(0)
+                }
+            }
+            btnLastPage.setOnClickListener {
+                mNumberAdapter.jumpToLast()
+                if (mNumberAdapter.itemCount > 0) {
+                    rvPagination.scrollToPosition(mNumberAdapter.itemCount - 1)
+                }
             }
         }
     }
@@ -85,6 +111,10 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
 
     override fun onTagChange(@Tag tag: String) {
         mPresenter.changeCurrentTag(tag)
+    }
+
+    override fun setSearchInputListener(searchContract: SearchContract) {
+        mSearchContract = searchContract
     }
 
     override fun updateTag(tagType: String, tagCount: Int) {
@@ -118,6 +148,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
             mTagItemAdapter = TagItemAdapter(source, object : TagItemAdapter.OnTagClickListener {
                 override fun onTagClick(iTag: ITag) {
                     Logger.d(TAG, "Tag: ${iTag.name()}")
+                    mSearchContract.onSearchInputted(iTag.name())
                 }
             })
             mBinding.rvTagsList.apply {
