@@ -83,6 +83,7 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
             saveTagsFiles(mGroups, Constants.GROUP)
             saveTagsFiles(mTags, Constants.TAG)
             saveTagsFiles(mUnknownTypes, "unknown")
+            saveChangeSummaryData()
             saveChangeLogsFile()
         }
     }
@@ -157,6 +158,13 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
             }
             val saveResult = SupportUtils.saveStringFile(jsonArray.toString(), tagName, NHentaiApp.instance.getTagDirectory())
             Logger.d(TAG, "$tagName list saving result=$saveResult")
+        }
+    }
+
+    private fun saveChangeSummaryData() {
+        io.launch {
+            val saveResult = SupportUtils.saveStringFile(System.currentTimeMillis().toString(), "CurrentId", NHentaiApp.instance.getTagDirectory())
+            Logger.d(TAG, "Current id saving result=$saveResult")
         }
     }
 
