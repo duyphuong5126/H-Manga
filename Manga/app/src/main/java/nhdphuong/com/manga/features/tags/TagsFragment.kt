@@ -163,6 +163,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
             }
         }
         mTagItemAdapter.submitList(tags)
+        toggleTagList(tags.isEmpty())
     }
 
     override fun refreshTagsList(tags: List<ITag>) {
@@ -170,6 +171,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
         if (mTagItemAdapter.itemCount > 0) {
             mBinding.nsvContainer.scrollTo(0, 0)
         }
+        toggleTagList(tags.isEmpty())
     }
 
     override fun showLoading() {
@@ -199,5 +201,9 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
                 button.setTextColor(ContextCompat.getColor(this, R.color.grey_1))
             }
         }
+    }
+
+    private fun toggleTagList(isEmpty: Boolean) {
+        mBinding.rvPagination.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 }

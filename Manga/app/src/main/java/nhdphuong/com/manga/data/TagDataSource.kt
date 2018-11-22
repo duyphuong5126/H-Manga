@@ -16,12 +16,75 @@ interface TagDataSource {
     }
 
     interface Local {
+        /**
+         * Fot Artists table
+         */
         fun insertArtistsList(artistsList: List<Artist>)
+        suspend fun getArtistsCount(): Int
+        suspend fun getArtistsCountByPrefix(prefix: String): Int
+        suspend fun getArtistsCountBySpecialCharactersPrefix(): Int
+        suspend fun getArtistsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Artist>
+        suspend fun getArtistsBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Artist>
+        suspend fun getArtistsByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Artist>
+        suspend fun getArtistsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Artist>
+        suspend fun getArtistsByPopularityAscending(limit: Int, offset: Int): List<Artist>
+        suspend fun getArtistsByPopularityDescending(limit: Int, offset: Int): List<Artist>
+
+        /**
+         * Fot Characters table
+         */
         fun insertCharactersList(charactersList: List<Character>)
+        suspend fun getCharactersCount(): Int
+        suspend fun getCharactersCountByPrefix(prefix: String): Int
+        suspend fun getCharactersCountBySpecialCharactersPrefix(): Int
+        suspend fun getCharactersBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Character>
+        suspend fun getCharactersBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Character>
+        suspend fun getCharactersByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Character>
+        suspend fun getCharactersByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Character>
+        suspend fun getCharactersByPopularityAscending(limit: Int, offset: Int): List<Character>
+        suspend fun getCharactersByPopularityDescending(limit: Int, offset: Int): List<Character>
+
+        /**
+         * Fot Categories table
+         */
         fun insertCategoriesList(categoriesList: List<Category>)
+
+        /**
+         * Fot Groups table
+         */
         fun insertGroupsList(groupsList: List<Group>)
+        suspend fun getGroupsCount(): Int
+        suspend fun getGroupsCountByPrefix(prefix: String): Int
+        suspend fun getGroupsCountBySpecialCharactersPrefix(): Int
+        suspend fun getGroupsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Group>
+        suspend fun getGroupsBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Group>
+        suspend fun getGroupsByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Group>
+        suspend fun getGroupsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Group>
+        suspend fun getGroupsByPopularityAscending(limit: Int, offset: Int): List<Group>
+        suspend fun getGroupsByPopularityDescending(limit: Int, offset: Int): List<Group>
+
+        /**
+         * Fot Parodies table
+         */
         fun insertParodiesList(parodiesList: List<Parody>)
+        suspend fun getParodiesCount(): Int
+        suspend fun getParodiesCountByPrefix(prefix: String): Int
+        suspend fun getParodiesCountBySpecialCharactersPrefix(): Int
+        suspend fun getParodiesBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Parody>
+        suspend fun getParodiesBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Parody>
+        suspend fun getParodiesByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Parody>
+        suspend fun getParodiesByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Parody>
+        suspend fun getParodiesByPopularityAscending(limit: Int, offset: Int): List<Parody>
+        suspend fun getParodiesByPopularityDescending(limit: Int, offset: Int): List<Parody>
+
+        /**
+         * Fot Languages table
+         */
         fun insertLanguagesList(languagesList: List<Language>)
+
+        /**
+         * Fot Tags table
+         */
         fun insertTagsList(tagsList: List<Tag>)
         suspend fun getTagCount(): Int
         suspend fun getTagCountByPrefix(prefix: String): Int
@@ -32,6 +95,10 @@ interface TagDataSource {
         suspend fun getTagsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Tag>
         suspend fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag>
         suspend fun getTagsByPopularityDescending(limit: Int, offset: Int): List<Tag>
+
+        /**
+         * Fot UnknownTypes table
+         */
         fun insertUnknownTypesList(unknownTagsList: List<UnknownTag>)
     }
 }

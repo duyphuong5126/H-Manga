@@ -153,6 +153,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
     override fun updateSearchData(data: String) {
         if (!mSearchData.equals(data, ignoreCase = true)) {
             mSearchData = data
+            mView.changeSearchResult(data)
             reload()
         } else {
             Logger.d(TAG, "Search data is not changed")

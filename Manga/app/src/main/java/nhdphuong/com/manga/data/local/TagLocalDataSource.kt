@@ -15,11 +15,47 @@ class TagLocalDataSource @Inject constructor(private val mTagDAO: TagDAO,
         }
     }
 
+    override suspend fun getArtistsCount(): Int = mTagDAO.getArtistsCount()
+
+    override suspend fun getArtistsCountByPrefix(prefix: String): Int = mTagDAO.getArtistsCountByPrefix(prefix)
+
+    override suspend fun getArtistsCountBySpecialCharactersPrefix(): Int = mTagDAO.getArtistsCountBySpecialCharactersPrefix()
+
+    override suspend fun getArtistsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Artist> = mTagDAO.getArtistsBySpecialCharactersPrefixAscending(limit, offset)
+
+    override suspend fun getArtistsBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Artist> = mTagDAO.getArtistsBySpecialCharactersPrefixDescending(limit, offset)
+
+    override suspend fun getArtistsByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Artist> = mTagDAO.getArtistsByPrefixAscending(prefixString, limit, offset)
+
+    override suspend fun getArtistsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Artist> = mTagDAO.getArtistsByPrefixDescending(prefixString, limit, offset)
+
+    override suspend fun getArtistsByPopularityAscending(limit: Int, offset: Int): List<Artist> = mTagDAO.getArtistsByPopularityAscending(limit, offset)
+
+    override suspend fun getArtistsByPopularityDescending(limit: Int, offset: Int): List<Artist> = mTagDAO.getArtistsByPopularityDescending(limit, offset)
+
     override fun insertCharactersList(charactersList: List<Character>) {
         io.launch {
             mTagDAO.insertCharacters(charactersList)
         }
     }
+
+    override suspend fun getCharactersCount(): Int = mTagDAO.getCharactersCount()
+
+    override suspend fun getCharactersCountByPrefix(prefix: String): Int = mTagDAO.getCharactersCountByPrefix(prefix)
+
+    override suspend fun getCharactersCountBySpecialCharactersPrefix(): Int = mTagDAO.getCharactersCountBySpecialCharactersPrefix()
+
+    override suspend fun getCharactersBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Character> = mTagDAO.getCharactersBySpecialCharactersPrefixAscending(limit, offset)
+
+    override suspend fun getCharactersBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Character> = mTagDAO.getCharactersBySpecialCharactersPrefixDescending(limit, offset)
+
+    override suspend fun getCharactersByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Character> = mTagDAO.getCharactersByPrefixAscending(prefixString, limit, offset)
+
+    override suspend fun getCharactersByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Character> = mTagDAO.getCharactersByPrefixDescending(prefixString, limit, offset)
+
+    override suspend fun getCharactersByPopularityAscending(limit: Int, offset: Int): List<Character> = mTagDAO.getCharactersByPopularityAscending(limit, offset)
+
+    override suspend fun getCharactersByPopularityDescending(limit: Int, offset: Int): List<Character> = mTagDAO.getCharactersByPopularityDescending(limit, offset)
 
     override fun insertCategoriesList(categoriesList: List<Category>) {
         io.launch {
@@ -33,11 +69,47 @@ class TagLocalDataSource @Inject constructor(private val mTagDAO: TagDAO,
         }
     }
 
+    override suspend fun getGroupsCount(): Int = mTagDAO.getGroupsCount()
+
+    override suspend fun getGroupsCountByPrefix(prefix: String): Int = mTagDAO.getGroupsCountByPrefix(prefix)
+
+    override suspend fun getGroupsCountBySpecialCharactersPrefix(): Int = mTagDAO.getGroupsCountBySpecialCharactersPrefix()
+
+    override suspend fun getGroupsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Group> = mTagDAO.getGroupsBySpecialCharactersPrefixAscending(limit, offset)
+
+    override suspend fun getGroupsBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Group> = mTagDAO.getGroupsBySpecialCharactersPrefixDescending(limit, offset)
+
+    override suspend fun getGroupsByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Group> = mTagDAO.getGroupsByPrefixAscending(prefixString, limit, offset)
+
+    override suspend fun getGroupsByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Group> = mTagDAO.getGroupsByPrefixDescending(prefixString, limit, offset)
+
+    override suspend fun getGroupsByPopularityAscending(limit: Int, offset: Int): List<Group> = mTagDAO.getGroupsByPopularityAscending(limit, offset)
+
+    override suspend fun getGroupsByPopularityDescending(limit: Int, offset: Int): List<Group> = mTagDAO.getGroupsByPopularityDescending(limit, offset)
+
     override fun insertParodiesList(parodiesList: List<Parody>) {
         io.launch {
             mTagDAO.insertParodies(parodiesList)
         }
     }
+
+    override suspend fun getParodiesCount(): Int = mTagDAO.getParodiesCount()
+
+    override suspend fun getParodiesCountByPrefix(prefix: String): Int = mTagDAO.getParodiesCountByPrefix(prefix)
+
+    override suspend fun getParodiesCountBySpecialCharactersPrefix(): Int = mTagDAO.getParodiesCountBySpecialCharactersPrefix()
+
+    override suspend fun getParodiesBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Parody> = mTagDAO.getParodiesBySpecialCharactersPrefixAscending(limit, offset)
+
+    override suspend fun getParodiesBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Parody> = mTagDAO.getParodiesBySpecialCharactersPrefixDescending(limit, offset)
+
+    override suspend fun getParodiesByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Parody> = mTagDAO.getParodiesByPrefixAscending(prefixString, limit, offset)
+
+    override suspend fun getParodiesByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Parody> = mTagDAO.getParodiesByPrefixDescending(prefixString, limit, offset)
+
+    override suspend fun getParodiesByPopularityAscending(limit: Int, offset: Int): List<Parody> = mTagDAO.getParodiesByPopularityAscending(limit, offset)
+
+    override suspend fun getParodiesByPopularityDescending(limit: Int, offset: Int): List<Parody> = mTagDAO.getParodiesByPopularityDescending(limit, offset)
 
     override fun insertLanguagesList(languagesList: List<Language>) {
         io.launch {

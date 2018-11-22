@@ -12,6 +12,7 @@
     <string name="parodies">Parodies</string>
     <string name="characters">Characters</string>
     <string name="search">Search</string>
+    <string name="search_result">Result for: %s</string>
     <string name="loading">Loading, please be patient</string>
     <string name="previous">\f054</string>
     <string name="next">Next</string>

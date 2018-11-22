@@ -17,6 +17,7 @@ interface HomeContract {
         fun showRecentBooks(recentList: List<Int>)
         fun showFavoriteBooks(favoriteList: List<Int>)
         fun changeSearchInputted(data: String)
+        fun changeSearchResult(data: String)
     }
 
     interface Presenter : Base.Presenter {

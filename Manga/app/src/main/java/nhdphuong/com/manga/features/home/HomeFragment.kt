@@ -24,6 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.data.entity.book.Book
@@ -48,6 +49,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     private lateinit var mHomePaginationAdapter: PaginationAdapter
     private lateinit var mHomePresenter: HomeContract.Presenter
     private lateinit var mLoadingDialog: Dialog
+
+    private val mSearchResultTitle: String = NHentaiApp.instance.getString(R.string.search_result)
 
     private lateinit var mUpdateDotsHandler: Handler
 
@@ -112,6 +115,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         super.onActivityCreated(savedInstanceState)
         Logger.d(TAG, "onActivityCreated")
         mHomePresenter.start()
+        toggleSearchResult("")
     }
 
     override fun onStart() {
@@ -257,6 +261,10 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         mHomePresenter.updateSearchData(data)
     }
 
+    override fun changeSearchResult(data: String) {
+        toggleSearchResult(data)
+    }
+
     override fun showLoading() {
         mLoadingDialog.show()
         mBinding.clNavigation.visibility = View.GONE
@@ -340,6 +348,13 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     private fun endUpdateDotsTask() {
         if (this::mUpdateDotsHandler.isInitialized) {
             mUpdateDotsHandler.removeCallbacksAndMessages(null)
+        }
+    }
+
+    private fun toggleSearchResult(data: String) {
+        mBinding.mtvSearchResult.run {
+            text = String.format(mSearchResultTitle, data)
+            visibility = if (data.isBlank()) View.GONE else View.VISIBLE
         }
     }
 }

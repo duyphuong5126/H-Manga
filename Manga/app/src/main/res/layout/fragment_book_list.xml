@@ -44,6 +44,22 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
+                    <nhdphuong.com.manga.views.customs.MyTextView
+                        android:id="@+id/mtv_search_result"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:gravity="center"
+                        android:text="@string/title_1"
+                        android:textColor="@android:color/white"
+                        android:textSize="21sp"
+                        android:visibility="gone"
+                        app:myFont="@string/NotoSansBold"
+                        tools:visibility="visible" />
+
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/rvMainList"
                         android:layout_width="match_parent"
@@ -69,8 +85,8 @@
                                 android:id="@+id/rvPagination"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="5dp"
                                 android:layout_marginStart="5dp"
+                                android:layout_marginEnd="5dp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent" />
                         </android.support.constraint.ConstraintLayout>

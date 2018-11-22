@@ -64,35 +64,84 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
     override fun jumpToPage(page: Int) {
         mCurrentPage = if (page - 1 > 0) page - 1 else 0
         io.launch {
-            when (mTagType) {
+            val tagList: List<ITag> = when (mTagType) {
                 Constants.TAGS -> {
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
-                            val tagList: List<ITag> = if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
+                            if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
                                 mTagRepository.getTagsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
                             } else {
                                 mTagRepository.getTagsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
                             }
-                            Logger.d(TAG, "mCurrentPrefixChar=$mCurrentPrefixChar, " +
-                                    "mCurrentFilteredTagsCount=$mCurrentFilteredTagsCount, " +
-                                    "tagList=$tagList")
-                            main.launch {
-                                mView.setUpTagsList(mTagsList, tagList)
+                        }
+                        else -> {
+                            mTagRepository.getTagsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                        }
+                    }
+                }
+                Constants.ARTISTS -> {
+                    when (mTagFilter) {
+                        TagFilter.ALPHABET -> {
+                            if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
+                                mTagRepository.getArtistsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            } else {
+                                mTagRepository.getArtistsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
                             }
                         }
                         else -> {
-                            val tagList: List<ITag> = mTagRepository.getTagsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
-                            Logger.d(TAG, "mCurrentFilteredTagsCount=$mCurrentFilteredTagsCount," +
-                                    "tagList=$tagList")
-                            main.launch {
-                                mView.setUpTagsList(mTagsList, tagList)
+                            mTagRepository.getArtistsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                        }
+                    }
+                }
+                Constants.CHARACTERS -> {
+                    when (mTagFilter) {
+                        TagFilter.ALPHABET -> {
+                            if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
+                                mTagRepository.getCharactersBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            } else {
+                                mTagRepository.getCharactersByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
                             }
+                        }
+                        else -> {
+                            mTagRepository.getCharactersByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                        }
+                    }
+                }
+                Constants.GROUPS -> {
+                    when (mTagFilter) {
+                        TagFilter.ALPHABET -> {
+                            if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
+                                mTagRepository.getGroupsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            } else {
+                                mTagRepository.getGroupsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            }
+                        }
+                        else -> {
+                            mTagRepository.getGroupsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                        }
+                    }
+                }
+                Constants.PARODIES -> {
+                    when (mTagFilter) {
+                        TagFilter.ALPHABET -> {
+                            if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
+                                mTagRepository.getParodiesBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            } else {
+                                mTagRepository.getParodiesByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            }
+                        }
+                        else -> {
+                            mTagRepository.getParodiesByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
                         }
                     }
                 }
                 else -> {
-
+                    emptyList()
                 }
+            }
+            Logger.d(TAG, "mCurrentPrefixChar=$mCurrentPrefixChar, mCurrentFilteredTagsCount=$mCurrentFilteredTagsCount, tagList=$tagList")
+            main.launch {
+                mView.refreshTagsList(tagList)
             }
         }
     }
@@ -110,13 +159,13 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
     private fun notifyTagsChanged() {
         mTagsList.clear()
         io.launch {
-            when (mTagType) {
+            val tagList: List<ITag> = when (mTagType) {
                 Constants.TAGS -> {
                     mCurrentTagsCount = mTagRepository.getTagCount()
 
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
-                            val tagList: List<ITag> = if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
+                            if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
                                 mCurrentFilteredTagsCount = mTagRepository.getTagCountBySpecialCharactersPrefix()
                                 updatePagination()
                                 mTagRepository.getTagsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
@@ -125,28 +174,109 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                                 updatePagination()
                                 mTagRepository.getTagsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
                             }
-                            Logger.d(TAG, "mCurrentPrefixChar=$mCurrentPrefixChar, " +
-                                    "mCurrentFilteredTagsCount=$mCurrentFilteredTagsCount, " +
-                                    "tagList=$tagList")
-                            main.launch {
-                                mView.setUpTagsList(mTagsList, tagList)
+                        }
+                        else -> {
+                            mCurrentFilteredTagsCount = mCurrentTagsCount
+                            updatePagination()
+                            mTagRepository.getTagsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                        }
+                    }
+                }
+                Constants.ARTISTS -> {
+                    mCurrentTagsCount = mTagRepository.getArtistsCount()
+
+                    when (mTagFilter) {
+                        TagFilter.ALPHABET -> {
+                            if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
+                                mCurrentFilteredTagsCount = mTagRepository.getArtistsCountBySpecialCharactersPrefix()
+                                updatePagination()
+                                mTagRepository.getArtistsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            } else {
+                                mCurrentFilteredTagsCount = mTagRepository.getArtistsCountByPrefix(mCurrentPrefixChar)
+                                updatePagination()
+                                mTagRepository.getArtistsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
                             }
                         }
                         else -> {
                             mCurrentFilteredTagsCount = mCurrentTagsCount
                             updatePagination()
-                            val tagList: List<ITag> = mTagRepository.getTagsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
-                            Logger.d(TAG, "mCurrentFilteredTagsCount=$mCurrentFilteredTagsCount," +
-                                    "tagList=$tagList")
-                            main.launch {
-                                mView.setUpTagsList(mTagsList, tagList)
+                            mTagRepository.getArtistsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                        }
+                    }
+                }
+                Constants.CHARACTERS -> {
+                    mCurrentTagsCount = mTagRepository.getCharactersCount()
+
+                    when (mTagFilter) {
+                        TagFilter.ALPHABET -> {
+                            if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
+                                mCurrentFilteredTagsCount = mTagRepository.getCharactersCountBySpecialCharactersPrefix()
+                                updatePagination()
+                                mTagRepository.getCharactersBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            } else {
+                                mCurrentFilteredTagsCount = mTagRepository.getCharactersCountByPrefix(mCurrentPrefixChar)
+                                updatePagination()
+                                mTagRepository.getCharactersByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
                             }
+                        }
+                        else -> {
+                            mCurrentFilteredTagsCount = mCurrentTagsCount
+                            updatePagination()
+                            mTagRepository.getCharactersByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                        }
+                    }
+                }
+                Constants.GROUPS -> {
+                    mCurrentTagsCount = mTagRepository.getGroupsCount()
+
+                    when (mTagFilter) {
+                        TagFilter.ALPHABET -> {
+                            if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
+                                mCurrentFilteredTagsCount = mTagRepository.getGroupsCountBySpecialCharactersPrefix()
+                                updatePagination()
+                                mTagRepository.getGroupsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            } else {
+                                mCurrentFilteredTagsCount = mTagRepository.getGroupsCountByPrefix(mCurrentPrefixChar)
+                                updatePagination()
+                                mTagRepository.getGroupsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            }
+                        }
+                        else -> {
+                            mCurrentFilteredTagsCount = mCurrentTagsCount
+                            updatePagination()
+                            mTagRepository.getGroupsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                        }
+                    }
+                }
+                Constants.PARODIES -> {
+                    mCurrentTagsCount = mTagRepository.getParodiesCount()
+
+                    when (mTagFilter) {
+                        TagFilter.ALPHABET -> {
+                            if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
+                                mCurrentFilteredTagsCount = mTagRepository.getParodiesCountBySpecialCharactersPrefix()
+                                updatePagination()
+                                mTagRepository.getParodiesBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            } else {
+                                mCurrentFilteredTagsCount = mTagRepository.getParodiesCountByPrefix(mCurrentPrefixChar)
+                                updatePagination()
+                                mTagRepository.getParodiesByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            }
+                        }
+                        else -> {
+                            mCurrentFilteredTagsCount = mCurrentTagsCount
+                            updatePagination()
+                            mTagRepository.getParodiesByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
                         }
                     }
                 }
                 else -> {
-
+                    emptyList()
                 }
+            }
+            Logger.d(TAG, "mCurrentPrefixChar=$mCurrentPrefixChar, mCurrentFilteredTagsCount=$mCurrentFilteredTagsCount, tagList=$tagList")
+            main.launch {
+                mView.setUpTagsList(mTagsList, tagList)
             }
 
             main.launch {

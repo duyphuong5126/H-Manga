@@ -81,6 +81,10 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                             resetTabBar()
                         })
                     }
+                    Tab.ARTISTS,
+                    Tab.CHARACTERS,
+                    Tab.GROUPS,
+                    Tab.PARODIES,
                     Tab.TAGS -> {
                         if (::mTagChangeListener.isInitialized) {
                             mTagChangeListener.onTagChange(tab.defaultName)
