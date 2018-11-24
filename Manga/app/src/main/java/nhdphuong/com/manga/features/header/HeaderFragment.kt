@@ -86,11 +86,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                     Tab.GROUPS,
                     Tab.PARODIES,
                     Tab.TAGS -> {
-                        if (::mTagChangeListener.isInitialized) {
-                            mTagChangeListener.onTagChange(tab.defaultName)
-                        } else {
-                            TagsActivity.start(this@HeaderFragment, tab.defaultName, TAG_REQUEST_CODE)
-                        }
+                        mPresenter.goToTagsList(tab)
                     }
                     else -> {
                         /*if (::mTagChangeListener.isInitialized) {
@@ -154,6 +150,22 @@ class HeaderFragment : Fragment(), HeaderContract.View {
 
     override fun updateSearchBar(searchContent: String) {
         mBinding.edtSearch.setText(searchContent)
+    }
+
+    override fun showTagsDownloadingPopup() {
+        activity?.run {
+            DialogHelper.showTagsDownloadingDialog(this, onOk = {
+                resetTabBar()
+            })
+        }
+    }
+
+    override fun goToTagsList(tab: Tab) {
+        if (::mTagChangeListener.isInitialized) {
+            mTagChangeListener.onTagChange(tab.defaultName)
+        } else {
+            TagsActivity.start(this@HeaderFragment, tab.defaultName, TAG_REQUEST_CODE)
+        }
     }
 
     override fun showLoading() {

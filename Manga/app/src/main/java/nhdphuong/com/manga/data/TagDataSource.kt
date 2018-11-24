@@ -13,6 +13,7 @@ interface TagDataSource {
         suspend fun fetchLanguagesList(onSuccess: (List<Language>?) -> Unit, onError: () -> Unit)
         suspend fun fetchTagsList(onSuccess: (List<Tag>?) -> Unit, onError: () -> Unit)
         suspend fun fetchUnknownTypesList(onSuccess: (List<UnknownTag>?) -> Unit, onError: () -> Unit)
+        suspend fun fetchCurrentVersion(onSuccess: (Long) -> Unit, onError: () -> Unit)
     }
 
     interface Local {

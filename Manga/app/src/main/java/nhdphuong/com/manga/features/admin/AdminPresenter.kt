@@ -163,7 +163,7 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
 
     private fun saveChangeSummaryData() {
         io.launch {
-            val saveResult = SupportUtils.saveStringFile(System.currentTimeMillis().toString(), "CurrentId", NHentaiApp.instance.getTagDirectory())
+            val saveResult = SupportUtils.saveStringFile(System.currentTimeMillis().toString(), "CurrentVersion", NHentaiApp.instance.getTagDirectory())
             Logger.d(TAG, "Current id saving result=$saveResult")
         }
     }

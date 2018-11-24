@@ -24,6 +24,7 @@ class SharedPreferencesManager private constructor() {
         private const val KEY_LAST_TAGS_COUNT = "KEY_LAST_TAGS_COUNT"
         private const val KEY_LAST_UNKNOWN_TYPES_COUNT = "KEY_LAST_UNKNOWN_TYPES_COUNT"
         private const val KEY_TAGS_DATA_DOWNLOADED = "KEY_TAGS_DATA_DOWNLOADED"
+        private const val KEY_CURRENT_TAG_VERSION = "KEY_CURRENT_TAG_VERSION"
 
         private var mInstance: SharedPreferencesManager? = null
         val instance: SharedPreferencesManager
@@ -97,4 +98,10 @@ class SharedPreferencesManager private constructor() {
             mAdminPreferences.edit().putBoolean(KEY_TAGS_DATA_DOWNLOADED, value).apply()
         }
         get() = mAdminPreferences.getBoolean(KEY_TAGS_DATA_DOWNLOADED, false)
+
+    var currentTagVersion: Long
+        set(value) {
+            mAdminPreferences.edit().putLong(KEY_CURRENT_TAG_VERSION, value).apply()
+        }
+        get() = mAdminPreferences.getLong(KEY_CURRENT_TAG_VERSION, System.currentTimeMillis())
 }

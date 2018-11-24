@@ -15,6 +15,7 @@ import nhdphuong.com.manga.features.recent.RecentComponent
 import nhdphuong.com.manga.features.recent.RecentModule
 import nhdphuong.com.manga.features.tags.TagsComponent
 import nhdphuong.com.manga.features.tags.TagsModule
+import nhdphuong.com.manga.service.TagsUpdateService
 import javax.inject.Singleton
 
 /*
@@ -29,4 +30,6 @@ interface ApplicationComponent {
     fun plus(tagsModule: TagsModule, headerModule: HeaderModule): TagsComponent
     fun plus(recentModule: RecentModule): RecentComponent
     fun plus(adminModule: AdminModule): AdminComponent
+
+    fun inject(service: TagsUpdateService)
 }

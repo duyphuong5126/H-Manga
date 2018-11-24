@@ -206,13 +206,17 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun showLoading() {
-        mLoadingDialog.show()
-        mBinding.ibRefresh.startAnimation(mRotationAnimation)
+        if (isAdded) {
+            mLoadingDialog.show()
+            mBinding.ibRefresh.startAnimation(mRotationAnimation)
+        }
     }
 
     override fun hideLoading() {
-        mLoadingDialog.hide()
-        mBinding.ibRefresh.clearAnimation()
+        if (isAdded) {
+            mLoadingDialog.hide()
+            mBinding.ibRefresh.clearAnimation()
+        }
     }
 
     override fun isActive(): Boolean = isAdded

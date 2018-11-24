@@ -16,8 +16,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:allowBackup="false"
         tools:replace="android:allowBackup"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
         android:theme="@style/AppTheme">
         <activity
             android:name=".features.home.HomeActivity"
@@ -34,6 +35,8 @@
         <activity android:name=".features.tags.TagsActivity" />
         <activity android:name=".features.recent.RecentActivity" />
         <activity android:name=".features.admin.AdminActivity" />
+
+        <service android:name=".service.TagsUpdateService" android:exported="false"/>
     </application>
 
 </manifest>

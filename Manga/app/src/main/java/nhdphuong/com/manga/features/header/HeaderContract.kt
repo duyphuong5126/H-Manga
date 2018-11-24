@@ -1,6 +1,7 @@
 package nhdphuong.com.manga.features.header
 
 import nhdphuong.com.manga.Base
+import nhdphuong.com.manga.data.Tab
 import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.features.tags.TagsContract
 
@@ -12,7 +13,11 @@ interface HeaderContract {
         fun setTagChangeListener(tagsContract: TagsContract)
         fun setSearchInputListener(searchContract: SearchContract)
         fun updateSearchBar(searchContent: String)
+        fun goToTagsList(tab: Tab)
+        fun showTagsDownloadingPopup()
     }
 
-    interface Presenter : Base.Presenter
+    interface Presenter : Base.Presenter {
+        fun goToTagsList(tab: Tab)
+    }
 }

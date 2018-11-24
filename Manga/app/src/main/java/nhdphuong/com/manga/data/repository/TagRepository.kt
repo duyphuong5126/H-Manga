@@ -211,4 +211,11 @@ class TagRepository @Inject constructor(@Remote private val mTagRemoteDataSource
     suspend fun getParodiesByPopularityAscending(limit: Int, offset: Int): List<Parody> = mTagLocalDataSource.getParodiesByPopularityAscending(limit, offset)
 
     suspend fun getParodiesByPopularityDescending(limit: Int, offset: Int): List<Parody> = mTagLocalDataSource.getParodiesByPopularityDescending(limit, offset)
+
+
+    fun getCurrentVersion(onSuccess: (Long) -> Unit, onError: () -> Unit) {
+        io.launch {
+            mTagRemoteDataSource.fetchCurrentVersion(onSuccess, onError)
+        }
+    }
 }

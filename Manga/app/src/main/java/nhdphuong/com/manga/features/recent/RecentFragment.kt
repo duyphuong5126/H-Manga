@@ -178,13 +178,17 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     }
 
     override fun showLoading() {
-        mLoadingDialog.show()
-        mBinding.clNavigation.visibility = View.GONE
+        if (isAdded) {
+            mLoadingDialog.show()
+            mBinding.clNavigation.visibility = View.GONE
+        }
     }
 
     override fun hideLoading() {
-        mLoadingDialog.dismiss()
-        mBinding.clNavigation.visibility = View.VISIBLE
+        if (isAdded) {
+            mLoadingDialog.dismiss()
+            mBinding.clNavigation.visibility = View.VISIBLE
+        }
     }
 
     override fun isActive(): Boolean = isAdded

@@ -30,7 +30,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                                                private val mContext: Context,
                                                private val mBookRepository: BookRepository,
                                                @IO private val io: CoroutineScope,
-                                               @Main private val main: CoroutineScope) : BookPreviewContract.Presenter, DownloadManager.DownloadCallback {
+                                               @Main private val main: CoroutineScope) : BookPreviewContract.Presenter, DownloadManager.BookDownloadCallback {
 
     companion object {
         private const val TAG = "BookPreviewPresenter"
@@ -78,6 +78,8 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
 
     private var isFavoriteBook: Boolean = false
 
+    private val mBookDownloader = DownloadManager.Companion.BookDownloader
+
     init {
         mView.setPresenter(this)
     }
@@ -103,9 +105,9 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
         mLanguageList = LinkedList()
         mParodyList = LinkedList()
         mGroupList = LinkedList()
-        if (DownloadManager.isDownloading && DownloadManager.bookId == mBook.bookId) {
-            DownloadManager.setDownloadCallback(this)
-            mView.updateDownloadProgress(DownloadManager.progress, DownloadManager.total)
+        if (mBookDownloader.isDownloading && mBookDownloader.bookId == mBook.bookId) {
+            mBookDownloader.setDownloadCallback(this)
+            mView.updateDownloadProgress(mBookDownloader.progress, mBookDownloader.total)
         }
     }
 
@@ -216,7 +218,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                 return@let
             }
 
-            if (!DownloadManager.isDownloading) {
+            if (!mBookDownloader.isDownloading) {
                 val bookPages = LinkedList<String>()
                 for (pageId in 0 until mBook.bookImages.pages.size) {
                     val page = mBook.bookImages.pages[pageId]
@@ -224,8 +226,8 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                 }
                 bookPages.size.let { total ->
                     if (total > 0) {
-                        DownloadManager.setDownloadCallback(this)
-                        DownloadManager.startDownloading(mBook.bookId, total)
+                        mBookDownloader.setDownloadCallback(this)
+                        mBookDownloader.startDownloading(mBook.bookId, total)
                         io.launch {
                             var progress = 0
                             val resultList = LinkedList<String>()
@@ -253,7 +255,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                                                 }
                                                 main.launch {
                                                     progress++
-                                                    DownloadManager.updateProgress(mBook.bookId, progress)
+                                                    mBookDownloader.updateProgress(mBook.bookId, progress)
                                                 }
                                                 Logger.d(TAG, "Downloading page ${downloadPage + 1} completed")
                                                 if (downloadPage == lastPage - 1) {
@@ -271,16 +273,16 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                             delay(1000)
                             main.launch {
                                 nHentaiApp.refreshGallery(*resultList.toTypedArray())
-                                DownloadManager.endDownloading(progress, total)
+                                mBookDownloader.endDownloading(progress, total)
                             }
                         }
                     }
                 }
             } else {
-                if (DownloadManager.bookId == mBook.bookId) {
+                if (mBookDownloader.bookId == mBook.bookId) {
                     mView.showThisBookBeingDownloaded()
                 } else {
-                    mView.showBookBeingDownloaded(DownloadManager.bookId)
+                    mView.showBookBeingDownloaded(mBookDownloader.bookId)
                 }
             }
         }

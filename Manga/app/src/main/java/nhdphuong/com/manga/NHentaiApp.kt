@@ -3,10 +3,15 @@ package nhdphuong.com.manga
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
 import android.media.MediaScannerConnection
+import android.os.IBinder
+import nhdphuong.com.manga.service.TagsUpdateService
 
 /*
  * Created by nhdphuong on 3/21/18.
@@ -56,11 +61,31 @@ class NHentaiApp : Application() {
             }
         }
 
+    private var mUpdateTagsService: TagsUpdateService? = null
+    private var mServiceConnection: ServiceConnection? = null
+
     override fun onCreate() {
         super.onCreate()
         mInstance = this
         mApplicationComponent = DaggerApplicationComponent.builder().applicationModule(ApplicationModule(this)).build()
         createNotificationChannel()
+        mServiceConnection = object : ServiceConnection {
+            override fun onServiceDisconnected(name: ComponentName?) {
+                mUpdateTagsService?.cancelTask()
+                mUpdateTagsService = null
+            }
+
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                mUpdateTagsService = (service as TagsUpdateService.TagsUpdateServiceBinder).service
+            }
+        }
+    }
+
+    fun startUpdateTagsService() {
+        val intent = Intent(applicationContext, TagsUpdateService::class.java)
+        mServiceConnection?.run {
+            bindService(intent, this, BIND_AUTO_CREATE)
+        }
     }
 
     fun refreshGallery(vararg galleryPaths: String) {

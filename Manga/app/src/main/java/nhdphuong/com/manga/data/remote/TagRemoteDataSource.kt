@@ -118,4 +118,17 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
             }
         })
     }
+
+    override suspend fun fetchCurrentVersion(onSuccess: (Long) -> Unit, onError: () -> Unit) {
+        mTagApiService.getCurrentVersion().enqueue(object : Callback<Long> {
+            override fun onFailure(call: Call<Long>, t: Throwable) {
+                Logger.d(TAG, "Current version fetching failed with error=$t")
+                onError()
+            }
+
+            override fun onResponse(call: Call<Long>, response: Response<Long>) {
+                response.body()?.run(onSuccess)
+            }
+        })
+    }
 }

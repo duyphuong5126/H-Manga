@@ -4,7 +4,9 @@ import android.text.TextUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RemoteBook
@@ -45,6 +47,8 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
     private var mSearchData: String = ""
     private val isSearching: Boolean get() = !TextUtils.isEmpty(mSearchData)
 
+    private val mTagsDownloadManager = DownloadManager.Companion.TagsDownloadManager
+
     init {
         mView.setPresenter(this)
     }
@@ -53,12 +57,19 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
         Logger.d(TAG, "start")
         reload()
         if (!mSharedPreferencesManager.tagsDataDownloaded) {
+            mTagsDownloadManager.startDownloading()
             mTagRepository.fetchAllTagLists { isSuccess ->
                 Logger.d(TAG, "Tags fetching completed, isSuccess=$isSuccess")
                 if (isSuccess) {
                     mSharedPreferencesManager.tagsDataDownloaded = true
                 }
+                mTagsDownloadManager.stopDownloading()
+                main.launch {
+                    NHentaiApp.instance.startUpdateTagsService()
+                }
             }
+        } else {
+            NHentaiApp.instance.startUpdateTagsService()
         }
     }
 

@@ -86,6 +86,11 @@ class DialogHelper {
                     activity.getString(R.string.tag_under_construction_description), onOk)
         }
 
+        fun showTagsDownloadingDialog(activity: Activity, onOk: () -> Unit) {
+            val message = activity.getString(R.string.is_downloading_tags)
+            showOkDialog(activity, activity.getString(R.string.are_tags_being_downloaded), message, onOk)
+        }
+
         @SuppressLint("InflateParams")
         private fun showOkDialog(activity: Activity, title: String, description: String, onOk: () -> Unit) {
             val contentView = activity.layoutInflater.inflate(R.layout.dialog_ok, null, false)

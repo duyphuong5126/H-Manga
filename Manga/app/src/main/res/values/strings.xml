@@ -92,6 +92,8 @@
     <string name="updating">Updating%s</string>
     <string name="updated">Updated</string>
     <string name="last_update">Last update: %s</string>
+    <string name="are_tags_being_downloaded">Tags downloading</string>
+    <string name="is_downloading_tags">Tags lists are being downloaded.\nPlease wait until they complete.</string>
 
     <string name="under_construction_title">Not available</string>
     <string name="tag_under_construction_description">Tags are under construction.\nPlease try again later</string>
