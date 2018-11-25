@@ -14,7 +14,6 @@ import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.data.repository.TagRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
-import nhdphuong.com.manga.service.TagsUpdateService
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -130,7 +129,6 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
                 main.launch {
                     if (!isCurrentPageEmpty) {
                         mView.refreshHomeBookList()
-                        mView.refreshHomePagination(mCurrentNumOfPages)
                     }
                     onRefreshed()
                     mView.showNothingView(isCurrentPageEmpty)
