@@ -29,6 +29,6 @@ interface TagApiService {
     @GET("${ApiConstants.NHENTAI_DB}/tags/unknown.txt")
     fun getUnknownTagsList(): Call<List<UnknownTag>>
 
-    @GET("${ApiConstants.NHENTAI_DB}/tags/CurrentId.txt")
+    @GET("${ApiConstants.NHENTAI_DB}/tags/CurrentVersion.txt")
     fun getCurrentVersion(): Call<Long>
 }

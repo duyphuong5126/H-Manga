@@ -88,6 +88,14 @@ class NHentaiApp : Application() {
         }
     }
 
+    fun suspendUpdateTagsService() {
+        mUpdateTagsService?.suspendTask()
+    }
+
+    fun resumeUpdateTagsService() {
+        mUpdateTagsService?.resumeTask()
+    }
+
     fun refreshGallery(vararg galleryPaths: String) {
         MediaScannerConnection.scanFile(this, galleryPaths, null) { _, _ ->
             galleryPaths.size.let { pathCount ->

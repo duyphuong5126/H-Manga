@@ -16,6 +16,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <ImageButton
+                android:id="@+id/ib_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp10"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/back"
+                android:scaleType="center"
+                android:scaleX="0.7"
+                android:scaleY="0.7"
+                android:src="@drawable/ic_back_white_1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/mtv_title"
+                app:layout_constraintBottom_toBottomOf="@id/mtv_title"/>
+
             <nhdphuong.com.manga.views.customs.MyTextView
                 android:id="@+id/mtv_title"
                 android:layout_width="wrap_content"

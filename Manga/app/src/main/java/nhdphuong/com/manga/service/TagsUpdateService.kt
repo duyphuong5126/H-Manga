@@ -13,6 +13,11 @@ import java.util.*
 import javax.inject.Inject
 
 class TagsUpdateService : Service() {
+    companion object {
+        private const val TAG = "TagsUpdateService"
+        private const val TIME_INTERVAL: Long = 15 * 60 * 1000L
+    }
+
     private var mUpdateTagTimer: Timer? = null
 
     @Inject
@@ -20,6 +25,9 @@ class TagsUpdateService : Service() {
 
     @Inject
     lateinit var mSharedPreferencesManager: SharedPreferencesManager
+
+    @Volatile
+    private var isUpdateTagSuspended: Boolean = false
 
     private val mTagsDownloadManager = DownloadManager.Companion.TagsDownloadManager
 
@@ -38,7 +46,10 @@ class TagsUpdateService : Service() {
         val timer = Timer()
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                Logger.d(TAG, "TimerTask time: ${System.currentTimeMillis()}, tags updated=${mSharedPreferencesManager.tagsDataDownloaded}")
+                Logger.d(TAG, "Current thread: ${Thread.currentThread()}")
+                if (!isUpdateTagSuspended) {
+                    checkForNewVersion()
+                }
             }
         }, 0, TIME_INTERVAL)
     }
@@ -53,9 +64,14 @@ class TagsUpdateService : Service() {
         mUpdateTagTimer?.cancel()
     }
 
-    companion object {
-        private const val TAG = "TagsUpdateService"
-        private const val TIME_INTERVAL = 5000L
+    fun suspendTask() {
+        Logger.d(TAG, "Updating task is being suspended, task is running=${!isUpdateTagSuspended}")
+        isUpdateTagSuspended = true
+    }
+
+    fun resumeTask() {
+        Logger.d(TAG, "Updating task is being resumed, task is running=${!isUpdateTagSuspended}")
+        isUpdateTagSuspended = false
     }
 
     inner class TagsUpdateServiceBinder : Binder() {
@@ -63,19 +79,22 @@ class TagsUpdateService : Service() {
     }
 
     private fun checkForNewVersion() {
-        mTagRepository.getCurrentVersion(onSuccess = { currentVersion ->
-            if (mSharedPreferencesManager.currentTagVersion != currentVersion) {
+        mTagRepository.getCurrentVersion(onSuccess = { newVersion ->
+            if (mSharedPreferencesManager.currentTagVersion != newVersion) {
+                Logger.d(TAG, "New version is available, new version: $newVersion, current version: ${mSharedPreferencesManager.currentTagVersion}")
                 mTagsDownloadManager.startDownloading()
                 mTagRepository.fetchAllTagLists { isSuccess ->
                     Logger.d(TAG, "Tags fetching completed, isSuccess=$isSuccess")
                     if (isSuccess) {
-                        mSharedPreferencesManager.currentTagVersion = currentVersion
+                        mSharedPreferencesManager.currentTagVersion = newVersion
                     }
                     mTagsDownloadManager.stopDownloading()
                 }
+            } else {
+                Logger.d(TAG, "App is already updated to the version $newVersion")
             }
         }, onError = {
-
+            Logger.d(TAG, "Version fetching failed")
         })
     }
 }

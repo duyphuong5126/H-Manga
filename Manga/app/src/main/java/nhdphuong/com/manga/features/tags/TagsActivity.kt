@@ -43,6 +43,7 @@ class TagsActivity : AppCompatActivity(), SearchContract {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tags)
 
+        NHentaiApp.instance.suspendUpdateTagsService()
         var tagsFragment = supportFragmentManager.findFragmentById(R.id.clTagsFragment) as TagsFragment?
         if (tagsFragment == null) {
             tagsFragment = TagsFragment()
@@ -62,6 +63,11 @@ class TagsActivity : AppCompatActivity(), SearchContract {
             NHentaiApp.instance.applicationComponent.plus(TagsModule(tagsFragment, tag),
                     HeaderModule(headerFragment)).inject(this)
         }
+    }
+
+    override fun finish() {
+        super.finish()
+        NHentaiApp.instance.resumeUpdateTagsService()
     }
 
     override fun onSearchInputted(data: String) {

@@ -40,7 +40,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     private lateinit var mCharacterAdapter: PaginationAdapter
     private lateinit var mNumberAdapter: PaginationAdapter
     private lateinit var mTagItemAdapter: TagItemAdapter
-    private lateinit var mSearchContract: SearchContract
+    private var mSearchContract: SearchContract? = null
 
     override fun setPresenter(presenter: TagsContract.Presenter) {
         mPresenter = presenter
@@ -101,6 +101,9 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
                     rvPagination.scrollToPosition(mNumberAdapter.itemCount - 1)
                 }
             }
+            ibBack.setOnClickListener {
+                activity?.onBackPressed()
+            }
         }
     }
 
@@ -148,7 +151,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
             mTagItemAdapter = TagItemAdapter(source, object : TagItemAdapter.OnTagClickListener {
                 override fun onTagClick(iTag: ITag) {
                     Logger.d(TAG, "Tag: ${iTag.name()}")
-                    mSearchContract.onSearchInputted(iTag.name())
+                    mSearchContract?.onSearchInputted(iTag.name())
                 }
             })
             mBinding.rvTagsList.apply {
