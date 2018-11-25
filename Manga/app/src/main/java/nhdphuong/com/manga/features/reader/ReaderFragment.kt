@@ -195,7 +195,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int) {
-        NotificationHelper.sendNotification(getString(R.string.now_reading), NotificationCompat.PRIORITY_DEFAULT, readingTitle,
+        NotificationHelper.sendBigContentNotification(getString(R.string.now_reading), NotificationCompat.PRIORITY_DEFAULT, readingTitle,
                 true).let { notificationId ->
             mPresenter.updateNotificationId(notificationId)
         }

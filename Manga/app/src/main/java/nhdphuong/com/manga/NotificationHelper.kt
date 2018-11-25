@@ -29,6 +29,21 @@ class NotificationHelper {
             return sendNotification(notificationBuilder.build(), System.currentTimeMillis().toInt())
         }
 
+        fun sendBigContentNotification(title: String, priority: Int, content: String, usedAppIcon: Boolean): Int {
+            val bigTextStyle = NotificationCompat.BigTextStyle()
+                    .bigText(content)
+                    .setSummaryText(content)
+            val notificationBuilder = NotificationCompat.Builder(NHentaiApp.instance.applicationContext, CHANNEL_ID)
+                    .setStyle(bigTextStyle)
+                    .setContentTitle(title)
+                    .setPriority(priority)
+            if (usedAppIcon) {
+                notificationBuilder.setSmallIcon(R.drawable.ic_app)
+            }
+
+            return sendNotification(notificationBuilder.build(), System.currentTimeMillis().toInt())
+        }
+
         fun sendNotification(title: String, priority: Int, content: String, usedAppIcon: Boolean, allowTap: Boolean): Int {
             val context = NHentaiApp.instance.applicationContext
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
