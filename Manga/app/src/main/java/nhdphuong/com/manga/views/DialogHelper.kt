@@ -83,7 +83,7 @@ class DialogHelper {
 
         fun showTagsNotAvailable(activity: Activity, onOk: () -> Unit) {
             showOkDialog(activity, activity.getString(R.string.under_construction_title),
-                    activity.getString(R.string.tag_under_construction_description), onOk)
+                    activity.getString(R.string.feature_under_construction_description), onOk)
         }
 
         fun showTagsDownloadingDialog(activity: Activity, onOk: () -> Unit) {
