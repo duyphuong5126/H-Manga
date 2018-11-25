@@ -14,6 +14,7 @@ import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.data.repository.TagRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
+import nhdphuong.com.manga.service.TagsUpdateService
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -64,9 +65,24 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
                     mSharedPreferencesManager.tagsDataDownloaded = true
                 }
                 mTagsDownloadManager.stopDownloading()
-                main.launch {
-                    NHentaiApp.instance.startUpdateTagsService()
+
+                val onVersionFetched = {
+                    main.launch {
+                        NHentaiApp.instance.startUpdateTagsService()
+                    }
                 }
+                mTagRepository.getCurrentVersion(onSuccess = { newVersion ->
+                    if (mSharedPreferencesManager.currentTagVersion != newVersion) {
+                        Logger.d(TAG, "New version is available, new version: $newVersion, current version: ${mSharedPreferencesManager.currentTagVersion}")
+                        mSharedPreferencesManager.currentTagVersion = newVersion
+                    } else {
+                        Logger.d(TAG, "App is already updated to the version $newVersion")
+                    }
+                    onVersionFetched()
+                }, onError = {
+                    Logger.d(TAG, "Version fetching failed")
+                    onVersionFetched()
+                })
             }
         } else {
             NHentaiApp.instance.startUpdateTagsService()

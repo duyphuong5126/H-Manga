@@ -14,7 +14,6 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
     }
 
     override suspend fun fetchArtistsList(onSuccess: (List<Artist>?) -> Unit, onError: () -> Unit) {
-        Logger.d(TAG, "fetchArtistsList")
         mTagApiService.getArtistsList().enqueue(object : Callback<List<Artist>> {
             override fun onFailure(call: Call<List<Artist>>, t: Throwable) {
                 Logger.d(TAG, "Artists list fetching failed with error=$t")
@@ -32,6 +31,7 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
         mTagApiService.getCharactersList().enqueue(object : Callback<List<Character>> {
             override fun onFailure(call: Call<List<Character>>, t: Throwable) {
                 Logger.d(TAG, "Characters list fetching failed with error=$t")
+                onError()
             }
 
             override fun onResponse(call: Call<List<Character>>, response: Response<List<Character>>) {
@@ -45,6 +45,7 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
         mTagApiService.getCategoriesList().enqueue(object : Callback<List<Category>> {
             override fun onFailure(call: Call<List<Category>>, t: Throwable) {
                 Logger.d(TAG, "Categories list fetching failed with error=$t")
+                onError()
             }
 
             override fun onResponse(call: Call<List<Category>>, response: Response<List<Category>>) {
@@ -58,6 +59,7 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
         mTagApiService.getGroupsList().enqueue(object : Callback<List<Group>> {
             override fun onFailure(call: Call<List<Group>>, t: Throwable) {
                 Logger.d(TAG, "Groups list fetching failed with error=$t")
+                onError()
             }
 
             override fun onResponse(call: Call<List<Group>>, response: Response<List<Group>>) {
@@ -71,6 +73,7 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
         mTagApiService.getParodiesList().enqueue(object : Callback<List<Parody>> {
             override fun onFailure(call: Call<List<Parody>>, t: Throwable) {
                 Logger.d(TAG, "Parodies list fetching failed with error=$t")
+                onError()
             }
 
             override fun onResponse(call: Call<List<Parody>>, response: Response<List<Parody>>) {
@@ -84,6 +87,7 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
         mTagApiService.getLanguagesList().enqueue(object : Callback<List<Language>> {
             override fun onFailure(call: Call<List<Language>>, t: Throwable) {
                 Logger.d(TAG, "Languages list fetching failed with error=$t")
+                onError()
             }
 
             override fun onResponse(call: Call<List<Language>>, response: Response<List<Language>>) {
@@ -97,6 +101,7 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
         mTagApiService.getTagsList().enqueue(object : Callback<List<Tag>> {
             override fun onFailure(call: Call<List<Tag>>, t: Throwable) {
                 Logger.d(TAG, "Tags list fetching failed with error=$t")
+                onError()
             }
 
             override fun onResponse(call: Call<List<Tag>>, response: Response<List<Tag>>) {
@@ -110,6 +115,7 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
         mTagApiService.getUnknownTagsList().enqueue(object : Callback<List<UnknownTag>> {
             override fun onFailure(call: Call<List<UnknownTag>>, t: Throwable) {
                 Logger.d(TAG, "UnknownTag list fetching failed with error=$t")
+                onError()
             }
 
             override fun onResponse(call: Call<List<UnknownTag>>, response: Response<List<UnknownTag>>) {

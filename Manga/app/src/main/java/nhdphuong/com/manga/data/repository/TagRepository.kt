@@ -21,16 +21,24 @@ class TagRepository @Inject constructor(@Remote private val mTagRemoteDataSource
         private const val TOTAL_TAG_TYPES = 8
     }
 
+    @Volatile
+    private var isDownloading: Boolean = false
+
     fun fetchAllTagLists(onComplete: (Boolean) -> Unit) {
-        val tagCount = AtomicInteger(0)
-        val handleSuccess = {
-            if (tagCount.incrementAndGet() >= TOTAL_TAG_TYPES) {
-                onComplete(true)
-            }
+        Logger.d(TAG, "fetchAllTagLists, is downloading started=$isDownloading")
+        if (isDownloading) {
+            return
         }
-        val handleError = {
+        isDownloading = true
+        val tagCount = AtomicInteger(0)
+        val successCount = AtomicInteger(0)
+        val handleResponse: (Boolean) -> Unit = { success ->
+            if (success) {
+                successCount.incrementAndGet()
+            }
             if (tagCount.incrementAndGet() >= TOTAL_TAG_TYPES) {
-                onComplete(false)
+                onComplete(successCount.get() >= TOTAL_TAG_TYPES)
+                isDownloading = false
             }
         }
 
@@ -38,105 +46,96 @@ class TagRepository @Inject constructor(@Remote private val mTagRemoteDataSource
             launch {
                 mTagRemoteDataSource.fetchArtistsList(onSuccess = { artists ->
                     Logger.d(TAG, "artists=${artists?.size ?: 0}")
+                    handleResponse(artists != null)
                     artists?.let {
                         mTagLocalDataSource.insertArtistsList(artists)
-                        handleSuccess()
-                        return@fetchArtistsList
                     }
-                    handleError()
                 }, onError = {
-                    handleError()
+                    handleResponse(false)
                 })
             }
             launch {
                 mTagRemoteDataSource.fetchCategoriesList(onSuccess = { categories ->
                     Logger.d(TAG, "categories=${categories?.size ?: 0}")
+                    handleResponse(categories != null)
                     categories?.let {
                         mTagLocalDataSource.insertCategoriesList(categories)
-                        handleSuccess()
                         return@fetchCategoriesList
                     }
-                    handleError()
                 }, onError = {
-                    handleError()
+                    handleResponse(false)
                 })
             }
             launch {
                 mTagRemoteDataSource.fetchCharactersList(onSuccess = { characters ->
                     Logger.d(TAG, "characters=${characters?.size ?: 0}")
+                    handleResponse(characters != null)
                     characters?.let {
                         mTagLocalDataSource.insertCharactersList(characters)
-                        handleSuccess()
                         return@fetchCharactersList
                     }
-                    handleError()
                 }, onError = {
-                    handleError()
+                    handleResponse(false)
                 })
             }
             launch {
                 mTagRemoteDataSource.fetchGroupsList(onSuccess = { groups ->
                     Logger.d(TAG, "groups=${groups?.size ?: 0}")
+                    handleResponse(groups != null)
                     groups?.let {
                         mTagLocalDataSource.insertGroupsList(groups)
-                        handleSuccess()
                         return@fetchGroupsList
                     }
-                    handleError()
                 }, onError = {
-                    handleError()
+                    handleResponse(false)
                 })
             }
             launch {
                 mTagRemoteDataSource.fetchLanguagesList(onSuccess = { languages ->
                     Logger.d(TAG, "languages=${languages?.size ?: 0}")
+                    handleResponse(languages != null)
                     languages?.let {
                         mTagLocalDataSource.insertLanguagesList(languages)
-                        handleSuccess()
                         return@fetchLanguagesList
                     }
-                    handleError()
                 }, onError = {
-                    handleError()
+                    handleResponse(false)
                 })
             }
             launch {
                 mTagRemoteDataSource.fetchParodiesList(onSuccess = { parodies ->
                     Logger.d(TAG, "parodies=${parodies?.size ?: 0}")
+                    handleResponse(parodies != null)
                     parodies?.let {
                         mTagLocalDataSource.insertParodiesList(parodies)
-                        handleSuccess()
                         return@fetchParodiesList
                     }
-                    handleError()
                 }, onError = {
-                    handleError()
+                    handleResponse(false)
                 })
             }
             launch {
                 mTagRemoteDataSource.fetchTagsList(onSuccess = { tags ->
                     Logger.d(TAG, "tags=${tags?.size ?: 0}")
+                    handleResponse(tags != null)
                     tags?.let {
                         mTagLocalDataSource.insertTagsList(tags)
-                        handleSuccess()
                         return@fetchTagsList
                     }
-                    handleError()
                 }, onError = {
-                    handleError()
+                    handleResponse(false)
                 })
             }
             launch {
                 mTagRemoteDataSource.fetchUnknownTypesList(onSuccess = { unknownTypes ->
                     Logger.d(TAG, "unknownTypes=${unknownTypes?.size ?: 0}")
+                    handleResponse(unknownTypes != null)
                     unknownTypes?.let {
                         mTagLocalDataSource.insertUnknownTypesList(unknownTypes)
-                        handleSuccess()
                         return@fetchUnknownTypesList
                     }
-                    handleError()
                 }, onError = {
-                    handleError()
+                    handleResponse(false)
                 })
             }
         }

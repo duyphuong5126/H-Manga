@@ -83,8 +83,8 @@ class DownloadManager {
             }
 
             fun stopDownloading() {
-                if (!isTagDownloading) {
-                    mIsTagsDownloading = true
+                if (isTagDownloading) {
+                    mIsTagsDownloading = false
                 } else {
                     Logger.d(TAG, "No downloading process right now, nothing can be stopped")
                 }
