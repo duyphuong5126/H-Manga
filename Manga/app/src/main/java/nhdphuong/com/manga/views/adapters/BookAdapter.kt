@@ -13,6 +13,7 @@ import jp.shts.android.library.TriangleLabelView
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SupportUtils
@@ -140,7 +141,11 @@ class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: I
             mIvLanguage.setImageResource(languageIconResId)
 
             Logger.d(TAG, "Thumbnail: ${item.thumbnail}")
-            ImageUtils.loadImage(item.thumbnail, R.drawable.ic_404_not_found, mIvItemThumbnail)
+            if (!NHentaiApp.instance.isCensored) {
+                ImageUtils.loadImage(item.thumbnail, R.drawable.ic_404_not_found, mIvItemThumbnail)
+            } else {
+                mIvItemThumbnail.setImageResource(R.drawable.ic_nothing_here_grey)
+            }
 
             mTv1stTitle.text = item.previewTitle
             mTv1stTitle.viewTreeObserver.addOnGlobalLayoutListener {

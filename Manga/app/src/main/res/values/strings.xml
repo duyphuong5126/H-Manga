@@ -126,6 +126,7 @@
     <string name="tags_count">"(%s items)"</string>
     <string name="a_z">A-Z</string>
     <string name="popular">Popular</string>
+    <string name="enable_censored">Enable censored</string>
 
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>

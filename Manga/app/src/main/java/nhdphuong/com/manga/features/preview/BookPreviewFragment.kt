@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.tags.Tag
@@ -145,12 +146,18 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
     }
 
     override fun showBookCoverImage(coverUrl: String) {
-        ImageUtils.loadImage(coverUrl, R.drawable.ic_404_not_found, mBinding.ivBookCover, onLoadSuccess = {
+        if (!NHentaiApp.instance.isCensored) {
+            ImageUtils.loadImage(coverUrl, R.drawable.ic_404_not_found, mBinding.ivBookCover, onLoadSuccess = {
+                mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
+                mAnimatorSet.start()
+            }, onLoadFailed = {
+                mPresenter.reloadCoverImage()
+            })
+        } else {
+            mBinding.ivBookCover.setImageResource(R.drawable.ic_nothing_here_grey)
             mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
             mAnimatorSet.start()
-        }, onLoadFailed = {
-            mPresenter.reloadCoverImage()
-        })
+        }
     }
 
     override fun show1stTitle(firstTitle: String) {

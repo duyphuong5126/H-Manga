@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.customs.MyTextView
@@ -58,7 +59,11 @@ class PreviewAdapter(private val mNumOfRows: Int, private val mPreviewUrlList: L
         fun setData(url: String, pageNumber: Int) {
             mPageNumber = pageNumber
             mtvPageNumber.text = (pageNumber + 1).toString()
-            ImageUtils.loadOriginalImage(url, R.drawable.ic_404_not_found, ivPageThumbnail)
+            if (!NHentaiApp.instance.isCensored) {
+                ImageUtils.loadOriginalImage(url, R.drawable.ic_404_not_found, ivPageThumbnail)
+            } else {
+                ivPageThumbnail.setImageResource(R.drawable.ic_nothing_here_grey)
+            }
         }
     }
 

@@ -14,5 +14,6 @@ interface AdminContract {
 
     interface Presenter : Base.Presenter {
         fun startDownloading()
+        fun toggleCensored(censored: Boolean)
     }
 }

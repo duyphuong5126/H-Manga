@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.ortiz.touchview.TouchImageView
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.customs.MyTextView
@@ -79,12 +80,17 @@ class BookReaderAdapter(private val mContext: Context, private val mPageUrlList:
         }
 
         fun reloadImage() {
-            ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, onLoadSuccess = {
+            if (!NHentaiApp.instance.isCensored) {
+                ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, onLoadSuccess = {
+                    mtvPageTitle.visibility = View.GONE
+                    Logger.d(TAG, "$pageUrl is loaded successfully")
+                }, onLoadFailed = {
+                    Logger.d(TAG, "$pageUrl loading failed")
+                })
+            } else {
+                ivPage.setImageResource(R.drawable.ic_nothing_here_grey)
                 mtvPageTitle.visibility = View.GONE
-                Logger.d(TAG, "$pageUrl is loaded successfully")
-            }, onLoadFailed = {
-                Logger.d(TAG, "$pageUrl loading failed")
-            })
+            }
         }
     }
 }

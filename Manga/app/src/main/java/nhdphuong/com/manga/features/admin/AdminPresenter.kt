@@ -66,6 +66,11 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
         }
     }
 
+    override fun toggleCensored(censored: Boolean) {
+        mSharedPreferencesManager.isCensored = censored
+        NHentaiApp.instance.restartApp()
+    }
+
     private fun downloadPage(page: Int) {
         if (page <= mNumberOfPage) {
             mCompositeDisposable.add(mBookApiService.getBookListOfPage(page)

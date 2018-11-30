@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.supports.SupportUtils
@@ -62,7 +63,7 @@ class InfoCardLayout(private val layoutInflater: LayoutInflater, private val tag
         private val mTvCount: TextView = view.findViewById(R.id.tvCount)
 
         init {
-            mTvLabel.text = tag.name
+            mTvLabel.text = if (NHentaiApp.instance.isCensored) "Censored" else tag.name
             mTvCount.text = String.format(mContext.getString(R.string.count), SupportUtils.formatBigNumber(tag.count))
             mTvLabel.setOnClickListener(this)
             mTvCount.setOnClickListener(this)

@@ -32,4 +32,5 @@ interface ApplicationComponent {
     fun plus(adminModule: AdminModule): AdminComponent
 
     fun inject(service: TagsUpdateService)
+    fun inject(nHentaiApp: NHentaiApp)
 }

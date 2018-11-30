@@ -12,6 +12,7 @@ import android.os.Environment
 import android.media.MediaScannerConnection
 import android.os.IBinder
 import nhdphuong.com.manga.service.TagsUpdateService
+import javax.inject.Inject
 
 /*
  * Created by nhdphuong on 3/21/18.
@@ -23,6 +24,9 @@ class NHentaiApp : Application() {
             get() = mInstance
         private const val TAG = "NHentaiApp"
     }
+
+    @Inject
+    lateinit var mSharedPreferencesManager: SharedPreferencesManager
 
     private lateinit var mApplicationComponent: ApplicationComponent
 
@@ -61,6 +65,18 @@ class NHentaiApp : Application() {
             }
         }
 
+    /**
+     * Debug mode only
+     */
+    val isCensored: Boolean
+        get() {
+            return if (this::mSharedPreferencesManager.isInitialized) {
+                mSharedPreferencesManager.isCensored
+            } else {
+                false
+            }
+        }
+
     private var mUpdateTagsService: TagsUpdateService? = null
     private var mServiceConnection: ServiceConnection? = null
 
@@ -68,6 +84,7 @@ class NHentaiApp : Application() {
         super.onCreate()
         mInstance = this
         mApplicationComponent = DaggerApplicationComponent.builder().applicationModule(ApplicationModule(this)).build()
+        mApplicationComponent.inject(this)
         createNotificationChannel()
         mServiceConnection = object : ServiceConnection {
             override fun onServiceDisconnected(name: ComponentName?) {
@@ -104,6 +121,15 @@ class NHentaiApp : Application() {
                 } else {
                     Logger.d(TAG, "$pathCount path of gallery is refreshed")
                 }
+            }
+        }
+    }
+
+    fun restartApp() {
+        applicationContext?.run {
+            packageManager.getLaunchIntentForPackage(this.packageName)?.let { launchIntent ->
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(launchIntent)
             }
         }
     }

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.databinding.FragmentAdminBinding
 import nhdphuong.com.manga.views.DialogHelper
@@ -41,6 +42,11 @@ class AdminFragment : Fragment(), AdminContract.View {
             mtvGroupsCount.text = ""
             mtvTagsCount.text = ""
             mtvUnknownTagsCount.text = ""
+
+            spCensored.isChecked = NHentaiApp.instance.isCensored
+            spCensored.setOnCheckedChangeListener { _, isChecked ->
+                mPresenter.toggleCensored(isChecked)
+            }
         }
         mPresenter.start()
     }
