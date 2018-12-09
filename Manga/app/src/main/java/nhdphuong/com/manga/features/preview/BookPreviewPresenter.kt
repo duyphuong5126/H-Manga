@@ -232,6 +232,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                             var progress = 0
                             val resultList = LinkedList<String>()
                             var currentPage = 0
+                            val resultFilePath = nHentaiApp.getImageDirectory(mBook.mediaId)
                             while (currentPage < total) {
                                 val lastPage = if (currentPage + BATCH_COUNT <= total) currentPage + BATCH_COUNT else total
                                 suspendCoroutine<Boolean> { booleanContinuation ->
@@ -240,8 +241,6 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                                             try {
                                                 mBook.bookImages.pages[downloadPage].let { page ->
                                                     val result = SupportUtils.downloadImageBitmap(bookPages[downloadPage], false)!!
-
-                                                    val resultFilePath = nHentaiApp.getImageDirectory(mBook.mediaId)
 
                                                     val format = if (page.imageType == Constants.PNG_TYPE) {
                                                         Bitmap.CompressFormat.PNG
@@ -274,6 +273,7 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                             main.launch {
                                 nHentaiApp.refreshGallery(*resultList.toTypedArray())
                                 mBookDownloader.endDownloading(progress, total)
+                                mView.showOpenFolderView()
                             }
                         }
                     }

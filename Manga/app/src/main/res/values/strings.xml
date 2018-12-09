@@ -123,6 +123,11 @@
     <string name="number_of_tags">Tags: %d</string>
     <string name="number_of_unknown">Unknown: %d</string>
 
+    <string name="book_downloading_finished">Book downloading finished</string>
+    <string name="is_want_to_open_folder">Do you want to open downloaded folder?</string>
+
+    <string name="open_with">Open with</string>
+
     <string name="tags_count">"(%s items)"</string>
     <string name="a_z">A-Z</string>
     <string name="popular">Popular</string>

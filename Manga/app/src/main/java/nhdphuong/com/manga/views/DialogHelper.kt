@@ -55,6 +55,14 @@ class DialogHelper {
             showOkDismissDialog(activity, permissionTitle, permissionDescription, okString, dismissString, onOk, onDismiss)
         }
 
+        fun showDownloadingFinishedDialog(activity: Activity, onOk: () -> Unit, onDismiss: () -> Unit) {
+            val permissionTitle = activity.getString(R.string.book_downloading_finished)
+            val permissionDescription = activity.getString(R.string.is_want_to_open_folder)
+            val okString = activity.getString(R.string.ok)
+            val dismissString = activity.getString(R.string.dismiss)
+            showOkDismissDialog(activity, permissionTitle, permissionDescription, okString, dismissString, onOk, onDismiss)
+        }
+
         fun showBookDownloadingDialog(activity: Activity, mediaId: String, onOk: () -> Unit, onDismiss: () -> Unit) {
             val title = activity.getString(R.string.is_book_being_downloaded)
             val message = String.format(activity.getString(R.string.is_downloading_another_book), mediaId)

@@ -403,6 +403,19 @@ class BookPreviewFragment : Fragment(), BookPreviewContract.View, InfoCardLayout
         mRecommendBookAdapter.setRecentList(recentList)
     }
 
+    override fun showOpenFolderView() {
+        activity?.run {
+            DialogHelper.showDownloadingFinishedDialog(this, onOk = {
+                val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
+                viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                viewGalleryIntent.type = "image/*"
+                startActivity(Intent.createChooser(viewGalleryIntent, getString(R.string.open_with)))
+            }, onDismiss = {
+
+            })
+        }
+    }
+
     override fun showLoading() {
 
     }
