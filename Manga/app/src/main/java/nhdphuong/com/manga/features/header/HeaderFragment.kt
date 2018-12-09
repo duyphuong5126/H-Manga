@@ -73,9 +73,6 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                         resetTabBar()
                         return
                     }
-                    Tab.INFO -> {
-                        mTabAdapter.reset()
-                    }
                     Tab.ADMIN -> {
                         DialogHelper.showAdminEntryDialog(activity, onOk = {
                             AdminActivity.start(context)
