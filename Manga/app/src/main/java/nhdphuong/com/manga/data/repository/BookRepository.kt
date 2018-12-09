@@ -18,9 +18,9 @@ import javax.inject.Singleton
 class BookRepository @Inject constructor(@Remote private val mBookRemoteDataSource: BookDataSource.Remote,
                                          @Local private val mBookLocalDataSource: BookDataSource.Local) :
         BookDataSource.Remote, BookDataSource.Local {
-    override suspend fun getBookByPage(page: Int): RemoteBook? = mBookRemoteDataSource.getBookByPage(page)
+    override suspend fun getBookByPage(page: Long): RemoteBook? = mBookRemoteDataSource.getBookByPage(page)
 
-    override suspend fun getBookByPage(searchContent: String, page: Int): RemoteBook? = mBookRemoteDataSource.getBookByPage(searchContent, page)
+    override suspend fun getBookByPage(searchContent: String, page: Long): RemoteBook? = mBookRemoteDataSource.getBookByPage(searchContent, page)
 
     override suspend fun getRecommendBook(bookId: String): RecommendBook? = mBookRemoteDataSource.getRecommendBook(bookId)
 

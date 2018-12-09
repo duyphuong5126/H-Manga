@@ -16,9 +16,10 @@ import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
-import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 import kotlin.collections.HashMap
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /*
  * Created by nhdphuong on 3/18/18.
@@ -38,8 +39,8 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
     private var mMainList = LinkedList<Book>()
     private var mCurrentNumOfPages = 0L
     private var mCurrentLimitPerPage = 0
-    private var mCurrentPage = 1
-    private var mPreventiveData = HashMap<Int, LinkedList<Book>>()
+    private var mCurrentPage = 1L
+    private var mPreventiveData = HashMap<Long, LinkedList<Book>>()
     private var isLoadingPreventiveData = false
     private val mJobStack = Stack<Job>()
     private var isRefreshing: Boolean = false
@@ -88,7 +89,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
         }
     }
 
-    override fun jumpToPage(pageNumber: Int) {
+    override fun jumpToPage(pageNumber: Long) {
         Logger.d(TAG, "Navigate to page $pageNumber")
         onPageChange(pageNumber)
     }
@@ -99,10 +100,8 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
     }
 
     override fun jumToLastPage() {
-        mCurrentNumOfPages.toInt().let { currentNumberOfPages ->
-            Logger.d(TAG, "Navigate to last page: $currentNumberOfPages")
-            onPageChange(currentNumberOfPages)
-        }
+        Logger.d(TAG, "Navigate to last page: $mCurrentNumOfPages")
+        onPageChange(mCurrentNumOfPages)
     }
 
     override fun reloadCurrentPage(onRefreshed: () -> Unit) {
@@ -185,6 +184,24 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
         }
     }
 
+    override fun pickBookRandomly() {
+        mView.showLoading()
+        io.launch {
+            val random = Random()
+            val randomPage = random.nextInt(mCurrentNumOfPages.toInt()) + 1
+            getBooksListByPage(randomPage.toLong())?.bookList.let { randomBooks ->
+                Logger.d(TAG, "Randomized paged $randomPage, books count=${randomBooks?.size ?: 0}")
+                if (randomBooks?.isEmpty() == false) {
+                    val randomIndex = random.nextInt(randomBooks.size)
+                    main.launch {
+                        mView.hideLoading()
+                        mView.showRandomBook(randomBooks[randomIndex])
+                    }
+                }
+            }
+        }
+    }
+
     override fun stop() {
         Logger.d(TAG, "stop")
         io.launch {
@@ -232,7 +249,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
         mJobStack.push(downloadingJob)
     }
 
-    private fun onPageChange(pageNumber: Int) {
+    private fun onPageChange(pageNumber: Long) {
         mCurrentPage = pageNumber
         io.launch {
             mMainList.clear()
@@ -250,12 +267,12 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
             }
             mMainList.addAll(currentList)
 
-            val toLoadList: List<Int> = when (mCurrentPage) {
-                1 -> listOf(2)
-                mCurrentNumOfPages.toInt() -> listOf((mCurrentNumOfPages - 1).toInt())
+            val toLoadList: List<Long> = when (mCurrentPage) {
+                1L -> listOf(2L)
+                mCurrentNumOfPages -> listOf(mCurrentNumOfPages - 1)
                 else -> listOf(mCurrentPage - 1, mCurrentPage + 1)
             }
-            logListInt("To load list: ", toLoadList)
+            logListLong("To load list: ", toLoadList)
 
             for (page in toLoadList.iterator()) {
                 if (!mPreventiveData.containsKey(page)) {
@@ -272,7 +289,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
             if (mPreventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
                 val pageList = sortListPage(mCurrentPage, LinkedList(mPreventiveData.keys))
                 var pageId = 0
-                logListInt("Before deleted page list: ", pageList)
+                logListLong("Before deleted page list: ", pageList)
                 while (mPreventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
                     Logger.d(TAG, "Remove page: $pageId")
                     val page = pageList[pageId++]
@@ -280,7 +297,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
                     mPreventiveData.remove(page)
                 }
             }
-            logListInt("Final page list: ", LinkedList(mPreventiveData.keys))
+            logListLong("Final page list: ", LinkedList(mPreventiveData.keys))
 
             main.launch {
                 mView.refreshHomeBookList()
@@ -291,7 +308,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
         }
     }
 
-    private fun sortListPage(anchor: Int, pageList: LinkedList<Int>): LinkedList<Int> {
+    private fun sortListPage(anchor: Long, pageList: LinkedList<Long>): LinkedList<Long> {
         if (pageList.isEmpty()) {
             return pageList
         }
@@ -306,7 +323,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
         return pageList
     }
 
-    private fun logListInt(messageString: String, listInt: List<Int>) {
+    private fun logListLong(messageString: String, listInt: List<Long>) {
         var message = "$messageString["
         for (i in 0 until listInt.size - 1) {
             message += "${listInt[i]}, "
@@ -317,21 +334,27 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
 
     private suspend fun loadPreventiveData() {
         isLoadingPreventiveData = true
-        val countDownLatch = CountDownLatch(NUMBER_OF_PREVENTIVE_PAGES - mCurrentPage)
-        for (page in mCurrentPage + 1..NUMBER_OF_PREVENTIVE_PAGES) {
-            Logger.d(TAG, "Start loading page $page")
-            io.launch {
-                val remoteBook = getBooksListByPage(page)
-                Logger.d(TAG, "Done loading page $page")
-                remoteBook?.bookList?.let { bookList ->
-                    if (!bookList.isEmpty()) {
-                        mPreventiveData[page] = bookList
+
+        suspendCoroutine<Boolean> { continuation ->
+            NUMBER_OF_PREVENTIVE_PAGES.toLong().let { numberOfPresentivePages ->
+                for (page in mCurrentPage + 1L..NUMBER_OF_PREVENTIVE_PAGES.toLong()) {
+                    Logger.d(TAG, "Start loading page $page")
+                    io.launch {
+                        val remoteBook = getBooksListByPage(page)
+                        Logger.d(TAG, "Done loading page $page")
+                        remoteBook?.bookList?.let { bookList ->
+                            if (!bookList.isEmpty()) {
+                                mPreventiveData[page] = bookList
+                            }
+                        }
+                        if (page == NUMBER_OF_PREVENTIVE_PAGES.toLong()) {
+                            continuation.resume(true)
+                        }
                     }
                 }
-                countDownLatch.countDown()
             }
         }
-        countDownLatch.await()
+
         Logger.d(TAG, "Load preventive data successfully")
         isLoadingPreventiveData = false
     }
@@ -349,5 +372,5 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
         isRefreshing = false
     }
 
-    private suspend fun getBooksListByPage(pageNumber: Int): RemoteBook? = if (isSearching) mBookRepository.getBookByPage(mSearchData, pageNumber) else mBookRepository.getBookByPage(pageNumber)
+    private suspend fun getBooksListByPage(pageNumber: Long): RemoteBook? = if (isSearching) mBookRepository.getBookByPage(mSearchData, pageNumber) else mBookRepository.getBookByPage(pageNumber)
 }

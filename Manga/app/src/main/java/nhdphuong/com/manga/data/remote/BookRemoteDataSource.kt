@@ -20,7 +20,7 @@ class BookRemoteDataSource(private val mBookApiService: BookApiService) : BookDa
         private const val TAG = "BookRemoteDataSource"
     }
 
-    override suspend fun getBookByPage(page: Int): RemoteBook? {
+    override suspend fun getBookByPage(page: Long): RemoteBook? {
         return suspendCoroutine { continuation ->
             mBookApiService.getBookListByPage(page).enqueue(object : Callback<RemoteBook> {
                 override fun onResponse(call: Call<RemoteBook>?, response: Response<RemoteBook>?) {
@@ -36,7 +36,7 @@ class BookRemoteDataSource(private val mBookApiService: BookApiService) : BookDa
         }
     }
 
-    override suspend fun getBookByPage(searchContent: String, page: Int): RemoteBook? {
+    override suspend fun getBookByPage(searchContent: String, page: Long): RemoteBook? {
         return suspendCoroutine { continuation ->
             mBookApiService.searchByPage(searchContent.replace(" ", "+"), page).enqueue(object : Callback<RemoteBook> {
                 override fun onResponse(call: Call<RemoteBook>?, response: Response<RemoteBook>?) {

@@ -16,12 +16,12 @@ interface HomeContract {
         fun showRefreshingDialog()
         fun showRecentBooks(recentList: List<Int>)
         fun showFavoriteBooks(favoriteList: List<Int>)
-        fun changeSearchInputted(data: String)
         fun changeSearchResult(data: String)
+        fun showRandomBook(randomBook: Book)
     }
 
     interface Presenter : Base.Presenter {
-        fun jumpToPage(pageNumber: Int)
+        fun jumpToPage(pageNumber: Long)
         fun jumToFirstPage()
         fun jumToLastPage()
         fun reloadCurrentPage(onRefreshed: () -> Unit)
@@ -29,5 +29,6 @@ interface HomeContract {
         fun reloadRecentBooks()
         fun saveLastBookListRefreshTime()
         fun updateSearchData(data: String)
+        fun pickBookRandomly()
     }
 }

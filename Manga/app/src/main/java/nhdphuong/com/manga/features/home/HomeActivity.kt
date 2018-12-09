@@ -20,13 +20,14 @@ import android.text.TextUtils
 import android.view.KeyEvent
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.features.RandomContract
 import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.features.header.HeaderFragment
 import nhdphuong.com.manga.features.header.HeaderModule
 import nhdphuong.com.manga.features.header.HeaderPresenter
 
 
-class HomeActivity : AppCompatActivity(), SearchContract {
+class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
     companion object {
         private const val TAG = "HomeActivity"
     }
@@ -159,6 +160,10 @@ class HomeActivity : AppCompatActivity(), SearchContract {
         mHomeFragment.changeSearchInputted(data)
     }
 
+    override fun onRandomSelected() {
+        mHomeFragment.randomizeBook()
+    }
+
     private fun showFragments() {
         var homeFragment = supportFragmentManager.findFragmentById(R.id.clMainFragment) as HomeFragment?
         if (homeFragment == null) {
@@ -177,6 +182,7 @@ class HomeActivity : AppCompatActivity(), SearchContract {
                     .addToBackStack(TAG).commitAllowingStateLoss()
         }
         headerFragment.setSearchInputListener(this)
+        headerFragment.setRandomContract(this)
         mHeaderFragment = headerFragment
 
         NHentaiApp.instance.applicationComponent.plus(HomeModule(homeFragment), HeaderModule(headerFragment)).inject(this)

@@ -14,10 +14,10 @@ import retrofit2.http.Query
  */
 interface BookApiService {
     @GET("/api/galleries/all")
-    fun getBookListByPage(@Query("page") pageNumber: Int): Call<RemoteBook>
+    fun getBookListByPage(@Query("page") pageNumber: Long): Call<RemoteBook>
 
     @GET("/api/galleries/search")
-    fun searchByPage(@Query("query") condition: String, @Query("page") pageNumber: Int): Call<RemoteBook>
+    fun searchByPage(@Query("query") condition: String, @Query("page") pageNumber: Long): Call<RemoteBook>
 
     @GET("/api/gallery/{bookId}")
     fun getBookDetails(@Path("bookId") bookId: String): Call<Book>

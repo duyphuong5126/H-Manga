@@ -217,7 +217,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         mHomePaginationAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
             override fun onPageSelected(page: Int) {
                 Logger.d(TAG, "Page $page is selected")
-                mHomePresenter.jumpToPage(page)
+                mHomePresenter.jumpToPage(page.toLong())
             }
         }
         mainPagination.visibility = View.VISIBLE
@@ -257,12 +257,20 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         mHomeListAdapter.setRecentList(recentList)
     }
 
-    override fun changeSearchInputted(data: String) {
+    override fun changeSearchResult(data: String) {
+        toggleSearchResult(data)
+    }
+
+    override fun showRandomBook(randomBook: Book) {
+        BookPreviewActivity.start(this, randomBook)
+    }
+
+    fun changeSearchInputted(data: String) {
         mHomePresenter.updateSearchData(data)
     }
 
-    override fun changeSearchResult(data: String) {
-        toggleSearchResult(data)
+    fun randomizeBook() {
+        mHomePresenter.pickBookRandomly()
     }
 
     override fun showLoading() {

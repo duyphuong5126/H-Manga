@@ -46,6 +46,7 @@ class Constants {
         const val GROUPS = "Groups"
         const val INFO = "Info"
         const val ARTISTS = "Artists"
+        const val SETTINGS = "Settings"
         const val ADMIN = "Admin"
 
         const val RECENT_TYPE = "Recent_type"

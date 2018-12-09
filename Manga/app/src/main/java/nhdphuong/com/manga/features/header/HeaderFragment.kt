@@ -12,10 +12,12 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
 import nhdphuong.com.manga.databinding.FragmentHeaderBinding
+import nhdphuong.com.manga.features.RandomContract
 import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.features.admin.AdminActivity
 import nhdphuong.com.manga.features.recent.RecentActivity
@@ -36,8 +38,9 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     private lateinit var mPresenter: HeaderContract.Presenter
     private lateinit var mBinding: FragmentHeaderBinding
     private lateinit var mTabAdapter: TabAdapter
-    private lateinit var mTagChangeListener: TagsContract
-    private lateinit var mSearchContract: SearchContract
+    private var mTagChangeListener: TagsContract? = null
+    private var mSearchContract: SearchContract? = null
+    private var mRandomContract: RandomContract? = null
 
     override fun setPresenter(presenter: HeaderContract.Presenter) {
         mPresenter = presenter
@@ -88,14 +91,10 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                     Tab.TAGS -> {
                         mPresenter.goToTagsList(tab)
                     }
+                    Tab.RANDOM -> {
+                        mRandomContract?.onRandomSelected()
+                    }
                     else -> {
-                        /*if (::mTagChangeListener.isInitialized) {
-                            mTagChangeListener.onTagChange(tab.defaultName)
-                        } else {
-                            mPresenter.goToTagList(tab.defaultName)
-                            mTabAdapter.reset()
-                        }*/
-
                         DialogHelper.showTagsNotAvailable(activity) {
                             resetTabBar()
                         }
@@ -108,11 +107,28 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         tabSelector.adapter = mTabAdapter
         tabSelector.addItemDecoration(SpaceItemDecoration(context, R.dimen.dp20, true, true))
         tabSelector.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-        mBinding.ibHamburger.setOnClickListener {
-            toggleTagsLayout()
-        }
-        mBinding.ibSearch.setOnClickListener {
-            mSearchContract.onSearchInputted(mBinding.edtSearch.text.toString())
+
+        mBinding.run {
+            ivMainLogo.setOnClickListener {
+                mSearchContract?.onSearchInputted("")
+            }
+
+            ibHamburger.setOnClickListener {
+                toggleTagsLayout()
+            }
+
+            ibSearch.setOnClickListener {
+                mSearchContract?.onSearchInputted(edtSearch.text.toString())
+            }
+
+            edtSearch.setOnEditorActionListener { _, actionId, _ ->
+                when (actionId and EditorInfo.IME_MASK_ACTION) {
+                    EditorInfo.IME_ACTION_DONE -> {
+                        mSearchContract?.onSearchInputted(edtSearch.text.toString())
+                    }
+                }
+                false
+            }
         }
     }
 
@@ -135,7 +151,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         resetTabBar()
         if (resultCode == Activity.RESULT_OK && requestCode == TAG_REQUEST_CODE) {
             val searchData = data?.getStringExtra(Constants.TAG_RESULT) ?: ""
-            mSearchContract.onSearchInputted(searchData)
+            mSearchContract?.onSearchInputted(searchData)
             mBinding.edtSearch.setText(searchData)
         }
     }
@@ -146,6 +162,10 @@ class HeaderFragment : Fragment(), HeaderContract.View {
 
     override fun setSearchInputListener(searchContract: SearchContract) {
         mSearchContract = searchContract
+    }
+
+    override fun setRandomContract(randomContract: RandomContract) {
+        mRandomContract = randomContract
     }
 
     override fun updateSearchBar(searchContent: String) {
@@ -161,8 +181,8 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     }
 
     override fun goToTagsList(tab: Tab) {
-        if (::mTagChangeListener.isInitialized) {
-            mTagChangeListener.onTagChange(tab.defaultName)
+        if (mTagChangeListener != null) {
+            mTagChangeListener?.onTagChange(tab.defaultName)
         } else {
             TagsActivity.start(this@HeaderFragment, tab.defaultName, TAG_REQUEST_CODE)
         }
