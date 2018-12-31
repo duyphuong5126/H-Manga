@@ -16,7 +16,7 @@
 
     <nhdphuong.com.manga.views.customs.MyTextView
         android:id="@+id/tvLabel"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="3dp"
         android:layout_marginTop="3dp"
@@ -27,19 +27,6 @@
         android:textColor="@color/greyD9D9D9"
         android:textSize="15sp"
         app:myFont="@string/NotoSansBold"
-        tools:targetApi="jelly_bean" />
-
-    <nhdphuong.com.manga.views.customs.MyTextView
-        android:id="@+id/tvCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="3dp"
-        android:layout_weight="2"
-        android:gravity="center_vertical"
-        android:text="@string/tags"
-        android:textColor="@color/grey767676"
-        android:textSize="15sp"
-        app:myFont="@string/NotoSansRegular"
         tools:targetApi="jelly_bean" />
 
 </LinearLayout>

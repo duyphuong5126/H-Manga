@@ -107,6 +107,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
 
         mBinding.run {
             ivMainLogo.setOnClickListener {
+                edtSearch.setText("")
                 mSearchContract?.onSearchInputted("")
             }
 

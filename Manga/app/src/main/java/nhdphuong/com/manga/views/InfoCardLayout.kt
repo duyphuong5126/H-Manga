@@ -2,6 +2,9 @@ package nhdphuong.com.manga.views
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.TextAppearanceSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,13 +63,16 @@ class InfoCardLayout(private val layoutInflater: LayoutInflater, private val tag
 
     private inner class InfoCardViewHolder(val view: View, private val tag: Tag) : View.OnClickListener {
         private val mTvLabel: TextView = view.findViewById(R.id.tvLabel)
-        private val mTvCount: TextView = view.findViewById(R.id.tvCount)
 
         init {
-            mTvLabel.text = if (NHentaiApp.instance.isCensored) "Censored" else tag.name
-            mTvCount.text = String.format(mContext.getString(R.string.count), SupportUtils.formatBigNumber(tag.count))
+            val label = if (NHentaiApp.instance.isCensored) "Censored" else tag.name
+            val count = String.format(mContext.getString(R.string.count), SupportUtils.formatBigNumber(tag.count))
+            val finalText = "$label $count"
+            val spannableText = SpannableString(finalText)
+            spannableText.setSpan(TextAppearanceSpan(mContext, R.style.InfoCardLabel), 0, label.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spannableText.setSpan(TextAppearanceSpan(mContext, R.style.InfoCardCount), label.length + 1, finalText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            mTvLabel.text = spannableText
             mTvLabel.setOnClickListener(this)
-            mTvCount.setOnClickListener(this)
         }
 
         override fun onClick(p0: View?) {
