@@ -17,6 +17,7 @@ import nhdphuong.com.manga.supports.SupportUtils
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
@@ -236,10 +237,14 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                             while (currentPage < total) {
                                 val lastPage = if (currentPage + BATCH_COUNT <= total) currentPage + BATCH_COUNT else total
                                 suspendCoroutine<Boolean> { booleanContinuation ->
+                                    val currentTotal = lastPage - currentPage
+                                    val currentIndex = AtomicInteger(0)
                                     for (downloadPage in currentPage until lastPage) {
                                         launch {
+                                            val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
                                             try {
                                                 mBook.bookImages.pages[downloadPage].let { page ->
+                                                    Logger.d(TAG, "Downloading page ${bookPages[downloadPage]}")
                                                     val result = SupportUtils.downloadImageBitmap(bookPages[downloadPage], false)!!
 
                                                     val format = if (page.imageType == Constants.PNG_TYPE) {
@@ -247,32 +252,34 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                                                     } else {
                                                         Bitmap.CompressFormat.JPEG
                                                     }
-                                                    val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
                                                     val resultPath = SupportUtils.compressBitmap(result, resultFilePath, fileName, format)
                                                     resultList.add(resultPath)
-                                                    Logger.d(TAG, "$fileName is saved successfully")
+                                                    Logger.d(TAG, "Page $fileName is saved successfully")
                                                 }
-                                                main.launch {
-                                                    progress++
-                                                    mBookDownloader.updateProgress(mBook.bookId, progress)
-                                                }
-                                                Logger.d(TAG, "Downloading page ${downloadPage + 1} completed")
-                                                if (downloadPage == lastPage - 1) {
+                                                progress++
+                                                mBookDownloader.updateProgress(mBook.bookId, progress)
+                                                if (currentIndex.incrementAndGet() >= currentTotal) {
                                                     booleanContinuation.resume(true)
                                                 }
                                             } catch (exception: Exception) {
-                                                Logger.d(TAG, "Downloading page ${downloadPage + 1} failed")
-                                                booleanContinuation.resume(false)
+                                                Logger.d(TAG, "Downloading page $fileName failed with exception=$exception")
+                                                if (currentIndex.incrementAndGet() >= currentTotal) {
+                                                    booleanContinuation.resume(false)
+                                                }
                                             }
                                         }
                                     }
                                 }
                                 currentPage += BATCH_COUNT
                             }
-                            delay(1000)
                             main.launch {
                                 nHentaiApp.refreshGallery(*resultList.toTypedArray())
                                 mBookDownloader.endDownloading(progress, total)
+                            }
+
+                            delay(2000)
+
+                            main.launch {
                                 mView.showOpenFolderView()
                             }
                         }
@@ -315,22 +322,29 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
 
     override fun onDownloadingStarted(bookId: String, total: Int) {
         if (mView.isActive()) {
-            mView.initDownloading(total)
+            main.launch {
+                mView.initDownloading(total)
+            }
         }
     }
 
     override fun onProgressUpdated(bookId: String, progress: Int, total: Int) {
         if (mView.isActive()) {
-            mView.updateDownloadProgress(progress, total)
+            main.launch {
+                mView.updateDownloadProgress(progress, total)
+            }
         }
     }
 
     override fun onDownloadingEnded(downloaded: Int, total: Int) {
+        Logger.d(TAG, "$downloaded/$total pages are downloaded")
         if (mView.isActive()) {
-            if (downloaded == total) {
-                mView.finishDownloading()
-            } else {
-                mView.finishDownloading(total - downloaded, total)
+            main.launch {
+                if (downloaded == total) {
+                    mView.finishDownloading()
+                } else {
+                    mView.finishDownloading(total - downloaded, total)
+                }
             }
         }
     }
