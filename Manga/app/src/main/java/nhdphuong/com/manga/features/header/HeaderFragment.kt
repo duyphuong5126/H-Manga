@@ -8,7 +8,9 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.Editable
 import android.text.TextUtils
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -126,6 +128,24 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                     }
                 }
                 false
+            }
+            edtSearch.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    ibClearSearch.visibility = if (s?.isNotBlank() == true) View.VISIBLE else View.GONE
+                }
+
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                }
+
+            })
+
+            ibClearSearch.setOnClickListener {
+                edtSearch.setText("")
             }
         }
     }
