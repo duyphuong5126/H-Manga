@@ -17,7 +17,10 @@ interface BookApiService {
     fun getBookListByPage(@Query("page") pageNumber: Long): Call<RemoteBook>
 
     @GET("/api/galleries/search")
-    fun searchByPage(@Query("query") condition: String, @Query("page") pageNumber: Long): Call<RemoteBook>
+    fun searchByPage(
+            @Query("query") condition: String,
+            @Query("page") pageNumber: Long
+    ): Call<RemoteBook>
 
     @GET("/api/gallery/{bookId}")
     fun getBookDetails(@Path("bookId") bookId: String): Call<Book>

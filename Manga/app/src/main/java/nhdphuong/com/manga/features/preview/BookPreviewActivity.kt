@@ -46,7 +46,8 @@ class BookPreviewActivity : AppCompatActivity() {
 
         val book = intent.extras?.getSerializable(Constants.BOOK) as Book
 
-        var bookPreviewFragment = supportFragmentManager.findFragmentById(R.id.clBookPreview) as BookPreviewFragment?
+        var bookPreviewFragment = supportFragmentManager.findFragmentById(R.id.clBookPreview)
+                as BookPreviewFragment?
         if (bookPreviewFragment == null) {
             bookPreviewFragment = BookPreviewFragment()
             supportFragmentManager.beginTransaction()
@@ -54,7 +55,9 @@ class BookPreviewActivity : AppCompatActivity() {
                     .commitAllowingStateLoss()
         }
 
-        NHentaiApp.instance.applicationComponent.plus(BookPreviewModule(bookPreviewFragment, book)).inject(this)
+        NHentaiApp.instance.applicationComponent.plus(
+                BookPreviewModule(bookPreviewFragment, book)
+        ).inject(this)
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

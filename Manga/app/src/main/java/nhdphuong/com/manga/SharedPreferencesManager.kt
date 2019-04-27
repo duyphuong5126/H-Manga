@@ -37,14 +37,23 @@ class SharedPreferencesManager private constructor() {
             }
     }
 
-    private val mBookPreferences: SharedPreferences = NHentaiApp.instance.getSharedPreferences(BOOK_PREFERENCE, Context.MODE_PRIVATE)
-    private val mAdminPreferences: SharedPreferences = NHentaiApp.instance.getSharedPreferences(ADMIN_PREFERENCE, Context.MODE_PRIVATE)
+    private val mBookPreferences: SharedPreferences = NHentaiApp.instance.getSharedPreferences(
+            BOOK_PREFERENCE,
+            Context.MODE_PRIVATE
+    )
+    private val mAdminPreferences: SharedPreferences = NHentaiApp.instance.getSharedPreferences(
+            ADMIN_PREFERENCE,
+            Context.MODE_PRIVATE
+    )
 
     fun setLastBookListRefreshTime(lastRefreshTime: Long) {
         mBookPreferences.edit().putLong(KEY_LAST_BOOK_LIST_REFRESH_TIME, lastRefreshTime).apply()
     }
 
-    fun getLastBookListRefreshTime(): Long = mBookPreferences.getLong(KEY_LAST_BOOK_LIST_REFRESH_TIME, System.currentTimeMillis())
+    fun getLastBookListRefreshTime(): Long = mBookPreferences.getLong(
+            KEY_LAST_BOOK_LIST_REFRESH_TIME,
+            System.currentTimeMillis()
+    )
 
     var lastArtistsCount: Int
         set(value) {

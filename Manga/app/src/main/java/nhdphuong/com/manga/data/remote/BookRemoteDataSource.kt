@@ -1,86 +1,108 @@
 package nhdphuong.com.manga.data.remote
 
+import com.google.gson.Gson
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.data.entity.book.RemoteBook
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 /*
  * Created by nhdphuong on 3/24/18.
  */
+// Todo: research EOFException when using retrofit
 class BookRemoteDataSource(private val mBookApiService: BookApiService) : BookDataSource.Remote {
     companion object {
         private const val TAG = "BookRemoteDataSource"
     }
 
     override suspend fun getBookByPage(page: Long): RemoteBook? {
+        getBookByPage(page, "")
         return suspendCoroutine { continuation ->
-            mBookApiService.getBookListByPage(page).enqueue(object : Callback<RemoteBook> {
-                override fun onResponse(call: Call<RemoteBook>?, response: Response<RemoteBook>?) {
-                    Logger.d(TAG, "get all remote books of page $page successfully")
-                    continuation.resume(response?.body())
-                }
-
-                override fun onFailure(call: Call<RemoteBook>?, t: Throwable?) {
-                    Logger.d(TAG, "get all remote books of page $page fail")
-                    continuation.resume(null)
-                }
-            })
+            val remoteBook = getBookByPage(page, "")
+            continuation.resume(remoteBook)
         }
     }
 
     override suspend fun getBookByPage(searchContent: String, page: Long): RemoteBook? {
         return suspendCoroutine { continuation ->
-            mBookApiService.searchByPage(searchContent.replace(" ", "+"), page).enqueue(object : Callback<RemoteBook> {
-                override fun onResponse(call: Call<RemoteBook>?, response: Response<RemoteBook>?) {
-                    Logger.d(TAG, "search books by $searchContent of page $page successfully")
-                    continuation.resume(response?.body())
-                }
-
-                override fun onFailure(call: Call<RemoteBook>?, t: Throwable?) {
-                    Logger.d(TAG, "search books by $searchContent of page $page fail")
-                    continuation.resume(null)
-                }
-            })
+            val remoteBook = getBookByPage(page, searchContent.replace(" ", "+"))
+            continuation.resume(remoteBook)
         }
     }
 
     override suspend fun getRecommendBook(bookId: String): RecommendBook? {
         return suspendCoroutine { continuation ->
-            mBookApiService.getRecommendBook(bookId).enqueue(object : Callback<RecommendBook> {
-                override fun onResponse(call: Call<RecommendBook>?, response: Response<RecommendBook>?) {
-                    Logger.d(TAG, "get recommend books of $bookId successfully")
-                    continuation.resume(response?.body())
-                }
-
-                override fun onFailure(call: Call<RecommendBook>?, t: Throwable?) {
-                    Logger.d(TAG, "get recommend books of $bookId fail")
-                    continuation.resume(null)
-                }
-            })
+            try {
+                val url = "https://nhentai.net/api/gallery/$bookId/related"
+                val responseData = performGetRequest(url)
+                val recommendBook = Gson().fromJson(responseData, RecommendBook::class.java)
+                continuation.resume(recommendBook)
+            } catch (exception: Exception) {
+                Logger.d(TAG, "get all recommend book of $bookId failed=$exception")
+                continuation.resume(null)
+            }
         }
     }
 
     override suspend fun getBookDetails(bookId: String): Book? {
         return suspendCoroutine { continuation ->
-            mBookApiService.getBookDetails(bookId).enqueue(object : Callback<Book> {
-                override fun onResponse(call: Call<Book>?, response: Response<Book>?) {
-                    Logger.d(TAG, "Get book details of $bookId successfully")
-                    continuation.resume(response?.body())
-                }
-
-                override fun onFailure(call: Call<Book>?, t: Throwable?) {
-                    Logger.d(TAG, "Get book details of $bookId failed")
-                    continuation.resume(null)
-                }
-            })
+            try {
+                val url = "https://nhentai.net/api/gallery/$bookId"
+                val responseData = performGetRequest(url)
+                val book = Gson().fromJson(responseData, Book::class.java)
+                continuation.resume(book)
+            } catch (exception: Exception) {
+                Logger.d(TAG, "get book details of $bookId failed=$exception")
+                continuation.resume(null)
+            }
         }
+    }
+
+    private fun getBookByPage(page: Long, searchContent: String): RemoteBook? {
+        return try {
+            val url = if (searchContent.isNotBlank()) {
+                "https://nhentai.net/api/galleries/search?query=$searchContent&page=$page"
+            } else {
+                "https://nhentai.net/api/galleries/all?page=$page"
+            }
+            val responseData = performGetRequest(url)
+            Gson().fromJson(responseData, RemoteBook::class.java)
+        } catch (exception: Exception) {
+            Logger.d(TAG, "get all remote books of page $page failed=$exception")
+            null
+        }
+    }
+
+    private fun performGetRequest(requestUrl: String): String? {
+        val url = URL(requestUrl)
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+        connection.setRequestProperty("Content-length", "0")
+        connection.useCaches = false
+        connection.connect()
+        val status = connection.responseCode
+        when (status) {
+            200 -> {
+                val br = BufferedReader(InputStreamReader(connection.inputStream))
+                val sb = StringBuilder()
+                var line = br.readLine()
+                while (line != null) {
+                    sb.append("$line\n")
+                    line = br.readLine()
+                }
+                br.close()
+                Logger.d(TAG, "Data=$sb")
+                return sb.toString()
+            }
+        }
+        return null
     }
 }

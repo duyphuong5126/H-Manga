@@ -7,11 +7,15 @@ import nhdphuong.com.manga.Constants
 import java.io.Serializable
 
 @Entity(tableName = Constants.TABLE_PARODY, indices = [Index(value = [Constants.NAME])])
-class Parody(@field:SerializedName(Constants.ID) @PrimaryKey @ColumnInfo(name = Constants.ID) var tagId: Long,
-             @field:SerializedName(Constants.TYPE) @ColumnInfo(name = Constants.TYPE) var type: String,
-             @field:SerializedName(Constants.NAME) @ColumnInfo(name = Constants.NAME) var name: String,
-             @field:SerializedName(Constants.URL) @ColumnInfo(name = Constants.URL) var url: String,
-             @field:SerializedName(Constants.COUNT) @ColumnInfo(name = Constants.COUNT) var count: Long) : Serializable, ITag {
+class Parody(
+        @field:SerializedName(Constants.ID)
+        @PrimaryKey @ColumnInfo(name = Constants.ID) var tagId: Long,
+
+        @field:SerializedName(Constants.TYPE) @ColumnInfo(name = Constants.TYPE) var type: String,
+        @field:SerializedName(Constants.NAME) @ColumnInfo(name = Constants.NAME) var name: String,
+        @field:SerializedName(Constants.URL) @ColumnInfo(name = Constants.URL) var url: String,
+        @field:SerializedName(Constants.COUNT) @ColumnInfo(name = Constants.COUNT) var count: Long
+) : Serializable, ITag {
 
     val jsonValue: JsonObject
         get() {

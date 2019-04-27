@@ -12,13 +12,21 @@ class NotificationHelper {
         private const val CHANNEL_ID = Constants.NOTIFICATION_CHANNEL_ID
 
         private fun sendNotification(notification: Notification, notificationId: Int): Int {
-            val notificationManagerCompat = NotificationManagerCompat.from(NHentaiApp.instance.applicationContext)
+            val notificationManagerCompat = NotificationManagerCompat.from(
+                    NHentaiApp.instance.applicationContext
+            )
             notificationManagerCompat.notify(notificationId, notification)
             return notificationId
         }
 
-        fun sendNotification(title: String, priority: Int, content: String, usedAppIcon: Boolean): Int {
-            val notificationBuilder = NotificationCompat.Builder(NHentaiApp.instance.applicationContext, CHANNEL_ID)
+        fun sendNotification(
+                title: String,
+                priority: Int,
+                content: String,
+                usedAppIcon: Boolean
+        ): Int {
+            val context = NHentaiApp.instance.applicationContext
+            val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setContentTitle(title)
                     .setContentText(content)
                     .setPriority(priority)
@@ -29,11 +37,17 @@ class NotificationHelper {
             return sendNotification(notificationBuilder.build(), System.currentTimeMillis().toInt())
         }
 
-        fun sendBigContentNotification(title: String, priority: Int, content: String, usedAppIcon: Boolean): Int {
+        fun sendBigContentNotification(
+                title: String,
+                priority: Int,
+                content: String,
+                usedAppIcon: Boolean
+        ): Int {
+            val context = NHentaiApp.instance.applicationContext
             val bigTextStyle = NotificationCompat.BigTextStyle()
                     .bigText(content)
                     .setSummaryText(content)
-            val notificationBuilder = NotificationCompat.Builder(NHentaiApp.instance.applicationContext, CHANNEL_ID)
+            val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setStyle(bigTextStyle)
                     .setContentTitle(title)
                     .setPriority(priority)
@@ -44,7 +58,13 @@ class NotificationHelper {
             return sendNotification(notificationBuilder.build(), System.currentTimeMillis().toInt())
         }
 
-        fun sendNotification(title: String, priority: Int, content: String, usedAppIcon: Boolean, allowTap: Boolean): Int {
+        fun sendNotification(
+                title: String,
+                priority: Int,
+                content: String,
+                usedAppIcon: Boolean,
+                allowTap: Boolean
+        ): Int {
             val context = NHentaiApp.instance.applicationContext
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setContentTitle(title)
@@ -56,19 +76,30 @@ class NotificationHelper {
 
             if (allowTap) {
                 val intent = Intent(context, HomeActivity::class.java)
-                notificationBuilder.setContentIntent(PendingIntent.getActivity(context, 0, intent, 0))
+                notificationBuilder.setContentIntent(
+                        PendingIntent.getActivity(context, 0, intent, 0)
+                )
             }
 
             return sendNotification(notificationBuilder.build(), System.currentTimeMillis().toInt())
         }
 
         fun cancelNotification(notificationId: Int) {
-            val notificationManagerCompat = NotificationManagerCompat.from(NHentaiApp.instance.applicationContext)
+            val notificationManagerCompat = NotificationManagerCompat.from(
+                    NHentaiApp.instance.applicationContext
+            )
             notificationManagerCompat.cancel(notificationId)
         }
 
-        fun updateNotification(notificationId: Int, title: String, priority: Int, content: String, usedAppIcon: Boolean) {
-            val notificationBuilder = NotificationCompat.Builder(NHentaiApp.instance.applicationContext, CHANNEL_ID)
+        fun updateNotification(
+                notificationId: Int,
+                title: String,
+                priority: Int,
+                content: String,
+                usedAppIcon: Boolean
+        ) {
+            val context = NHentaiApp.instance.applicationContext
+            val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setContentTitle(title)
                     .setContentText(content)
                     .setPriority(priority)
@@ -79,7 +110,14 @@ class NotificationHelper {
             sendNotification(notificationBuilder.build(), notificationId)
         }
 
-        fun updateNotification(notificationId: Int, title: String, priority: Int, content: String, usedAppIcon: Boolean, allowTap: Boolean) {
+        fun updateNotification(
+                notificationId: Int,
+                title: String,
+                priority: Int,
+                content: String,
+                usedAppIcon: Boolean,
+                allowTap: Boolean
+        ) {
             val context = NHentaiApp.instance.applicationContext
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setContentTitle(title)
@@ -91,7 +129,9 @@ class NotificationHelper {
 
             if (allowTap) {
                 val intent = Intent(context, HomeActivity::class.java)
-                notificationBuilder.setContentIntent(PendingIntent.getActivity(context, 0, intent, 0))
+                notificationBuilder.setContentIntent(
+                        PendingIntent.getActivity(context, 0, intent, 0)
+                )
             }
 
             sendNotification(notificationBuilder.build(), notificationId)

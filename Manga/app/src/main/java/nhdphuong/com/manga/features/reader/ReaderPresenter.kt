@@ -25,13 +25,15 @@ import kotlin.collections.HashSet
 /*
  * Created by nhdphuong on 5/5/18.
  */
-class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View,
-                                          private val mBook: Book,
-                                          private val mStartReadingPage: Int,
-                                          private val mContext: Context,
-                                          private val mBookRepository: BookRepository,
-                                          @IO private val io: CoroutineScope,
-                                          @Main private val main: CoroutineScope) : ReaderContract.Presenter {
+class ReaderPresenter @Inject constructor(
+        private val mView: ReaderContract.View,
+        private val mBook: Book,
+        private val mStartReadingPage: Int,
+        private val mContext: Context,
+        private val mBookRepository: BookRepository,
+        @IO private val io: CoroutineScope,
+        @Main private val main: CoroutineScope
+) : ReaderContract.Presenter {
     companion object {
         private const val TAG = "ReaderPresenter"
         private const val PREFETCH_RADIUS = 5
@@ -70,12 +72,16 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
         mBookPages = LinkedList()
         for (pageId in 0 until mBook.bookImages.pages.size) {
             val page = mBook.bookImages.pages[pageId]
-            mBookPages.add(ApiConstants.getPictureUrl(mBook.mediaId, pageId + 1, page.imageType))
+            mBookPages.add(ApiConstants.getPictureUrl(
+                    mBook.mediaId, pageId + 1, page.imageType
+            ))
         }
         if (!mBookPages.isEmpty()) {
             mCurrentPage = 0
             mView.showBookPages(mBookPages)
-            mView.showPageIndicator(String.format(mContext.getString(R.string.bottom_reader), mCurrentPage + 1, mBookPages.size))
+            mView.showPageIndicator(
+                    String.format(mContext.getString(R.string.bottom_reader), mCurrentPage + 1, mBookPages.size)
+            )
         }
         if (mStartReadingPage >= 0) {
             mView.jumpToPage(mStartReadingPage)
@@ -83,7 +89,11 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
 
         preloadPagesAround(mStartReadingPage)
 
-        mView.pushNowReadingNotification(mBook.previewTitle, mStartReadingPage + 1, mBookPages.size)
+        mView.pushNowReadingNotification(
+                mBook.previewTitle,
+                mStartReadingPage + 1,
+                mBookPages.size
+        )
     }
 
     override fun updatePageIndicator(page: Int) {
@@ -122,7 +132,12 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                     while (!mDownloadQueue.isEmpty()) {
                         val downloadPage = mDownloadQueue.take()
                         mBook.bookImages.pages[downloadPage].let { page ->
-                            val result = ImageUtils.downloadImage(mContext, mBookPages[downloadPage], page.width, page.height)
+                            val result = ImageUtils.downloadImage(
+                                    mContext,
+                                    mBookPages[downloadPage],
+                                    page.width,
+                                    page.height
+                            )
 
                             val resultFilePath = nHentaiApp.getImageDirectory(mBook.mediaId)
 
@@ -132,12 +147,19 @@ class ReaderPresenter @Inject constructor(private val mView: ReaderContract.View
                                 Bitmap.CompressFormat.JPEG
                             }
                             val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
-                            val resultPath = SupportUtils.compressBitmap(result, resultFilePath, fileName, format)
+                            val resultPath = SupportUtils.compressBitmap(
+                                    result,
+                                    resultFilePath,
+                                    fileName,
+                                    format
+                            )
                             resultList.add(resultPath)
                             Logger.d(TAG, "$fileName is saved successfully")
                         }
                         main.launch {
-                            mView.updateDownloadPopupTitle(String.format(mContext.getString(R.string.download_progress), downloadPage + 1))
+                            mView.updateDownloadPopupTitle(
+                                    String.format(mContext.getString(R.string.download_progress), downloadPage + 1)
+                            )
                             mView.showDownloadPopup()
                         }
                         Logger.d(TAG, "Download page ${downloadPage + 1} completed")

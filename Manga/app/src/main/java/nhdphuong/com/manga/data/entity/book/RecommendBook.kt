@@ -7,4 +7,4 @@ import java.util.*
 /*
  * Created by nhdphuong on 4/28/18.
  */
-class RecommendBook(@field:SerializedName(Constants.RESULT) val bookList: LinkedList<Book>)
+data class RecommendBook(@field:SerializedName(Constants.RESULT) val bookList: LinkedList<Book>)

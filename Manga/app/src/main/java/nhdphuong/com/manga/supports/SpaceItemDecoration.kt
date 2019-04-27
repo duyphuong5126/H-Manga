@@ -23,18 +23,32 @@ class SpaceItemDecoration() : RecyclerView.ItemDecoration() {
         mSpace = 0
     }
 
-    constructor(context: Context, attributeSet: AttributeSet, showFirstDivider: Boolean, showLastDivider: Boolean) : this(context, attributeSet) {
+    constructor(
+            context: Context,
+            attributeSet: AttributeSet,
+            showFirstDivider: Boolean,
+            showLastDivider: Boolean
+    ) : this(context, attributeSet) {
         mShowFirstDivider = showFirstDivider
         mShowLastDivider = showLastDivider
     }
 
     constructor(spaceInDp: Int, context: Context) : this() {
         val r = context.resources
-        val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, spaceInDp.toFloat(), r.displayMetrics)
+        val px = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                spaceInDp.toFloat(),
+                r.displayMetrics
+        )
         mSpace = px.toInt()
     }
 
-    constructor(spaceInDp: Int, context: Context, showFirstDivider: Boolean, showLastDivider: Boolean) : this(spaceInDp, context) {
+    constructor(
+            spaceInDp: Int,
+            context: Context,
+            showFirstDivider: Boolean,
+            showLastDivider: Boolean
+    ) : this(spaceInDp, context) {
         mShowFirstDivider = showFirstDivider
         mShowLastDivider = showLastDivider
     }
@@ -43,7 +57,12 @@ class SpaceItemDecoration() : RecyclerView.ItemDecoration() {
         mSpace = context.resources.getDimensionPixelSize(resId)
     }
 
-    constructor(context: Context, resId: Int, showFirstDivider: Boolean, showLastDivider: Boolean) : this(context, resId) {
+    constructor(
+            context: Context,
+            resId: Int,
+            showFirstDivider: Boolean,
+            showLastDivider: Boolean
+    ) : this(context, resId) {
         mShowFirstDivider = showFirstDivider
         mShowLastDivider = showLastDivider
     }

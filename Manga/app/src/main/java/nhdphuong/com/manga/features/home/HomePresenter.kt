@@ -25,12 +25,14 @@ import kotlin.coroutines.suspendCoroutine
  * Created by nhdphuong on 3/18/18.
  */
 
-class HomePresenter @Inject constructor(private val mView: HomeContract.View,
-                                        private val mBookRepository: BookRepository,
-                                        private val mTagRepository: TagRepository,
-                                        private val mSharedPreferencesManager: SharedPreferencesManager,
-                                        @IO private val io: CoroutineScope,
-                                        @Main private val main: CoroutineScope) : HomeContract.Presenter {
+class HomePresenter @Inject constructor(
+        private val mView: HomeContract.View,
+        private val mBookRepository: BookRepository,
+        private val mTagRepository: TagRepository,
+        private val mSharedPreferencesManager: SharedPreferencesManager,
+        @IO private val io: CoroutineScope,
+        @Main private val main: CoroutineScope
+) : HomeContract.Presenter {
     companion object {
         private const val TAG = "HomePresenter"
         private const val NUMBER_OF_PREVENTIVE_PAGES = 10
@@ -73,7 +75,9 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
                 }
                 mTagRepository.getCurrentVersion(onSuccess = { newVersion ->
                     if (mSharedPreferencesManager.currentTagVersion != newVersion) {
-                        Logger.d(TAG, "New version is available, new version: $newVersion, current version: ${mSharedPreferencesManager.currentTagVersion}")
+                        Logger.d(TAG, "New version is available, " +
+                                "new version: $newVersion," +
+                                " current version: ${mSharedPreferencesManager.currentTagVersion}")
                         mSharedPreferencesManager.currentTagVersion = newVersion
                     } else {
                         Logger.d(TAG, "App is already updated to the version $newVersion")
@@ -140,7 +144,11 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
 
     override fun reloadLastBookListRefreshTime() {
         mSharedPreferencesManager.getLastBookListRefreshTime().let { lastRefreshTime ->
-            mView.showLastBookListRefreshTime(SupportUtils.getTimeElapsed(System.currentTimeMillis() - lastRefreshTime).toLowerCase())
+            mView.showLastBookListRefreshTime(
+                    SupportUtils.getTimeElapsed(
+                            System.currentTimeMillis() - lastRefreshTime
+                    ).toLowerCase()
+            )
         }
     }
 
@@ -190,7 +198,8 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
             val random = Random()
             val randomPage = random.nextInt(mCurrentNumOfPages.toInt()) + 1
             getBooksListByPage(randomPage.toLong())?.bookList.let { randomBooks ->
-                Logger.d(TAG, "Randomized paged $randomPage, books count=${randomBooks?.size ?: 0}")
+                Logger.d(TAG, "Randomized paged $randomPage," +
+                        " books count=${randomBooks?.size ?: 0}")
                 if (randomBooks?.isEmpty() == false) {
                     val randomIndex = random.nextInt(randomBooks.size)
                     main.launch {
@@ -336,7 +345,7 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
         isLoadingPreventiveData = true
 
         suspendCoroutine<Boolean> { continuation ->
-            NUMBER_OF_PREVENTIVE_PAGES.toLong().let { numberOfPresentivePages ->
+            NUMBER_OF_PREVENTIVE_PAGES.toLong().let { _ ->
                 for (page in mCurrentPage + 1L..NUMBER_OF_PREVENTIVE_PAGES.toLong()) {
                     Logger.d(TAG, "Start loading page $page")
                     io.launch {
@@ -372,5 +381,11 @@ class HomePresenter @Inject constructor(private val mView: HomeContract.View,
         isRefreshing = false
     }
 
-    private suspend fun getBooksListByPage(pageNumber: Long): RemoteBook? = if (isSearching) mBookRepository.getBookByPage(mSearchData, pageNumber) else mBookRepository.getBookByPage(pageNumber)
+    private suspend fun getBooksListByPage(pageNumber: Long): RemoteBook? {
+        return if (isSearching) {
+            mBookRepository.getBookByPage(mSearchData, pageNumber)
+        } else {
+            mBookRepository.getBookByPage(pageNumber)
+        }
+    }
 }

@@ -13,7 +13,6 @@ import nhdphuong.com.manga.data.local.TagDAO
 import nhdphuong.com.manga.scope.corountine.Default
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
-import nhdphuong.com.manga.scope.corountine.Unconfined
 import nhdphuong.com.manga.supports.ServiceGenerator
 import javax.inject.Singleton
 
@@ -45,7 +44,9 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
 
     @Singleton
     @Provides
-    fun provideSharedPreferencesManager(): SharedPreferencesManager = SharedPreferencesManager.instance
+    fun provideSharedPreferencesManager(): SharedPreferencesManager {
+        return SharedPreferencesManager.instance
+    }
 
     @Singleton
     @Provides
@@ -66,8 +67,4 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
     @Provides
     @Default
     fun providesDefaultDispatcher(): CoroutineScope = CoroutineScope(Dispatchers.Default)
-
-    @Provides
-    @Unconfined
-    fun providesUnconfinedDispatcher(): CoroutineScope = CoroutineScope(Dispatchers.Unconfined)
 }

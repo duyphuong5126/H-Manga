@@ -32,8 +32,11 @@ class SupportUtils {
         private const val MONTH: Long = DAY * 30
         private const val YEAR: Long = DAY * 365
 
-        fun dp2Pixel(context: Context, dp: Int): Int =
-                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp * 1F, context.resources.displayMetrics).toInt()
+        fun dp2Pixel(context: Context, dp: Int): Int = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp * 1F,
+                context.resources.displayMetrics
+        ).toInt()
 
         fun formatBigNumber(number: Long): String {
             return NumberFormat.getNumberInstance(Locale.US).format(number)
@@ -55,7 +58,14 @@ class SupportUtils {
             var hasLines = 0
 
             while (hasLines < lines - 1) {
-                cnt = paint.breakText(text, startPosition, len, true, width.toFloat(), null)
+                cnt = paint.breakText(
+                        text,
+                        startPosition,
+                        len,
+                        true,
+                        width.toFloat(),
+                        null
+                )
                 if (cnt >= len - startPosition) {
                     result.append(text.substring(startPosition))
                     break
@@ -81,14 +91,26 @@ class SupportUtils {
             }
 
             if (startPosition < len) {
-                result.append(TextUtils.ellipsize(text.subSequence(startPosition, len), paint, width.toFloat(), where))
+                result.append(
+                        TextUtils.ellipsize(
+                                text.subSequence(startPosition, len),
+                                paint,
+                                width.toFloat(),
+                                where
+                        )
+                )
             }
 
             val ellipsizedText = result.toString()
             return ellipsizedText.substring(0, ellipsizedText.length - 1)
         }
 
-        fun compressBitmap(bitmap: Bitmap, filePath: String, filename: String, format: Bitmap.CompressFormat): String {
+        fun compressBitmap(
+                bitmap: Bitmap,
+                filePath: String,
+                filename: String,
+                format: Bitmap.CompressFormat
+        ): String {
             val dirs = File(filePath)
             if (!dirs.exists()) {
                 dirs.mkdirs()

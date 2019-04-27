@@ -46,25 +46,43 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
         mPresenter = presenter
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_tags, container, false)
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
+        mBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.fragment_tags,
+                container,
+                false
+        )
         return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mCharacterAdapter = PaginationAdapter(context!!, mCharacterCount, PaginationAdapter.PaginationMode.CHARACTER)
-        mCharacterAdapter.onCharacterSelectCallback = object : PaginationAdapter.OnCharacterSelectCallback {
-            override fun onPageSelected(character: Char) {
-                Logger.d(TAG, "character=$character")
-                mPresenter.filterByCharacter(character)
-            }
-        }
+        mCharacterAdapter = PaginationAdapter(
+                context!!,
+                mCharacterCount,
+                PaginationAdapter.PaginationMode.CHARACTER
+        )
+        mCharacterAdapter.onCharacterSelectCallback =
+                object : PaginationAdapter.OnCharacterSelectCallback {
+                    override fun onPageSelected(character: Char) {
+                        Logger.d(TAG, "character=$character")
+                        mPresenter.filterByCharacter(character)
+                    }
+                }
         mBinding.run {
             rvAlphabetPagination.run {
                 adapter = mCharacterAdapter
                 visibility = View.VISIBLE
-                layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+                layoutManager = LinearLayoutManager(
+                        activity,
+                        LinearLayoutManager.HORIZONTAL,
+                        false
+                )
                 adapter = mCharacterAdapter
             }
             mbAlphabet.setOnClickListener {
@@ -122,7 +140,10 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
 
     override fun updateTag(tagType: String, tagCount: Int) {
         mBinding.mtvTitle.text = tagType
-        mBinding.mtvCount.text = String.format(mTagCountString, SupportUtils.formatBigNumber(tagCount.toLong()))
+        mBinding.mtvCount.text = String.format(
+                mTagCountString,
+                SupportUtils.formatBigNumber(tagCount.toLong())
+        )
     }
 
     override fun refreshPages(pagesCount: Int) {
@@ -141,7 +162,11 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
                 }
             }
             rvPagination.visibility = View.VISIBLE
-            rvPagination.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+            rvPagination.layoutManager = LinearLayoutManager(
+                    activity,
+                    LinearLayoutManager.HORIZONTAL,
+                    false
+            )
             rvPagination.adapter = mNumberAdapter
         }
     }
@@ -190,7 +215,11 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     private fun changeTagFilterType(tagFilter: TagFilter) {
         mPresenter.changeTagFilterType(tagFilter)
         mBinding.run {
-            clAlphabetNavigation.visibility = if (tagFilter == TagFilter.ALPHABET) View.VISIBLE else View.GONE
+            clAlphabetNavigation.visibility = if (tagFilter == TagFilter.ALPHABET) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
     }
 

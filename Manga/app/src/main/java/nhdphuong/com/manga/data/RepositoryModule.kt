@@ -26,23 +26,31 @@ class RepositoryModule {
     @NonNull
     @Singleton
     @Remote
-    fun provideBookRemoteDataSource(bookApiService: BookApiService): BookDataSource.Remote = BookRemoteDataSource(bookApiService)
+    fun provideBookRemoteDataSource(bookApiService: BookApiService): BookDataSource.Remote {
+        return BookRemoteDataSource(bookApiService)
+    }
 
     @Provides
     @NonNull
     @Singleton
     @Local
-    fun providesBookLocalDataSource(recentBookDAO: RecentBookDAO): BookDataSource.Local = BookLocalDataSource(recentBookDAO)
+    fun providesBookLocalDataSource(recentBookDAO: RecentBookDAO): BookDataSource.Local {
+        return BookLocalDataSource(recentBookDAO)
+    }
 
     @Provides
     @NonNull
     @Singleton
     @Remote
-    fun provideTagRemoteDataSource(tagApiService: TagApiService): TagDataSource.Remote = TagRemoteDataSource(tagApiService)
+    fun provideTagRemoteDataSource(tagApiService: TagApiService): TagDataSource.Remote {
+        return TagRemoteDataSource(tagApiService)
+    }
 
     @Provides
     @NonNull
     @Singleton
     @Local
-    fun providesTagLocalDataSource(tagDAO: TagDAO): TagDataSource.Local = TagLocalDataSource(tagDAO, CoroutineScope(Dispatchers.IO))
+    fun providesTagLocalDataSource(tagDAO: TagDAO): TagDataSource.Local {
+        return TagLocalDataSource(tagDAO, CoroutineScope(Dispatchers.IO))
+    }
 }

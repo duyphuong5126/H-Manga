@@ -1,7 +1,6 @@
 package nhdphuong.com.manga.features.tags
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -44,24 +43,32 @@ class TagsActivity : AppCompatActivity(), SearchContract {
         setContentView(R.layout.activity_tags)
 
         NHentaiApp.instance.suspendUpdateTagsService()
-        var tagsFragment = supportFragmentManager.findFragmentById(R.id.clTagsFragment) as TagsFragment?
+        var tagsFragment = supportFragmentManager.findFragmentById(R.id.clTagsFragment)
+                as TagsFragment?
         if (tagsFragment == null) {
             tagsFragment = TagsFragment()
-            supportFragmentManager.beginTransaction().replace(R.id.clTagsFragment, tagsFragment).commitAllowingStateLoss()
+            supportFragmentManager.beginTransaction()
+                    .replace(R.id.clTagsFragment, tagsFragment)
+                    .commitAllowingStateLoss()
         }
         tagsFragment.setSearchInputListener(this)
 
-        var headerFragment = supportFragmentManager.findFragmentById(R.id.clHeader) as HeaderFragment?
+        var headerFragment = supportFragmentManager.findFragmentById(R.id.clHeader)
+                as HeaderFragment?
         if (headerFragment == null) {
             headerFragment = HeaderFragment()
-            supportFragmentManager.beginTransaction().replace(R.id.clHeader, headerFragment).commitAllowingStateLoss()
+            supportFragmentManager.beginTransaction()
+                    .replace(R.id.clHeader, headerFragment)
+                    .commitAllowingStateLoss()
         }
         headerFragment.setSearchInputListener(this)
         intent.getStringExtra(Constants.TAG_TYPE)?.let { tag ->
             headerFragment.arguments = getTagBundle(tag)
             headerFragment.setTagChangeListener(tagsFragment)
-            NHentaiApp.instance.applicationComponent.plus(TagsModule(tagsFragment, tag),
-                    HeaderModule(headerFragment)).inject(this)
+            NHentaiApp.instance.applicationComponent.plus(
+                    TagsModule(tagsFragment, tag),
+                    HeaderModule(headerFragment)
+            ).inject(this)
         }
     }
 

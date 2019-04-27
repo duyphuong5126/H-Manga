@@ -65,12 +65,14 @@ class TagsUpdateService : Service() {
     }
 
     fun suspendTask() {
-        Logger.d(TAG, "Updating task is being suspended, task is running=${!isUpdateTagSuspended}")
+        Logger.d(TAG, "Updating task is being suspended," +
+                " task is running=${!isUpdateTagSuspended}")
         isUpdateTagSuspended = true
     }
 
     fun resumeTask() {
-        Logger.d(TAG, "Updating task is being resumed, task is running=${!isUpdateTagSuspended}")
+        Logger.d(TAG, "Updating task is being resumed," +
+                " task is running=${!isUpdateTagSuspended}")
         isUpdateTagSuspended = false
     }
 
@@ -81,7 +83,8 @@ class TagsUpdateService : Service() {
     private fun checkForNewVersion() {
         mTagRepository.getCurrentVersion(onSuccess = { newVersion ->
             if (mSharedPreferencesManager.currentTagVersion != newVersion) {
-                Logger.d(TAG, "New version is available, new version: $newVersion, current version: ${mSharedPreferencesManager.currentTagVersion}")
+                Logger.d(TAG, "New version is available, new version: $newVersion," +
+                        " current version: ${mSharedPreferencesManager.currentTagVersion}")
                 mTagsDownloadManager.startDownloading()
                 mTagRepository.fetchAllTagLists { isSuccess ->
                     Logger.d(TAG, "Tags fetching completed, isSuccess=$isSuccess")

@@ -12,8 +12,11 @@ import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.SupportUtils
 
-class PaginationAdapter(context: Context, private var pageCount: Int,
-                        private var paginationMode: PaginationMode = PaginationMode.NUMBER) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class PaginationAdapter(
+        context: Context,
+        private var pageCount: Int,
+        private var paginationMode: PaginationMode = PaginationMode.NUMBER
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TAG_PREFIXES = Constants.TAG_PREFIXES
     }
@@ -30,7 +33,11 @@ class PaginationAdapter(context: Context, private var pageCount: Int,
         get() = mMaxVisible
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_home_pagination, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(
+                R.layout.item_home_pagination,
+                parent,
+                false
+        )
         return if (paginationMode == PaginationMode.NUMBER) {
             NumberPaginationViewHolder(view)
         } else {
@@ -57,7 +64,10 @@ class PaginationAdapter(context: Context, private var pageCount: Int,
         }
     }
 
-    private inner class NumberPaginationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    private inner class NumberPaginationViewHolder(
+            itemView: View
+    ) : RecyclerView.ViewHolder(itemView),
+            View.OnClickListener {
         private val mTvPageNumber: TextView = itemView.findViewById(R.id.tvPageNumber)
         private var mPage = -1
 
@@ -85,13 +95,20 @@ class PaginationAdapter(context: Context, private var pageCount: Int,
                 mTvPageNumber.setBackgroundResource(0)
             }
 
-            val size = if (pageSelected >= 100) ConstraintLayout.LayoutParams.WRAP_CONTENT else mDefaultTextSize
+            val size = if (pageSelected >= 100) {
+                ConstraintLayout.LayoutParams.WRAP_CONTENT
+            } else {
+                mDefaultTextSize
+            }
             mTvPageNumber.layoutParams.width = size
             mTvPageNumber.layoutParams.height = size
         }
     }
 
-    private inner class CharacterPaginationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    private inner class CharacterPaginationViewHolder(
+            itemView: View
+    ) : RecyclerView.ViewHolder(itemView),
+            View.OnClickListener {
         private val mTvPageNumber: TextView = itemView.findViewById(R.id.tvPageNumber)
         private var mPage = -1
 

@@ -14,14 +14,19 @@ import java.util.*
  */
 class GsonUTCDateAdapter : JsonDeserializer<Date> {
 
-    private val dateFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+    private val dateFormat: SimpleDateFormat =
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
 
     init {
         dateFormat.timeZone = TimeZone.getTimeZone("UTC")
     }
 
     @Throws(JsonParseException::class)
-    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Date {
+    override fun deserialize(
+            json: JsonElement,
+            typeOfT: Type,
+            context: JsonDeserializationContext
+    ): Date {
         return try {
             dateFormat.parse(json.asString)
         } catch (e: ParseException) {

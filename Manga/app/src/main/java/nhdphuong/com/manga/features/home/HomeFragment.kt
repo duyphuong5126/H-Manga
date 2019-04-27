@@ -68,7 +68,11 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         Logger.d(TAG, "onAttach")
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
         Logger.d(TAG, "onCreateView")
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_book_list, container, false)
         return mBinding.root
@@ -100,7 +104,11 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                 }
             }
 
-            override fun checkCanDoRefresh(frame: PtrFrameLayout?, content: View?, header: View?): Boolean {
+            override fun checkCanDoRefresh(
+                    frame: PtrFrameLayout?,
+                    content: View?,
+                    header: View?
+            ): Boolean {
                 return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header)
             }
         })
@@ -179,19 +187,26 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     @SuppressLint("PrivateResource")
     override fun setUpHomeBookList(homeBookList: List<Book>) {
         val homeFragment = this
-        mHomeListAdapter = BookAdapter(homeBookList, BookAdapter.HOME_PREVIEW_BOOK, object : BookAdapter.OnBookClick {
-            override fun onItemClick(item: Book) {
-                BookPreviewActivity.start(homeFragment, item)
-            }
-        })
+        mHomeListAdapter = BookAdapter(
+                homeBookList,
+                BookAdapter.HOME_PREVIEW_BOOK,
+                object : BookAdapter.OnBookClick {
+                    override fun onItemClick(item: Book) {
+                        BookPreviewActivity.start(homeFragment, item)
+                    }
+                })
         val mainList: RecyclerView = mBinding.rvMainList
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
-        val mainListLayoutManager = object : StaggeredGridLayoutManager(if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS, StaggeredGridLayoutManager.VERTICAL) {
+        val mainListLayoutManager = object : StaggeredGridLayoutManager(
+                if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS,
+                StaggeredGridLayoutManager.VERTICAL
+        ) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
             }
         }
-        mainListLayoutManager.gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
+        mainListLayoutManager.gapStrategy =
+                StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
         mainList.layoutManager = mainListLayoutManager
         mainList.adapter = mHomeListAdapter
     }
@@ -214,14 +229,19 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             return
         }
         mHomePaginationAdapter = PaginationAdapter(context!!, pageCount.toInt())
-        mHomePaginationAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
-            override fun onPageSelected(page: Int) {
-                Logger.d(TAG, "Page $page is selected")
-                mHomePresenter.jumpToPage(page.toLong())
-            }
-        }
+        mHomePaginationAdapter.onPageSelectCallback =
+                object : PaginationAdapter.OnPageSelectCallback {
+                    override fun onPageSelected(page: Int) {
+                        Logger.d(TAG, "Page $page is selected")
+                        mHomePresenter.jumpToPage(page.toLong())
+                    }
+                }
         mainPagination.visibility = View.VISIBLE
-        mainPagination.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+        mainPagination.layoutManager = LinearLayoutManager(
+                activity,
+                LinearLayoutManager.HORIZONTAL,
+                false
+        )
         mainPagination.adapter = mHomePaginationAdapter
         mainPagination.viewTreeObserver.addOnGlobalLayoutListener {
             if (mHomePaginationAdapter.maxVisible >= pageCount - 1) {
@@ -301,7 +321,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         mUpdateDotsHandler.removeCallbacksAndMessages(null)
     }
 
-    override fun onUIPositionChange(frame: PtrFrameLayout?, isUnderTouch: Boolean, status: Byte, ptrIndicator: PtrIndicator?) {
+    override fun onUIPositionChange(
+            frame: PtrFrameLayout?,
+            isUnderTouch: Boolean,
+            status: Byte,
+            ptrIndicator: PtrIndicator?
+    ) {
         Logger.d(TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
                 "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
                 "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}")
@@ -345,7 +370,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
             Logger.d(TAG, "Current pos: $currentPos")
-            mBinding.refreshHeader.mtvRefresh.text = String.format(loadingString, dotsArray[currentPos])
+            mBinding.refreshHeader.mtvRefresh.text =
+                    String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }
         val runnable = object : Runnable {

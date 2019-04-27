@@ -20,7 +20,11 @@ import java.util.*
 /*
  * Created by nhdphuong on 4/15/18.
  */
-class InfoCardLayout(private val layoutInflater: LayoutInflater, private val tagList: List<Tag>, private val mContext: Context) {
+class InfoCardLayout(
+        private val layoutInflater: LayoutInflater,
+        private val tagList: List<Tag>,
+        private val mContext: Context
+) {
     companion object {
         private const val TAG = "InfoCardLayout"
     }
@@ -30,11 +34,19 @@ class InfoCardLayout(private val layoutInflater: LayoutInflater, private val tag
         if (tagList.isEmpty()) {
             return
         }
-        var tagLine = layoutInflater.inflate(R.layout.item_tag_line, viewGroup, false).findViewById<LinearLayout>(R.id.lineRoot)
+        var tagLine = layoutInflater.inflate(
+                R.layout.item_tag_line,
+                viewGroup,
+                false
+        ).findViewById<LinearLayout>(R.id.lineRoot)
         viewGroup.addView(tagLine)
         val viewList = LinkedList<View>()
         for (tag in tagList) {
-            val view = InfoCardViewHolder(layoutInflater.inflate(R.layout.item_tag, viewGroup, false), tag).view
+            val view = InfoCardViewHolder(layoutInflater.inflate(
+                    R.layout.item_tag,
+                    viewGroup,
+                    false
+            ), tag).view
             view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
             viewList.add(view)
         }
@@ -53,7 +65,11 @@ class InfoCardLayout(private val layoutInflater: LayoutInflater, private val tag
             widthCount += itemWidth
             Logger.d(TAG, "Item: $itemWidth, widthCount: $widthCount, total: $totalWidth")
             if (widthCount > totalWidth) {
-                tagLine = layoutInflater.inflate(R.layout.item_tag_line, viewGroup, false).findViewById(R.id.lineRoot)
+                tagLine = layoutInflater.inflate(
+                        R.layout.item_tag_line,
+                        viewGroup,
+                        false
+                ).findViewById(R.id.lineRoot)
                 viewGroup.addView(tagLine)
                 widthCount = itemWidth
             }
@@ -61,7 +77,10 @@ class InfoCardLayout(private val layoutInflater: LayoutInflater, private val tag
         }
     }
 
-    private inner class InfoCardViewHolder(val view: View, private val tag: Tag) : View.OnClickListener {
+    private inner class InfoCardViewHolder(
+            val view: View,
+            private val tag: Tag
+    ) : View.OnClickListener {
         private val mTvLabel: TextView = view.findViewById(R.id.tvLabel)
 
         init {
@@ -69,8 +88,18 @@ class InfoCardLayout(private val layoutInflater: LayoutInflater, private val tag
             val count = String.format(mContext.getString(R.string.count), SupportUtils.formatBigNumber(tag.count))
             val finalText = "$label $count"
             val spannableText = SpannableString(finalText)
-            spannableText.setSpan(TextAppearanceSpan(mContext, R.style.InfoCardLabel), 0, label.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            spannableText.setSpan(TextAppearanceSpan(mContext, R.style.InfoCardCount), label.length + 1, finalText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spannableText.setSpan(
+                    TextAppearanceSpan(mContext, R.style.InfoCardLabel),
+                    0,
+                    label.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            spannableText.setSpan(
+                    TextAppearanceSpan(mContext, R.style.InfoCardCount),
+                    label.length + 1,
+                    finalText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
             mTvLabel.text = spannableText
             mTvLabel.setOnClickListener(this)
         }

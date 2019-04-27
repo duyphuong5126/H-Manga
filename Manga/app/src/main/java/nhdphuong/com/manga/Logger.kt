@@ -5,7 +5,8 @@ import android.util.Log
 
 class Logger {
     companion object {
-        private val loggable: Boolean = (NHentaiApp.instance.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        private val loggable: Boolean =
+                (NHentaiApp.instance.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
         fun d(tag: String?, message: String?) {
             if (loggable) {

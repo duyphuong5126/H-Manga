@@ -14,16 +14,16 @@ import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.scope.corountine.IO
-import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
 import javax.inject.Inject
 
-class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
-                                         private val mBookApiService: BookApiService,
-                                         private val mSharedPreferencesManager: SharedPreferencesManager,
-                                         @IO private val io: CoroutineScope,
-                                         @Main private val main: CoroutineScope) : AdminContract.Presenter {
+class AdminPresenter @Inject constructor(
+        private val mView: AdminContract.View,
+        private val mBookApiService: BookApiService,
+        private val mSharedPreferencesManager: SharedPreferencesManager,
+        @IO private val io: CoroutineScope
+) : AdminContract.Presenter {
     companion object {
         private const val TAG = "AdminPresenter"
     }
@@ -104,7 +104,17 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
             mNumberOfPage = remoteBook.numOfPages
             mView.showNumberOfPages(mNumberOfPage)
             mSharedPreferencesManager.run {
-                mView.updateDownloadingStatistics(mCurrentPage, lastArtistsCount, lastCharactersCount, lastCategoriesCount, lastLanguagesCount, lastParodiesCount, lastGroupsCount, lastTagsCount, lastUnknownTypesCount)
+                mView.updateDownloadingStatistics(
+                        mCurrentPage,
+                        lastArtistsCount,
+                        lastCharactersCount,
+                        lastCategoriesCount,
+                        lastLanguagesCount,
+                        lastParodiesCount,
+                        lastGroupsCount,
+                        lastTagsCount,
+                        lastUnknownTypesCount
+                )
             }
         } else {
             for (book in remoteBook.bookList) {
@@ -112,8 +122,17 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
                     addTag(tag)
                 }
             }
-            mView.updateDownloadingStatistics(mCurrentPage, mArtists.size, mCharacters.size, mCategories.size,
-                    mLanguages.size, mParodies.size, mGroups.size, mTags.size, mUnknownTypes.size)
+            mView.updateDownloadingStatistics(
+                    mCurrentPage,
+                    mArtists.size,
+                    mCharacters.size,
+                    mCategories.size,
+                    mLanguages.size,
+                    mParodies.size,
+                    mGroups.size,
+                    mTags.size,
+                    mUnknownTypes.size
+            )
             downloadPage(++mCurrentPage)
         }
     }
@@ -121,35 +140,43 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
     private fun addTag(tag: Tag) {
         when (tag.type.toLowerCase()) {
             Constants.ARTIST -> {
-                Logger.d(TAG, "Artist - id: ${tag.tagId}, name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
+                Logger.d(TAG, "Artist - id: ${tag.tagId}," +
+                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
                 mArtists[tag.tagId] = tag
             }
             Constants.CHARACTER -> {
-                Logger.d(TAG, "Character - id: ${tag.tagId}, name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
+                Logger.d(TAG, "Character - id: ${tag.tagId}," +
+                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
                 mCharacters[tag.tagId] = tag
             }
             Constants.CATEGORY -> {
-                Logger.d(TAG, "Category - id: ${tag.tagId}, name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
+                Logger.d(TAG, "Category - id: ${tag.tagId}," +
+                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
                 mCategories[tag.tagId] = tag
             }
             Constants.LANGUAGE -> {
-                Logger.d(TAG, "Language - id: ${tag.tagId}, name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
+                Logger.d(TAG, "Language - id: ${tag.tagId}," +
+                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
                 mLanguages[tag.tagId] = tag
             }
             Constants.PARODY -> {
-                Logger.d(TAG, "Parody - id: ${tag.tagId}, name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
+                Logger.d(TAG, "Parody - id: ${tag.tagId}," +
+                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
                 mParodies[tag.tagId] = tag
             }
             Constants.GROUP -> {
-                Logger.d(TAG, "Group - id: ${tag.tagId}, name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
+                Logger.d(TAG, "Group - id: ${tag.tagId}," +
+                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
                 mGroups[tag.tagId] = tag
             }
             Constants.TAG -> {
-                Logger.d(TAG, "Tag - id: ${tag.tagId}, name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
+                Logger.d(TAG, "Tag - id: ${tag.tagId}," +
+                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
                 mTags[tag.tagId] = tag
             }
             else -> {
-                Logger.d(TAG, "Unknown tag - id: ${tag.tagId}, name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
+                Logger.d(TAG, "Unknown tag - id: ${tag.tagId}," +
+                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
                 mUnknownTypes[tag.tagId] = tag
             }
         }
@@ -168,7 +195,11 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
 
     private fun saveChangeSummaryData() {
         io.launch {
-            val saveResult = SupportUtils.saveStringFile(System.currentTimeMillis().toString(), "CurrentVersion", NHentaiApp.instance.getTagDirectory())
+            val saveResult = SupportUtils.saveStringFile(
+                    System.currentTimeMillis().toString(),
+                    "CurrentVersion",
+                    NHentaiApp.instance.getTagDirectory()
+            )
             Logger.d(TAG, "Current id saving result=$saveResult")
         }
     }
@@ -177,7 +208,15 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
         io.launch {
             val stringBuffer = StringBuffer("")
             val calendar = Calendar.getInstance(Locale.US)
-            val total = mArtists.size + mCategories.size + mCharacters.size + mLanguages.size + mParodies.size + mGroups.size + mTags.size + mUnknownTypes.size
+            val total = mArtists.size +
+                    mCategories.size +
+                    mCharacters.size +
+                    mLanguages.size +
+                    mParodies.size +
+                    mGroups.size +
+                    mTags.size +
+                    mUnknownTypes.size
+
             stringBuffer.append("===========================NHentai Data===========================\n")
             stringBuffer.append("Created date: ${calendar.get(Calendar.DAY_OF_MONTH)}/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.YEAR)}\n")
             stringBuffer.append("Total: $total items\n")
@@ -190,7 +229,11 @@ class AdminPresenter @Inject constructor(private val mView: AdminContract.View,
             stringBuffer.append("mTags: ${mTags.size} items, number of old items: ${mSharedPreferencesManager.lastTagsCount}\n")
             stringBuffer.append("UnknownTypes: ${mUnknownTypes.size} items, number of old items: ${mSharedPreferencesManager.lastUnknownTypesCount}\n")
             stringBuffer.append("==================================================================")
-            val saveResult = SupportUtils.saveStringFile(stringBuffer.toString(), "ChangeLogs", NHentaiApp.instance.getTagDirectory())
+            val saveResult = SupportUtils.saveStringFile(
+                    stringBuffer.toString(),
+                    "ChangeLogs",
+                    NHentaiApp.instance.getTagDirectory()
+            )
             Logger.d(TAG, "NHentai.txt list saving result=$saveResult")
             mSharedPreferencesManager.lastCategoriesCount = mCategories.size
             mSharedPreferencesManager.lastCharactersCount = mCharacters.size

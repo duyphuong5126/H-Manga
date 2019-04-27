@@ -15,11 +15,13 @@ import javax.inject.Inject
 /*
  * Created by nhdphuong on 5/12/18.
  */
-class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
-                                        private val mTagRepository: TagRepository,
-                                        @Tag private var mTagType: String,
-                                        @IO private val io: CoroutineScope,
-                                        @Main private val main: CoroutineScope) : TagsContract.Presenter {
+class TagsPresenter @Inject constructor(
+        private val mView: TagsContract.View,
+        private val mTagRepository: TagRepository,
+        @Tag private var mTagType: String,
+        @IO private val io: CoroutineScope,
+        @Main private val main: CoroutineScope
+) : TagsContract.Presenter {
     companion object {
         private const val TAG = "TagsPresenter"
 
@@ -69,13 +71,23 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
                             if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
-                                mTagRepository.getTagsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getTagsBySpecialCharactersPrefixAscending(
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             } else {
-                                mTagRepository.getTagsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getTagsByPrefixAscending(
+                                        mCurrentPrefixChar,
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             }
                         }
                         else -> {
-                            mTagRepository.getTagsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            mTagRepository.getTagsByPopularityDescending(
+                                    TAGS_PER_PAGE,
+                                    mCurrentPage * TAGS_PER_PAGE
+                            )
                         }
                     }
                 }
@@ -83,13 +95,23 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
                             if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
-                                mTagRepository.getArtistsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getArtistsBySpecialCharactersPrefixAscending(
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             } else {
-                                mTagRepository.getArtistsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getArtistsByPrefixAscending(
+                                        mCurrentPrefixChar,
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             }
                         }
                         else -> {
-                            mTagRepository.getArtistsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            mTagRepository.getArtistsByPopularityDescending(
+                                    TAGS_PER_PAGE,
+                                    mCurrentPage * TAGS_PER_PAGE
+                            )
                         }
                     }
                 }
@@ -97,13 +119,23 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
                             if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
-                                mTagRepository.getCharactersBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getCharactersBySpecialCharactersPrefixAscending(
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             } else {
-                                mTagRepository.getCharactersByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getCharactersByPrefixAscending(
+                                        mCurrentPrefixChar,
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             }
                         }
                         else -> {
-                            mTagRepository.getCharactersByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            mTagRepository.getCharactersByPopularityDescending(
+                                    TAGS_PER_PAGE,
+                                    mCurrentPage * TAGS_PER_PAGE
+                            )
                         }
                     }
                 }
@@ -111,13 +143,23 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
                             if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
-                                mTagRepository.getGroupsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getGroupsBySpecialCharactersPrefixAscending(
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             } else {
-                                mTagRepository.getGroupsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getGroupsByPrefixAscending(
+                                        mCurrentPrefixChar,
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             }
                         }
                         else -> {
-                            mTagRepository.getGroupsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            mTagRepository.getGroupsByPopularityDescending(
+                                    TAGS_PER_PAGE,
+                                    mCurrentPage * TAGS_PER_PAGE
+                            )
                         }
                     }
                 }
@@ -125,13 +167,23 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
                             if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
-                                mTagRepository.getParodiesBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getParodiesBySpecialCharactersPrefixAscending(
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             } else {
-                                mTagRepository.getParodiesByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getParodiesByPrefixAscending(
+                                        mCurrentPrefixChar,
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             }
                         }
                         else -> {
-                            mTagRepository.getParodiesByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            mTagRepository.getParodiesByPopularityDescending(
+                                    TAGS_PER_PAGE,
+                                    mCurrentPage * TAGS_PER_PAGE
+                            )
                         }
                     }
                 }
@@ -139,7 +191,8 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     emptyList()
                 }
             }
-            Logger.d(TAG, "mCurrentPrefixChar=$mCurrentPrefixChar, mCurrentFilteredTagsCount=$mCurrentFilteredTagsCount, tagList=$tagList")
+            Logger.d(TAG, "mCurrentPrefixChar=$mCurrentPrefixChar," +
+                    " mCurrentFilteredTagsCount=$mCurrentFilteredTagsCount, tagList=$tagList")
             main.launch {
                 mView.refreshTagsList(tagList)
             }
@@ -166,19 +219,32 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
                             if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
-                                mCurrentFilteredTagsCount = mTagRepository.getTagCountBySpecialCharactersPrefix()
+                                mCurrentFilteredTagsCount =
+                                        mTagRepository.getTagCountBySpecialCharactersPrefix()
                                 updatePagination()
-                                mTagRepository.getTagsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getTagsBySpecialCharactersPrefixAscending(
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             } else {
-                                mCurrentFilteredTagsCount = mTagRepository.getTagsCountByPrefix(mCurrentPrefixChar)
+                                mCurrentFilteredTagsCount = mTagRepository.getTagsCountByPrefix(
+                                        mCurrentPrefixChar
+                                )
                                 updatePagination()
-                                mTagRepository.getTagsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getTagsByPrefixAscending(
+                                        mCurrentPrefixChar,
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             }
                         }
                         else -> {
                             mCurrentFilteredTagsCount = mCurrentTagsCount
                             updatePagination()
-                            mTagRepository.getTagsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            mTagRepository.getTagsByPopularityDescending(
+                                    TAGS_PER_PAGE,
+                                    mCurrentPage * TAGS_PER_PAGE
+                            )
                         }
                     }
                 }
@@ -188,19 +254,32 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
                             if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
-                                mCurrentFilteredTagsCount = mTagRepository.getArtistsCountBySpecialCharactersPrefix()
+                                mCurrentFilteredTagsCount =
+                                        mTagRepository.getArtistsCountBySpecialCharactersPrefix()
                                 updatePagination()
-                                mTagRepository.getArtistsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getArtistsBySpecialCharactersPrefixAscending(
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             } else {
-                                mCurrentFilteredTagsCount = mTagRepository.getArtistsCountByPrefix(mCurrentPrefixChar)
+                                mCurrentFilteredTagsCount = mTagRepository.getArtistsCountByPrefix(
+                                        mCurrentPrefixChar
+                                )
                                 updatePagination()
-                                mTagRepository.getArtistsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getArtistsByPrefixAscending(
+                                        mCurrentPrefixChar,
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             }
                         }
                         else -> {
                             mCurrentFilteredTagsCount = mCurrentTagsCount
                             updatePagination()
-                            mTagRepository.getArtistsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            mTagRepository.getArtistsByPopularityDescending(
+                                    TAGS_PER_PAGE,
+                                    mCurrentPage * TAGS_PER_PAGE
+                            )
                         }
                     }
                 }
@@ -210,19 +289,33 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
                             if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
-                                mCurrentFilteredTagsCount = mTagRepository.getCharactersCountBySpecialCharactersPrefix()
+                                mCurrentFilteredTagsCount =
+                                        mTagRepository.getCharactersCountBySpecialCharactersPrefix()
                                 updatePagination()
-                                mTagRepository.getCharactersBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getCharactersBySpecialCharactersPrefixAscending(
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             } else {
-                                mCurrentFilteredTagsCount = mTagRepository.getCharactersCountByPrefix(mCurrentPrefixChar)
+                                mCurrentFilteredTagsCount =
+                                        mTagRepository.getCharactersCountByPrefix(
+                                                mCurrentPrefixChar
+                                        )
                                 updatePagination()
-                                mTagRepository.getCharactersByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getCharactersByPrefixAscending(
+                                        mCurrentPrefixChar,
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             }
                         }
                         else -> {
                             mCurrentFilteredTagsCount = mCurrentTagsCount
                             updatePagination()
-                            mTagRepository.getCharactersByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            mTagRepository.getCharactersByPopularityDescending(
+                                    TAGS_PER_PAGE,
+                                    mCurrentPage * TAGS_PER_PAGE
+                            )
                         }
                     }
                 }
@@ -232,19 +325,31 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
                             if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
-                                mCurrentFilteredTagsCount = mTagRepository.getGroupsCountBySpecialCharactersPrefix()
+                                mCurrentFilteredTagsCount =
+                                        mTagRepository.getGroupsCountBySpecialCharactersPrefix()
                                 updatePagination()
-                                mTagRepository.getGroupsBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getGroupsBySpecialCharactersPrefixAscending(
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             } else {
-                                mCurrentFilteredTagsCount = mTagRepository.getGroupsCountByPrefix(mCurrentPrefixChar)
+                                mCurrentFilteredTagsCount =
+                                        mTagRepository.getGroupsCountByPrefix(mCurrentPrefixChar)
                                 updatePagination()
-                                mTagRepository.getGroupsByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getGroupsByPrefixAscending(
+                                        mCurrentPrefixChar,
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             }
                         }
                         else -> {
                             mCurrentFilteredTagsCount = mCurrentTagsCount
                             updatePagination()
-                            mTagRepository.getGroupsByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            mTagRepository.getGroupsByPopularityDescending(
+                                    TAGS_PER_PAGE,
+                                    mCurrentPage * TAGS_PER_PAGE
+                            )
                         }
                     }
                 }
@@ -254,19 +359,31 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     when (mTagFilter) {
                         TagFilter.ALPHABET -> {
                             if (mCurrentPrefixChar == TAG_PREFIXES[0]) {
-                                mCurrentFilteredTagsCount = mTagRepository.getParodiesCountBySpecialCharactersPrefix()
+                                mCurrentFilteredTagsCount =
+                                        mTagRepository.getParodiesCountBySpecialCharactersPrefix()
                                 updatePagination()
-                                mTagRepository.getParodiesBySpecialCharactersPrefixAscending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getParodiesBySpecialCharactersPrefixAscending(
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             } else {
-                                mCurrentFilteredTagsCount = mTagRepository.getParodiesCountByPrefix(mCurrentPrefixChar)
+                                mCurrentFilteredTagsCount =
+                                        mTagRepository.getParodiesCountByPrefix(mCurrentPrefixChar)
                                 updatePagination()
-                                mTagRepository.getParodiesByPrefixAscending(mCurrentPrefixChar, TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                                mTagRepository.getParodiesByPrefixAscending(
+                                        mCurrentPrefixChar,
+                                        TAGS_PER_PAGE,
+                                        mCurrentPage * TAGS_PER_PAGE
+                                )
                             }
                         }
                         else -> {
                             mCurrentFilteredTagsCount = mCurrentTagsCount
                             updatePagination()
-                            mTagRepository.getParodiesByPopularityDescending(TAGS_PER_PAGE, mCurrentPage * TAGS_PER_PAGE)
+                            mTagRepository.getParodiesByPopularityDescending(
+                                    TAGS_PER_PAGE,
+                                    mCurrentPage * TAGS_PER_PAGE
+                            )
                         }
                     }
                 }
@@ -274,7 +391,9 @@ class TagsPresenter @Inject constructor(private val mView: TagsContract.View,
                     emptyList()
                 }
             }
-            Logger.d(TAG, "mCurrentPrefixChar=$mCurrentPrefixChar, mCurrentFilteredTagsCount=$mCurrentFilteredTagsCount, tagList=$tagList")
+            Logger.d(TAG, "mCurrentPrefixChar=$mCurrentPrefixChar," +
+                    " mCurrentFilteredTagsCount=$mCurrentFilteredTagsCount," +
+                    " tagList=$tagList")
             main.launch {
                 mView.setUpTagsList(mTagsList, tagList)
             }

@@ -27,28 +27,40 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
         })
     }
 
-    override suspend fun fetchCharactersList(onSuccess: (List<Character>?) -> Unit, onError: () -> Unit) {
+    override suspend fun fetchCharactersList(
+            onSuccess: (List<Character>?) -> Unit,
+            onError: () -> Unit
+    ) {
         mTagApiService.getCharactersList().enqueue(object : Callback<List<Character>> {
             override fun onFailure(call: Call<List<Character>>, t: Throwable) {
                 Logger.d(TAG, "Characters list fetching failed with error=$t")
                 onError()
             }
 
-            override fun onResponse(call: Call<List<Character>>, response: Response<List<Character>>) {
+            override fun onResponse(
+                    call: Call<List<Character>>,
+                    response: Response<List<Character>>
+            ) {
                 Logger.d(TAG, "Characters list fetching completed")
                 onSuccess(response.body())
             }
         })
     }
 
-    override suspend fun fetchCategoriesList(onSuccess: (List<Category>?) -> Unit, onError: () -> Unit) {
+    override suspend fun fetchCategoriesList(
+            onSuccess: (List<Category>?) -> Unit,
+            onError: () -> Unit
+    ) {
         mTagApiService.getCategoriesList().enqueue(object : Callback<List<Category>> {
             override fun onFailure(call: Call<List<Category>>, t: Throwable) {
                 Logger.d(TAG, "Categories list fetching failed with error=$t")
                 onError()
             }
 
-            override fun onResponse(call: Call<List<Category>>, response: Response<List<Category>>) {
+            override fun onResponse(
+                    all: Call<List<Category>>,
+                    response: Response<List<Category>>
+            ) {
                 Logger.d(TAG, "Categories list fetching completed")
                 onSuccess(response.body())
             }
@@ -69,7 +81,10 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
         })
     }
 
-    override suspend fun fetchParodiesList(onSuccess: (List<Parody>?) -> Unit, onError: () -> Unit) {
+    override suspend fun fetchParodiesList(
+            onSuccess: (List<Parody>?) -> Unit,
+            onError: () -> Unit
+    ) {
         mTagApiService.getParodiesList().enqueue(object : Callback<List<Parody>> {
             override fun onFailure(call: Call<List<Parody>>, t: Throwable) {
                 Logger.d(TAG, "Parodies list fetching failed with error=$t")
@@ -83,14 +98,20 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
         })
     }
 
-    override suspend fun fetchLanguagesList(onSuccess: (List<Language>?) -> Unit, onError: () -> Unit) {
+    override suspend fun fetchLanguagesList(
+            onSuccess: (List<Language>?) -> Unit,
+            onError: () -> Unit
+    ) {
         mTagApiService.getLanguagesList().enqueue(object : Callback<List<Language>> {
             override fun onFailure(call: Call<List<Language>>, t: Throwable) {
                 Logger.d(TAG, "Languages list fetching failed with error=$t")
                 onError()
             }
 
-            override fun onResponse(call: Call<List<Language>>, response: Response<List<Language>>) {
+            override fun onResponse(
+                    call: Call<List<Language>>,
+                    response: Response<List<Language>>
+            ) {
                 Logger.d(TAG, "Languages list fetching completed")
                 onSuccess(response.body())
             }
@@ -111,14 +132,20 @@ class TagRemoteDataSource(private val mTagApiService: TagApiService) : TagDataSo
         })
     }
 
-    override suspend fun fetchUnknownTypesList(onSuccess: (List<UnknownTag>?) -> Unit, onError: () -> Unit) {
+    override suspend fun fetchUnknownTypesList(
+            onSuccess: (List<UnknownTag>?) -> Unit,
+            onError: () -> Unit
+    ) {
         mTagApiService.getUnknownTagsList().enqueue(object : Callback<List<UnknownTag>> {
             override fun onFailure(call: Call<List<UnknownTag>>, t: Throwable) {
                 Logger.d(TAG, "UnknownTag list fetching failed with error=$t")
                 onError()
             }
 
-            override fun onResponse(call: Call<List<UnknownTag>>, response: Response<List<UnknownTag>>) {
+            override fun onResponse(
+                    call: Call<List<UnknownTag>>,
+                    response: Response<List<UnknownTag>>
+            ) {
                 Logger.d(TAG, "UnknownTag list fetching completed")
                 onSuccess(response.body())
             }

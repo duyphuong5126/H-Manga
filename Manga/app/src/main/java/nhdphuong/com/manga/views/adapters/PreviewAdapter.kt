@@ -14,13 +14,21 @@ import nhdphuong.com.manga.views.customs.MyTextView
 /*
  * Created by nhdphuong on 4/28/18.
  */
-class PreviewAdapter(private val mNumOfRows: Int, private val mPreviewUrlList: List<String>,
-                     private val callback: ThumbnailClickCallback) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class PreviewAdapter(
+        private val mNumOfRows: Int,
+        private val mPreviewUrlList: List<String>,
+        private val callback: ThumbnailClickCallback
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TAG = "PreviewAdapter"
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_preview, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(
+                R.layout.item_preview,
+                parent,
+                false
+        )
         return PreviewViewHolder(view, callback)
     }
 
@@ -41,8 +49,10 @@ class PreviewAdapter(private val mNumOfRows: Int, private val mPreviewUrlList: L
         ImageUtils.clear(previewViewHolder.ivPageThumbnail)
     }
 
-    private inner class PreviewViewHolder(itemView: View, private val thumbnailClickCallback: ThumbnailClickCallback)
-        : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    private inner class PreviewViewHolder(
+            itemView: View,
+            private val thumbnailClickCallback: ThumbnailClickCallback
+    ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         val ivPageThumbnail: ImageView = itemView.findViewById(R.id.ivPageThumbnail)
         private val mtvPageNumber: MyTextView = itemView.findViewById(R.id.mtvPageNumber)
         private var mPageNumber: Int = -1

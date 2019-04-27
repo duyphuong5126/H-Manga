@@ -22,8 +22,11 @@ import java.util.*
 /*
  * Created by nhdphuong on 3/18/18.
  */
-class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: Int, private val mBookClickCallback: OnBookClick)
-    : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class BookAdapter(
+        private val mItemList: List<Book>,
+        private val mAdapterType: Int,
+        private val mBookClickCallback: OnBookClick
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TAG = "BookAdapter"
         const val HOME_PREVIEW_BOOK = 1
@@ -33,13 +36,17 @@ class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: I
     private val mRecentList = LinkedList<Int>()
     private val mFavoriteList = LinkedList<Int>()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+    ): RecyclerView.ViewHolder {
         val layoutResId = when (viewType) {
             HOME_PREVIEW_BOOK -> R.layout.item_home_list
             RECOMMEND_BOOK -> R.layout.item_recommend_list
             else -> R.layout.item_home_list
         }
-        val view = LayoutInflater.from(parent.context).inflate(layoutResId, parent, false)
+        val view = LayoutInflater.from(parent.context)
+                .inflate(layoutResId, parent, false)
         return MainListViewHolder(view, mBookClickCallback)
     }
 
@@ -89,7 +96,10 @@ class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: I
         }
     }
 
-    inner class MainListViewHolder(itemView: View, private val mBookClickCallback: OnBookClick) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    inner class MainListViewHolder(
+            itemView: View,
+            private val mBookClickCallback: OnBookClick
+    ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private lateinit var mBookPreview: Book
         private val mIvItemThumbnail: ImageView = itemView.findViewById(R.id.ivItemThumbnail)
         private val mTv1stTitle: TextView = itemView.findViewById(R.id.tvItemTitle)
@@ -116,13 +126,17 @@ class BookAdapter(private val mItemList: List<Book>, private val mAdapterType: I
         fun showRecentLabel() {
             mTlvRecent.visibility = View.VISIBLE
             mTlvRecent.primaryText = mContext.getString(R.string.recent)
-            mTlvRecent.setTriangleBackgroundColor(ContextCompat.getColor(mContext, R.color.blue0673B7))
+            mTlvRecent.setTriangleBackgroundColor(
+                    ContextCompat.getColor(mContext, R.color.blue0673B7)
+            )
         }
 
         fun showFavoriteLabel() {
             mTlvRecent.visibility = View.VISIBLE
             mTlvRecent.primaryText = mContext.getString(R.string.favorite)
-            mTlvRecent.setTriangleBackgroundColor(ContextCompat.getColor(mContext, R.color.redED2553))
+            mTlvRecent.setTriangleBackgroundColor(
+                    ContextCompat.getColor(mContext, R.color.redED2553)
+            )
         }
 
         fun hideRecentView() {

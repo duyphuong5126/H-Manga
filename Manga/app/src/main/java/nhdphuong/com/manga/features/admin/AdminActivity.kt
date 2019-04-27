@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.view.KeyEvent
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import javax.inject.Inject
@@ -35,7 +34,9 @@ class AdminActivity : AppCompatActivity() {
                         .commitAllowingStateLoss()
             }
 
-            NHentaiApp.instance.applicationComponent.plus(AdminModule(adminFragment)).inject(this@AdminActivity)
+            NHentaiApp.instance.applicationComponent.plus(
+                    AdminModule(adminFragment)).inject(this@AdminActivity
+            )
         }
     }
 

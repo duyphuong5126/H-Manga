@@ -12,7 +12,6 @@ import java.lang.annotation.RetentionPolicy;
 import kotlin.Suppress;
 import nhdphuong.com.manga.Constants;
 
-@SuppressWarnings("DefaultFileTemplate")
 @StringDef(value = {Constants.RECENT, Constants.FAVORITE})
 @Retention(RetentionPolicy.SOURCE)
 public @interface RecentType {

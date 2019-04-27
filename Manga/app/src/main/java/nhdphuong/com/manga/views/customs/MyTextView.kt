@@ -11,7 +11,11 @@ import nhdphuong.com.manga.R
 /*
  * Created by nhdphuong on 4/21/18.
  */
-class MyTextView(context: Context, attrs: AttributeSet?, defStyle: Int) : TextView(context, attrs, defStyle) {
+class MyTextView(
+        context: Context,
+        attrs: AttributeSet?,
+        defStyle: Int
+) : TextView(context, attrs, defStyle) {
     companion object {
         private const val TAG = "MyTextView"
     }

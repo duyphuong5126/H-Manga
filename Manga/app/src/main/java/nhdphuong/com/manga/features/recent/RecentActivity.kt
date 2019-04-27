@@ -37,12 +37,17 @@ class RecentActivity : AppCompatActivity() {
 
         mInstance = this
 
-        var recentFragment = supportFragmentManager.findFragmentById(R.id.clRecentFragment) as RecentFragment?
+        var recentFragment = supportFragmentManager.findFragmentById(R.id.clRecentFragment)
+                as RecentFragment?
         if (recentFragment == null) {
             recentFragment = RecentFragment()
-            supportFragmentManager.beginTransaction().add(R.id.clRecentFragment, recentFragment).commitAllowingStateLoss()
+            supportFragmentManager.beginTransaction()
+                    .add(R.id.clRecentFragment, recentFragment)
+                    .commitAllowingStateLoss()
         }
 
-        NHentaiApp.instance.applicationComponent.plus(RecentModule(recentFragment)).inject(this)
+        NHentaiApp.instance.applicationComponent.plus(
+                RecentModule(recentFragment)
+        ).inject(this)
     }
 }

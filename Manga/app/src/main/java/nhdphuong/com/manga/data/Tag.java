@@ -10,8 +10,13 @@ import nhdphuong.com.manga.Constants;
 /*
  * Created by nhdphuong on 5/13/18.
  */
-@SuppressWarnings("DefaultFileTemplate")
-@StringDef(value = {Constants.ARTISTS, Constants.CHARACTERS, Constants.PARODIES, Constants.GROUPS, Constants.TAGS})
+@StringDef(value = {
+        Constants.ARTISTS,
+        Constants.CHARACTERS,
+        Constants.PARODIES,
+        Constants.GROUPS,
+        Constants.TAGS
+})
 @Retention(RetentionPolicy.SOURCE)
 public @interface Tag {
 

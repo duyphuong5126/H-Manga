@@ -13,9 +13,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TagRepository @Inject constructor(@Remote private val mTagRemoteDataSource: TagDataSource.Remote,
-                                        @Local private val mTagLocalDataSource: TagDataSource.Local,
-                                        @IO private val io: CoroutineScope) {
+class TagRepository @Inject constructor(
+        @Remote private val mTagRemoteDataSource: TagDataSource.Remote,
+        @Local private val mTagLocalDataSource: TagDataSource.Local,
+        @IO private val io: CoroutineScope
+) {
     companion object {
         private const val TAG = "TagRepository"
         private const val TOTAL_TAG_TYPES = 8
@@ -143,73 +145,179 @@ class TagRepository @Inject constructor(@Remote private val mTagRemoteDataSource
 
     suspend fun getTagCount(): Int = mTagLocalDataSource.getTagCount()
 
-    suspend fun getTagsCountByPrefix(firstChar: Char): Int = mTagLocalDataSource.getTagCountByPrefix("$firstChar%")
+    suspend fun getTagsCountByPrefix(firstChar: Char): Int {
+        return mTagLocalDataSource.getTagCountByPrefix("$firstChar%")
+    }
 
-    suspend fun getTagCountBySpecialCharactersPrefix(): Int = mTagLocalDataSource.getTagCountBySpecialCharactersPrefix()
+    suspend fun getTagCountBySpecialCharactersPrefix(): Int {
+        return mTagLocalDataSource.getTagCountBySpecialCharactersPrefix()
+    }
 
-    suspend fun getTagsByPrefixAscending(prefixChar: Char, limit: Int, offset: Int): List<Tag> = mTagLocalDataSource.getTagsByPrefixAscending("$prefixChar%", limit, offset)
+    suspend fun getTagsByPrefixAscending(prefixChar: Char, limit: Int, offset: Int): List<Tag> {
+        return mTagLocalDataSource.getTagsByPrefixAscending(
+                "$prefixChar%", limit, offset
+        )
+    }
 
-    suspend fun getTagsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Tag> = mTagLocalDataSource.getTagsBySpecialCharactersPrefixAscending(limit, offset)
+    suspend fun getTagsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Tag> {
+        return mTagLocalDataSource.getTagsBySpecialCharactersPrefixAscending(limit, offset)
+    }
 
-    suspend fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag> = mTagLocalDataSource.getTagsByPopularityAscending(limit, offset)
+    suspend fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag> {
+        return mTagLocalDataSource.getTagsByPopularityAscending(limit, offset)
+    }
 
-    suspend fun getTagsByPopularityDescending(limit: Int, offset: Int): List<Tag> = mTagLocalDataSource.getTagsByPopularityDescending(limit, offset)
+    suspend fun getTagsByPopularityDescending(limit: Int, offset: Int): List<Tag> {
+        return mTagLocalDataSource.getTagsByPopularityDescending(limit, offset)
+    }
 
     suspend fun getArtistsCount(): Int = mTagLocalDataSource.getArtistsCount()
 
-    suspend fun getArtistsCountByPrefix(firstChar: Char): Int = mTagLocalDataSource.getArtistsCountByPrefix("$firstChar%")
+    suspend fun getArtistsCountByPrefix(firstChar: Char): Int {
+        return mTagLocalDataSource.getArtistsCountByPrefix("$firstChar%")
+    }
 
-    suspend fun getArtistsCountBySpecialCharactersPrefix(): Int = mTagLocalDataSource.getArtistsCountBySpecialCharactersPrefix()
+    suspend fun getArtistsCountBySpecialCharactersPrefix(): Int {
+        return mTagLocalDataSource.getArtistsCountBySpecialCharactersPrefix()
+    }
 
-    suspend fun getArtistsByPrefixAscending(prefixChar: Char, limit: Int, offset: Int): List<Artist> = mTagLocalDataSource.getArtistsByPrefixAscending("$prefixChar%", limit, offset)
+    suspend fun getArtistsByPrefixAscending(
+            prefixChar: Char,
+            limit: Int,
+            offset: Int
+    ): List<Artist> {
+        return mTagLocalDataSource.getArtistsByPrefixAscending(
+                "$prefixChar%", limit, offset
+        )
+    }
 
-    suspend fun getArtistsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Artist> = mTagLocalDataSource.getArtistsBySpecialCharactersPrefixAscending(limit, offset)
+    suspend fun getArtistsBySpecialCharactersPrefixAscending(
+            limit: Int,
+            offset: Int
+    ): List<Artist> {
+        return mTagLocalDataSource.getArtistsBySpecialCharactersPrefixAscending(limit, offset)
+    }
 
-    suspend fun getArtistsByPopularityAscending(limit: Int, offset: Int): List<Artist> = mTagLocalDataSource.getArtistsByPopularityAscending(limit, offset)
+    suspend fun getArtistsByPopularityAscending(
+            limit: Int,
+            offset: Int
+    ): List<Artist> = mTagLocalDataSource.getArtistsByPopularityAscending(limit, offset)
 
-    suspend fun getArtistsByPopularityDescending(limit: Int, offset: Int): List<Artist> = mTagLocalDataSource.getArtistsByPopularityDescending(limit, offset)
+    suspend fun getArtistsByPopularityDescending(
+            limit: Int,
+            offset: Int
+    ): List<Artist> = mTagLocalDataSource.getArtistsByPopularityDescending(limit, offset)
 
-    suspend fun getCharactersCount(): Int = mTagLocalDataSource.getCharactersCount()
+    suspend fun getCharactersCount(): Int {
+        return mTagLocalDataSource.getCharactersCount()
+    }
 
-    suspend fun getCharactersCountByPrefix(firstChar: Char): Int = mTagLocalDataSource.getCharactersCountByPrefix("$firstChar%")
+    suspend fun getCharactersCountByPrefix(firstChar: Char): Int {
+        return mTagLocalDataSource.getCharactersCountByPrefix("$firstChar%")
+    }
 
-    suspend fun getCharactersCountBySpecialCharactersPrefix(): Int = mTagLocalDataSource.getCharactersCountBySpecialCharactersPrefix()
+    suspend fun getCharactersCountBySpecialCharactersPrefix(): Int {
+        return mTagLocalDataSource.getCharactersCountBySpecialCharactersPrefix()
+    }
 
-    suspend fun getCharactersByPrefixAscending(prefixChar: Char, limit: Int, offset: Int): List<Character> = mTagLocalDataSource.getCharactersByPrefixAscending("$prefixChar%", limit, offset)
+    suspend fun getCharactersByPrefixAscending(
+            prefixChar: Char,
+            limit: Int,
+            offset: Int
+    ): List<Character> {
+        return mTagLocalDataSource.getCharactersByPrefixAscending(
+                "$prefixChar%", limit, offset
+        )
+    }
 
-    suspend fun getCharactersBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Character> = mTagLocalDataSource.getCharactersBySpecialCharactersPrefixAscending(limit, offset)
+    suspend fun getCharactersBySpecialCharactersPrefixAscending(
+            limit: Int,
+            offset: Int
+    ): List<Character> {
+        return mTagLocalDataSource.getCharactersBySpecialCharactersPrefixAscending(limit, offset)
+    }
 
-    suspend fun getCharactersByPopularityAscending(limit: Int, offset: Int): List<Character> = mTagLocalDataSource.getCharactersByPopularityAscending(limit, offset)
+    suspend fun getCharactersByPopularityAscending(
+            limit: Int,
+            offset: Int
+    ): List<Character> = mTagLocalDataSource.getCharactersByPopularityAscending(limit, offset)
 
-    suspend fun getCharactersByPopularityDescending(limit: Int, offset: Int): List<Character> = mTagLocalDataSource.getCharactersByPopularityDescending(limit, offset)
+    suspend fun getCharactersByPopularityDescending(
+            limit: Int,
+            offset: Int
+    ): List<Character> = mTagLocalDataSource.getCharactersByPopularityDescending(limit, offset)
 
     suspend fun getGroupsCount(): Int = mTagLocalDataSource.getGroupsCount()
 
-    suspend fun getGroupsCountByPrefix(firstChar: Char): Int = mTagLocalDataSource.getGroupsCountByPrefix("$firstChar%")
+    suspend fun getGroupsCountByPrefix(firstChar: Char): Int {
+        return mTagLocalDataSource.getGroupsCountByPrefix("$firstChar%")
+    }
 
-    suspend fun getGroupsCountBySpecialCharactersPrefix(): Int = mTagLocalDataSource.getGroupsCountBySpecialCharactersPrefix()
+    suspend fun getGroupsCountBySpecialCharactersPrefix(): Int {
+        return mTagLocalDataSource.getGroupsCountBySpecialCharactersPrefix()
+    }
 
-    suspend fun getGroupsByPrefixAscending(prefixChar: Char, limit: Int, offset: Int): List<Group> = mTagLocalDataSource.getGroupsByPrefixAscending("$prefixChar%", limit, offset)
+    suspend fun getGroupsByPrefixAscending(
+            prefixChar: Char,
+            limit: Int,
+            offset: Int
+    ): List<Group> {
+        return mTagLocalDataSource.getGroupsByPrefixAscending(
+                "$prefixChar%", limit, offset
+        )
+    }
 
-    suspend fun getGroupsBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Group> = mTagLocalDataSource.getGroupsBySpecialCharactersPrefixAscending(limit, offset)
+    suspend fun getGroupsBySpecialCharactersPrefixAscending(
+            limit: Int,
+            offset: Int
+    ): List<Group> = mTagLocalDataSource.getGroupsBySpecialCharactersPrefixAscending(limit, offset)
 
-    suspend fun getGroupsByPopularityAscending(limit: Int, offset: Int): List<Group> = mTagLocalDataSource.getGroupsByPopularityAscending(limit, offset)
+    suspend fun getGroupsByPopularityAscending(
+            limit: Int,
+            offset: Int
+    ): List<Group> = mTagLocalDataSource.getGroupsByPopularityAscending(limit, offset)
 
-    suspend fun getGroupsByPopularityDescending(limit: Int, offset: Int): List<Group> = mTagLocalDataSource.getGroupsByPopularityDescending(limit, offset)
+    suspend fun getGroupsByPopularityDescending(
+            limit: Int,
+            offset: Int
+    ): List<Group> = mTagLocalDataSource.getGroupsByPopularityDescending(limit, offset)
 
     suspend fun getParodiesCount(): Int = mTagLocalDataSource.getParodiesCount()
 
-    suspend fun getParodiesCountByPrefix(firstChar: Char): Int = mTagLocalDataSource.getParodiesCountByPrefix("$firstChar%")
+    suspend fun getParodiesCountByPrefix(firstChar: Char): Int {
+        return mTagLocalDataSource.getParodiesCountByPrefix("$firstChar%")
+    }
 
-    suspend fun getParodiesCountBySpecialCharactersPrefix(): Int = mTagLocalDataSource.getParodiesCountBySpecialCharactersPrefix()
+    suspend fun getParodiesCountBySpecialCharactersPrefix(): Int {
+        return mTagLocalDataSource.getParodiesCountBySpecialCharactersPrefix()
+    }
 
-    suspend fun getParodiesByPrefixAscending(prefixChar: Char, limit: Int, offset: Int): List<Parody> = mTagLocalDataSource.getParodiesByPrefixAscending("$prefixChar%", limit, offset)
+    suspend fun getParodiesByPrefixAscending(
+            prefixChar: Char,
+            limit: Int,
+            offset: Int
+    ): List<Parody> {
+        return mTagLocalDataSource.getParodiesByPrefixAscending(
+                "$prefixChar%", limit, offset
+        )
+    }
 
-    suspend fun getParodiesBySpecialCharactersPrefixAscending(limit: Int, offset: Int): List<Parody> = mTagLocalDataSource.getParodiesBySpecialCharactersPrefixAscending(limit, offset)
+    suspend fun getParodiesBySpecialCharactersPrefixAscending(
+            limit: Int,
+            offset: Int
+    ): List<Parody> {
+        return mTagLocalDataSource.getParodiesBySpecialCharactersPrefixAscending(limit, offset)
+    }
 
-    suspend fun getParodiesByPopularityAscending(limit: Int, offset: Int): List<Parody> = mTagLocalDataSource.getParodiesByPopularityAscending(limit, offset)
+    suspend fun getParodiesByPopularityAscending(
+            limit: Int,
+            offset: Int
+    ): List<Parody> = mTagLocalDataSource.getParodiesByPopularityAscending(limit, offset)
 
-    suspend fun getParodiesByPopularityDescending(limit: Int, offset: Int): List<Parody> = mTagLocalDataSource.getParodiesByPopularityDescending(limit, offset)
+    suspend fun getParodiesByPopularityDescending(
+            limit: Int,
+            offset: Int
+    ): List<Parody> = mTagLocalDataSource.getParodiesByPopularityDescending(limit, offset)
 
 
     fun getCurrentVersion(onSuccess: (Long) -> Unit, onError: () -> Unit) {

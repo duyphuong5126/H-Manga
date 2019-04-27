@@ -50,16 +50,26 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         mPresenter = presenter
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_recent_list, container, false)
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
+        mBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.fragment_recent_list,
+                container,
+                false
+        )
         return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recentType = activity?.intent?.extras?.getString(Constants.RECENT_TYPE, Constants.RECENT)
-                ?: Constants.RECENT
+        val recentType = activity?.intent?.extras?.getString(
+                Constants.RECENT_TYPE, Constants.RECENT
+        ) ?: Constants.RECENT
 
         mLoadingDialog = DialogHelper.showLoadingDialog(activity!!)
         mBinding.srlPullToReload.addPtrUIHandler(this)
@@ -71,18 +81,34 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
                 }, 1000)
             }
 
-            override fun checkCanDoRefresh(frame: PtrFrameLayout?, content: View?, header: View?): Boolean {
+            override fun checkCanDoRefresh(
+                    frame: PtrFrameLayout?,
+                    content: View?,
+                    header: View?
+            ): Boolean {
                 return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header)
             }
         })
 
-        mBinding.mtvRecentTitle.text = getString(if (recentType == Constants.RECENT) R.string.recent else R.string.favorite).toUpperCase()
+        mBinding.mtvRecentTitle.text = getString(
+                if (recentType == Constants.RECENT) R.string.recent else R.string.favorite
+        ).toUpperCase()
+
         mBinding.ibSwitch.setImageResource(
-                if (recentType == Constants.RECENT) R.drawable.ic_recent_white else R.drawable.ic_heart_white
+                if (recentType == Constants.RECENT) {
+                    R.drawable.ic_recent_white
+                } else {
+                    R.drawable.ic_heart_white
+                }
         )
 
         mBinding.ibSwitch.setOnClickListener {
-            RecentActivity.restart(if (recentType == Constants.RECENT) Constants.FAVORITE else Constants.RECENT)
+            RecentActivity.restart(
+                    if (recentType == Constants.RECENT) {
+                        Constants.FAVORITE
+                    } else {
+                        Constants.RECENT
+                    })
         }
         mBinding.ibBack.setOnClickListener {
             activity?.onBackPressed()
@@ -99,8 +125,9 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         super.onActivityCreated(savedInstanceState)
         mPresenter.start()
 
-        val recentType = activity?.intent?.extras?.getString(Constants.RECENT_TYPE, Constants.RECENT)
-                ?: Constants.RECENT
+        val recentType = activity?.intent?.extras?.getString(
+                Constants.RECENT_TYPE, Constants.RECENT
+        ) ?: Constants.RECENT
         mPresenter.setType(recentType)
     }
 
@@ -111,14 +138,21 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
     override fun setUpRecentBookList(recentBookList: List<Book>) {
         val recentFragment = this
-        mRecentListAdapter = BookAdapter(recentBookList, BookAdapter.HOME_PREVIEW_BOOK, object : BookAdapter.OnBookClick {
-            override fun onItemClick(item: Book) {
-                BookPreviewActivity.start(recentFragment, item)
-            }
-        })
+        mRecentListAdapter = BookAdapter(
+                recentBookList,
+                BookAdapter.HOME_PREVIEW_BOOK,
+                object : BookAdapter.OnBookClick {
+                    override fun onItemClick(item: Book) {
+                        BookPreviewActivity.start(recentFragment, item)
+                    }
+                }
+        )
         val recentList: RecyclerView = mBinding.rvMainList
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
-        val recentListLayoutManager = object : GridLayoutManager(context, if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS) {
+        val recentListLayoutManager = object : GridLayoutManager(
+                context,
+                if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
+        ) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
             }
@@ -151,7 +185,11 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             }
         }
         recentPagination.visibility = View.VISIBLE
-        recentPagination.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+        recentPagination.layoutManager = LinearLayoutManager(
+                activity,
+                LinearLayoutManager.HORIZONTAL,
+                false
+        )
         recentPagination.adapter = mPaginationAdapter
         recentPagination.viewTreeObserver.addOnGlobalLayoutListener {
             if (mPaginationAdapter.maxVisible >= pageCount - 1) {
@@ -174,7 +212,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {
         val lastRefresh = String.format(getString(R.string.last_update), lastRefreshTimeStamp)
-        mBinding.refreshHeader.mtvLastUpdate?.text = lastRefresh
+        mBinding.refreshHeader.mtvLastUpdate.text = lastRefresh
     }
 
     override fun showLoading() {
@@ -196,29 +234,34 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshComplete")
         endUpdateDotsTask()
-        mBinding.refreshHeader.mtvRefresh?.text = getString(R.string.updated)
+        mBinding.refreshHeader.mtvRefresh.text = getString(R.string.updated)
         mPresenter.saveLastBookListRefreshTime()
         mPresenter.reloadLastBookListRefreshTime()
-        mBinding.refreshHeader.ivRefresh?.rotation = 0F
-        mBinding.refreshHeader.ivRefresh?.visibility = View.VISIBLE
-        mBinding.refreshHeader.pbRefresh?.visibility = View.GONE
+        mBinding.refreshHeader.ivRefresh.rotation = 0F
+        mBinding.refreshHeader.ivRefresh.visibility = View.VISIBLE
+        mBinding.refreshHeader.pbRefresh.visibility = View.GONE
     }
 
-    override fun onUIPositionChange(frame: PtrFrameLayout?, isUnderTouch: Boolean, status: Byte, ptrIndicator: PtrIndicator?) {
+    override fun onUIPositionChange(
+            frame: PtrFrameLayout?,
+            isUnderTouch: Boolean,
+            status: Byte,
+            ptrIndicator: PtrIndicator?
+    ) {
         Logger.d(TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
                 "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
                 "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}")
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
-            mBinding.refreshHeader.mtvRefresh?.text = getString(R.string.release_to_refresh)
-            mBinding.refreshHeader.ivRefresh?.rotation = 180F
+            mBinding.refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
+            mBinding.refreshHeader.ivRefresh.rotation = 180F
         }
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshBegin")
-        mBinding.refreshHeader.ivRefresh?.visibility = View.GONE
-        mBinding.refreshHeader.pbRefresh?.visibility = View.VISIBLE
-        mBinding.refreshHeader.mtvRefresh?.text = String.format(getString(R.string.updating), "")
+        mBinding.refreshHeader.ivRefresh.visibility = View.GONE
+        mBinding.refreshHeader.pbRefresh.visibility = View.VISIBLE
+        mBinding.refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
         runUpdateDotsTask()
     }
 
@@ -229,7 +272,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
     override fun onUIReset(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIReset")
-        mBinding.refreshHeader.mtvRefresh?.text = getString(R.string.pull_down)
+        mBinding.refreshHeader.mtvRefresh.text = getString(R.string.pull_down)
     }
 
     @SuppressLint("SetTextI18n")
@@ -240,7 +283,8 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
             Logger.d("Dialog", "Current pos: $currentPos")
-            mBinding.refreshHeader.mtvRefresh?.text = String.format(loadingString, dotsArray[currentPos])
+            mBinding.refreshHeader.mtvRefresh.text =
+                    String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }
         val runnable = object : Runnable {

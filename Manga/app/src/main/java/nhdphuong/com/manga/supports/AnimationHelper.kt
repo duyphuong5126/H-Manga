@@ -111,6 +111,8 @@ class AnimationHelper {
             textView.startAnimation(runningText)
         }
 
-        fun getRotationAnimation(context: Context): Animation = AnimationUtils.loadAnimation(context, R.anim.rotation)
+        fun getRotationAnimation(context: Context): Animation {
+            return AnimationUtils.loadAnimation(context, R.anim.rotation)
+        }
     }
 }

@@ -16,12 +16,16 @@ import java.util.*
 /*
  * Created by nhdphuong on 3/17/18.
  */
-class TabAdapter(context: Context, private val mOnMainTabClick: OnMainTabClick) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TabAdapter(
+        context: Context,
+        private val mOnMainTabClick: OnMainTabClick
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var mTabList: LinkedList<Tab> = LinkedList()
     private var mCurrentTab: Tab = Tab.NONE
     private val mEnableTextColor = ContextCompat.getColor(context, R.color.colorPrimaryDark)
     private val mDisableTextColor = ContextCompat.getColor(context, R.color.greyBBB)
-    private val isDebugVersion: Boolean = (NHentaiApp.instance.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+    private val isDebugVersion: Boolean =
+            (NHentaiApp.instance.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
     init {
         mTabList.clear()
@@ -39,7 +43,11 @@ class TabAdapter(context: Context, private val mOnMainTabClick: OnMainTabClick) 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_tab, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(
+                R.layout.item_tab,
+                parent,
+                false
+        )
         return MainTabViewHolder(view, mOnMainTabClick)
     }
 
@@ -53,7 +61,11 @@ class TabAdapter(context: Context, private val mOnMainTabClick: OnMainTabClick) 
         }
     }
 
-    private inner class MainTabViewHolder(itemView: View, private val mOnMainTabClick: OnMainTabClick) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    private inner class MainTabViewHolder(
+            itemView: View,
+            private val mOnMainTabClick: OnMainTabClick
+    ) : RecyclerView.ViewHolder(itemView),
+            View.OnClickListener {
         private val mTvLabel = itemView.findViewById<TextView>(R.id.tvTabLabel)
         private val mTabIndicator = itemView.findViewById<View>(R.id.vTabIndicator)
         private lateinit var mTab: Tab

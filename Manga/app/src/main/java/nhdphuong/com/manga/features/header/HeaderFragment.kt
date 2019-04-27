@@ -48,8 +48,13 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         mPresenter = presenter
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_header, container, false)
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
+        mBinding = DataBindingUtil
+                .inflate(inflater, R.layout.fragment_header, container, false)
         return mBinding.root
     }
 
@@ -104,8 +109,14 @@ class HeaderFragment : Fragment(), HeaderContract.View {
 
         val tabSelector: RecyclerView = mBinding.rvMainTabs
         tabSelector.adapter = mTabAdapter
-        tabSelector.addItemDecoration(SpaceItemDecoration(context, R.dimen.dp20, true, true))
-        tabSelector.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+        tabSelector.addItemDecoration(
+                SpaceItemDecoration(context, R.dimen.dp20, true, showLastDivider = true)
+        )
+        tabSelector.layoutManager = LinearLayoutManager(
+                activity,
+                LinearLayoutManager.HORIZONTAL,
+                false
+        )
 
         mBinding.run {
             ivMainLogo.setOnClickListener {
@@ -131,10 +142,19 @@ class HeaderFragment : Fragment(), HeaderContract.View {
             }
             edtSearch.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
-                    ibClearSearch.visibility = if (s?.isNotBlank() == true) View.VISIBLE else View.GONE
+                    ibClearSearch.visibility = if (s?.isNotBlank() == true) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
                 }
 
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                override fun beforeTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                ) {
 
                 }
 

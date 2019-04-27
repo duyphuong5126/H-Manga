@@ -60,7 +60,10 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
         super.onCreate(savedInstanceState)
         Logger.e(TAG, "onCreate")
         setContentView(R.layout.activity_home)
-        LocalBroadcastManager.getInstance(this).registerReceiver(mTagSelectedBroadcastReceiver, IntentFilter(Constants.TAG_SELECTED_ACTION))
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mTagSelectedBroadcastReceiver,
+                IntentFilter(Constants.TAG_SELECTED_ACTION)
+        )
         showFragments()
     }
 
@@ -119,7 +122,9 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
     override fun onDestroy() {
         super.onDestroy()
         Logger.e(TAG, "onDestroy")
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mTagSelectedBroadcastReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(
+                mTagSelectedBroadcastReceiver
+        )
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -165,7 +170,8 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
     }
 
     private fun showFragments() {
-        var homeFragment = supportFragmentManager.findFragmentById(R.id.clMainFragment) as HomeFragment?
+        var homeFragment = supportFragmentManager.findFragmentById(R.id.clMainFragment)
+                as HomeFragment?
         if (homeFragment == null) {
             homeFragment = HomeFragment()
             supportFragmentManager.beginTransaction()
@@ -175,7 +181,8 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
         }
         mHomeFragment = homeFragment
 
-        var headerFragment = supportFragmentManager.findFragmentById(R.id.clHeader) as HeaderFragment?
+        var headerFragment = supportFragmentManager.findFragmentById(R.id.clHeader)
+                as HeaderFragment?
         if (headerFragment == null) {
             headerFragment = HeaderFragment()
             supportFragmentManager.beginTransaction().replace(R.id.clHeader, headerFragment, TAG)
@@ -185,6 +192,9 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
         headerFragment.setRandomContract(this)
         mHeaderFragment = headerFragment
 
-        NHentaiApp.instance.applicationComponent.plus(HomeModule(homeFragment), HeaderModule(headerFragment)).inject(this)
+        NHentaiApp.instance.applicationComponent.plus(
+                HomeModule(homeFragment),
+                HeaderModule(headerFragment)
+        ).inject(this)
     }
 }

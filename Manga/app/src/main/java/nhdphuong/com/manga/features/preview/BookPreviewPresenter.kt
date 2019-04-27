@@ -26,12 +26,15 @@ import kotlin.coroutines.suspendCoroutine
 /*
  * Created by nhdphuong on 4/14/18.
  */
-class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewContract.View,
-                                               private val mBook: Book,
-                                               private val mContext: Context,
-                                               private val mBookRepository: BookRepository,
-                                               @IO private val io: CoroutineScope,
-                                               @Main private val main: CoroutineScope) : BookPreviewContract.Presenter, DownloadManager.BookDownloadCallback {
+class BookPreviewPresenter @Inject constructor(
+        private val mView: BookPreviewContract.View,
+        private val mBook: Book,
+        private val mContext: Context,
+        private val mBookRepository: BookRepository,
+        @IO private val io: CoroutineScope,
+        @Main private val main: CoroutineScope
+) : BookPreviewContract.Presenter,
+        DownloadManager.BookDownloadCallback {
 
     companion object {
         private const val TAG = "BookPreviewPresenter"
@@ -75,7 +78,9 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
             return prefixCount
         }
 
-    private val uploadedTimeStamp: String = SupportUtils.getTimeElapsed(System.currentTimeMillis() - mBook.updateAt * MILLISECOND)
+    private val uploadedTimeStamp: String = SupportUtils.getTimeElapsed(
+            System.currentTimeMillis() - mBook.updateAt * MILLISECOND
+    )
 
     private var isFavoriteBook: Boolean = false
 
@@ -223,7 +228,11 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                 val bookPages = LinkedList<String>()
                 for (pageId in 0 until mBook.bookImages.pages.size) {
                     val page = mBook.bookImages.pages[pageId]
-                    bookPages.add(ApiConstants.getPictureUrl(mBook.mediaId, pageId + 1, page.imageType))
+                    bookPages.add(ApiConstants.getPictureUrl(
+                            mBook.mediaId,
+                            pageId + 1,
+                            page.imageType
+                    ))
                 }
                 bookPages.size.let { total ->
                     if (total > 0) {
@@ -235,29 +244,47 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                             var currentPage = 0
                             val resultFilePath = nHentaiApp.getImageDirectory(mBook.mediaId)
                             while (currentPage < total) {
-                                val lastPage = if (currentPage + BATCH_COUNT <= total) currentPage + BATCH_COUNT else total
+                                val lastPage = if (currentPage + BATCH_COUNT <= total) {
+                                    currentPage + BATCH_COUNT
+                                } else {
+                                    total
+                                }
                                 suspendCoroutine<Boolean> { booleanContinuation ->
                                     val currentTotal = lastPage - currentPage
                                     val currentIndex = AtomicInteger(0)
                                     for (downloadPage in currentPage until lastPage) {
                                         launch {
-                                            val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
+                                            val fileName = String.format(
+                                                    "%0${mPrefixNumber}d",
+                                                    downloadPage + 1
+                                            )
                                             try {
                                                 mBook.bookImages.pages[downloadPage].let { page ->
                                                     Logger.d(TAG, "Downloading page ${bookPages[downloadPage]}")
-                                                    val result = SupportUtils.downloadImageBitmap(bookPages[downloadPage], false)!!
+                                                    val result = SupportUtils.downloadImageBitmap(
+                                                            bookPages[downloadPage],
+                                                            false
+                                                    )!!
 
                                                     val format = if (page.imageType == Constants.PNG_TYPE) {
                                                         Bitmap.CompressFormat.PNG
                                                     } else {
                                                         Bitmap.CompressFormat.JPEG
                                                     }
-                                                    val resultPath = SupportUtils.compressBitmap(result, resultFilePath, fileName, format)
+                                                    val resultPath = SupportUtils.compressBitmap(
+                                                            result,
+                                                            resultFilePath,
+                                                            fileName,
+                                                            format
+                                                    )
                                                     resultList.add(resultPath)
                                                     Logger.d(TAG, "Page $fileName is saved successfully")
                                                 }
                                                 progress++
-                                                mBookDownloader.updateProgress(mBook.bookId, progress)
+                                                mBookDownloader.updateProgress(
+                                                        mBook.bookId,
+                                                        progress
+                                                )
                                                 if (currentIndex.incrementAndGet() >= currentTotal) {
                                                     booleanContinuation.resume(true)
                                                 }
@@ -359,7 +386,8 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
     }
 
     private fun getReachableBookCover(): String {
-        val connectivityManager = mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager = mContext.getSystemService(Context.CONNECTIVITY_SERVICE)
+                as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         val mediaId = mBook.mediaId
         val coverUrl = ApiConstants.getBookCover(mediaId)
@@ -367,7 +395,11 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
             var isReachable = false
             val bookPages = mBook.bookImages.pages
             var currentPage = 0
-            var url = ApiConstants.getPictureUrl(mediaId, currentPage, bookPages[currentPage].imageType)
+            var url = ApiConstants.getPictureUrl(
+                    mediaId,
+                    currentPage,
+                    bookPages[currentPage].imageType
+            )
             while (!isReachable && currentPage < bookPages.size) {
                 isReachable = try {
                     val urlServer = URL(url)
@@ -382,7 +414,10 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                     return url
                 }
                 currentPage++
-                url = ApiConstants.getPictureUrl(mediaId, currentPage, bookPages[currentPage].imageType)
+                url = ApiConstants.getPictureUrl(
+                        mediaId, currentPage,
+                        bookPages[currentPage].imageType
+                )
             }
         }
         return coverUrl
@@ -397,7 +432,11 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
         val maxPosition = Math.min(bookPages.size, mCurrentThumbnailPosition + THUMBNAILS_LIMIT)
         for (pageId in mCurrentThumbnailPosition until maxPosition) {
             val page = bookPages[pageId]
-            val url = ApiConstants.getThumbnailByPage(mediaId, pageId + 1, page.imageType)
+            val url = ApiConstants.getThumbnailByPage(
+                    mediaId,
+                    pageId + 1,
+                    page.imageType
+            )
             mBookThumbnailList.add(url)
         }
         mCurrentThumbnailPosition += THUMBNAILS_LIMIT
@@ -419,7 +458,8 @@ class BookPreviewPresenter @Inject constructor(private val mView: BookPreviewCon
                         }
                     }
                 }
-                Logger.d(TAG, "Number of recommend book of book ${mBook.bookId}: ${bookList.size}")
+                Logger.d(TAG, "Number of recommend book of book ${mBook.bookId}:" +
+                        " ${bookList.size}")
                 main.launch {
                     if (!bookList.isEmpty()) {
                         mView.showRecommendBook(bookList)

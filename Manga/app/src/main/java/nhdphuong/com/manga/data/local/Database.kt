@@ -11,13 +11,15 @@ class Database {
     companion object {
         private var mInstance: NHentaiDB? = null
         val instance: NHentaiDB
-        get() {
-            if (mInstance == null) {
-                mInstance = Room.databaseBuilder(NHentaiApp.instance.applicationContext, NHentaiDB::class.java, Constants.NHENTAI_DB)
-                        .fallbackToDestructiveMigration()
-                        .build()
+            get() {
+                if (mInstance == null) {
+                    mInstance = Room.databaseBuilder(
+                            NHentaiApp.instance.applicationContext,
+                            NHentaiDB::class.java,
+                            Constants.NHENTAI_DB
+                    ).fallbackToDestructiveMigration().build()
+                }
+                return mInstance!!
             }
-            return mInstance!!
-        }
     }
 }

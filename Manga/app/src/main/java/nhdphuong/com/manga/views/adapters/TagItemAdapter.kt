@@ -8,9 +8,19 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.tags.ITag
 import nhdphuong.com.manga.databinding.ItemTagListBinding
 
-class TagItemAdapter(private val mTagList: ArrayList<ITag>, private val mOnTagClickListener: OnTagClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val binding = ItemTagListBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
+class TagItemAdapter(
+        private val mTagList: ArrayList<ITag>,
+        private val mOnTagClickListener: OnTagClickListener
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    override fun onCreateViewHolder(
+            viewGroup: ViewGroup,
+            viewType: Int
+    ): RecyclerView.ViewHolder {
+        val binding = ItemTagListBinding.inflate(
+                LayoutInflater.from(viewGroup.context),
+                viewGroup,
+                false
+        )
         return TagViewHolder(binding)
     }
 
@@ -29,7 +39,9 @@ class TagItemAdapter(private val mTagList: ArrayList<ITag>, private val mOnTagCl
         notifyDataSetChanged()
     }
 
-    private inner class TagViewHolder(itemTagListBinding: ItemTagListBinding) : RecyclerView.ViewHolder(itemTagListBinding.root), View.OnClickListener {
+    private inner class TagViewHolder(
+            itemTagListBinding: ItemTagListBinding
+    ) : RecyclerView.ViewHolder(itemTagListBinding.root), View.OnClickListener {
         private val mtvTagLabel = itemTagListBinding.tvLabel
         private val mtvTagCount = itemTagListBinding.tvCount
         private var mTag: ITag? = null

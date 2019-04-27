@@ -41,8 +41,17 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         mPresenter = presenter
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_reader, container, false)
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
+        mBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.fragment_reader,
+                container,
+                false
+        )
         return mBinding.root
     }
 
@@ -96,7 +105,11 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         mPresenter.start()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
             val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -145,7 +158,11 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
             }
 
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            override fun onPageScrolled(
+                    position: Int,
+                    positionOffset: Float,
+                    positionOffsetPixels: Int
+            ) {
 
             }
 
@@ -178,7 +195,11 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         DialogHelper.showStoragePermissionDialog(activity!!, onOk = {
             requestStoragePermission()
         }, onDismiss = {
-            Toast.makeText(context, getString(R.string.toast_storage_permission_require), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                    context,
+                    getString(R.string.toast_storage_permission_require),
+                    Toast.LENGTH_SHORT
+            ).show()
         })
     }
 
@@ -195,8 +216,12 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int) {
-        NotificationHelper.sendBigContentNotification(getString(R.string.now_reading), NotificationCompat.PRIORITY_DEFAULT, readingTitle,
-                true).let { notificationId ->
+        NotificationHelper.sendBigContentNotification(
+                getString(R.string.now_reading),
+                NotificationCompat.PRIORITY_DEFAULT,
+                readingTitle,
+                true
+        ).let { notificationId ->
             mPresenter.updateNotificationId(notificationId)
         }
     }

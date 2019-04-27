@@ -15,8 +15,11 @@ import nhdphuong.com.manga.views.customs.MyTextView
 /*
  * Created by nhdphuong on 5/5/18.
  */
-class BookReaderAdapter(private val mContext: Context, private val mPageUrlList: List<String>,
-                        private val mOnTapListener: View.OnClickListener) : PagerAdapter() {
+class BookReaderAdapter(
+        private val mContext: Context,
+        private val mPageUrlList: List<String>,
+        private val mOnTapListener: View.OnClickListener
+) : PagerAdapter() {
     companion object {
         private const val TAG = "BookReaderAdapter"
     }
@@ -29,7 +32,8 @@ class BookReaderAdapter(private val mContext: Context, private val mPageUrlList:
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val readerViewHolder = BookReaderViewHolder(
-                LayoutInflater.from(mContext).inflate(R.layout.item_book_page, container, false),
+                LayoutInflater.from(mContext).
+                        inflate(R.layout.item_book_page, container, false),
                 mPageUrlList[position],
                 position + 1
         )

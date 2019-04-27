@@ -78,7 +78,8 @@ class DownloadManager {
                 if (!isTagDownloading) {
                     mIsTagsDownloading = true
                 } else {
-                    Logger.d(TAG, "A downloading process right now, cannot start another one")
+                    Logger.d(TAG,
+                            "A downloading process right now, cannot start another one")
                 }
             }
 
@@ -86,7 +87,8 @@ class DownloadManager {
                 if (isTagDownloading) {
                     mIsTagsDownloading = false
                 } else {
-                    Logger.d(TAG, "No downloading process right now, nothing can be stopped")
+                    Logger.d(TAG,
+                            "No downloading process right now, nothing can be stopped")
                 }
             }
         }

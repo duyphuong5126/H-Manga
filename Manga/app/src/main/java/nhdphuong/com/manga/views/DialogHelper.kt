@@ -27,7 +27,11 @@ class DialogHelper {
             val loadingString = activity.getString(R.string.loading)
             val dialog = Dialog(activity, android.R.style.Theme_Black_NoTitleBar)
             val layoutInflater = activity.layoutInflater
-            val contentView = layoutInflater.inflate(R.layout.layout_loading_dialog, null, false)
+            val contentView = layoutInflater.inflate(
+                    R.layout.layout_loading_dialog,
+                    null,
+                    false
+            )
             val tvLoading: TextView = contentView.findViewById(R.id.tvLoading)
             val ivLoading: ImageView = contentView.findViewById(R.id.ivLoading)
             dialog.setContentView(contentView)
@@ -52,20 +56,48 @@ class DialogHelper {
             val permissionDescription = activity.getString(R.string.storage_permission_require)
             val okString = activity.getString(R.string.ok)
             val dismissString = activity.getString(R.string.dismiss)
-            showOkDismissDialog(activity, permissionTitle, permissionDescription, okString, dismissString, onOk, onDismiss)
+            showOkDismissDialog(
+                    activity,
+                    permissionTitle,
+                    permissionDescription,
+                    okString,
+                    dismissString,
+                    onOk,
+                    onDismiss
+            )
         }
 
-        fun showDownloadingFinishedDialog(activity: Activity, onOk: () -> Unit, onDismiss: () -> Unit) {
+        fun showDownloadingFinishedDialog(
+                activity: Activity,
+                onOk: () -> Unit,
+                onDismiss: () -> Unit
+        ) {
             val permissionTitle = activity.getString(R.string.book_downloading_finished)
             val permissionDescription = activity.getString(R.string.is_want_to_open_folder)
             val okString = activity.getString(R.string.ok)
             val dismissString = activity.getString(R.string.dismiss)
-            showOkDismissDialog(activity, permissionTitle, permissionDescription, okString, dismissString, onOk, onDismiss)
+            showOkDismissDialog(
+                    activity,
+                    permissionTitle,
+                    permissionDescription,
+                    okString,
+                    dismissString,
+                    onOk,
+                    onDismiss
+            )
         }
 
-        fun showBookDownloadingDialog(activity: Activity, mediaId: String, onOk: () -> Unit, onDismiss: () -> Unit) {
+        fun showBookDownloadingDialog(
+                activity: Activity,
+                mediaId: String,
+                onOk: () -> Unit,
+                onDismiss: () -> Unit
+        ) {
             val title = activity.getString(R.string.is_book_being_downloaded)
-            val message = String.format(activity.getString(R.string.is_downloading_another_book), mediaId)
+            val message = String.format(
+                    activity.getString(R.string.is_downloading_another_book),
+                    mediaId
+            )
             val okString = activity.getString(R.string.view)
             val dismissString = activity.getString(R.string.ok)
             showOkDismissDialog(activity, title, message, okString, dismissString, onOk, onDismiss)
@@ -100,8 +132,17 @@ class DialogHelper {
         }
 
         @SuppressLint("InflateParams")
-        private fun showOkDialog(activity: Activity, title: String, description: String, onOk: () -> Unit) {
-            val contentView = activity.layoutInflater.inflate(R.layout.dialog_ok, null, false)
+        private fun showOkDialog(
+                activity: Activity,
+                title: String,
+                description: String,
+                onOk: () -> Unit
+        ) {
+            val contentView = activity.layoutInflater.inflate(
+                    R.layout.dialog_ok,
+                    null,
+                    false
+            )
             val dialog = Dialog(activity)
             val mtvPermissionTitle: MyTextView = contentView.findViewById(R.id.mtvDialogTitle)
             mtvPermissionTitle.text = title
@@ -114,16 +155,30 @@ class DialogHelper {
             dialog.setContentView(contentView)
             dialog.show()
             dialog.window?.let { window ->
-                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                window.setLayout(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                )
                 window.setGravity(Gravity.CENTER)
                 window.decorView.setBackgroundResource(android.R.color.transparent)
             }
         }
 
         @SuppressLint("InflateParams")
-        private fun showOkDismissDialog(activity: Activity, title: String, description: String, ok: String, dismiss: String,
-                                        onOk: () -> Unit, onDismiss: () -> Unit) {
-            val contentView = activity.layoutInflater.inflate(R.layout.dialog_ok_dismiss, null, false)
+        private fun showOkDismissDialog(
+                activity: Activity,
+                title: String,
+                description: String,
+                ok: String,
+                dismiss: String,
+                onOk: () -> Unit,
+                onDismiss: () -> Unit
+        ) {
+            val contentView = activity.layoutInflater.inflate(
+                    R.layout.dialog_ok_dismiss,
+                    null,
+                    false
+            )
             val dialog = Dialog(activity)
             val mtvTitle: MyTextView = contentView.findViewById(R.id.mtvDialogTitle)
             val mtvDescription: MyTextView = contentView.findViewById(R.id.mtvDialogDescription)
@@ -144,7 +199,10 @@ class DialogHelper {
             dialog.setContentView(contentView)
             dialog.show()
             dialog.window?.let { window ->
-                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                window.setLayout(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                )
                 window.setGravity(Gravity.CENTER)
                 window.decorView.setBackgroundResource(android.R.color.transparent)
             }

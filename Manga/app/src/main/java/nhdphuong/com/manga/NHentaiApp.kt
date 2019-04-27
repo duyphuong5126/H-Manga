@@ -33,11 +33,14 @@ class NHentaiApp : Application() {
     val applicationComponent
         get() = mApplicationComponent
 
-    private val isExternalStorageWritable: Boolean get() = Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
+    private val isExternalStorageWritable: Boolean
+        get() = Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
     private val imagesDirectory: String
         get() {
             val rootDirectory = if (isExternalStorageWritable) {
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
+                Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_PICTURES
+                ).toString()
             } else {
                 applicationContext.filesDir.toString()
             }
@@ -59,7 +62,9 @@ class NHentaiApp : Application() {
     val isStoragePermissionAccepted: Boolean
         get() {
             return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-                checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                checkSelfPermission(
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
             } else {
                 true
             }
@@ -83,7 +88,9 @@ class NHentaiApp : Application() {
     override fun onCreate() {
         super.onCreate()
         mInstance = this
-        mApplicationComponent = DaggerApplicationComponent.builder().applicationModule(ApplicationModule(this)).build()
+        mApplicationComponent = DaggerApplicationComponent.builder()
+                .applicationModule(ApplicationModule(this))
+                .build()
         mApplicationComponent.inject(this)
         createNotificationChannel()
         mServiceConnection = object : ServiceConnection {

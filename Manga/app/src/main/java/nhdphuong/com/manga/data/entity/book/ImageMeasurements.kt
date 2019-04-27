@@ -7,9 +7,15 @@ import java.io.Serializable
 /*
  * Created by nhdphuong on 3/24/18.
  */
-class ImageMeasurements(@field:SerializedName(Constants.IMAGE_TYPE) private val type: String,
-                        @field:SerializedName(Constants.IMAGE_WIDTH) val width: Int,
-                        @field:SerializedName(Constants.IMAGE_HEIGHT) val height: Int) : Serializable {
+data class ImageMeasurements(
+        @field:SerializedName(Constants.IMAGE_TYPE) private val type: String,
+        @field:SerializedName(Constants.IMAGE_WIDTH) val width: Int,
+        @field:SerializedName(Constants.IMAGE_HEIGHT) val height: Int
+) : Serializable {
     val imageType: String
-        get() = if (Constants.PNG_TYPE.equals(type, ignoreCase = true)) Constants.PNG else Constants.JPG
+        get() = if (Constants.PNG_TYPE.equals(type, ignoreCase = true)) {
+            Constants.PNG
+        } else {
+            Constants.JPG
+        }
 }

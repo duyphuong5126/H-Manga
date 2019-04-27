@@ -31,7 +31,8 @@ class ReaderActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reader)
 
-        var readerFragment = supportFragmentManager.findFragmentById(R.id.clReaderFragment) as ReaderFragment?
+        var readerFragment = supportFragmentManager.findFragmentById(R.id.clReaderFragment)
+                as ReaderFragment?
         if (readerFragment == null) {
             readerFragment = ReaderFragment()
             supportFragmentManager.beginTransaction()
@@ -41,7 +42,9 @@ class ReaderActivity : AppCompatActivity() {
 
         val book = intent.getSerializableExtra(Constants.BOOK) as Book
         val startReadingPage = intent.getIntExtra(Constants.START_PAGE, 0)
-        NHentaiApp.instance.applicationComponent.plus(ReaderModule(readerFragment, book, startReadingPage)).inject(this)
+        NHentaiApp.instance.applicationComponent.plus(
+                ReaderModule(readerFragment, book, startReadingPage)
+        ).inject(this)
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

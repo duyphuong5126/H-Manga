@@ -18,10 +18,15 @@ class AdminFragment : Fragment(), AdminContract.View {
         const val TAG = "AdminFragment"
         private const val REQUEST_STORAGE_PERMISSION = 3143
     }
+
     private lateinit var mPresenter: AdminContract.Presenter
     private lateinit var mBinding: FragmentAdminBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
         mBinding = FragmentAdminBinding.inflate(inflater, container, false)
         return mBinding.root
     }
@@ -51,7 +56,11 @@ class AdminFragment : Fragment(), AdminContract.View {
         mPresenter.start()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
             val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -71,7 +80,17 @@ class AdminFragment : Fragment(), AdminContract.View {
         mBinding.mtvPagesCount.text = getString(R.string.number_of_pages, numOfPages)
     }
 
-    override fun updateDownloadingStatistics(downloadedPages: Int, artists: Int, characters: Int, categories: Int, languages: Int, parodies: Int, groups: Int, tags: Int, unknownsTypes: Int) {
+    override fun updateDownloadingStatistics(
+            downloadedPages: Int,
+            artists: Int,
+            characters: Int,
+            categories: Int,
+            languages: Int,
+            parodies: Int,
+            groups: Int,
+            tags: Int,
+            unknownsTypes: Int
+    ) {
         val resources = resources
         mBinding.run {
             mtvPagesDownloaded.text = resources.getString(R.string.downloaded_pages, downloadedPages)

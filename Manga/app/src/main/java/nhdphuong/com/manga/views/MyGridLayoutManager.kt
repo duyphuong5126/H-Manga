@@ -6,7 +6,10 @@ import android.support.v7.widget.GridLayoutManager
 /*
  * Created by nhdphuong on 4/29/18.
  */
-open class MyGridLayoutManager(context: Context, spanCount: Int) : GridLayoutManager(context, spanCount) {
+open class MyGridLayoutManager(
+        context: Context,
+        spanCount: Int
+) : GridLayoutManager(context, spanCount) {
     override fun canScrollVertically(): Boolean {
         return false
     }

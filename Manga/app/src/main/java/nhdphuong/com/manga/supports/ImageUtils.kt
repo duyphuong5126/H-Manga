@@ -38,22 +38,40 @@ class ImageUtils {
             Glide.with(imageView).load(url).apply(requestOptions).into(imageView)
         }
 
-        fun <IV : ImageView> loadImage(url: String, defaultResource: Int, imageView: IV, onLoadSuccess: () -> Unit, onLoadFailed: () -> Unit) {
+        fun <IV : ImageView> loadImage(
+                url: String,
+                defaultResource: Int,
+                imageView: IV,
+                onLoadSuccess: () -> Unit,
+                onLoadFailed: () -> Unit
+        ) {
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .error(defaultResource)
                     .timeout(TIME_OUT)
                     .skipMemoryCache(true)
-            Glide.with(imageView).load(url).apply(requestOptions).listener(object : RequestListener<Drawable> {
-                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                    onLoadFailed()
-                    return true
-                }
+            Glide.with(imageView).load(url).apply(requestOptions).listener(
+                    object : RequestListener<Drawable> {
+                        override fun onLoadFailed(
+                                e: GlideException?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                isFirstResource: Boolean
+                        ): Boolean {
+                            onLoadFailed()
+                            return true
+                        }
 
-                override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                    onLoadSuccess()
-                    return false
-                }
-            }).into(imageView)
+                        override fun onResourceReady(
+                                resource: Drawable?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                dataSource: DataSource?,
+                                isFirstResource: Boolean
+                        ): Boolean {
+                            onLoadSuccess()
+                            return false
+                        }
+                    }).into(imageView)
         }
 
         fun <IV : ImageView> loadGifImage(gifResource: Int, imageView: IV) {
@@ -75,13 +93,24 @@ class ImageUtils {
                     .load(url)
                     .apply(requestOptions)
                     .listener(object : RequestListener<Bitmap> {
-                        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                        override fun onLoadFailed(
+                                e: GlideException?,
+                                model: Any?,
+                                target: Target<Bitmap>?,
+                                isFirstResource: Boolean
+                        ): Boolean {
                             Logger.d(TAG, "Downloading image: $url failed")
                             onBitmapReady(null)
                             return true
                         }
 
-                        override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                        override fun onResourceReady(
+                                resource: Bitmap?,
+                                model: Any?,
+                                target: Target<Bitmap>?,
+                                dataSource: DataSource?,
+                                isFirstResource: Boolean
+                        ): Boolean {
                             Logger.d(TAG, "Downloading image: $url succeeded")
                             onBitmapReady(resource)
                             return false

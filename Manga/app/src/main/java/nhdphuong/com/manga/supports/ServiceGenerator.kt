@@ -26,7 +26,9 @@ object ServiceGenerator {
             )
     ).addCallAdapterFactory(RxJava2CallAdapterFactory.create())
     private var mRetrofit: Retrofit? = null
-    private val mLoggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+    private val mLoggingInterceptor = HttpLoggingInterceptor().setLevel(
+            HttpLoggingInterceptor.Level.BODY
+    )
     private val mHttpClientBuilder = OkHttpClient.Builder().addInterceptor(mLoggingInterceptor)
             .connectTimeout(30000, TimeUnit.MILLISECONDS)
             .readTimeout(30000, TimeUnit.MILLISECONDS)

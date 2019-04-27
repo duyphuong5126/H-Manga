@@ -10,7 +10,11 @@ import nhdphuong.com.manga.R
 /*
  * Created by nhdphuong on 4/22/18.
  */
-class MyButton(context: Context, attrs: AttributeSet?, defStyle: Int) : Button(context, attrs, defStyle) {
+class MyButton(
+        context: Context,
+        attrs: AttributeSet?,
+        defStyle: Int
+) : Button(context, attrs, defStyle) {
     companion object {
         private const val TAG = "MyButton"
     }

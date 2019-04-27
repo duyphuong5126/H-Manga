@@ -19,11 +19,13 @@ import javax.inject.Inject
 /*
  * Created by nhdphuong on 6/10/18.
  */
-class RecentPresenter @Inject constructor(private val mView: RecentContract.View,
-                                          private val mBookRepository: BookRepository,
-                                          private val mSharedPreferencesManager: SharedPreferencesManager,
-                                          @IO private val io: CoroutineScope,
-                                          @Main private val main: CoroutineScope) : RecentContract.Presenter {
+class RecentPresenter @Inject constructor(
+        private val mView: RecentContract.View,
+        private val mBookRepository: BookRepository,
+        private val mSharedPreferencesManager: SharedPreferencesManager,
+        @IO private val io: CoroutineScope,
+        @Main private val main: CoroutineScope
+) : RecentContract.Presenter {
     companion object {
         private const val TAG = "RecentPresenter"
         private const val MAX_PER_PAGE = 10
@@ -149,7 +151,11 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
 
     override fun reloadLastBookListRefreshTime() {
         mSharedPreferencesManager.getLastBookListRefreshTime().let { lastRefreshTime ->
-            mView.showLastBookListRefreshTime(SupportUtils.getTimeElapsed(System.currentTimeMillis() - lastRefreshTime).toLowerCase())
+            mView.showLastBookListRefreshTime(
+                    SupportUtils.getTimeElapsed(
+                            System.currentTimeMillis() - lastRefreshTime
+                    ).toLowerCase()
+            )
         }
     }
 
@@ -224,8 +230,11 @@ class RecentPresenter @Inject constructor(private val mView: RecentContract.View
     }
 
     private suspend fun getRecentBook(pageNumber: Int): LinkedList<Book> {
-        val recentList = if (mType == Constants.RECENT) mBookRepository.getRecentBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
-        else mBookRepository.getFavoriteBook(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
+        val recentList = if (mType == Constants.RECENT) {
+            mBookRepository.getRecentBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
+        } else {
+            mBookRepository.getFavoriteBook(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
+        }
         val bookList = LinkedList<Book>()
         for (recent in recentList) {
             bookList.add(mBookRepository.getBookDetails(recent.bookId)!!)
