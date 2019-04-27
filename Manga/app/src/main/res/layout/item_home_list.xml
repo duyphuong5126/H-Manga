@@ -26,7 +26,8 @@
                 android:background="@android:color/black"
                 android:contentDescription="@string/main_search_button"
                 android:scaleType="fitStart"
-                android:src="@drawable/ic_404_not_found" />
+                android:src="@drawable/ic_404_not_found"
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <jp.shts.android.library.TriangleLabelView
                 android:id="@+id/tlvRecent"
@@ -58,6 +59,7 @@
                 android:id="@+id/cl1stTitlePart"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent">
 
