@@ -44,7 +44,7 @@ class BookPreviewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_book_preview)
         mInstance = this
 
-        val book = intent.extras?.getSerializable(Constants.BOOK) as Book
+        val book = intent.extras?.getParcelable(Constants.BOOK) as Book
 
         var bookPreviewFragment = supportFragmentManager.findFragmentById(R.id.clBookPreview)
                 as BookPreviewFragment?

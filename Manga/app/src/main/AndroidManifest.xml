@@ -12,17 +12,18 @@
 
     <application
         android:name=".NHentaiApp"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
         android:icon="@drawable/ic_app"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        tools:replace="android:allowBackup"
-        android:allowBackup="false"
-        android:fullBackupContent="false"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:replace="android:allowBackup">
         <activity
             android:name=".features.home.HomeActivity"
-            android:configChanges="orientation">
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -30,13 +31,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".features.preview.BookPreviewActivity" />
-        <activity android:name=".features.reader.ReaderActivity" />
-        <activity android:name=".features.tags.TagsActivity" />
-        <activity android:name=".features.recent.RecentActivity" />
-        <activity android:name=".features.admin.AdminActivity" />
+        <activity
+            android:name=".features.preview.BookPreviewActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".features.reader.ReaderActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".features.tags.TagsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".features.recent.RecentActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".features.admin.AdminActivity"
+            android:screenOrientation="portrait" />
 
-        <service android:name=".service.TagsUpdateService" android:exported="false"/>
+        <service
+            android:name=".service.TagsUpdateService"
+            android:exported="false" />
     </application>
 
 </manifest>
