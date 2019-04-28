@@ -345,7 +345,7 @@ class HomePresenter @Inject constructor(
         isLoadingPreventiveData = true
 
         suspendCoroutine<Boolean> { continuation ->
-            NUMBER_OF_PREVENTIVE_PAGES.toLong().let { _ ->
+            NUMBER_OF_PREVENTIVE_PAGES.toLong().let {
                 for (page in mCurrentPage + 1L..NUMBER_OF_PREVENTIVE_PAGES.toLong()) {
                     Logger.d(TAG, "Start loading page $page")
                     io.launch {

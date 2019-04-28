@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="200dp"
     android:layout_height="300dp"
-    android:background="@android:color/black"
     app:cardUseCompatPadding="true"
     tools:ignore="RtlCompat">
 
@@ -82,7 +81,7 @@
                     android:ellipsize="end"
                     android:lineSpacingExtra="6dp"
                     android:maxLines="1"
-                    android:text="@string/main_item_chinese_sample"
+                    android:text="@string/main_item_japanese_sample"
                     android:textColor="@color/greyEEE"
                     android:textSize="13sp"
                     app:layout_constraintBottom_toBottomOf="parent"

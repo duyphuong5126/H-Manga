@@ -14,7 +14,8 @@
             android:layout_height="@dimen/dp50"
             android:background="@color/grey_1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/ivMainLogo"
@@ -59,6 +60,7 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginBottom="5dp"
                 android:background="@color/transparent"
+                android:contentDescription="@string/search"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_clear_text"
                 android:visibility="gone"

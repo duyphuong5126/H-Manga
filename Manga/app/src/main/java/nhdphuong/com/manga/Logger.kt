@@ -26,48 +26,56 @@ class Logger {
             }
         }
 
+        @Suppress("unused")
         fun e(tag: String?, message: String?, throwable: Throwable?) {
             if (loggable) {
                 Log.e(tag, message, throwable)
             }
         }
 
+        @Suppress("unused")
         fun i(tag: String?, message: String?) {
             if (loggable) {
                 Log.i(tag, message)
             }
         }
 
+        @Suppress("unused")
         fun i(tag: String?, message: String?, throwable: Throwable?) {
             if (loggable) {
                 Log.i(tag, message, throwable)
             }
         }
 
+        @Suppress("unused")
         fun w(tag: String?, message: String?) {
             if (loggable) {
                 Log.w(tag, message)
             }
         }
 
+        @Suppress("unused")
         fun w(tag: String?, message: String?, throwable: Throwable?) {
             if (loggable) {
                 Log.w(tag, message, throwable)
             }
         }
 
+        @Suppress("unused")
         fun wtf(tag: String?, message: String?) {
             if (loggable) {
                 Log.wtf(tag, message)
             }
         }
 
+        @Suppress("unused")
         fun wtf(tag: String?, throwable: Throwable?) {
             if (loggable) {
                 Log.wtf(tag, throwable)
             }
         }
 
+        @Suppress("unused")
         fun wtf(tag: String?, message: String?, throwable: Throwable?) {
             if (loggable) {
                 Log.wtf(tag, message, throwable)

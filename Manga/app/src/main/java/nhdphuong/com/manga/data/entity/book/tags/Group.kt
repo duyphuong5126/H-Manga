@@ -18,6 +18,7 @@ data class Group(
         @field:SerializedName(Constants.COUNT) @ColumnInfo(name = Constants.COUNT) var count: Long
 ) : Parcelable, ITag {
 
+    @Suppress("unused")
     val jsonValue: JsonObject
         get() {
             val jsonObject = JsonObject()

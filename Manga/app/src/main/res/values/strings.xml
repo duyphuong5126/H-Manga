@@ -2,7 +2,6 @@
     <string name="app_name">nHentai</string>
     <string name="main_logo">nhentai logo</string>
     <string name="main_search_button">Main search button</string>
-    <string name="main_item">Main item</string>
     <string name="main_item_description">Main item description</string>
     <string name="random">Random</string>
     <string name="tags">Tags</string>
@@ -27,9 +26,7 @@
 
     <string name="count">(%s)</string>
 
-    <string name="main_item_chinese_sample">[Achromic (Musouduki)] Loli &amp; Futa Vol. 8 | 蘿莉&amp;扶她 Vol.8 (Kantai Collection -KanColle-) [Chinese] [Lolipoi汉化组] [Digital]</string>
     <string name="main_item_japanese_sample">(C93) [studio A (Inanaki Shiki)] Iyarashii Houshi-bu no Kanojo-tachi. (Yahari Ore no Seishun Love Come wa Machigatteiru.) [Chinese] [無邪氣漢化组]</string>
-    <string name="main_item_english_sample">(C93) [studio A (Inanaki Shiki)] Iyarashii Houshi-bu no Kanojo-tachi. (Yahari Ore no Seishun Love Come wa Machigatteiru.) [Chinese] [無邪氣漢化组]</string>
     <string name="page_number">1</string>
     <string name="nothing_to_show">Nothing here</string>
     <string name="internet_error">Look like you lost your connection!</string>
@@ -85,8 +82,6 @@
     <string name="reload_library">Reload library</string>
     <string name="book_list_refreshing_title">Book list is refreshing</string>
     <string name="book_list_refreshing_description">Book list is now refreshing.\nPlease try again later.</string>
-    <string name="page_refreshing">This page is refreshing</string>
-    <string name="page_refreshing_description">This is now refreshing.\nPlease try again later.</string>
     <string name="pull_down">Pull it down</string>
     <string name="release_to_refresh">Release to refresh</string>
     <string name="updating">Updating%s</string>
@@ -105,8 +100,8 @@
     <string name="notification_channel_description">Hentai manga</string>
 
     <string name="now_reading">Now reading</string>
-    <string name="now_reading_description">Page number: %s - total: %s</string>
 
+    <string name="admin">Admin</string>
     <string name="enter_admin_page_title">Admin Pages</string>
     <string name="enter_admin_page_description">App will navigate to admin pages.</string>
     <string name="_continue">Continue</string>

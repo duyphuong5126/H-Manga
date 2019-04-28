@@ -163,6 +163,7 @@ class TagRepository @Inject constructor(
         return mTagLocalDataSource.getTagsBySpecialCharactersPrefixAscending(limit, offset)
     }
 
+    @Suppress("unused")
     suspend fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag> {
         return mTagLocalDataSource.getTagsByPopularityAscending(limit, offset)
     }
@@ -198,6 +199,7 @@ class TagRepository @Inject constructor(
         return mTagLocalDataSource.getArtistsBySpecialCharactersPrefixAscending(limit, offset)
     }
 
+    @Suppress("unused")
     suspend fun getArtistsByPopularityAscending(
             limit: Int,
             offset: Int
@@ -237,6 +239,7 @@ class TagRepository @Inject constructor(
         return mTagLocalDataSource.getCharactersBySpecialCharactersPrefixAscending(limit, offset)
     }
 
+    @Suppress("unused")
     suspend fun getCharactersByPopularityAscending(
             limit: Int,
             offset: Int
@@ -272,6 +275,7 @@ class TagRepository @Inject constructor(
             offset: Int
     ): List<Group> = mTagLocalDataSource.getGroupsBySpecialCharactersPrefixAscending(limit, offset)
 
+    @Suppress("unused")
     suspend fun getGroupsByPopularityAscending(
             limit: Int,
             offset: Int
@@ -309,6 +313,7 @@ class TagRepository @Inject constructor(
         return mTagLocalDataSource.getParodiesBySpecialCharactersPrefixAscending(limit, offset)
     }
 
+    @Suppress("unused")
     suspend fun getParodiesByPopularityAscending(
             limit: Int,
             offset: Int

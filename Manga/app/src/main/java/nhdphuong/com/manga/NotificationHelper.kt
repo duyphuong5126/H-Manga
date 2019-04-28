@@ -19,6 +19,7 @@ class NotificationHelper {
             return notificationId
         }
 
+        @Suppress("unused")
         fun sendNotification(
                 title: String,
                 priority: Int,
@@ -58,6 +59,7 @@ class NotificationHelper {
             return sendNotification(notificationBuilder.build(), System.currentTimeMillis().toInt())
         }
 
+        @Suppress("unused")
         fun sendNotification(
                 title: String,
                 priority: Int,
@@ -91,6 +93,7 @@ class NotificationHelper {
             notificationManagerCompat.cancel(notificationId)
         }
 
+        @Suppress("unused")
         fun updateNotification(
                 notificationId: Int,
                 title: String,
@@ -110,6 +113,7 @@ class NotificationHelper {
             sendNotification(notificationBuilder.build(), notificationId)
         }
 
+        @Suppress("unused")
         fun updateNotification(
                 notificationId: Int,
                 title: String,

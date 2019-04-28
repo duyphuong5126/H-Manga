@@ -27,6 +27,17 @@ class TabAdapter(
     private val isDebugVersion: Boolean =
             (NHentaiApp.instance.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
+    private val mRecentTitle = context.getString(R.string.recent)
+    private val mFavoriteTitle = context.getString(R.string.favorite)
+    private val mRandomTitle = context.getString(R.string.random)
+    private val mArtistsTitle = context.getString(R.string.artists)
+    private val mTagsTitle = context.getString(R.string.tags)
+    private val mCharacterTitle = context.getString(R.string.characters)
+    private val mGroupsTitle = context.getString(R.string.groups)
+    private val mParodiesTitle = context.getString(R.string.parodies)
+    private val mInfoTitle = context.getString(R.string.info)
+    private val mAdminTitle = context.getString(R.string.admin)
+
     init {
         mTabList.clear()
         for (tab in Tab.values()) {
@@ -83,7 +94,19 @@ class TabAdapter(
 
         fun setTab(tab: Tab) {
             mTab = tab
-            mTvLabel.text = tab.defaultName
+            mTvLabel.text = when (tab) {
+                Tab.RECENT -> mRecentTitle
+                Tab.FAVORITE -> mFavoriteTitle
+                Tab.RANDOM -> mRandomTitle
+                Tab.ARTISTS -> mArtistsTitle
+                Tab.TAGS -> mTagsTitle
+                Tab.CHARACTERS -> mCharacterTitle
+                Tab.GROUPS -> mGroupsTitle
+                Tab.PARODIES -> mParodiesTitle
+                Tab.INFO -> mInfoTitle
+                Tab.ADMIN -> mAdminTitle
+                else -> tab.defaultName
+            }
         }
 
         fun toggleTab(selected: Boolean) {

@@ -2,8 +2,8 @@ package nhdphuong.com.manga.views.customs
 
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.TextView
 import android.graphics.Typeface
+import android.support.v7.widget.AppCompatTextView
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 
@@ -15,7 +15,7 @@ class MyTextView(
         context: Context,
         attrs: AttributeSet?,
         defStyle: Int
-) : TextView(context, attrs, defStyle) {
+) : AppCompatTextView(context, attrs, defStyle) {
     companion object {
         private const val TAG = "MyTextView"
     }

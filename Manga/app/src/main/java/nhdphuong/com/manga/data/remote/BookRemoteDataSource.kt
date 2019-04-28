@@ -18,7 +18,10 @@ import java.io.InputStreamReader
  * Created by nhdphuong on 3/24/18.
  */
 // Todo: research EOFException when using retrofit
-class BookRemoteDataSource(private val mBookApiService: BookApiService) : BookDataSource.Remote {
+class BookRemoteDataSource(
+        @Suppress("unused")
+        private val mBookApiService: BookApiService
+) : BookDataSource.Remote {
     companion object {
         private const val TAG = "BookRemoteDataSource"
     }

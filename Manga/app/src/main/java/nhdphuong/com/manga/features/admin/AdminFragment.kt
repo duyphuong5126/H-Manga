@@ -1,6 +1,7 @@
 package nhdphuong.com.manga.features.admin
 
 import android.content.pm.PackageManager
+import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -27,7 +28,12 @@ class AdminFragment : Fragment(), AdminContract.View {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        mBinding = FragmentAdminBinding.inflate(inflater, container, false)
+        mBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.fragment_admin,
+                container,
+                false
+        )
         return mBinding.root
     }
 

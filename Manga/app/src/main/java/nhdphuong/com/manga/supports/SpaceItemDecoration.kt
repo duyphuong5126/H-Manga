@@ -23,6 +23,7 @@ class SpaceItemDecoration() : RecyclerView.ItemDecoration() {
         mSpace = 0
     }
 
+    @Suppress("unused")
     constructor(
             context: Context,
             attributeSet: AttributeSet,
@@ -43,6 +44,7 @@ class SpaceItemDecoration() : RecyclerView.ItemDecoration() {
         mSpace = px.toInt()
     }
 
+    @Suppress("unused")
     constructor(
             spaceInDp: Int,
             context: Context,

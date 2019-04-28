@@ -46,6 +46,8 @@ class Constants {
         const val GROUPS = "Groups"
         const val INFO = "Info"
         const val ARTISTS = "Artists"
+
+        @Suppress("unused")
         const val SETTINGS = "Settings"
         const val ADMIN = "Admin"
 
@@ -54,6 +56,8 @@ class Constants {
         const val FAVORITE = "Favorite"
 
         const val TAG_TYPE = "Tag_type"
+
+        @Suppress("unused")
         const val NONE = "None"
 
         const val BOOK = "book"
@@ -74,6 +78,7 @@ class Constants {
         const val DOWNLOAD_GREEN_LEVEL = 0.8f
         const val DOWNLOAD_YELLOW_LEVEL = 0.6f
 
+        @Suppress("unused")
         const val MAX_PER_PAGE = 25
 
         const val BOOK_PREVIEW_RESULT = 10073

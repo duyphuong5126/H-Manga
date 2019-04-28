@@ -183,7 +183,7 @@
             android:textSize="17sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/mtv_unknown_tags_count"
-            app:myFont="@string/NotoSansRegular" />
+            app:myFont="@string/NotoSansBoldItalic" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/sp_censored"
@@ -215,7 +215,8 @@
                     android:padding="5dp"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
             </android.support.constraint.ConstraintLayout>
         </ScrollView>
 
