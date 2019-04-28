@@ -205,8 +205,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                 return true
             }
         }
-        mainListLayoutManager.gapStrategy =
-                StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
+        mainListLayoutManager.gapStrategy = StaggeredGridLayoutManager.HORIZONTAL
         mainList.layoutManager = mainListLayoutManager
         mainList.adapter = mHomeListAdapter
     }

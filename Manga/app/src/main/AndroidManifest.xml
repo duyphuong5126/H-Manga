@@ -22,8 +22,7 @@
         tools:replace="android:allowBackup">
         <activity
             android:name=".features.home.HomeActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait">
+            android:configChanges="orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -32,20 +31,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".features.preview.BookPreviewActivity"
-            android:screenOrientation="portrait" />
+            android:name=".features.preview.BookPreviewActivity" />
         <activity
-            android:name=".features.reader.ReaderActivity"
-            android:screenOrientation="portrait" />
+            android:name=".features.reader.ReaderActivity" />
         <activity
-            android:name=".features.tags.TagsActivity"
-            android:screenOrientation="portrait" />
+            android:name=".features.tags.TagsActivity" />
         <activity
-            android:name=".features.recent.RecentActivity"
-            android:screenOrientation="portrait" />
+            android:name=".features.recent.RecentActivity" />
         <activity
-            android:name=".features.admin.AdminActivity"
-            android:screenOrientation="portrait" />
+            android:name=".features.admin.AdminActivity" />
 
         <service
             android:name=".service.TagsUpdateService"
