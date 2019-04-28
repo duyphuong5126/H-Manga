@@ -3,11 +3,8 @@ package nhdphuong.com.manga.features.home
 import android.annotation.TargetApi
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.res.Configuration
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.support.v4.app.Fragment
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import javax.inject.Inject
@@ -60,81 +57,26 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
         super.onCreate(savedInstanceState)
         Logger.e(TAG, "onCreate")
         setContentView(R.layout.activity_home)
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-                mTagSelectedBroadcastReceiver,
-                IntentFilter(Constants.TAG_SELECTED_ACTION)
-        )
         showFragments()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
-        super.onSaveInstanceState(outState, outPersistentState)
-        Logger.e(TAG, "onSaveInstanceState 3 params")
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-        Logger.e(TAG, "onSaveInstanceState 1 param")
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Logger.e(TAG, "onStart")
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        Logger.e(TAG, "onRestart")
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onResume() {
         super.onResume()
         Logger.e(TAG, "onResume")
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mTagSelectedBroadcastReceiver,
+                IntentFilter(Constants.TAG_SELECTED_ACTION)
+        )
         window?.statusBarColor = ContextCompat.getColor(this@HomeActivity, R.color.colorPrimary)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Logger.e(TAG, "onPause")
     }
 
     override fun onStop() {
         super.onStop()
-        Logger.e(TAG, "onStop")
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        Logger.e(TAG, "onAttachedToWindow")
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        Logger.e(TAG, "onDetachedFromWindow")
-    }
-
-    override fun onAttachFragment(fragment: Fragment?) {
-        super.onAttachFragment(fragment)
-        Logger.e(TAG, "onAttachFragment")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
         Logger.e(TAG, "onDestroy")
         LocalBroadcastManager.getInstance(this).unregisterReceiver(
                 mTagSelectedBroadcastReceiver
         )
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration?) {
-        super.onConfigurationChanged(newConfig)
-        Logger.e(TAG, "onConfigurationChanged")
-    }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        Logger.e(TAG, "onWindowFocusChanged hasFocus=$hasFocus")
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {

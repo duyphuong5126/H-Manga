@@ -8,7 +8,6 @@ import `in`.srain.cube.views.ptr.indicator.PtrIndicator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.databinding.DataBindingUtil
@@ -56,16 +55,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     override fun setPresenter(presenter: HomeContract.Presenter) {
         mHomePresenter = presenter
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Logger.d(TAG, "onCreate")
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        Logger.d(TAG, "onAttach")
     }
 
     override fun onCreateView(
@@ -126,46 +115,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         toggleSearchResult("")
     }
 
-    override fun onStart() {
-        super.onStart()
-        Logger.d(TAG, "onStart")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Logger.d(TAG, "onResume")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Logger.d(TAG, "onStop")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Logger.d(TAG, "onPause")
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        Logger.d(TAG, "onSaveInstanceState")
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        Logger.d(TAG, "onViewStateRestored")
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        Logger.d(TAG, "onDestroyView")
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        Logger.d(TAG, "onDetach")
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         Logger.d(TAG, "onDestroy")
@@ -175,6 +124,17 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
         Logger.d(TAG, "onConfigurationChanged")
+        val isLandscape = newConfig?.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val mainListLayoutManager = object : StaggeredGridLayoutManager(
+                if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS,
+                StaggeredGridLayoutManager.VERTICAL
+        ) {
+            override fun isAutoMeasureEnabled(): Boolean {
+                return true
+            }
+        }
+        mainListLayoutManager.gapStrategy = StaggeredGridLayoutManager.HORIZONTAL
+        mBinding.rvMainList.layoutManager = mainListLayoutManager
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
