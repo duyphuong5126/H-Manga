@@ -87,7 +87,7 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     override fun updateDownloadingStatistics(
-            downloadedPages: Int,
+            downloadedPages: Long,
             artists: Int,
             characters: Int,
             categories: Int,

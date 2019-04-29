@@ -1,18 +1,15 @@
 package nhdphuong.com.manga.features.admin
 
 import com.google.gson.JsonArray
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.SharedPreferencesManager
-import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.entity.book.tags.Tag
+import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.*
@@ -20,7 +17,7 @@ import javax.inject.Inject
 
 class AdminPresenter @Inject constructor(
         private val mView: AdminContract.View,
-        private val mBookApiService: BookApiService,
+        private val mBookRepository: BookRepository,
         private val mSharedPreferencesManager: SharedPreferencesManager,
         @IO private val io: CoroutineScope
 ) : AdminContract.Presenter {
@@ -41,17 +38,15 @@ class AdminPresenter @Inject constructor(
     private val mTags = TreeMap<Long, Tag>()
     private val mUnknownTypes = TreeMap<Long, Tag>()
 
-    private val mCompositeDisposable = CompositeDisposable()
-
-    private var mCurrentPage = 1
+    private var mCurrentPage = 1L
     private var mNumberOfPage = -1L
 
     override fun start() {
         clearData()
-        mCompositeDisposable.add(mBookApiService.getBookListOfPage(mCurrentPage)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(this::handleResponse, this::handleError))
+        io.launch {
+            mNumberOfPage = mBookRepository.getBookByPage(mCurrentPage)?.numOfPages ?: 0L
+            Logger.d(TAG, "Number Of pages=$mNumberOfPage")
+        }
     }
 
     override fun stop() {
@@ -71,12 +66,20 @@ class AdminPresenter @Inject constructor(
         NHentaiApp.instance.restartApp()
     }
 
-    private fun downloadPage(page: Int) {
+    private fun downloadPage(page: Long) {
+        if (mNumberOfPage < 0) {
+            return
+        }
+
         if (page <= mNumberOfPage) {
-            mCompositeDisposable.add(mBookApiService.getBookListOfPage(page)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(this::handleResponse, this::handleError))
+            io.launch {
+                val remoteBook = mBookRepository.getBookByPage(page)
+                if (remoteBook != null) {
+                    handleResponse(remoteBook)
+                } else {
+                    handleError()
+                }
+            }
         } else {
             Logger.d(TAG, "Downloading completed")
 
@@ -93,13 +96,13 @@ class AdminPresenter @Inject constructor(
         }
     }
 
-    private fun handleError(throwable: Throwable) {
-        Logger.d(TAG, "error: $throwable")
+    private fun handleError() {
+        Logger.d(TAG, "Downloading tags failed")
         downloadPage(++mCurrentPage)
     }
 
     private fun handleResponse(remoteBook: RemoteBook) {
-        Logger.d(TAG, "response: $remoteBook")
+        Logger.d(TAG, "Downloading tags response: $remoteBook")
         if (mNumberOfPage <= 0) {
             mNumberOfPage = remoteBook.numOfPages
             mView.showNumberOfPages(mNumberOfPage)
@@ -133,8 +136,8 @@ class AdminPresenter @Inject constructor(
                     mTags.size,
                     mUnknownTypes.size
             )
-            downloadPage(++mCurrentPage)
         }
+        downloadPage(++mCurrentPage)
     }
 
     private fun addTag(tag: Tag) {
