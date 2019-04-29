@@ -8,7 +8,7 @@ interface AdminContract {
         fun updateProgress()
         fun showNumberOfPages(numOfPages: Long)
         fun updateDownloadingStatistics(
-                downloadedPages: Int = 0,
+                downloadedPages: Long = 0,
                 artists: Int = 0,
                 characters: Int = 0,
                 categories: Int = 0,
