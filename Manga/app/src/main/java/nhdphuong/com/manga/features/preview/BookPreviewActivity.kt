@@ -69,7 +69,10 @@ class BookPreviewActivity : AppCompatActivity() {
     }
 
     override fun finish() {
-        setResult(Activity.RESULT_OK)
+        if (intent.action != Constants.TAG_SELECTED_ACTION) {
+            intent.action = Constants.RECENT_DATA_UPDATED_ACTION
+        }
+        setResult(Activity.RESULT_OK, intent)
         super.finish()
     }
 }

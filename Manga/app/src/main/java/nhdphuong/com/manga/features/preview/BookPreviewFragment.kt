@@ -3,6 +3,7 @@ package nhdphuong.com.manga.features.preview
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
@@ -13,7 +14,6 @@ import android.os.Handler
 import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
-import android.support.v4.content.LocalBroadcastManager
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -464,10 +464,13 @@ class BookPreviewFragment :
     override fun isActive() = isAdded
 
     override fun onTagSelected(tag: Tag) {
-        val intent = Intent(Constants.TAG_SELECTED_ACTION)
-        intent.putExtra(Constants.SELECTED_TAG, tag.name)
-        LocalBroadcastManager.getInstance(context!!).sendBroadcast(intent)
-        activity?.onBackPressed()
+        activity?.run {
+            val intent = intent
+            intent.action = Constants.TAG_SELECTED_ACTION
+            intent.putExtra(Constants.SELECTED_TAG, tag.name)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
     }
 
     private fun loadInfoList(layout: ViewGroup, infoList: List<Tag>) {

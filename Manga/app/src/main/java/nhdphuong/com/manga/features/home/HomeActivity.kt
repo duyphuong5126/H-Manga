@@ -1,18 +1,15 @@
 package nhdphuong.com.manga.features.home
 
 import android.annotation.TargetApi
-import android.content.BroadcastReceiver
-import android.content.Context
+import android.app.Activity
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import javax.inject.Inject
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Build
 import android.support.v4.content.ContextCompat
-import android.support.v4.content.LocalBroadcastManager
 import android.text.TextUtils
 import android.view.KeyEvent
 import nhdphuong.com.manga.Constants
@@ -28,19 +25,6 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
     companion object {
         private const val TAG = "HomeActivity"
     }
-
-    private inner class TagSelectedBroadcastReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            intent?.getStringExtra(Constants.SELECTED_TAG)?.let { selectedTag ->
-                if (!TextUtils.isEmpty(selectedTag)) {
-                    mHeaderFragment.updateSearchBar(selectedTag)
-                    onSearchInputted(selectedTag)
-                }
-            }
-        }
-    }
-
-    private val mTagSelectedBroadcastReceiver = TagSelectedBroadcastReceiver()
 
     @Suppress("unused")
     @Inject
@@ -64,19 +48,24 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
     override fun onResume() {
         super.onResume()
         Logger.e(TAG, "onResume")
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-                mTagSelectedBroadcastReceiver,
-                IntentFilter(Constants.TAG_SELECTED_ACTION)
-        )
         window?.statusBarColor = ContextCompat.getColor(this@HomeActivity, R.color.colorPrimary)
     }
 
-    override fun onStop() {
-        super.onStop()
-        Logger.e(TAG, "onDestroy")
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(
-                mTagSelectedBroadcastReceiver
-        )
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode != Activity.RESULT_OK) {
+            return
+        }
+        data?.run {
+            if (action == Constants.TAG_SELECTED_ACTION) {
+                getStringExtra(Constants.SELECTED_TAG)?.let { selectedTag ->
+                    if (!TextUtils.isEmpty(selectedTag)) {
+                        mHeaderFragment.updateSearchBar(selectedTag)
+                        onSearchInputted(selectedTag)
+                    }
+                }
+            }
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {

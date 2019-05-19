@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.features.home
 
+import android.annotation.SuppressLint
 import android.text.TextUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -42,7 +43,10 @@ class HomePresenter @Inject constructor(
     private var mCurrentNumOfPages = 0L
     private var mCurrentLimitPerPage = 0
     private var mCurrentPage = 1L
+
+    @SuppressLint("UseSparseArrays")
     private var mPreventiveData = HashMap<Long, LinkedList<Book>>()
+
     private var isLoadingPreventiveData = false
     private val mJobStack = Stack<Job>()
     private var isRefreshing: Boolean = false

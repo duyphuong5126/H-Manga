@@ -127,7 +127,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         val isLandscape = newConfig?.orientation == Configuration.ORIENTATION_LANDSCAPE
         val mainListLayoutManager = object : StaggeredGridLayoutManager(
                 if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS,
-                StaggeredGridLayoutManager.VERTICAL
+                VERTICAL
         ) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
@@ -139,7 +139,11 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == Constants.BOOK_PREVIEW_RESULT && resultCode == Activity.RESULT_OK) {
+        if (resultCode != Activity.RESULT_OK) {
+            return
+        }
+        if (requestCode == Constants.BOOK_PREVIEW_RESULT &&
+                data?.action == Constants.RECENT_DATA_UPDATED_ACTION) {
             mHomePresenter.reloadRecentBooks()
         }
     }
@@ -159,7 +163,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
         val mainListLayoutManager = object : StaggeredGridLayoutManager(
                 if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS,
-                StaggeredGridLayoutManager.VERTICAL
+                VERTICAL
         ) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
