@@ -1,7 +1,6 @@
 package nhdphuong.com.manga.supports
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
@@ -14,6 +13,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.DrawableImageViewTarget
 import com.bumptech.glide.request.target.Target
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NHentaiApp
 
 class ImageUtils {
     companion object {
@@ -84,7 +84,8 @@ class ImageUtils {
         }
 
         @SuppressLint("CheckResult")
-        fun downloadImage(context: Context, url: String, onBitmapReady: (bitmap: Bitmap?) -> Unit) {
+        fun downloadImage(url: String, onBitmapReady: (bitmap: Bitmap?) -> Unit) {
+            val context = NHentaiApp.instance.applicationContext
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .timeout(TIME_OUT)
                     .skipMemoryCache(true)
@@ -118,7 +119,8 @@ class ImageUtils {
                     }).submit()
         }
 
-        fun downloadImage(context: Context, url: String, width: Int, height: Int): Bitmap {
+        fun downloadImage(url: String, width: Int, height: Int): Bitmap {
+            val context = NHentaiApp.instance.applicationContext
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .timeout(TIME_OUT)
                     .skipMemoryCache(true)

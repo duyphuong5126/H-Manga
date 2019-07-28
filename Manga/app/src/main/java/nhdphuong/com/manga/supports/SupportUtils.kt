@@ -105,18 +105,18 @@ class SupportUtils {
             return ellipsizedText.substring(0, ellipsizedText.length - 1)
         }
 
-        fun compressBitmap(
-                bitmap: Bitmap,
-                filePath: String,
-                filename: String,
-                format: Bitmap.CompressFormat
-        ): String {
+        fun saveImage(bitmap: Bitmap, filePath: String, filename: String, format: String): String {
             val dirs = File(filePath)
             if (!dirs.exists()) {
                 dirs.mkdirs()
             }
 
-            val fileType = if (format == Bitmap.CompressFormat.PNG) {
+            val imageFormat = if (format == Constants.PNG_TYPE) {
+                Bitmap.CompressFormat.PNG
+            } else {
+                Bitmap.CompressFormat.JPEG
+            }
+            val fileType = if (imageFormat == Bitmap.CompressFormat.PNG) {
                 Constants.PNG
             } else {
                 Constants.JPG
@@ -128,7 +128,7 @@ class SupportUtils {
             }
 
             val outputStream = FileOutputStream(output)
-            bitmap.compress(format, 100, outputStream)
+            bitmap.compress(imageFormat, 100, outputStream)
             bitmap.recycle()
             return resultPath
         }

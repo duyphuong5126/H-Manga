@@ -178,8 +178,13 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         })
     }
 
-    override fun showPageIndicator(pageString: String) {
-        mBinding.mtvCurrentPage.text = pageString
+    override fun showPageIndicator(currentPage: Int, total: Int) {
+        mBinding.mtvCurrentPage.text =
+                String.format(getString(R.string.bottom_reader), currentPage + 1, total)
+    }
+
+    override fun showBackToGallery() {
+        mBinding.mtvCurrentPage.text = getString(R.string.back_to_gallery)
     }
 
     override fun jumpToPage(pageNumber: Int) {
@@ -211,8 +216,8 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         mBinding.clDownloadedPopup.visibility = View.GONE
     }
 
-    override fun updateDownloadPopupTitle(downloadTitle: String) {
-        mBinding.mtvDownloadTitle.text = downloadTitle
+    override fun updateDownloadPopupTitle(downloadPage: Int) {
+        mBinding.mtvDownloadTitle.text = getString(R.string.download_progress, downloadPage)
     }
 
     override fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int) {

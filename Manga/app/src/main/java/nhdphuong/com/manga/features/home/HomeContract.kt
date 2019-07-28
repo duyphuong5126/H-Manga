@@ -18,6 +18,7 @@ interface HomeContract {
         fun showFavoriteBooks(favoriteList: List<Int>)
         fun changeSearchResult(data: String)
         fun showRandomBook(randomBook: Book)
+        fun startUpdateTagsService()
     }
 
     interface Presenter : Base.Presenter {

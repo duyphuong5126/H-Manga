@@ -7,7 +7,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
-import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RemoteBook
@@ -16,7 +15,10 @@ import nhdphuong.com.manga.data.repository.TagRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
-import java.util.*
+import java.util.LinkedList
+import java.util.Random
+import java.util.Collections
+import java.util.Stack
 import javax.inject.Inject
 import kotlin.collections.HashMap
 import kotlin.coroutines.resume
@@ -74,7 +76,7 @@ class HomePresenter @Inject constructor(
 
                 val onVersionFetched = {
                     main.launch {
-                        NHentaiApp.instance.startUpdateTagsService()
+                        mView.startUpdateTagsService()
                     }
                 }
                 mTagRepository.getCurrentVersion(onSuccess = { newVersion ->
@@ -93,7 +95,7 @@ class HomePresenter @Inject constructor(
                 })
             }
         } else {
-            NHentaiApp.instance.startUpdateTagsService()
+            mView.startUpdateTagsService()
         }
     }
 

@@ -13,6 +13,10 @@ import nhdphuong.com.manga.data.local.TagDAO
 import nhdphuong.com.manga.scope.corountine.Default
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
+import nhdphuong.com.manga.supports.FileUtils
+import nhdphuong.com.manga.supports.IFileUtils
+import nhdphuong.com.manga.supports.INetworkUtils
+import nhdphuong.com.manga.supports.NetworkUtils
 import nhdphuong.com.manga.supports.ServiceGenerator
 import javax.inject.Singleton
 
@@ -55,6 +59,12 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
     @Singleton
     @Provides
     fun providesTagDAO(): TagDAO = Database.instance.getTagDAO()
+
+    @Provides
+    fun providesNetworkUtils(): INetworkUtils = NetworkUtils()
+
+    @Provides
+    fun providesFileUtils(): IFileUtils = FileUtils()
 
     @Provides
     @Main

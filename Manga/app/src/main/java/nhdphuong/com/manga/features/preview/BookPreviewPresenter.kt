@@ -1,22 +1,23 @@
 package nhdphuong.com.manga.features.preview
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.net.ConnectivityManager
-import kotlinx.coroutines.*
-import nhdphuong.com.manga.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.DownloadManager
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.ImageMeasurements
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.repository.BookRepository
-import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
+import nhdphuong.com.manga.supports.IFileUtils
+import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.SupportUtils
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.*
+import java.util.LinkedList
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -29,12 +30,12 @@ import kotlin.coroutines.suspendCoroutine
 class BookPreviewPresenter @Inject constructor(
         private val mView: BookPreviewContract.View,
         private val mBook: Book,
-        private val mContext: Context,
         private val mBookRepository: BookRepository,
+        private val networkUtils: INetworkUtils,
+        private val fileUtils: IFileUtils,
         @IO private val io: CoroutineScope,
         @Main private val main: CoroutineScope
-) : BookPreviewContract.Presenter,
-        DownloadManager.BookDownloadCallback {
+) : BookPreviewContract.Presenter, DownloadManager.BookDownloadCallback {
 
     companion object {
         private const val TAG = "BookPreviewPresenter"
@@ -102,8 +103,8 @@ class BookPreviewPresenter @Inject constructor(
         mView.showFavoriteBookSaved(isFavoriteBook)
         mView.show1stTitle(mBook.title.englishName)
         mView.show2ndTitle(mBook.title.japaneseName)
-        mView.showUploadedTime(String.format(mContext.getString(R.string.uploaded), uploadedTimeStamp))
-        mView.showPageCount(String.format(mContext.getString(R.string.page_count), mBook.numOfPages))
+        mView.showUploadedTime(uploadedTimeStamp)
+        mView.showPageCount(mBook.numOfPages)
         mTagList = LinkedList()
         mCategoryList = LinkedList()
         mArtistList = LinkedList()
@@ -214,110 +215,95 @@ class BookPreviewPresenter @Inject constructor(
     }
 
     override fun startReadingFrom(startReadingPage: Int) {
-        ReaderActivity.start(mContext, startReadingPage, mBook)
+        mView.startReadingFromPage(startReadingPage, mBook)
     }
 
     override fun downloadBook() {
-        NHentaiApp.instance.let { nHentaiApp ->
-            if (!nHentaiApp.isStoragePermissionAccepted) {
-                mView.showRequestStoragePermission()
-                return@let
+        if (!fileUtils.isStoragePermissionAccepted()) {
+            mView.showRequestStoragePermission()
+            return
+        }
+
+        if (!mBookDownloader.isDownloading) {
+            val bookPages = LinkedList<String>()
+            for (pageId in 0 until mBook.bookImages.pages.size) {
+                val page = mBook.bookImages.pages[pageId]
+                bookPages.add(ApiConstants.getPictureUrl(
+                        mBook.mediaId,
+                        pageId + 1,
+                        page.imageType
+                ))
             }
+            bookPages.size.let { total ->
+                if (total > 0) {
+                    mBookDownloader.setDownloadCallback(this)
+                    mBookDownloader.startDownloading(mBook.bookId, total)
+                    io.launch {
+                        var progress = 0
+                        val resultList = LinkedList<String>()
+                        var currentPage = 0
+                        val resultFilePath = fileUtils.getImageDirectory(mBook.mediaId)
+                        while (currentPage < total) {
+                            val lastPage = if (currentPage + BATCH_COUNT <= total) {
+                                currentPage + BATCH_COUNT
+                            } else {
+                                total
+                            }
+                            suspendCoroutine<Boolean> { booleanContinuation ->
+                                val currentTotal = lastPage - currentPage
+                                val currentIndex = AtomicInteger(0)
+                                for (downloadPage in currentPage until lastPage) {
+                                    launch {
+                                        val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
+                                        try {
+                                            mBook.bookImages.pages[downloadPage].let { page ->
+                                                Logger.d(TAG, "Downloading page ${bookPages[downloadPage]}")
+                                                val result = SupportUtils.downloadImageBitmap(
+                                                        bookPages[downloadPage],
+                                                        false
+                                                )!!
 
-            if (!mBookDownloader.isDownloading) {
-                val bookPages = LinkedList<String>()
-                for (pageId in 0 until mBook.bookImages.pages.size) {
-                    val page = mBook.bookImages.pages[pageId]
-                    bookPages.add(ApiConstants.getPictureUrl(
-                            mBook.mediaId,
-                            pageId + 1,
-                            page.imageType
-                    ))
-                }
-                bookPages.size.let { total ->
-                    if (total > 0) {
-                        mBookDownloader.setDownloadCallback(this)
-                        mBookDownloader.startDownloading(mBook.bookId, total)
-                        io.launch {
-                            var progress = 0
-                            val resultList = LinkedList<String>()
-                            var currentPage = 0
-                            val resultFilePath = nHentaiApp.getImageDirectory(mBook.mediaId)
-                            while (currentPage < total) {
-                                val lastPage = if (currentPage + BATCH_COUNT <= total) {
-                                    currentPage + BATCH_COUNT
-                                } else {
-                                    total
-                                }
-                                suspendCoroutine<Boolean> { booleanContinuation ->
-                                    val currentTotal = lastPage - currentPage
-                                    val currentIndex = AtomicInteger(0)
-                                    for (downloadPage in currentPage until lastPage) {
-                                        launch {
-                                            val fileName = String.format(
-                                                    "%0${mPrefixNumber}d",
-                                                    downloadPage + 1
+                                                val resultPath = SupportUtils.saveImage(result, resultFilePath, fileName, page.imageType)
+                                                resultList.add(resultPath)
+                                                Logger.d(TAG, "Page $fileName is saved successfully")
+                                            }
+                                            progress++
+                                            mBookDownloader.updateProgress(
+                                                    mBook.bookId,
+                                                    progress
                                             )
-                                            try {
-                                                mBook.bookImages.pages[downloadPage].let { page ->
-                                                    Logger.d(TAG, "Downloading page ${bookPages[downloadPage]}")
-                                                    val result = SupportUtils.downloadImageBitmap(
-                                                            bookPages[downloadPage],
-                                                            false
-                                                    )!!
-
-                                                    val format = if (page.imageType == Constants.PNG_TYPE) {
-                                                        Bitmap.CompressFormat.PNG
-                                                    } else {
-                                                        Bitmap.CompressFormat.JPEG
-                                                    }
-                                                    val resultPath = SupportUtils.compressBitmap(
-                                                            result,
-                                                            resultFilePath,
-                                                            fileName,
-                                                            format
-                                                    )
-                                                    resultList.add(resultPath)
-                                                    Logger.d(TAG, "Page $fileName is saved successfully")
-                                                }
-                                                progress++
-                                                mBookDownloader.updateProgress(
-                                                        mBook.bookId,
-                                                        progress
-                                                )
-                                                if (currentIndex.incrementAndGet() >= currentTotal) {
-                                                    booleanContinuation.resume(true)
-                                                }
-                                            } catch (exception: Exception) {
-                                                Logger.d(TAG, "Downloading page $fileName failed with exception=$exception")
-                                                if (currentIndex.incrementAndGet() >= currentTotal) {
-                                                    booleanContinuation.resume(false)
-                                                }
+                                            if (currentIndex.incrementAndGet() >= currentTotal) {
+                                                booleanContinuation.resume(true)
+                                            }
+                                        } catch (exception: Exception) {
+                                            Logger.d(TAG, "Downloading page $fileName failed with exception=$exception")
+                                            if (currentIndex.incrementAndGet() >= currentTotal) {
+                                                booleanContinuation.resume(false)
                                             }
                                         }
                                     }
                                 }
-                                currentPage += BATCH_COUNT
                             }
-                            main.launch {
-                                nHentaiApp.refreshGallery(*resultList.toTypedArray())
-                                mBookDownloader.endDownloading(progress, total)
-                            }
+                            currentPage += BATCH_COUNT
+                        }
+                        main.launch {
+                            fileUtils.refreshGallery(*resultList.toTypedArray())
+                            mBookDownloader.endDownloading(progress, total)
+                        }
 
-                            delay(2000)
+                        delay(2000)
 
-                            main.launch {
-                                mView.showOpenFolderView()
-                            }
+                        main.launch {
+                            mView.showOpenFolderView()
                         }
                     }
                 }
+            }
+        } else {
+            if (mBookDownloader.bookId == mBook.bookId) {
+                mView.showThisBookBeingDownloaded()
             } else {
-                if (mBookDownloader.bookId == mBook.bookId) {
-                    mView.showThisBookBeingDownloaded()
-                } else {
-                    mView.showBookBeingDownloaded(mBookDownloader.bookId)
-                }
+                mView.showBookBeingDownloaded(mBookDownloader.bookId)
             }
         }
     }
@@ -386,27 +372,16 @@ class BookPreviewPresenter @Inject constructor(
     }
 
     private fun getReachableBookCover(): String {
-        val connectivityManager = mContext.getSystemService(Context.CONNECTIVITY_SERVICE)
-                as ConnectivityManager
-        val networkInfo = connectivityManager.activeNetworkInfo
         val mediaId = mBook.mediaId
         val coverUrl = ApiConstants.getBookCover(mediaId)
-        if (networkInfo != null && networkInfo.isConnected) {
+        if (networkUtils.isNetworkConnected()) {
             var isReachable = false
             val bookPages = mBook.bookImages.pages
             var currentPage = 0
-            var url = ApiConstants.getPictureUrl(
-                    mediaId,
-                    currentPage,
-                    bookPages[currentPage].imageType
-            )
+            var url = ApiConstants.getPictureUrl(mediaId, currentPage, bookPages[currentPage].imageType)
             while (!isReachable && currentPage < bookPages.size) {
                 isReachable = try {
-                    val urlServer = URL(url)
-                    val urlConn = urlServer.openConnection() as HttpURLConnection
-                    urlConn.connectTimeout = 3000
-                    urlConn.connect()
-                    urlConn.responseCode == 200
+                    networkUtils.isReachableUrl(url)
                 } catch (e: Exception) {
                     false
                 }
@@ -414,10 +389,7 @@ class BookPreviewPresenter @Inject constructor(
                     return url
                 }
                 currentPage++
-                url = ApiConstants.getPictureUrl(
-                        mediaId, currentPage,
-                        bookPages[currentPage].imageType
-                )
+                url = ApiConstants.getPictureUrl(mediaId, currentPage, bookPages[currentPage].imageType)
             }
         }
         return coverUrl

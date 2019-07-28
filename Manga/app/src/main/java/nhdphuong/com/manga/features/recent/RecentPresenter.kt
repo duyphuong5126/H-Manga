@@ -12,7 +12,9 @@ import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
-import java.util.*
+import java.util.LinkedList
+import java.util.Stack
+import java.util.Collections
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 

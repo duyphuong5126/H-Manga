@@ -248,6 +248,10 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         BookPreviewActivity.start(this, randomBook)
     }
 
+    override fun startUpdateTagsService() {
+        NHentaiApp.instance.startUpdateTagsService()
+    }
+
     fun changeSearchInputted(data: String) {
         mHomePresenter.updateSearchData(data)
     }

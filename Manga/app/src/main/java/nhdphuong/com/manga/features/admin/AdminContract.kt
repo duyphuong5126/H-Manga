@@ -18,6 +18,7 @@ interface AdminContract {
                 tags: Int = 0,
                 unknownsTypes: Int = 0
         )
+        fun restartApp()
     }
 
     interface Presenter : Base.Presenter {

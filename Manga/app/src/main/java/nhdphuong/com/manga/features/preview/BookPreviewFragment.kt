@@ -26,6 +26,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.databinding.FragmentBookPreviewBinding
+import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.InfoCardLayout
@@ -278,12 +279,12 @@ class BookPreviewFragment :
         mBinding.clParodies.visibility = View.GONE
     }
 
-    override fun showPageCount(pageCount: String) {
-        mBinding.tvPageCount.text = pageCount
+    override fun showPageCount(pageCount: Int) {
+        mBinding.tvPageCount.text = getString(R.string.page_count, pageCount.toString())
     }
 
     override fun showUploadedTime(uploadedTime: String) {
-        mBinding.tvUpdatedAt.text = uploadedTime
+        mBinding.tvUpdatedAt.text = getString(R.string.uploaded, uploadedTime)
     }
 
     override fun showBookThumbnailList(thumbnailList: List<String>) {
@@ -450,6 +451,12 @@ class BookPreviewFragment :
             }, onDismiss = {
 
             })
+        }
+    }
+
+    override fun startReadingFromPage(page: Int, book: Book) {
+        context?.run {
+            ReaderActivity.start(this, page, book)
         }
     }
 

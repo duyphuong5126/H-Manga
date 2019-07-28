@@ -6,10 +6,8 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
-import android.media.MediaScannerConnection
 import android.os.IBinder
 import nhdphuong.com.manga.service.TagsUpdateService
 import javax.inject.Inject
@@ -30,8 +28,7 @@ class NHentaiApp : Application() {
 
     private lateinit var mApplicationComponent: ApplicationComponent
 
-    val applicationComponent
-        get() = mApplicationComponent
+    val applicationComponent get() = mApplicationComponent
 
     private val isExternalStorageWritable: Boolean
         get() = Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
@@ -58,17 +55,6 @@ class NHentaiApp : Application() {
 
     fun getImageDirectory(mediaId: String): String = "$imagesDirectory/$mediaId"
     fun getTagDirectory(): String = "$tagsDirectory/${Constants.TAGS.toLowerCase()}"
-
-    val isStoragePermissionAccepted: Boolean
-        get() {
-            return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-                checkSelfPermission(
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED
-            } else {
-                true
-            }
-        }
 
     /**
      * Debug mode only
@@ -118,18 +104,6 @@ class NHentaiApp : Application() {
 
     fun resumeUpdateTagsService() {
         mUpdateTagsService?.resumeTask()
-    }
-
-    fun refreshGallery(vararg galleryPaths: String) {
-        MediaScannerConnection.scanFile(this, galleryPaths, null) { _, _ ->
-            galleryPaths.size.let { pathCount ->
-                if (pathCount > 1) {
-                    Logger.d(TAG, "$pathCount paths of galleries are refreshed")
-                } else {
-                    Logger.d(TAG, "$pathCount path of gallery is refreshed")
-                }
-            }
-        }
     }
 
     fun restartApp() {

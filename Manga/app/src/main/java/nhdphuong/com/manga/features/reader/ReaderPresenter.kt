@@ -1,23 +1,18 @@
 package nhdphuong.com.manga.features.reader
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.os.Handler
-import android.support.annotation.MainThread
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
-import nhdphuong.com.manga.NHentaiApp
-import nhdphuong.com.manga.R
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
+import nhdphuong.com.manga.supports.IFileUtils
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SupportUtils
-import java.util.*
+import java.util.LinkedList
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 import kotlin.collections.HashSet
@@ -29,8 +24,8 @@ class ReaderPresenter @Inject constructor(
         private val mView: ReaderContract.View,
         private val mBook: Book,
         private val mStartReadingPage: Int,
-        private val mContext: Context,
         private val mBookRepository: BookRepository,
+        private val fileUtils: IFileUtils,
         @IO private val io: CoroutineScope,
         @Main private val main: CoroutineScope
 ) : ReaderContract.Presenter {
@@ -79,9 +74,7 @@ class ReaderPresenter @Inject constructor(
         if (!mBookPages.isEmpty()) {
             mCurrentPage = 0
             mView.showBookPages(mBookPages)
-            mView.showPageIndicator(
-                    String.format(mContext.getString(R.string.bottom_reader), mCurrentPage + 1, mBookPages.size)
-            )
+            mView.showPageIndicator(mCurrentPage + 1, mBookPages.size)
         }
         if (mStartReadingPage >= 0) {
             mView.jumpToPage(mStartReadingPage)
@@ -100,12 +93,11 @@ class ReaderPresenter @Inject constructor(
         Logger.d(TAG, "Current page: $page")
         mCurrentPage = page
         mBookPages.size.let { pageCount ->
-            val pageString = if (page == pageCount - 1) {
-                mContext.getString(R.string.back_to_gallery)
+            if (page == pageCount - 1) {
+                mView.showBackToGallery()
             } else {
-                String.format(mContext.getString(R.string.bottom_reader), page + 1, pageCount)
+                mView.showPageIndicator(page + 1, pageCount)
             }
-            mView.showPageIndicator(pageString)
         }
 
         preloadPagesAround(page)
@@ -118,63 +110,43 @@ class ReaderPresenter @Inject constructor(
     }
 
     override fun downloadCurrentPage() {
-        NHentaiApp.instance.let { nHentaiApp ->
-            if (!nHentaiApp.isStoragePermissionAccepted) {
-                mView.showRequestStoragePermission()
-                return@let
-            }
-            mDownloadQueue.add(mCurrentPage)
-            if (!isDownloading) {
-                isDownloading = true
-                mView.showLoading()
-                io.launch {
-                    val resultList = LinkedList<String>()
-                    while (!mDownloadQueue.isEmpty()) {
-                        val downloadPage = mDownloadQueue.take()
-                        mBook.bookImages.pages[downloadPage].let { page ->
-                            val result = ImageUtils.downloadImage(
-                                    mContext,
-                                    mBookPages[downloadPage],
-                                    page.width,
-                                    page.height
-                            )
+        if (!fileUtils.isStoragePermissionAccepted()) {
+            mView.showRequestStoragePermission()
+            return
+        }
 
-                            val resultFilePath = nHentaiApp.getImageDirectory(mBook.mediaId)
+        mDownloadQueue.add(mCurrentPage)
+        if (!isDownloading) {
+            isDownloading = true
+            mView.showLoading()
+            io.launch {
+                val resultList = LinkedList<String>()
+                while (!mDownloadQueue.isEmpty()) {
+                    val downloadPage = mDownloadQueue.take()
+                    mBook.bookImages.pages[downloadPage].let { page ->
+                        val result = ImageUtils.downloadImage(mBookPages[downloadPage], page.width, page.height)
 
-                            val format = if (page.imageType == Constants.PNG_TYPE) {
-                                Bitmap.CompressFormat.PNG
-                            } else {
-                                Bitmap.CompressFormat.JPEG
-                            }
-                            val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
-                            val resultPath = SupportUtils.compressBitmap(
-                                    result,
-                                    resultFilePath,
-                                    fileName,
-                                    format
-                            )
-                            resultList.add(resultPath)
-                            Logger.d(TAG, "$fileName is saved successfully")
-                        }
-                        main.launch {
-                            mView.updateDownloadPopupTitle(
-                                    String.format(mContext.getString(R.string.download_progress), downloadPage + 1)
-                            )
-                            mView.showDownloadPopup()
-                        }
-                        Logger.d(TAG, "Download page ${downloadPage + 1} completed")
+                        val resultFilePath = fileUtils.getImageDirectory(mBook.mediaId)
+
+                        val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
+                        val resultPath = SupportUtils.saveImage(result, resultFilePath, fileName, page.imageType)
+                        resultList.add(resultPath)
+                        Logger.d(TAG, "$fileName is saved successfully")
                     }
-                    nHentaiApp.refreshGallery(*resultList.toTypedArray())
-                    isDownloading = false
                     main.launch {
-                        mView.hideLoading()
-                        val handler = Handler()
-                        handler.postDelayed({
-                            mView.hideDownloadPopup()
-                        }, 3000)
+                        mView.updateDownloadPopupTitle(downloadPage + 1)
+                        mView.showDownloadPopup()
                     }
-                    Logger.d(TAG, "All pages downloaded")
+                    Logger.d(TAG, "Download page ${downloadPage + 1} completed")
                 }
+                fileUtils.refreshGallery(*resultList.toTypedArray())
+                isDownloading = false
+                main.launch {
+                    mView.hideLoading()
+                    delay(3000)
+                    mView.hideDownloadPopup()
+                }
+                Logger.d(TAG, "All pages downloaded")
             }
         }
     }
@@ -207,7 +179,6 @@ class ReaderPresenter @Inject constructor(
         }
     }
 
-    @MainThread
     private fun preloadPagesAround(page: Int) {
         val startPrefetch = Math.max(0, page - PREFETCH_RADIUS)
         val endPrefetch = Math.min(mBookPages.size - 1, page + PREFETCH_RADIUS)
@@ -216,7 +187,7 @@ class ReaderPresenter @Inject constructor(
             if (!mPreFetchedPages.contains(i)) {
                 Logger.d(TAG, "Pre-load page $i")
                 mBook.bookImages.pages[i].run {
-                    ImageUtils.downloadImage(mContext, mBookPages[i]) { bitmap ->
+                    ImageUtils.downloadImage(mBookPages[i]) { bitmap ->
                         Logger.d(TAG, "Pre-fetched bitmap $i will be recycled")
                         bitmap?.recycle()
                         mPreFetchedPages.add(i)

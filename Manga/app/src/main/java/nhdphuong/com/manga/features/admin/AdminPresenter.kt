@@ -5,19 +5,22 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
-import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
+import nhdphuong.com.manga.supports.IFileUtils
 import nhdphuong.com.manga.supports.SupportUtils
-import java.util.*
+import java.util.TreeMap
+import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 class AdminPresenter @Inject constructor(
         private val mView: AdminContract.View,
         private val mBookRepository: BookRepository,
+        private val fileUtils: IFileUtils,
         private val mSharedPreferencesManager: SharedPreferencesManager,
         @IO private val io: CoroutineScope
 ) : AdminContract.Presenter {
@@ -54,7 +57,7 @@ class AdminPresenter @Inject constructor(
     }
 
     override fun startDownloading() {
-        if (NHentaiApp.instance.isStoragePermissionAccepted) {
+        if (fileUtils.isStoragePermissionAccepted()) {
             downloadPage(mCurrentPage)
         } else {
             mView.showRequestStoragePermission()
@@ -63,7 +66,7 @@ class AdminPresenter @Inject constructor(
 
     override fun toggleCensored(censored: Boolean) {
         mSharedPreferencesManager.isCensored = censored
-        NHentaiApp.instance.restartApp()
+        mView.restartApp()
     }
 
     private fun downloadPage(page: Long) {
@@ -191,7 +194,7 @@ class AdminPresenter @Inject constructor(
             for (entry in tagsMap.entries) {
                 jsonArray.add(entry.value.jsonValue)
             }
-            val saveResult = SupportUtils.saveStringFile(jsonArray.toString(), tagName, NHentaiApp.instance.getTagDirectory())
+            val saveResult = SupportUtils.saveStringFile(jsonArray.toString(), tagName, fileUtils.getTagDirectory())
             Logger.d(TAG, "$tagName list saving result=$saveResult")
         }
     }
@@ -201,7 +204,7 @@ class AdminPresenter @Inject constructor(
             val saveResult = SupportUtils.saveStringFile(
                     System.currentTimeMillis().toString(),
                     "CurrentVersion",
-                    NHentaiApp.instance.getTagDirectory()
+                    fileUtils.getTagDirectory()
             )
             Logger.d(TAG, "Current id saving result=$saveResult")
         }
@@ -235,7 +238,7 @@ class AdminPresenter @Inject constructor(
             val saveResult = SupportUtils.saveStringFile(
                     stringBuffer.toString(),
                     "ChangeLogs",
-                    NHentaiApp.instance.getTagDirectory()
+                    fileUtils.getTagDirectory()
             )
             Logger.d(TAG, "NHentai.txt list saving result=$saveResult")
             mSharedPreferencesManager.lastCategoriesCount = mCategories.size

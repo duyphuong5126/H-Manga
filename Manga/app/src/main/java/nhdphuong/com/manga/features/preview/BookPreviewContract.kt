@@ -26,7 +26,7 @@ interface BookPreviewContract {
         fun hideCharacterList()
         fun hideGroupList()
         fun hideParodyList()
-        fun showPageCount(pageCount: String)
+        fun showPageCount(pageCount: Int)
         fun showUploadedTime(uploadedTime: String)
         fun showBookThumbnailList(thumbnailList: List<String>)
         fun updateBookThumbnailList()
@@ -43,6 +43,7 @@ interface BookPreviewContract {
         fun showRecentBooks(recentList: List<Int>)
         fun showFavoriteBooks(favoriteList: List<Int>)
         fun showOpenFolderView()
+        fun startReadingFromPage(page: Int, book: Book)
     }
 
     interface Presenter : Base.Presenter {

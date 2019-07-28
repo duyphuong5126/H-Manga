@@ -122,6 +122,10 @@ class AdminFragment : Fragment(), AdminContract.View {
         })
     }
 
+    override fun restartApp() {
+        NHentaiApp.instance.restartApp()
+    }
+
     override fun showLoading() {
 
     }
