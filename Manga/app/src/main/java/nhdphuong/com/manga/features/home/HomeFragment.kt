@@ -10,7 +10,6 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.res.Configuration
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -21,13 +20,27 @@ import android.support.v7.widget.StaggeredGridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.fragment_book_list.btnFirst
+import kotlinx.android.synthetic.main.fragment_book_list.btnLast
+import kotlinx.android.synthetic.main.fragment_book_list.clNavigation
+import kotlinx.android.synthetic.main.fragment_book_list.clNothing
+import kotlinx.android.synthetic.main.fragment_book_list.mtvReload
+import kotlinx.android.synthetic.main.fragment_book_list.mtv_search_result
+import kotlinx.android.synthetic.main.fragment_book_list.nsvMainList
+import kotlinx.android.synthetic.main.fragment_book_list.refreshHeader
+import kotlinx.android.synthetic.main.fragment_book_list.rvMainList
+import kotlinx.android.synthetic.main.fragment_book_list.rvPagination
+import kotlinx.android.synthetic.main.fragment_book_list.srlPullToReload
+import kotlinx.android.synthetic.main.layout_refresh_header.view.ivRefresh
+import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvLastUpdate
+import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvRefresh
+import kotlinx.android.synthetic.main.layout_refresh_header.view.pbRefresh
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.data.entity.book.Book
-import nhdphuong.com.manga.databinding.FragmentBookListBinding
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
@@ -43,7 +56,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         private const val LANDSCAPE_GRID_COLUMNS = 3
     }
 
-    private lateinit var mBinding: FragmentBookListBinding
     private lateinit var mHomeListAdapter: BookAdapter
     private lateinit var mHomePaginationAdapter: PaginationAdapter
     private lateinit var mHomePresenter: HomeContract.Presenter
@@ -63,32 +75,31 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             savedInstanceState: Bundle?
     ): View? {
         Logger.d(TAG, "onCreateView")
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_book_list, container, false)
-        return mBinding.root
+        return inflater.inflate(R.layout.fragment_book_list, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Logger.d(TAG, "onViewCreated")
 
-        mBinding.nsvMainList.overScrollMode = View.OVER_SCROLL_NEVER
-        mBinding.btnFirst.setOnClickListener {
+        nsvMainList.overScrollMode = View.OVER_SCROLL_NEVER
+        btnFirst.setOnClickListener {
             mHomePresenter.jumToFirstPage()
             mHomePaginationAdapter.selectFirstPage()
             jumpTo(0)
         }
-        mBinding.btnLast.setOnClickListener {
+        btnLast.setOnClickListener {
             mHomePresenter.jumToLastPage()
             mHomePaginationAdapter.selectLastPage()
             jumpTo(mHomePaginationAdapter.itemCount - 1)
         }
         mLoadingDialog = DialogHelper.showLoadingDialog(activity!!)
-        mBinding.srlPullToReload.addPtrUIHandler(this)
-        mBinding.srlPullToReload.setPtrHandler(object : PtrHandler {
+        srlPullToReload.addPtrUIHandler(this)
+        srlPullToReload.setPtrHandler(object : PtrHandler {
             override fun onRefreshBegin(frame: PtrFrameLayout?) {
                 mHomePresenter.reloadCurrentPage {
                     frame?.postDelayed({
-                        mBinding.srlPullToReload.refreshComplete()
+                        srlPullToReload.refreshComplete()
                     }, 1000)
                 }
             }
@@ -101,7 +112,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                 return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header)
             }
         })
-        mBinding.mtvReload.setOnClickListener {
+        mtvReload.setOnClickListener {
             mHomePresenter.reloadCurrentPage {
 
             }
@@ -134,7 +145,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             }
         }
         mainListLayoutManager.gapStrategy = StaggeredGridLayoutManager.HORIZONTAL
-        mBinding.rvMainList.layoutManager = mainListLayoutManager
+        rvMainList.layoutManager = mainListLayoutManager
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -159,7 +170,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                         BookPreviewActivity.start(homeFragment, item)
                     }
                 })
-        val mainList: RecyclerView = mBinding.rvMainList
+        val mainList: RecyclerView = rvMainList
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
         val mainListLayoutManager = object : StaggeredGridLayoutManager(
                 if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS,
@@ -177,17 +188,17 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun refreshHomeBookList() {
         mHomeListAdapter.notifyDataSetChanged()
         mHomePresenter.saveLastBookListRefreshTime()
-        mBinding.rvMainList.post {
-            mBinding.rvMainList.smoothScrollBy(0, 0)
+        rvMainList.post {
+            rvMainList.smoothScrollBy(0, 0)
         }
         mHomePresenter.reloadRecentBooks()
     }
 
     override fun refreshHomePagination(pageCount: Long) {
-        val mainPagination = mBinding.rvPagination
+        val mainPagination = rvPagination
         if (pageCount == 0L) {
-            mBinding.btnFirst.visibility = View.GONE
-            mBinding.btnLast.visibility = View.GONE
+            btnFirst.visibility = View.GONE
+            btnLast.visibility = View.GONE
             mainPagination.visibility = View.GONE
             return
         }
@@ -208,22 +219,22 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         mainPagination.adapter = mHomePaginationAdapter
         mainPagination.viewTreeObserver.addOnGlobalLayoutListener {
             if (mHomePaginationAdapter.maxVisible >= pageCount - 1) {
-                mBinding.btnFirst.visibility = View.GONE
-                mBinding.btnLast.visibility = View.GONE
+                btnFirst.visibility = View.GONE
+                btnLast.visibility = View.GONE
             } else {
-                mBinding.btnFirst.visibility = View.VISIBLE
-                mBinding.btnLast.visibility = View.VISIBLE
+                btnFirst.visibility = View.VISIBLE
+                btnLast.visibility = View.VISIBLE
             }
         }
     }
 
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {
         val lastRefresh = String.format(getString(R.string.last_update), lastRefreshTimeStamp)
-        mBinding.refreshHeader.mtvLastUpdate.text = lastRefresh
+        refreshHeader.mtvLastUpdate.text = lastRefresh
     }
 
     override fun showNothingView(isEmpty: Boolean) {
-        mBinding.clNothing.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        clNothing.visibility = if (isEmpty) View.VISIBLE else View.GONE
     }
 
     override fun showRefreshingDialog() {
@@ -263,14 +274,14 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun showLoading() {
         if (isAdded) {
             mLoadingDialog.show()
-            mBinding.clNavigation.visibility = View.GONE
+            clNavigation.visibility = View.GONE
         }
     }
 
     override fun hideLoading() {
         if (isAdded) {
             mLoadingDialog.dismiss()
-            mBinding.clNavigation.visibility = View.VISIBLE
+            clNavigation.visibility = View.VISIBLE
         }
     }
 
@@ -279,12 +290,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshComplete")
         endUpdateDotsTask()
-        mBinding.refreshHeader.mtvRefresh.text = getString(R.string.updated)
+        refreshHeader.mtvRefresh.text = getString(R.string.updated)
         mHomePresenter.saveLastBookListRefreshTime()
         mHomePresenter.reloadLastBookListRefreshTime()
-        mBinding.refreshHeader.ivRefresh.rotation = 0F
-        mBinding.refreshHeader.ivRefresh.visibility = View.VISIBLE
-        mBinding.refreshHeader.pbRefresh.visibility = View.GONE
+        refreshHeader.ivRefresh.rotation = 0F
+        refreshHeader.ivRefresh.visibility = View.VISIBLE
+        refreshHeader.pbRefresh.visibility = View.GONE
         mUpdateDotsHandler.removeCallbacksAndMessages(null)
     }
 
@@ -298,16 +309,16 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                 "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
                 "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}")
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
-            mBinding.refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
-            mBinding.refreshHeader.ivRefresh.rotation = 180F
+            refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
+            refreshHeader.ivRefresh.rotation = 180F
         }
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshBegin")
-        mBinding.refreshHeader.ivRefresh.visibility = View.GONE
-        mBinding.refreshHeader.pbRefresh.visibility = View.VISIBLE
-        mBinding.refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
+        refreshHeader.ivRefresh.visibility = View.GONE
+        refreshHeader.pbRefresh.visibility = View.VISIBLE
+        refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
         runUpdateDotsTask()
 
     }
@@ -319,13 +330,13 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     override fun onUIReset(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIReset")
-        mBinding.refreshHeader.mtvRefresh.text = getString(R.string.pull_down)
+        refreshHeader.mtvRefresh.text = getString(R.string.pull_down)
     }
 
     private fun jumpTo(pageNumber: Int) {
         val handler = Handler(Looper.getMainLooper())
         handler.post {
-            mBinding.rvPagination.scrollToPosition(pageNumber)
+            rvPagination.scrollToPosition(pageNumber)
         }
     }
 
@@ -337,7 +348,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
             Logger.d(TAG, "Current pos: $currentPos")
-            mBinding.refreshHeader.mtvRefresh.text =
+            refreshHeader.mtvRefresh.text =
                     String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }
@@ -357,7 +368,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     }
 
     private fun toggleSearchResult(data: String) {
-        mBinding.mtvSearchResult.run {
+        mtv_search_result.run {
             text = String.format(mSearchResultTitle, data)
             visibility = if (data.isBlank()) View.GONE else View.VISIBLE
         }

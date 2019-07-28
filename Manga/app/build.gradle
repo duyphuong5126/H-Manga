@@ -71,8 +71,6 @@ dependencies {
     annotationProcessor "android.arch.persistence.room:compiler:$room"
     kapt "android.arch.persistence.room:compiler:$room"
 
-    kapt "androidx.databinding:databinding-compiler:3.4.0"
-
     implementation "com.google.dagger:dagger:$dagger"
     kapt "com.google.dagger:dagger-compiler:$dagger"
     kapt "com.google.dagger:dagger-android-processor:$dagger"

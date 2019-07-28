@@ -1,6 +1,5 @@
 package nhdphuong.com.manga.features.tags
 
-import android.databinding.DataBindingUtil
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -9,6 +8,20 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.fragment_tags.btn_first
+import kotlinx.android.synthetic.main.fragment_tags.btn_first_page
+import kotlinx.android.synthetic.main.fragment_tags.btn_last
+import kotlinx.android.synthetic.main.fragment_tags.btn_last_page
+import kotlinx.android.synthetic.main.fragment_tags.cl_alphabet_navigation
+import kotlinx.android.synthetic.main.fragment_tags.ib_back
+import kotlinx.android.synthetic.main.fragment_tags.mb_alphabet
+import kotlinx.android.synthetic.main.fragment_tags.mb_popularity
+import kotlinx.android.synthetic.main.fragment_tags.mtv_count
+import kotlinx.android.synthetic.main.fragment_tags.mtv_title
+import kotlinx.android.synthetic.main.fragment_tags.nsv_container
+import kotlinx.android.synthetic.main.fragment_tags.rv_alphabet_pagination
+import kotlinx.android.synthetic.main.fragment_tags.rv_pagination
+import kotlinx.android.synthetic.main.fragment_tags.rv_tags_list
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -16,7 +29,6 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tag
 import nhdphuong.com.manga.data.TagFilter
 import nhdphuong.com.manga.data.entity.book.tags.ITag
-import nhdphuong.com.manga.databinding.FragmentTagsBinding
 import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
@@ -32,7 +44,6 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     }
 
     private lateinit var mPresenter: TagsContract.Presenter
-    private lateinit var mBinding: FragmentTagsBinding
 
     private val mCharacterCount = Constants.TAG_PREFIXES.length
     private val mTagCountString = NHentaiApp.instance.getString(R.string.tags_count)
@@ -51,13 +62,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        mBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.fragment_tags,
-                container,
-                false
-        )
-        return mBinding.root
+        return inflater.inflate(R.layout.fragment_tags, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -74,54 +79,52 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
                         mPresenter.filterByCharacter(character)
                     }
                 }
-        mBinding.run {
-            rvAlphabetPagination.run {
-                adapter = mCharacterAdapter
-                visibility = View.VISIBLE
-                layoutManager = LinearLayoutManager(
-                        activity,
-                        LinearLayoutManager.HORIZONTAL,
-                        false
-                )
-                adapter = mCharacterAdapter
+        rv_alphabet_pagination.run {
+            adapter = mCharacterAdapter
+            visibility = View.VISIBLE
+            layoutManager = LinearLayoutManager(
+                    activity,
+                    LinearLayoutManager.HORIZONTAL,
+                    false
+            )
+            adapter = mCharacterAdapter
+        }
+        mb_alphabet.setOnClickListener {
+            changeTagFilterType(TagFilter.ALPHABET)
+            toggleTabButton(true, mb_alphabet)
+            toggleTabButton(false, mb_popularity)
+        }
+        mb_popularity.setOnClickListener {
+            changeTagFilterType(TagFilter.POPULARITY)
+            toggleTabButton(false, mb_alphabet)
+            toggleTabButton(true, mb_popularity)
+        }
+        btn_first.setOnClickListener {
+            mCharacterAdapter.jumpToFirst()
+            if (mCharacterAdapter.itemCount > 0) {
+                rv_alphabet_pagination.scrollToPosition(0)
             }
-            mbAlphabet.setOnClickListener {
-                changeTagFilterType(TagFilter.ALPHABET)
-                toggleTabButton(true, mbAlphabet)
-                toggleTabButton(false, mbPopularity)
+        }
+        btn_last.setOnClickListener {
+            mCharacterAdapter.jumpToLast()
+            if (mCharacterAdapter.itemCount > 0) {
+                rv_alphabet_pagination.scrollToPosition(mCharacterAdapter.itemCount - 1)
             }
-            mbPopularity.setOnClickListener {
-                changeTagFilterType(TagFilter.POPULARITY)
-                toggleTabButton(false, mbAlphabet)
-                toggleTabButton(true, mbPopularity)
+        }
+        btn_first_page.setOnClickListener {
+            mNumberAdapter.jumpToFirst()
+            if (mNumberAdapter.itemCount > 0) {
+                rv_pagination.scrollToPosition(0)
             }
-            btnFirst.setOnClickListener {
-                mCharacterAdapter.jumpToFirst()
-                if (mCharacterAdapter.itemCount > 0) {
-                    rvAlphabetPagination.scrollToPosition(0)
-                }
+        }
+        btn_last_page.setOnClickListener {
+            mNumberAdapter.jumpToLast()
+            if (mNumberAdapter.itemCount > 0) {
+                rv_pagination.scrollToPosition(mNumberAdapter.itemCount - 1)
             }
-            btnLast.setOnClickListener {
-                mCharacterAdapter.jumpToLast()
-                if (mCharacterAdapter.itemCount > 0) {
-                    rvAlphabetPagination.scrollToPosition(mCharacterAdapter.itemCount - 1)
-                }
-            }
-            btnFirstPage.setOnClickListener {
-                mNumberAdapter.jumpToFirst()
-                if (mNumberAdapter.itemCount > 0) {
-                    rvPagination.scrollToPosition(0)
-                }
-            }
-            btnLastPage.setOnClickListener {
-                mNumberAdapter.jumpToLast()
-                if (mNumberAdapter.itemCount > 0) {
-                    rvPagination.scrollToPosition(mNumberAdapter.itemCount - 1)
-                }
-            }
-            ibBack.setOnClickListener {
-                activity?.onBackPressed()
-            }
+        }
+        ib_back.setOnClickListener {
+            activity?.onBackPressed()
         }
     }
 
@@ -139,36 +142,34 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     }
 
     override fun updateTag(tagType: String, tagCount: Int) {
-        mBinding.mtvTitle.text = tagType
-        mBinding.mtvCount.text = String.format(
+        mtv_title.text = tagType
+        mtv_count.text = String.format(
                 mTagCountString,
                 SupportUtils.formatBigNumber(tagCount.toLong())
         )
     }
 
     override fun refreshPages(pagesCount: Int) {
-        mBinding.run {
-            if (pagesCount == 0) {
-                btnFirstPage.visibility = View.GONE
-                btnLastPage.visibility = View.GONE
-                rvPagination.visibility = View.GONE
-                return
-            }
-            mNumberAdapter = PaginationAdapter(context!!, pagesCount)
-            mNumberAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
-                override fun onPageSelected(page: Int) {
-                    Logger.d(TAG, "Page $page is selected")
-                    mPresenter.jumpToPage(page)
-                }
-            }
-            rvPagination.visibility = View.VISIBLE
-            rvPagination.layoutManager = LinearLayoutManager(
-                    activity,
-                    LinearLayoutManager.HORIZONTAL,
-                    false
-            )
-            rvPagination.adapter = mNumberAdapter
+        if (pagesCount == 0) {
+            btn_first_page.visibility = View.GONE
+            btn_last_page.visibility = View.GONE
+            rv_pagination.visibility = View.GONE
+            return
         }
+        mNumberAdapter = PaginationAdapter(context!!, pagesCount)
+        mNumberAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
+            override fun onPageSelected(page: Int) {
+                Logger.d(TAG, "Page $page is selected")
+                mPresenter.jumpToPage(page)
+            }
+        }
+        rv_pagination.visibility = View.VISIBLE
+        rv_pagination.layoutManager = LinearLayoutManager(
+                activity,
+                LinearLayoutManager.HORIZONTAL,
+                false
+        )
+        rv_pagination.adapter = mNumberAdapter
     }
 
     override fun setUpTagsList(source: ArrayList<ITag>, tags: List<ITag>) {
@@ -179,7 +180,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
                     mSearchContract?.onSearchInputted(iTag.name())
                 }
             })
-            mBinding.rvTagsList.apply {
+            rv_tags_list.apply {
                 val linearLayoutManager = object : LinearLayoutManager(context) {
                     override fun isAutoMeasureEnabled(): Boolean {
                         return true
@@ -197,7 +198,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     override fun refreshTagsList(tags: List<ITag>) {
         mTagItemAdapter.submitList(tags)
         if (mTagItemAdapter.itemCount > 0) {
-            mBinding.nsvContainer.scrollTo(0, 0)
+            nsv_container.scrollTo(0, 0)
         }
         toggleTagList(tags.isEmpty())
     }
@@ -214,12 +215,10 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
 
     private fun changeTagFilterType(tagFilter: TagFilter) {
         mPresenter.changeTagFilterType(tagFilter)
-        mBinding.run {
-            clAlphabetNavigation.visibility = if (tagFilter == TagFilter.ALPHABET) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+        cl_alphabet_navigation.visibility = if (tagFilter == TagFilter.ALPHABET) {
+            View.VISIBLE
+        } else {
+            View.GONE
         }
     }
 
@@ -236,6 +235,6 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     }
 
     private fun toggleTagList(isEmpty: Boolean) {
-        mBinding.rvPagination.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        rv_pagination.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 }

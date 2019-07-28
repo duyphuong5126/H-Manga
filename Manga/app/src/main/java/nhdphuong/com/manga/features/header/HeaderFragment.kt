@@ -3,7 +3,6 @@ package nhdphuong.com.manga.features.header
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -15,10 +14,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import kotlinx.android.synthetic.main.fragment_header.edtSearch
+import kotlinx.android.synthetic.main.fragment_header.ibHamburger
+import kotlinx.android.synthetic.main.fragment_header.ibSearch
+import kotlinx.android.synthetic.main.fragment_header.ib_clear_search
+import kotlinx.android.synthetic.main.fragment_header.ivMainLogo
+import kotlinx.android.synthetic.main.fragment_header.rvMainTabs
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
-import nhdphuong.com.manga.databinding.FragmentHeaderBinding
 import nhdphuong.com.manga.features.RandomContract
 import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.features.admin.AdminActivity
@@ -38,7 +42,6 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     }
 
     private lateinit var mPresenter: HeaderContract.Presenter
-    private lateinit var mBinding: FragmentHeaderBinding
     private lateinit var mTabAdapter: TabAdapter
     private var mTagChangeListener: TagsContract? = null
     private var mSearchContract: SearchContract? = null
@@ -53,9 +56,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        mBinding = DataBindingUtil
-                .inflate(inflater, R.layout.fragment_header, container, false)
-        return mBinding.root
+        return inflater.inflate(R.layout.fragment_header, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -107,7 +108,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
             }
         })
 
-        val tabSelector: RecyclerView = mBinding.rvMainTabs
+        val tabSelector: RecyclerView = rvMainTabs
         tabSelector.adapter = mTabAdapter
         tabSelector.addItemDecoration(
                 SpaceItemDecoration(context, R.dimen.dp20, true, showLastDivider = true)
@@ -118,55 +119,53 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                 false
         )
 
-        mBinding.run {
-            ivMainLogo.setOnClickListener {
-                edtSearch.setText("")
-                mSearchContract?.onSearchInputted("")
-            }
+        ivMainLogo.setOnClickListener {
+            edtSearch.setText("")
+            mSearchContract?.onSearchInputted("")
+        }
 
-            ibHamburger.setOnClickListener {
-                toggleTagsLayout()
-            }
+        ibHamburger.setOnClickListener {
+            toggleTagsLayout()
+        }
 
-            ibSearch.setOnClickListener {
-                mSearchContract?.onSearchInputted(edtSearch.text.toString())
-            }
+        ibSearch.setOnClickListener {
+            mSearchContract?.onSearchInputted(edtSearch.text.toString())
+        }
 
-            edtSearch.setOnEditorActionListener { _, actionId, _ ->
-                when (actionId and EditorInfo.IME_MASK_ACTION) {
-                    EditorInfo.IME_ACTION_DONE -> {
-                        mSearchContract?.onSearchInputted(edtSearch.text.toString())
-                    }
+        edtSearch.setOnEditorActionListener { _, actionId, _ ->
+            when (actionId and EditorInfo.IME_MASK_ACTION) {
+                EditorInfo.IME_ACTION_DONE -> {
+                    mSearchContract?.onSearchInputted(edtSearch.text.toString())
                 }
-                false
             }
-            edtSearch.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                    ibClearSearch.visibility = if (s?.isNotBlank() == true) {
-                        View.VISIBLE
-                    } else {
-                        View.GONE
-                    }
+            false
+        }
+        edtSearch.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                ib_clear_search.visibility = if (s?.isNotBlank() == true) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
                 }
-
-                override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
-                ) {
-
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                }
-
-            })
-
-            ibClearSearch.setOnClickListener {
-                edtSearch.setText("")
             }
+
+            override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+            ) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+        })
+
+        ib_clear_search.setOnClickListener {
+            edtSearch.setText("")
         }
     }
 
@@ -179,7 +178,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                 data.remove(Constants.TAG_TYPE)
                 val tab = Tab.fromString(tabName)
                 mTabAdapter.updateTab(tab)
-                mBinding.rvMainTabs.scrollToPosition(tab.ordinal)
+                rvMainTabs.scrollToPosition(tab.ordinal)
             }
         }
     }
@@ -190,7 +189,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         if (resultCode == Activity.RESULT_OK && requestCode == TAG_REQUEST_CODE) {
             val searchData = data?.getStringExtra(Constants.TAG_RESULT) ?: ""
             mSearchContract?.onSearchInputted(searchData)
-            mBinding.edtSearch.setText(searchData)
+            edtSearch.setText(searchData)
         }
     }
 
@@ -207,7 +206,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     }
 
     override fun updateSearchBar(searchContent: String) {
-        mBinding.edtSearch.setText(searchContent)
+        edtSearch.setText(searchContent)
     }
 
     override fun showTagsDownloadingPopup() {
@@ -241,7 +240,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     }
 
     private fun toggleTagsLayout() {
-        mBinding.rvMainTabs.let { tabSelector ->
+        rvMainTabs.let { tabSelector ->
             val isTabHidden = tabSelector.visibility == View.GONE
             tabSelector.visibility = if (!isTabHidden) View.GONE else View.VISIBLE
         }

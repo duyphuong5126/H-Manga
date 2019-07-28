@@ -1,17 +1,27 @@
 package nhdphuong.com.manga.features.admin
 
 import android.content.pm.PackageManager
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import kotlinx.android.synthetic.main.fragment_admin.mbt_start_downloading
+import kotlinx.android.synthetic.main.fragment_admin.mtv_artists_count
+import kotlinx.android.synthetic.main.fragment_admin.mtv_categories_count
+import kotlinx.android.synthetic.main.fragment_admin.mtv_characters_count
+import kotlinx.android.synthetic.main.fragment_admin.mtv_groups_count
+import kotlinx.android.synthetic.main.fragment_admin.mtv_languages_count
+import kotlinx.android.synthetic.main.fragment_admin.mtv_pages_count
+import kotlinx.android.synthetic.main.fragment_admin.mtv_pages_downloaded
+import kotlinx.android.synthetic.main.fragment_admin.mtv_parodies_count
+import kotlinx.android.synthetic.main.fragment_admin.mtv_tags_count
+import kotlinx.android.synthetic.main.fragment_admin.mtv_unknown_tags_count
+import kotlinx.android.synthetic.main.fragment_admin.sp_censored
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
-import nhdphuong.com.manga.databinding.FragmentAdminBinding
 import nhdphuong.com.manga.views.DialogHelper
 
 class AdminFragment : Fragment(), AdminContract.View {
@@ -21,43 +31,34 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     private lateinit var mPresenter: AdminContract.Presenter
-    private lateinit var mBinding: FragmentAdminBinding
 
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        mBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.fragment_admin,
-                container,
-                false
-        )
-        return mBinding.root
+        return inflater.inflate(R.layout.fragment_admin, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mBinding.run {
-            mtvPagesCount.text = ""
-            mbtStartDownloading.setOnClickListener {
-                mPresenter.startDownloading()
-            }
-            mtvPagesDownloaded.text = ""
-            mtvArtistsCount.text = ""
-            mtvCharactersCount.text = ""
-            mtvCategoriesCount.text = ""
-            mtvLanguagesCount.text = ""
-            mtvParodiesCount.text = ""
-            mtvGroupsCount.text = ""
-            mtvTagsCount.text = ""
-            mtvUnknownTagsCount.text = ""
+        mtv_pages_count.text = ""
+        mbt_start_downloading.setOnClickListener {
+            mPresenter.startDownloading()
+        }
+        mtv_pages_downloaded.text = ""
+        mtv_artists_count.text = ""
+        mtv_characters_count.text = ""
+        mtv_categories_count.text = ""
+        mtv_languages_count.text = ""
+        mtv_parodies_count.text = ""
+        mtv_groups_count.text = ""
+        mtv_tags_count.text = ""
+        mtv_unknown_tags_count.text = ""
 
-            spCensored.isChecked = NHentaiApp.instance.isCensored
-            spCensored.setOnCheckedChangeListener { _, isChecked ->
-                mPresenter.toggleCensored(isChecked)
-            }
+        sp_censored.isChecked = NHentaiApp.instance.isCensored
+        sp_censored.setOnCheckedChangeListener { _, isChecked ->
+            mPresenter.toggleCensored(isChecked)
         }
         mPresenter.start()
     }
@@ -83,7 +84,7 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     override fun showNumberOfPages(numOfPages: Long) {
-        mBinding.mtvPagesCount.text = getString(R.string.number_of_pages, numOfPages)
+        mtv_pages_count.text = getString(R.string.number_of_pages, numOfPages)
     }
 
     override fun updateDownloadingStatistics(
@@ -98,17 +99,15 @@ class AdminFragment : Fragment(), AdminContract.View {
             unknownsTypes: Int
     ) {
         val resources = resources
-        mBinding.run {
-            mtvPagesDownloaded.text = resources.getString(R.string.downloaded_pages, downloadedPages)
-            mtvArtistsCount.text = resources.getString(R.string.number_of_artists, artists)
-            mtvCharactersCount.text = resources.getString(R.string.number_of_characters, characters)
-            mtvCategoriesCount.text = resources.getString(R.string.number_of_categories, categories)
-            mtvLanguagesCount.text = resources.getString(R.string.number_of_languages, languages)
-            mtvParodiesCount.text = resources.getString(R.string.number_of_parodies, parodies)
-            mtvGroupsCount.text = resources.getString(R.string.number_of_groups, groups)
-            mtvTagsCount.text = resources.getString(R.string.number_of_tags, tags)
-            mtvUnknownTagsCount.text = resources.getString(R.string.number_of_unknown, unknownsTypes)
-        }
+        mtv_pages_downloaded.text = resources.getString(R.string.downloaded_pages, downloadedPages)
+        mtv_artists_count.text = resources.getString(R.string.number_of_artists, artists)
+        mtv_characters_count.text = resources.getString(R.string.number_of_characters, characters)
+        mtv_categories_count.text = resources.getString(R.string.number_of_categories, categories)
+        mtv_languages_count.text = resources.getString(R.string.number_of_languages, languages)
+        mtv_parodies_count.text = resources.getString(R.string.number_of_parodies, parodies)
+        mtv_groups_count.text = resources.getString(R.string.number_of_groups, groups)
+        mtv_tags_count.text = resources.getString(R.string.number_of_tags, tags)
+        mtv_unknown_tags_count.text = resources.getString(R.string.number_of_unknown, unknownsTypes)
     }
 
     override fun updateProgress() {

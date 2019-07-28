@@ -7,7 +7,6 @@ import `in`.srain.cube.views.ptr.PtrUIHandler
 import `in`.srain.cube.views.ptr.indicator.PtrIndicator
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -17,11 +16,24 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.fragment_recent_list.btnFirst
+import kotlinx.android.synthetic.main.fragment_recent_list.btnLast
+import kotlinx.android.synthetic.main.fragment_recent_list.clNavigation
+import kotlinx.android.synthetic.main.fragment_recent_list.ibBack
+import kotlinx.android.synthetic.main.fragment_recent_list.ibSwitch
+import kotlinx.android.synthetic.main.fragment_recent_list.mtvRecentTitle
+import kotlinx.android.synthetic.main.fragment_recent_list.refreshHeader
+import kotlinx.android.synthetic.main.fragment_recent_list.rvMainList
+import kotlinx.android.synthetic.main.fragment_recent_list.rvPagination
+import kotlinx.android.synthetic.main.fragment_recent_list.srlPullToReload
+import kotlinx.android.synthetic.main.layout_refresh_header.view.ivRefresh
+import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvLastUpdate
+import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvRefresh
+import kotlinx.android.synthetic.main.layout_refresh_header.view.pbRefresh
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
-import nhdphuong.com.manga.databinding.FragmentRecentListBinding
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.BookAdapter
@@ -39,7 +51,6 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     }
 
     private lateinit var mPresenter: RecentContract.Presenter
-    private lateinit var mBinding: FragmentRecentListBinding
     private lateinit var mRecentListAdapter: BookAdapter
     private lateinit var mPaginationAdapter: PaginationAdapter
     private lateinit var mLoadingDialog: Dialog
@@ -55,13 +66,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        mBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.fragment_recent_list,
-                container,
-                false
-        )
-        return mBinding.root
+        return inflater.inflate(R.layout.fragment_recent_list, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -72,11 +77,11 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         ) ?: Constants.RECENT
 
         mLoadingDialog = DialogHelper.showLoadingDialog(activity!!)
-        mBinding.srlPullToReload.addPtrUIHandler(this)
-        mBinding.srlPullToReload.setPtrHandler(object : PtrHandler {
+        srlPullToReload.addPtrUIHandler(this)
+        srlPullToReload.setPtrHandler(object : PtrHandler {
             override fun onRefreshBegin(frame: PtrFrameLayout?) {
                 frame?.postDelayed({
-                    mBinding.srlPullToReload.refreshComplete()
+                    srlPullToReload.refreshComplete()
                     RecentActivity.restart(recentType)
                 }, 1000)
             }
@@ -90,11 +95,11 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             }
         })
 
-        mBinding.mtvRecentTitle.text = getString(
+        mtvRecentTitle.text = getString(
                 if (recentType == Constants.RECENT) R.string.recent else R.string.favorite
         ).toUpperCase()
 
-        mBinding.ibSwitch.setImageResource(
+        ibSwitch.setImageResource(
                 if (recentType == Constants.RECENT) {
                     R.drawable.ic_recent_white
                 } else {
@@ -102,7 +107,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
                 }
         )
 
-        mBinding.ibSwitch.setOnClickListener {
+        ibSwitch.setOnClickListener {
             RecentActivity.restart(
                     if (recentType == Constants.RECENT) {
                         Constants.FAVORITE
@@ -110,13 +115,13 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
                         Constants.RECENT
                     })
         }
-        mBinding.ibBack.setOnClickListener {
+        ibBack.setOnClickListener {
             activity?.onBackPressed()
         }
-        mBinding.btnFirst.setOnClickListener {
+        btnFirst.setOnClickListener {
             mPresenter.jumToFirstPage()
         }
-        mBinding.btnLast.setOnClickListener {
+        btnLast.setOnClickListener {
             mPresenter.jumToLastPage()
         }
     }
@@ -147,7 +152,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
                     }
                 }
         )
-        val recentList: RecyclerView = mBinding.rvMainList
+        val recentList: RecyclerView = rvMainList
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
         val recentListLayoutManager = object : GridLayoutManager(
                 context,
@@ -163,17 +168,17 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
     override fun refreshRecentBookList() {
         mRecentListAdapter.notifyDataSetChanged()
-        mBinding.rvMainList.post {
-            mBinding.rvMainList.smoothScrollToPosition(0)
+        rvMainList.post {
+            rvMainList.smoothScrollToPosition(0)
         }
         mPresenter.reloadRecentMarks()
     }
 
     override fun refreshRecentPagination(pageCount: Int) {
-        val recentPagination = mBinding.rvPagination
+        val recentPagination = rvPagination
         if (pageCount == 0) {
-            mBinding.btnFirst.visibility = View.GONE
-            mBinding.btnLast.visibility = View.GONE
+            btnFirst.visibility = View.GONE
+            btnLast.visibility = View.GONE
             recentPagination.visibility = View.GONE
             return
         }
@@ -193,11 +198,11 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         recentPagination.adapter = mPaginationAdapter
         recentPagination.viewTreeObserver.addOnGlobalLayoutListener {
             if (mPaginationAdapter.maxVisible >= pageCount - 1) {
-                mBinding.btnFirst.visibility = View.GONE
-                mBinding.btnLast.visibility = View.GONE
+                btnFirst.visibility = View.GONE
+                btnLast.visibility = View.GONE
             } else {
-                mBinding.btnFirst.visibility = View.VISIBLE
-                mBinding.btnLast.visibility = View.VISIBLE
+                btnFirst.visibility = View.VISIBLE
+                btnLast.visibility = View.VISIBLE
             }
         }
     }
@@ -212,20 +217,20 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {
         val lastRefresh = String.format(getString(R.string.last_update), lastRefreshTimeStamp)
-        mBinding.refreshHeader.mtvLastUpdate.text = lastRefresh
+        refreshHeader.mtvLastUpdate.text = lastRefresh
     }
 
     override fun showLoading() {
         if (isAdded) {
             mLoadingDialog.show()
-            mBinding.clNavigation.visibility = View.GONE
+            clNavigation.visibility = View.GONE
         }
     }
 
     override fun hideLoading() {
         if (isAdded) {
             mLoadingDialog.dismiss()
-            mBinding.clNavigation.visibility = View.VISIBLE
+            clNavigation.visibility = View.VISIBLE
         }
     }
 
@@ -234,12 +239,12 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshComplete")
         endUpdateDotsTask()
-        mBinding.refreshHeader.mtvRefresh.text = getString(R.string.updated)
+        refreshHeader.mtvRefresh.text = getString(R.string.updated)
         mPresenter.saveLastBookListRefreshTime()
         mPresenter.reloadLastBookListRefreshTime()
-        mBinding.refreshHeader.ivRefresh.rotation = 0F
-        mBinding.refreshHeader.ivRefresh.visibility = View.VISIBLE
-        mBinding.refreshHeader.pbRefresh.visibility = View.GONE
+        refreshHeader.ivRefresh.rotation = 0F
+        refreshHeader.ivRefresh.visibility = View.VISIBLE
+        refreshHeader.pbRefresh.visibility = View.GONE
     }
 
     override fun onUIPositionChange(
@@ -252,16 +257,16 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
                 "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
                 "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}")
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
-            mBinding.refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
-            mBinding.refreshHeader.ivRefresh.rotation = 180F
+            refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
+            refreshHeader.ivRefresh.rotation = 180F
         }
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshBegin")
-        mBinding.refreshHeader.ivRefresh.visibility = View.GONE
-        mBinding.refreshHeader.pbRefresh.visibility = View.VISIBLE
-        mBinding.refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
+        refreshHeader.ivRefresh.visibility = View.GONE
+        refreshHeader.pbRefresh.visibility = View.VISIBLE
+        refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
         runUpdateDotsTask()
     }
 
@@ -272,7 +277,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
     override fun onUIReset(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIReset")
-        mBinding.refreshHeader.mtvRefresh.text = getString(R.string.pull_down)
+        refreshHeader.mtvRefresh.text = getString(R.string.pull_down)
     }
 
     @SuppressLint("SetTextI18n")
@@ -283,7 +288,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
             Logger.d("Dialog", "Current pos: $currentPos")
-            mBinding.refreshHeader.mtvRefresh.text =
+            refreshHeader.mtvRefresh.text =
                     String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }

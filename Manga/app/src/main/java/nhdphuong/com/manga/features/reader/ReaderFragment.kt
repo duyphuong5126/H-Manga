@@ -2,7 +2,6 @@ package nhdphuong.com.manga.features.reader
 
 import android.app.Dialog
 import android.content.pm.PackageManager
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -14,10 +13,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.Toast
+import kotlinx.android.synthetic.main.fragment_reader.clDownloadedPopup
+import kotlinx.android.synthetic.main.fragment_reader.clReaderBottom
+import kotlinx.android.synthetic.main.fragment_reader.clReaderTop
+import kotlinx.android.synthetic.main.fragment_reader.ibBack
+import kotlinx.android.synthetic.main.fragment_reader.ibDownload
+import kotlinx.android.synthetic.main.fragment_reader.ibDownloadPopupClose
+import kotlinx.android.synthetic.main.fragment_reader.ibRefresh
+import kotlinx.android.synthetic.main.fragment_reader.mtvBookTitle
+import kotlinx.android.synthetic.main.fragment_reader.mtvCurrentPage
+import kotlinx.android.synthetic.main.fragment_reader.mtvDownloadTitle
+import kotlinx.android.synthetic.main.fragment_reader.vpPages
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
-import nhdphuong.com.manga.databinding.FragmentReaderBinding
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.BookReaderAdapter
@@ -32,7 +41,6 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     private lateinit var mPresenter: ReaderContract.Presenter
-    private lateinit var mBinding: FragmentReaderBinding
     private lateinit var mRotationAnimation: Animation
     private lateinit var mBookReaderAdapter: BookReaderAdapter
     private lateinit var mLoadingDialog: Dialog
@@ -46,39 +54,33 @@ class ReaderFragment : Fragment(), ReaderContract.View {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        mBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.fragment_reader,
-                container,
-                false
-        )
-        return mBinding.root
+        return inflater.inflate(R.layout.fragment_reader, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mLoadingDialog = DialogHelper.showLoadingDialog(activity!!)
-        mBinding.ibBack.setOnClickListener {
+        ibBack.setOnClickListener {
             navigateToGallery()
         }
 
-        mBinding.ibDownload.setOnClickListener {
+        ibDownload.setOnClickListener {
 
         }
 
-        mBinding.mtvCurrentPage.setOnClickListener {
+        mtvCurrentPage.setOnClickListener {
             mPresenter.backToGallery()
         }
 
-        mBinding.ibDownload.setOnClickListener {
+        ibDownload.setOnClickListener {
             mPresenter.downloadCurrentPage()
         }
 
-        mBinding.ibDownloadPopupClose.setOnClickListener {
+        ibDownloadPopupClose.setOnClickListener {
             hideDownloadPopup()
         }
         mRotationAnimation = AnimationHelper.getRotationAnimation(context!!)
-        mBinding.ibRefresh.let { ibRefresh ->
+        ibRefresh.let { ibRefresh ->
             ibRefresh.setOnClickListener {
                 ibRefresh.startAnimation(mRotationAnimation)
                 mPresenter.reloadCurrentPage { currentPage: Int ->
@@ -127,7 +129,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun showBookTitle(bookTitle: String) {
-        mBinding.mtvBookTitle.let { mtvBookTitle ->
+        mtvBookTitle.let { mtvBookTitle ->
             mtvBookTitle.text = bookTitle
             AnimationHelper.startTextRunning(mtvBookTitle)
         }
@@ -136,24 +138,24 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     override fun showBookPages(pageList: List<String>) {
         val activity = activity!!
         mBookReaderAdapter = BookReaderAdapter(context!!, pageList, View.OnClickListener {
-            if (mBinding.clReaderBottom.visibility == View.VISIBLE) {
-                AnimationHelper.startSlideOutTop(activity, mBinding.clReaderTop) {
-                    mBinding.clReaderTop.visibility = View.GONE
+            if (clReaderBottom.visibility == View.VISIBLE) {
+                AnimationHelper.startSlideOutTop(activity, clReaderTop) {
+                    clReaderTop.visibility = View.GONE
                 }
-                AnimationHelper.startSlideOutBottom(activity, mBinding.clReaderBottom) {
-                    mBinding.clReaderBottom.visibility = View.GONE
+                AnimationHelper.startSlideOutBottom(activity, clReaderBottom) {
+                    clReaderBottom.visibility = View.GONE
                 }
             } else {
-                AnimationHelper.startSlideInTop(activity, mBinding.clReaderTop) {
-                    mBinding.clReaderTop.visibility = View.VISIBLE
+                AnimationHelper.startSlideInTop(activity, clReaderTop) {
+                    clReaderTop.visibility = View.VISIBLE
                 }
-                AnimationHelper.startSlideInBottom(activity, mBinding.clReaderBottom) {
-                    mBinding.clReaderBottom.visibility = View.VISIBLE
+                AnimationHelper.startSlideInBottom(activity, clReaderBottom) {
+                    clReaderBottom.visibility = View.VISIBLE
                 }
             }
         })
-        mBinding.vpPages.adapter = mBookReaderAdapter
-        mBinding.vpPages.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        vpPages.adapter = mBookReaderAdapter
+        vpPages.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
 
             }
@@ -179,16 +181,15 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun showPageIndicator(currentPage: Int, total: Int) {
-        mBinding.mtvCurrentPage.text =
-                String.format(getString(R.string.bottom_reader), currentPage + 1, total)
+        mtvCurrentPage.text = String.format(getString(R.string.bottom_reader), currentPage + 1, total)
     }
 
     override fun showBackToGallery() {
-        mBinding.mtvCurrentPage.text = getString(R.string.back_to_gallery)
+        mtvCurrentPage.text = getString(R.string.back_to_gallery)
     }
 
     override fun jumpToPage(pageNumber: Int) {
-        mBinding.vpPages.setCurrentItem(pageNumber, true)
+        vpPages.setCurrentItem(pageNumber, true)
     }
 
     override fun navigateToGallery() {
@@ -209,15 +210,15 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun showDownloadPopup() {
-        mBinding.clDownloadedPopup.visibility = View.VISIBLE
+        clDownloadedPopup.visibility = View.VISIBLE
     }
 
     override fun hideDownloadPopup() {
-        mBinding.clDownloadedPopup.visibility = View.GONE
+        clDownloadedPopup.visibility = View.GONE
     }
 
     override fun updateDownloadPopupTitle(downloadPage: Int) {
-        mBinding.mtvDownloadTitle.text = getString(R.string.download_progress, downloadPage)
+        mtvDownloadTitle.text = getString(R.string.download_progress, downloadPage.toString())
     }
 
     override fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int) {
@@ -238,14 +239,14 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     override fun showLoading() {
         if (isAdded) {
             mLoadingDialog.show()
-            mBinding.ibRefresh.startAnimation(mRotationAnimation)
+            ibRefresh.startAnimation(mRotationAnimation)
         }
     }
 
     override fun hideLoading() {
         if (isAdded) {
             mLoadingDialog.hide()
-            mBinding.ibRefresh.clearAnimation()
+            ibRefresh.clearAnimation()
         }
     }
 

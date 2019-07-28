@@ -6,7 +6,6 @@ import android.animation.ObjectAnimator
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.databinding.DataBindingUtil
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
@@ -19,13 +18,44 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import kotlinx.android.synthetic.main.fragment_book_preview.clArtists
+import kotlinx.android.synthetic.main.fragment_book_preview.clCategories
+import kotlinx.android.synthetic.main.fragment_book_preview.clCharacters
+import kotlinx.android.synthetic.main.fragment_book_preview.clDownloadProgress
+import kotlinx.android.synthetic.main.fragment_book_preview.clGroups
+import kotlinx.android.synthetic.main.fragment_book_preview.clLanguages
+import kotlinx.android.synthetic.main.fragment_book_preview.clParodies
+import kotlinx.android.synthetic.main.fragment_book_preview.clTags
+import kotlinx.android.synthetic.main.fragment_book_preview.hsvPreviewThumbNail
+import kotlinx.android.synthetic.main.fragment_book_preview.hsvRecommendList
+import kotlinx.android.synthetic.main.fragment_book_preview.ivBookCover
+import kotlinx.android.synthetic.main.fragment_book_preview.mtvDownload
+import kotlinx.android.synthetic.main.fragment_book_preview.mtvDownloaded
+import kotlinx.android.synthetic.main.fragment_book_preview.mtvFavorite
+import kotlinx.android.synthetic.main.fragment_book_preview.mtvNotFavorite
+import kotlinx.android.synthetic.main.fragment_book_preview.mtvRecommendBook
+import kotlinx.android.synthetic.main.fragment_book_preview.pbDownloading
+import kotlinx.android.synthetic.main.fragment_book_preview.rvPreviewList
+import kotlinx.android.synthetic.main.fragment_book_preview.rvRecommendList
+import kotlinx.android.synthetic.main.fragment_book_preview.svBookCover
+import kotlinx.android.synthetic.main.fragment_book_preview.svPreview
+import kotlinx.android.synthetic.main.fragment_book_preview.tvArtistsLabel
+import kotlinx.android.synthetic.main.fragment_book_preview.tvCategoriesLabel
+import kotlinx.android.synthetic.main.fragment_book_preview.tvCharactersLabel
+import kotlinx.android.synthetic.main.fragment_book_preview.tvGroupsLabel
+import kotlinx.android.synthetic.main.fragment_book_preview.tvLanguagesLabel
+import kotlinx.android.synthetic.main.fragment_book_preview.tvPageCount
+import kotlinx.android.synthetic.main.fragment_book_preview.tvParodiesLabel
+import kotlinx.android.synthetic.main.fragment_book_preview.tvTagsLabel
+import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_1
+import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_2
+import kotlinx.android.synthetic.main.fragment_book_preview.tvUpdatedAt
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.tags.Tag
-import nhdphuong.com.manga.databinding.FragmentBookPreviewBinding
 import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.DialogHelper
@@ -48,7 +78,6 @@ class BookPreviewFragment :
     }
 
     private lateinit var mPresenter: BookPreviewContract.Presenter
-    private lateinit var mBinding: FragmentBookPreviewBinding
     private lateinit var mPreviewAdapter: PreviewAdapter
     private lateinit var mRecommendBookAdapter: BookAdapter
     private lateinit var mAnimatorSet: AnimatorSet
@@ -74,20 +103,14 @@ class BookPreviewFragment :
             savedInstanceState: Bundle?
     ): View? {
         Logger.d(TAG, "onCreateView")
-        mBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.fragment_book_preview,
-                container,
-                false
-        )
-        return mBinding.root
+        return inflater.inflate(R.layout.fragment_book_preview, container, false)
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Logger.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
-        mBinding.svBookCover.let { svBookCover ->
+        svBookCover.let { svBookCover ->
             val scrollDownAnimator =
                     ObjectAnimator.ofInt(svBookCover, "scrollY", 1000)
             scrollDownAnimator.startDelay = 100
@@ -106,36 +129,33 @@ class BookPreviewFragment :
             }
         }
 
-        mBinding.mtvDownload.setOnClickListener {
+        mtvDownload.setOnClickListener {
             isDownloadRequested = true
             mPresenter.downloadBook()
         }
 
         val changeFavoriteListener = View.OnClickListener { mPresenter.changeBookFavorite() }
-        mBinding.mtvFavorite.setOnClickListener(changeFavoriteListener)
-        mBinding.mtvNotFavorite.setOnClickListener(changeFavoriteListener)
+        mtvFavorite.setOnClickListener(changeFavoriteListener)
+        mtvNotFavorite.setOnClickListener(changeFavoriteListener)
 
         // Gingerbread
-        mBinding.hsvPreviewThumbNail.overScrollMode = View.OVER_SCROLL_NEVER
-        mBinding.hsvRecommendList.overScrollMode = View.OVER_SCROLL_NEVER
-        mBinding.svPreview.overScrollMode = View.OVER_SCROLL_NEVER
-        mBinding.svBookCover.overScrollMode = View.OVER_SCROLL_NEVER
+        hsvPreviewThumbNail.overScrollMode = View.OVER_SCROLL_NEVER
+        hsvRecommendList.overScrollMode = View.OVER_SCROLL_NEVER
+        svPreview.overScrollMode = View.OVER_SCROLL_NEVER
+        svBookCover.overScrollMode = View.OVER_SCROLL_NEVER
+
+        view.viewTreeObserver.addOnGlobalLayoutListener {
+            if (!isPresenterStarted) {
+                isPresenterStarted = true
+                mPresenter.loadInfoLists()
+            }
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Logger.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
         mPresenter.start()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        mBinding.root.viewTreeObserver.addOnGlobalLayoutListener {
-            if (!isPresenterStarted) {
-                isPresenterStarted = true
-                mPresenter.loadInfoLists()
-            }
-        }
     }
 
     override fun onRequestPermissionsResult(
@@ -169,7 +189,7 @@ class BookPreviewFragment :
             ImageUtils.loadImage(
                     coverUrl,
                     R.drawable.ic_404_not_found,
-                    mBinding.ivBookCover,
+                    ivBookCover,
                     onLoadSuccess = {
                         mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
                         mAnimatorSet.start()
@@ -178,7 +198,7 @@ class BookPreviewFragment :
                         mPresenter.reloadCoverImage()
                     })
         } else {
-            mBinding.ivBookCover.setImageResource(R.drawable.ic_nothing_here_grey)
+            ivBookCover.setImageResource(R.drawable.ic_nothing_here_grey)
             mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
             mAnimatorSet.start()
         }
@@ -186,105 +206,105 @@ class BookPreviewFragment :
 
     override fun show1stTitle(firstTitle: String) {
         if (!TextUtils.isEmpty(firstTitle)) {
-            mBinding.tvTitle1.visibility = View.VISIBLE
-            mBinding.tvTitle1.text = firstTitle
+            tvTitle_1.visibility = View.VISIBLE
+            tvTitle_1.text = firstTitle
         } else {
-            mBinding.tvTitle1.visibility = View.GONE
+            tvTitle_1.visibility = View.GONE
         }
     }
 
     override fun show2ndTitle(secondTitle: String) {
         if (!TextUtils.isEmpty(secondTitle)) {
-            mBinding.tvTitle2.visibility = View.VISIBLE
-            mBinding.tvTitle2.text = secondTitle
+            tvTitle_2.visibility = View.VISIBLE
+            tvTitle_2.text = secondTitle
         } else {
-            mBinding.tvTitle2.visibility = View.GONE
+            tvTitle_2.visibility = View.GONE
         }
     }
 
     override fun showTagList(tagList: List<Tag>) {
-        mBinding.tvTagsLabel.visibility = View.VISIBLE
-        mBinding.clTags.visibility = View.VISIBLE
-        loadInfoList(mBinding.clTags, tagList)
+        tvTagsLabel.visibility = View.VISIBLE
+        clTags.visibility = View.VISIBLE
+        loadInfoList(clTags, tagList)
     }
 
     override fun showArtistList(artistList: List<Tag>) {
-        mBinding.tvArtistsLabel.visibility = View.VISIBLE
-        mBinding.clArtists.visibility = View.VISIBLE
-        loadInfoList(mBinding.clArtists, artistList)
+        tvArtistsLabel.visibility = View.VISIBLE
+        clArtists.visibility = View.VISIBLE
+        loadInfoList(clArtists, artistList)
     }
 
     override fun showLanguageList(languageList: List<Tag>) {
-        mBinding.tvLanguagesLabel.visibility = View.VISIBLE
-        mBinding.clLanguages.visibility = View.VISIBLE
-        loadInfoList(mBinding.clLanguages, languageList)
+        tvLanguagesLabel.visibility = View.VISIBLE
+        clLanguages.visibility = View.VISIBLE
+        loadInfoList(clLanguages, languageList)
     }
 
     override fun showCategoryList(categoryList: List<Tag>) {
-        mBinding.tvCategoriesLabel.visibility = View.VISIBLE
-        mBinding.clCategories.visibility = View.VISIBLE
-        loadInfoList(mBinding.clCategories, categoryList)
+        tvCategoriesLabel.visibility = View.VISIBLE
+        clCategories.visibility = View.VISIBLE
+        loadInfoList(clCategories, categoryList)
     }
 
     override fun showCharacterList(characterList: List<Tag>) {
-        mBinding.tvCharactersLabel.visibility = View.VISIBLE
-        mBinding.clCharacters.visibility = View.VISIBLE
-        loadInfoList(mBinding.clCharacters, characterList)
+        tvCharactersLabel.visibility = View.VISIBLE
+        clCharacters.visibility = View.VISIBLE
+        loadInfoList(clCharacters, characterList)
     }
 
     override fun showGroupList(groupList: List<Tag>) {
-        mBinding.tvGroupsLabel.visibility = View.VISIBLE
-        mBinding.clGroups.visibility = View.VISIBLE
-        loadInfoList(mBinding.clGroups, groupList)
+        tvGroupsLabel.visibility = View.VISIBLE
+        clGroups.visibility = View.VISIBLE
+        loadInfoList(clGroups, groupList)
     }
 
     override fun showParodyList(parodyList: List<Tag>) {
-        mBinding.tvParodiesLabel.visibility = View.VISIBLE
-        mBinding.clParodies.visibility = View.VISIBLE
-        loadInfoList(mBinding.clParodies, parodyList)
+        tvParodiesLabel.visibility = View.VISIBLE
+        clParodies.visibility = View.VISIBLE
+        loadInfoList(clParodies, parodyList)
     }
 
     override fun hideTagList() {
-        mBinding.tvTagsLabel.visibility = View.GONE
-        mBinding.clTags.visibility = View.GONE
+        tvTagsLabel.visibility = View.GONE
+        clTags.visibility = View.GONE
     }
 
     override fun hideArtistList() {
-        mBinding.tvArtistsLabel.visibility = View.GONE
-        mBinding.clArtists.visibility = View.GONE
+        tvArtistsLabel.visibility = View.GONE
+        clArtists.visibility = View.GONE
     }
 
     override fun hideLanguageList() {
-        mBinding.tvLanguagesLabel.visibility = View.GONE
-        mBinding.clLanguages.visibility = View.GONE
+        tvLanguagesLabel.visibility = View.GONE
+        clLanguages.visibility = View.GONE
     }
 
     override fun hideCategoryList() {
-        mBinding.tvCategoriesLabel.visibility = View.GONE
-        mBinding.clCategories.visibility = View.GONE
+        tvCategoriesLabel.visibility = View.GONE
+        clCategories.visibility = View.GONE
     }
 
     override fun hideCharacterList() {
-        mBinding.tvCharactersLabel.visibility = View.GONE
-        mBinding.clCharacters.visibility = View.GONE
+        tvCharactersLabel.visibility = View.GONE
+        clCharacters.visibility = View.GONE
     }
 
     override fun hideGroupList() {
-        mBinding.tvGroupsLabel.visibility = View.GONE
-        mBinding.clGroups.visibility = View.GONE
+        tvGroupsLabel.visibility = View.GONE
+        clGroups.visibility = View.GONE
     }
 
     override fun hideParodyList() {
-        mBinding.tvParodiesLabel.visibility = View.GONE
-        mBinding.clParodies.visibility = View.GONE
+        tvParodiesLabel.visibility = View.GONE
+        clParodies.visibility = View.GONE
     }
 
     override fun showPageCount(pageCount: Int) {
-        mBinding.tvPageCount.text = getString(R.string.page_count, pageCount.toString())
+        tvPageCount.text = getString(R.string.page_count, pageCount.toString())
     }
 
     override fun showUploadedTime(uploadedTime: String) {
-        mBinding.tvUpdatedAt.text = getString(R.string.uploaded, uploadedTime)
+        tvUpdatedAt.text = getString(R.string.uploaded, uploadedTime)
     }
 
     override fun showBookThumbnailList(thumbnailList: List<String>) {
@@ -300,7 +320,7 @@ class BookPreviewFragment :
                 return true
             }
         }
-        mBinding.rvPreviewList.run {
+        rvPreviewList.run {
             layoutManager = mPreviewLayoutManager
             mPreviewAdapter = PreviewAdapter(
                     NUM_OF_ROWS,
@@ -314,8 +334,8 @@ class BookPreviewFragment :
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mBinding.hsvPreviewThumbNail.setOnScrollChangeListener { _, _, _, _, _ ->
-                if (!mBinding.hsvPreviewThumbNail.canScrollHorizontally(1)) {
+            hsvPreviewThumbNail.setOnScrollChangeListener { _, _, _, _, _ ->
+                if (!hsvPreviewThumbNail.canScrollHorizontally(1)) {
                     Logger.d(TAG, "End of list, load more thumbnails")
                     mPresenter.loadMoreThumbnails()
                 }
@@ -334,14 +354,14 @@ class BookPreviewFragment :
 
     override fun showRecommendBook(bookList: List<Book>) {
         Logger.d(TAG, "recommended books, spanCount: ${bookList.size}")
-        mBinding.mtvRecommendBook.visibility = View.VISIBLE
+        mtvRecommendBook.visibility = View.VISIBLE
         val gridLayoutManager = object : MyGridLayoutManager(context!!, bookList.size) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
             }
         }
 
-        mBinding.rvRecommendList.layoutManager = gridLayoutManager
+        rvRecommendList.layoutManager = gridLayoutManager
         mRecommendBookAdapter = BookAdapter(
                 bookList,
                 BookAdapter.RECOMMEND_BOOK,
@@ -350,11 +370,11 @@ class BookPreviewFragment :
                         BookPreviewActivity.restart(item)
                     }
                 })
-        mBinding.rvRecommendList.adapter = mRecommendBookAdapter
+        rvRecommendList.adapter = mRecommendBookAdapter
     }
 
     override fun showNoRecommendBook() {
-        mBinding.mtvRecommendBook.visibility = View.GONE
+        mtvRecommendBook.visibility = View.GONE
     }
 
     override fun showRequestStoragePermission() {
@@ -371,41 +391,41 @@ class BookPreviewFragment :
     }
 
     override fun initDownloading(total: Int) {
-        mBinding.clDownloadProgress.visibility = View.VISIBLE
-        mBinding.pbDownloading.max = total
-        mBinding.mtvDownloaded.text = String.format(getString(R.string.preview_download_progress), 0, total)
+        clDownloadProgress.visibility = View.VISIBLE
+        pbDownloading.max = total
+        mtvDownloaded.text = String.format(getString(R.string.preview_download_progress), 0, total)
     }
 
     override fun updateDownloadProgress(progress: Int, total: Int) {
-        mBinding.clDownloadProgress.visibility = View.VISIBLE
-        mBinding.pbDownloading.max = total
-        mBinding.pbDownloading.progressDrawable = getProgressDrawableId(progress, total)
-        mBinding.pbDownloading.progress = progress
-        mBinding.mtvDownloaded.text = String.format(getString(R.string.preview_download_progress), progress, total)
+        clDownloadProgress.visibility = View.VISIBLE
+        pbDownloading.max = total
+        pbDownloading.progressDrawable = getProgressDrawableId(progress, total)
+        pbDownloading.progress = progress
+        mtvDownloaded.text = String.format(getString(R.string.preview_download_progress), progress, total)
     }
 
     override fun finishDownloading() {
-        mBinding.mtvDownloaded.text = getString(R.string.done)
+        mtvDownloaded.text = getString(R.string.done)
         val handler = Handler()
         handler.postDelayed({
-            mBinding.pbDownloading.progressDrawable =
-                    getProgressDrawableId(0, mBinding.pbDownloading.max)
-            mBinding.pbDownloading.max = 0
-            mBinding.clDownloadProgress.visibility = View.GONE
-            mBinding.mtvDownloaded.text = getString(R.string.preview_download_progress)
+            pbDownloading.progressDrawable =
+                    getProgressDrawableId(0, pbDownloading.max)
+            pbDownloading.max = 0
+            clDownloadProgress.visibility = View.GONE
+            mtvDownloaded.text = getString(R.string.preview_download_progress)
         }, 2000)
     }
 
     override fun finishDownloading(downloadFailedCount: Int, total: Int) {
-        mBinding.mtvDownloaded.text =
+        mtvDownloaded.text =
                 String.format(getString(R.string.fail_to_download), downloadFailedCount)
         val handler = Handler()
         handler.postDelayed({
-            mBinding.pbDownloading.progressDrawable =
-                    getProgressDrawableId(0, mBinding.pbDownloading.max)
-            mBinding.pbDownloading.max = 0
-            mBinding.clDownloadProgress.visibility = View.GONE
-            mBinding.mtvDownloaded.text = getString(R.string.preview_download_progress)
+            pbDownloading.progressDrawable =
+                    getProgressDrawableId(0, pbDownloading.max)
+            pbDownloading.max = 0
+            clDownloadProgress.visibility = View.GONE
+            mtvDownloaded.text = getString(R.string.preview_download_progress)
         }, 2000)
     }
 
@@ -425,11 +445,11 @@ class BookPreviewFragment :
 
     override fun showFavoriteBookSaved(isFavorite: Boolean) {
         if (isFavorite) {
-            mBinding.mtvNotFavorite.visibility = View.INVISIBLE
-            mBinding.mtvFavorite.visibility = View.VISIBLE
+            mtvNotFavorite.visibility = View.INVISIBLE
+            mtvFavorite.visibility = View.VISIBLE
         } else {
-            mBinding.mtvNotFavorite.visibility = View.VISIBLE
-            mBinding.mtvFavorite.visibility = View.INVISIBLE
+            mtvNotFavorite.visibility = View.VISIBLE
+            mtvFavorite.visibility = View.INVISIBLE
         }
     }
 
