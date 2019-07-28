@@ -91,8 +91,7 @@ class BookRemoteDataSource(
         connection.setRequestProperty("Content-length", "0")
         connection.useCaches = false
         connection.connect()
-        val status = connection.responseCode
-        when (status) {
+        when (connection.responseCode) {
             200 -> {
                 val br = BufferedReader(InputStreamReader(connection.inputStream))
                 val sb = StringBuilder()
@@ -102,10 +101,12 @@ class BookRemoteDataSource(
                     line = br.readLine()
                 }
                 br.close()
+                connection.disconnect()
                 Logger.d(TAG, "Data=$sb")
                 return sb.toString()
             }
         }
+        connection.disconnect()
         return null
     }
 }
