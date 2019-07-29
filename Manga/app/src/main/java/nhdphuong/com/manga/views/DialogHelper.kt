@@ -45,7 +45,7 @@ class DialogHelper {
             }, 700)
 
             dialog.setOnDismissListener {
-                onFinishTask()
+                onFinishTask.invoke()
             }
 
             return dialog

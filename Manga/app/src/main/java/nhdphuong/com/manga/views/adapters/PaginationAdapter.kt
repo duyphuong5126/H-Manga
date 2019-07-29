@@ -168,7 +168,7 @@ class PaginationAdapter(
 
     fun jumpToFirst() {
         if (paginationMode == PaginationMode.NUMBER) {
-            if (!mPageList.isEmpty()) {
+            if (mPageList.isNotEmpty()) {
                 moveToItem(mPageList[0])
             }
         } else {
@@ -178,7 +178,7 @@ class PaginationAdapter(
 
     fun jumpToLast() {
         if (paginationMode == PaginationMode.NUMBER) {
-            if (!mPageList.isEmpty()) {
+            if (mPageList.isNotEmpty()) {
                 moveToItem(mPageList[mPageList.size - 1])
             }
         } else {

@@ -7,6 +7,7 @@ import `in`.srain.cube.views.ptr.PtrUIHandler
 import `in`.srain.cube.views.ptr.indicator.PtrIndicator
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -16,6 +17,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import kotlinx.android.synthetic.main.fragment_recent_list.btnFirst
 import kotlinx.android.synthetic.main.fragment_recent_list.btnLast
 import kotlinx.android.synthetic.main.fragment_recent_list.clNavigation
@@ -196,15 +198,23 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
                 false
         )
         recentPagination.adapter = mPaginationAdapter
-        recentPagination.viewTreeObserver.addOnGlobalLayoutListener {
-            if (mPaginationAdapter.maxVisible >= pageCount - 1) {
-                btnFirst.visibility = View.GONE
-                btnLast.visibility = View.GONE
-            } else {
-                btnFirst.visibility = View.VISIBLE
-                btnLast.visibility = View.VISIBLE
+        recentPagination.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+            @Suppress("DEPRECATION")
+            override fun onGlobalLayout() {
+                if (mPaginationAdapter.maxVisible >= pageCount - 1) {
+                    btnFirst.visibility = View.GONE
+                    btnLast.visibility = View.GONE
+                } else {
+                    btnFirst.visibility = View.VISIBLE
+                    btnLast.visibility = View.VISIBLE
+                }
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    recentPagination.viewTreeObserver.removeGlobalOnLayoutListener(this)
+                } else {
+                    recentPagination.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                }
             }
-        }
+        })
     }
 
     override fun showFavoriteBooks(favoriteList: List<Int>) {
