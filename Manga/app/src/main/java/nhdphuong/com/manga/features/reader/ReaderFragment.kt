@@ -181,7 +181,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun showPageIndicator(currentPage: Int, total: Int) {
-        mtvCurrentPage.text = String.format(getString(R.string.bottom_reader), currentPage + 1, total)
+        mtvCurrentPage.text = String.format(getString(R.string.bottom_reader), currentPage, total)
     }
 
     override fun showBackToGallery() {
