@@ -15,6 +15,7 @@ import nhdphuong.com.manga.data.repository.TagRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
+import java.util.Locale
 import java.util.LinkedList
 import java.util.Random
 import java.util.Collections
@@ -23,6 +24,7 @@ import javax.inject.Inject
 import kotlin.collections.HashMap
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.abs
 
 /*
  * Created by nhdphuong on 3/18/18.
@@ -153,7 +155,7 @@ class HomePresenter @Inject constructor(
             mView.showLastBookListRefreshTime(
                     SupportUtils.getTimeElapsed(
                             System.currentTimeMillis() - lastRefreshTime
-                    ).toLowerCase()
+                    ).toLowerCase(Locale.US)
             )
         }
     }
@@ -330,7 +332,7 @@ class HomePresenter @Inject constructor(
         val size = pageList.size
         for (i in 0 until size - 1) {
             for (j in i + 1 until size) {
-                if (Math.abs(pageList[i] - anchor) < Math.abs(pageList[j] - anchor)) {
+                if (abs(pageList[i] - anchor) < abs(pageList[j] - anchor)) {
                     Collections.swap(pageList, i, j)
                 }
             }
