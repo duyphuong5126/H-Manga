@@ -3,7 +3,14 @@ package nhdphuong.com.manga.data.local
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.data.TagDataSource
-import nhdphuong.com.manga.data.entity.book.tags.*
+import nhdphuong.com.manga.data.entity.book.tags.Artist
+import nhdphuong.com.manga.data.entity.book.tags.Category
+import nhdphuong.com.manga.data.entity.book.tags.Tag
+import nhdphuong.com.manga.data.entity.book.tags.Character
+import nhdphuong.com.manga.data.entity.book.tags.Group
+import nhdphuong.com.manga.data.entity.book.tags.Language
+import nhdphuong.com.manga.data.entity.book.tags.Parody
+import nhdphuong.com.manga.data.entity.book.tags.UnknownTag
 import nhdphuong.com.manga.scope.corountine.IO
 import javax.inject.Inject
 

@@ -4,7 +4,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.TagDataSource
-import nhdphuong.com.manga.data.entity.book.tags.*
+import nhdphuong.com.manga.data.entity.book.tags.Artist
+import nhdphuong.com.manga.data.entity.book.tags.Tag
+import nhdphuong.com.manga.data.entity.book.tags.Character
+import nhdphuong.com.manga.data.entity.book.tags.Group
+import nhdphuong.com.manga.data.entity.book.tags.Parody
 import nhdphuong.com.manga.scope.Local
 import nhdphuong.com.manga.scope.Remote
 import nhdphuong.com.manga.scope.corountine.IO

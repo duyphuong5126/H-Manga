@@ -23,6 +23,7 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.min
 
 /*
  * Created by nhdphuong on 4/14/18.
@@ -226,7 +227,7 @@ class BookPreviewPresenter @Inject constructor(
 
         if (!mBookDownloader.isDownloading) {
             val bookPages = LinkedList<String>()
-            for (pageId in 0 until mBook.bookImages.pages.size) {
+            for (pageId in mBook.bookImages.pages.indices) {
                 val page = mBook.bookImages.pages[pageId]
                 bookPages.add(ApiConstants.getPictureUrl(
                         mBook.mediaId,
@@ -242,7 +243,7 @@ class BookPreviewPresenter @Inject constructor(
                         var progress = 0
                         val resultList = LinkedList<String>()
                         var currentPage = 0
-                        val resultFilePath = fileUtils.getImageDirectory(mBook.mediaId)
+                        val resultFilePath = fileUtils.getImageDirectory(mBook.usefulName)
                         while (currentPage < total) {
                             val lastPage = if (currentPage + BATCH_COUNT <= total) {
                                 currentPage + BATCH_COUNT
@@ -401,7 +402,7 @@ class BookPreviewPresenter @Inject constructor(
         if (bookPages.isEmpty()) {
             return
         }
-        val maxPosition = Math.min(bookPages.size, mCurrentThumbnailPosition + THUMBNAILS_LIMIT)
+        val maxPosition = min(bookPages.size, mCurrentThumbnailPosition + THUMBNAILS_LIMIT)
         for (pageId in mCurrentThumbnailPosition until maxPosition) {
             val page = bookPages[pageId]
             val url = ApiConstants.getThumbnailByPage(

@@ -9,7 +9,8 @@ import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.repository.TagRepository
-import java.util.*
+import java.util.Timer
+import java.util.TimerTask
 import javax.inject.Inject
 
 class TagsUpdateService : Service() {

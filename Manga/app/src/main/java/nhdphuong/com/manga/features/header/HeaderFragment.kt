@@ -72,12 +72,12 @@ class HeaderFragment : Fragment(), HeaderContract.View {
             override fun onTabClick(tab: Tab) {
                 when (tab) {
                     Tab.RECENT -> {
-                        RecentActivity.start(context, Constants.RECENT)
+                        RecentActivity.start(this@HeaderFragment, Constants.RECENT)
                         resetTabBar()
                         return
                     }
                     Tab.FAVORITE -> {
-                        RecentActivity.start(context, Constants.FAVORITE)
+                        RecentActivity.start(this@HeaderFragment, Constants.FAVORITE)
                         resetTabBar()
                         return
                     }

@@ -2,7 +2,7 @@ package nhdphuong.com.manga.data.local
 
 import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.entity.RecentBook
-import java.util.*
+import java.util.LinkedList
 import javax.inject.Inject
 
 /*

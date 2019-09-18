@@ -7,7 +7,7 @@ import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.scope.Remote
 import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.scope.Local
-import java.util.*
+import java.util.LinkedList
 import javax.inject.Inject
 import javax.inject.Singleton
 

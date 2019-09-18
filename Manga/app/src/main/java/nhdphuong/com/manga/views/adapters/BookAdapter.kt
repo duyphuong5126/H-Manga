@@ -17,7 +17,7 @@ import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SupportUtils
-import java.util.*
+import java.util.ArrayList
 
 /*
  * Created by nhdphuong on 3/18/18.
@@ -33,8 +33,8 @@ class BookAdapter(
         const val RECOMMEND_BOOK = 2
     }
 
-    private val mRecentList = LinkedList<Int>()
-    private val mFavoriteList = LinkedList<Int>()
+    private val mRecentList = ArrayList<Int>()
+    private val mFavoriteList = ArrayList<Int>()
 
     override fun onCreateViewHolder(
             parent: ViewGroup,

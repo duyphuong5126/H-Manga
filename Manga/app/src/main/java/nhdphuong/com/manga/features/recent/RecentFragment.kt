@@ -6,7 +6,9 @@ import `in`.srain.cube.views.ptr.PtrHandler
 import `in`.srain.cube.views.ptr.PtrUIHandler
 import `in`.srain.cube.views.ptr.indicator.PtrIndicator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Dialog
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -40,6 +42,7 @@ import nhdphuong.com.manga.features.preview.BookPreviewActivity
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
+import java.util.Locale
 
 /*
  * Created by nhdphuong on 6/10/18.
@@ -99,7 +102,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
         mtvRecentTitle.text = getString(
                 if (recentType == Constants.RECENT) R.string.recent else R.string.favorite
-        ).toUpperCase()
+        ).toUpperCase(Locale.US)
 
         ibSwitch.setImageResource(
                 if (recentType == Constants.RECENT) {
@@ -136,6 +139,21 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
                 Constants.RECENT_TYPE, Constants.RECENT
         ) ?: Constants.RECENT
         mPresenter.setType(recentType)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode != Activity.RESULT_OK || data?.action != Constants.TAG_SELECTED_ACTION) {
+            return
+        }
+        val tagName = data.getStringExtra(Constants.SELECTED_TAG).orEmpty()
+        activity?.run {
+            val intent = intent
+            intent.action = Constants.TAG_SELECTED_ACTION
+            intent.putExtra(Constants.SELECTED_TAG, tagName)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
     }
 
     override fun onDestroy() {

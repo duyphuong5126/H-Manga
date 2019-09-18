@@ -3,7 +3,14 @@ package nhdphuong.com.manga.data.remote
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.TagApiService
 import nhdphuong.com.manga.data.TagDataSource
-import nhdphuong.com.manga.data.entity.book.tags.*
+import nhdphuong.com.manga.data.entity.book.tags.Artist
+import nhdphuong.com.manga.data.entity.book.tags.Category
+import nhdphuong.com.manga.data.entity.book.tags.Tag
+import nhdphuong.com.manga.data.entity.book.tags.Character
+import nhdphuong.com.manga.data.entity.book.tags.Group
+import nhdphuong.com.manga.data.entity.book.tags.Language
+import nhdphuong.com.manga.data.entity.book.tags.Parody
+import nhdphuong.com.manga.data.entity.book.tags.UnknownTag
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

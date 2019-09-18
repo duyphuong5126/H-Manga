@@ -9,7 +9,7 @@ import nhdphuong.com.manga.Constants
 import java.io.File
 import java.io.FileOutputStream
 import java.text.NumberFormat
-import java.util.*
+import java.util.Locale
 import android.graphics.BitmapFactory
 import android.support.annotation.WorkerThread
 import nhdphuong.com.manga.Logger

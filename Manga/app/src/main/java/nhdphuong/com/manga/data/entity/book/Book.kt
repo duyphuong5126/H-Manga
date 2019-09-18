@@ -43,6 +43,16 @@ data class Book(
             } else ""
         }
 
+    val usefulName: String
+        get() {
+            return when {
+                title.englishName.isNotBlank() -> title.englishName
+                title.japaneseName.isNotBlank() -> title.japaneseName
+                title.pretty.isNotBlank() -> title.pretty
+                else -> ""
+            }
+        }
+
     val language: String
         get() {
             return when {

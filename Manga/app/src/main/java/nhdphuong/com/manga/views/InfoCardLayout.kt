@@ -15,7 +15,8 @@ import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.supports.SupportUtils
-import java.util.*
+import java.util.LinkedList
+import java.util.Collections
 
 /*
  * Created by nhdphuong on 4/15/18.

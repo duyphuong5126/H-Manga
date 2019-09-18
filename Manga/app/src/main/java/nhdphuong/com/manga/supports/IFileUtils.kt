@@ -10,7 +10,7 @@ import nhdphuong.com.manga.NHentaiApp
 interface IFileUtils {
     fun isStoragePermissionAccepted(): Boolean
 
-    fun getImageDirectory(mediaId: String): String
+    fun getImageDirectory(bookName: String): String
 
     fun refreshGallery(vararg galleryPaths: String)
 
@@ -28,8 +28,8 @@ class FileUtils : IFileUtils {
         }
     }
 
-    override fun getImageDirectory(mediaId: String): String {
-        return NHentaiApp.instance.getImageDirectory(mediaId)
+    override fun getImageDirectory(bookName: String): String {
+        return NHentaiApp.instance.getImageDirectory(bookName)
     }
 
     override fun refreshGallery(vararg galleryPaths: String) {

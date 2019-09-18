@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.IBinder
 import nhdphuong.com.manga.service.TagsUpdateService
+import java.util.Locale
 import javax.inject.Inject
 
 /*
@@ -53,8 +54,8 @@ class NHentaiApp : Application() {
             return "$rootDirectory/${Constants.NHENTAI_DIRECTORY}"
         }
 
-    fun getImageDirectory(mediaId: String): String = "$imagesDirectory/$mediaId"
-    fun getTagDirectory(): String = "$tagsDirectory/${Constants.TAGS.toLowerCase()}"
+    fun getImageDirectory(bookName: String): String = "$imagesDirectory/$bookName"
+    fun getTagDirectory(): String = "$tagsDirectory/${Constants.TAGS.toLowerCase(Locale.US)}"
 
     /**
      * Debug mode only

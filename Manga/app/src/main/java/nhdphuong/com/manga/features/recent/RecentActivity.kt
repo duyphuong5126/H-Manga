@@ -1,9 +1,9 @@
 package nhdphuong.com.manga.features.recent
 
-import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -14,10 +14,10 @@ class RecentActivity : AppCompatActivity() {
     companion object {
         private var mInstance: RecentActivity? = null
 
-        fun start(context: Context, @RecentType recentType: String) {
-            val intent = Intent(context, RecentActivity::class.java)
+        fun start(fragment: Fragment, @RecentType recentType: String) {
+            val intent = Intent(fragment.context, RecentActivity::class.java)
             intent.putExtra(Constants.RECENT_TYPE, recentType)
-            context.startActivity(intent)
+            fragment.startActivityForResult(intent, Constants.BOOK_PREVIEW_RESULT)
         }
 
         fun restart(@RecentType recentType: String) {

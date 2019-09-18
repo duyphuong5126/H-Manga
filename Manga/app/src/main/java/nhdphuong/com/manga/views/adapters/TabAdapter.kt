@@ -11,7 +11,7 @@ import android.widget.TextView
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
-import java.util.*
+import java.util.LinkedList
 
 /*
  * Created by nhdphuong on 3/17/18.

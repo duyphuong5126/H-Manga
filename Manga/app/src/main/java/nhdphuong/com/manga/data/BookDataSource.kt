@@ -4,7 +4,7 @@ import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.data.entity.book.RemoteBook
-import java.util.*
+import java.util.LinkedList
 
 /*
  * Created by nhdphuong on 3/24/18.

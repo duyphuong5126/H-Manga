@@ -16,6 +16,8 @@ import java.util.LinkedList
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 import kotlin.collections.HashSet
+import kotlin.math.max
+import kotlin.math.min
 
 /*
  * Created by nhdphuong on 5/5/18.
@@ -65,7 +67,7 @@ class ReaderPresenter @Inject constructor(
         mDownloadQueue.clear()
 
         mBookPages = LinkedList()
-        for (pageId in 0 until mBook.bookImages.pages.size) {
+        for (pageId in mBook.bookImages.pages.indices) {
             val page = mBook.bookImages.pages[pageId]
             mBookPages.add(ApiConstants.getPictureUrl(
                     mBook.mediaId, pageId + 1, page.imageType
@@ -126,7 +128,7 @@ class ReaderPresenter @Inject constructor(
                     mBook.bookImages.pages[downloadPage].let { page ->
                         val result = ImageUtils.downloadImage(mBookPages[downloadPage], page.width, page.height)
 
-                        val resultFilePath = fileUtils.getImageDirectory(mBook.mediaId)
+                        val resultFilePath = fileUtils.getImageDirectory(mBook.usefulName)
 
                         val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
                         val resultPath = SupportUtils.saveImage(result, resultFilePath, fileName, page.imageType)
@@ -180,8 +182,8 @@ class ReaderPresenter @Inject constructor(
     }
 
     private fun preloadPagesAround(page: Int) {
-        val startPrefetch = Math.max(0, page - PREFETCH_RADIUS)
-        val endPrefetch = Math.min(mBookPages.size - 1, page + PREFETCH_RADIUS)
+        val startPrefetch = max(0, page - PREFETCH_RADIUS)
+        val endPrefetch = min(mBookPages.size - 1, page + PREFETCH_RADIUS)
         Logger.d(TAG, "Prefetch from $startPrefetch to $endPrefetch")
         for (i in startPrefetch..endPrefetch) {
             if (!mPreFetchedPages.contains(i)) {
