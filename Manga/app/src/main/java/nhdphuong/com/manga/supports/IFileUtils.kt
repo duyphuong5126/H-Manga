@@ -6,6 +6,7 @@ import android.os.Build
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
+import java.util.*
 
 interface IFileUtils {
     fun isStoragePermissionAccepted(): Boolean
@@ -46,7 +47,7 @@ class FileUtils : IFileUtils {
     }
 
 
-    override fun getTagDirectory(): String = "${NHentaiApp.instance.getTagDirectory()}/${Constants.TAGS.toLowerCase()}"
+    override fun getTagDirectory(): String = "${NHentaiApp.instance.getTagDirectory()}/${Constants.TAGS.toLowerCase(Locale.US)}"
 
     companion object {
         private const val TAG = "FileUtils"

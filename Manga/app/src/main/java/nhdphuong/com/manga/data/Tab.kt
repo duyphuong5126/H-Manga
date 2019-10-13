@@ -23,14 +23,7 @@ enum class Tab(val defaultName: String) {
 
     companion object {
         fun fromString(name: String): Tab {
-            var result = NONE
-            for (value in Tab.values()) {
-                if (value.defaultName == name) {
-                    result = value
-                    break
-                }
-            }
-            return result
+            return values().firstOrNull { it.defaultName == name } ?: NONE
         }
     }
 

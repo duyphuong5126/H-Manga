@@ -12,11 +12,11 @@ import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
-import java.util.LinkedList
-import java.util.Stack
-import java.util.Collections
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
+import kotlin.collections.HashMap
+import kotlin.math.abs
 
 /*
  * Created by nhdphuong on 6/10/18.
@@ -156,7 +156,7 @@ class RecentPresenter @Inject constructor(
             mView.showLastBookListRefreshTime(
                     SupportUtils.getTimeElapsed(
                             System.currentTimeMillis() - lastRefreshTime
-                    ).toLowerCase()
+                    ).toLowerCase(Locale.US)
             )
         }
     }
@@ -251,7 +251,7 @@ class RecentPresenter @Inject constructor(
         val size = pageList.size
         for (i in 0 until size - 1) {
             for (j in i + 1 until size) {
-                if (Math.abs(pageList[i] - anchor) < Math.abs(pageList[j] - anchor)) {
+                if (abs(pageList[i] - anchor) < abs(pageList[j] - anchor)) {
                     Collections.swap(pageList, i, j)
                 }
             }

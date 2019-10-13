@@ -144,7 +144,7 @@ class AdminPresenter @Inject constructor(
     }
 
     private fun addTag(tag: Tag) {
-        when (tag.type.toLowerCase()) {
+        when (tag.type.toLowerCase(Locale.US)) {
             Constants.ARTIST -> {
                 Logger.d(TAG, "Artist - id: ${tag.tagId}," +
                         " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
