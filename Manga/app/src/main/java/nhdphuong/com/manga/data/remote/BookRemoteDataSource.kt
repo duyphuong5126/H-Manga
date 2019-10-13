@@ -27,7 +27,6 @@ class BookRemoteDataSource(
     }
 
     override suspend fun getBookByPage(page: Long): RemoteBook? {
-        getBookByPage(page, "")
         return suspendCoroutine { continuation ->
             val remoteBook = getBookByPage(page, "")
             continuation.resume(remoteBook)
@@ -92,7 +91,7 @@ class BookRemoteDataSource(
         connection.useCaches = false
         connection.connect()
         when (connection.responseCode) {
-            200 -> {
+            HttpURLConnection.HTTP_OK -> {
                 val br = BufferedReader(InputStreamReader(connection.inputStream))
                 val sb = StringBuilder()
                 var line = br.readLine()
