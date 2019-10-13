@@ -1,6 +1,6 @@
 # H-Manga
 We provide:
-- A huge library of hentai manga books which's managed by pages.
+- A huge library of hentai manga books.
 - Details of each book that give you all information about it.
 - Useful categories that relate to certain groups of books so that you can search for a book you're interested in.
 - Recent/favorite books management so that you can browse your reading history or read your favorite books again.
