@@ -174,9 +174,13 @@
                     app:myFont="@string/NotoSansBold" />
 
                 <android.support.constraint.ConstraintLayout
+                    android:id="@+id/clReload"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
+                    android:background="@drawable/button_transparent_rect_rounded_all_corners"
+                    android:clickable="true"
+                    android:focusable="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tvNothing">
@@ -185,8 +189,11 @@
                         android:id="@+id/mtvReload"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
                         android:gravity="center"
+                        android:paddingStart="@dimen/space_medium"
+                        android:paddingTop="@dimen/space_small"
+                        android:paddingEnd="@dimen/space_medium"
+                        android:paddingBottom="@dimen/space_small"
                         android:text="@string/reload_library"
                         android:textColor="@color/grey_3"
                         android:textSize="15sp"
@@ -200,6 +207,8 @@
                         android:id="@+id/vLine"
                         android:layout_width="0dp"
                         android:layout_height="1dp"
+                        android:layout_marginStart="@dimen/space_medium"
+                        android:layout_marginEnd="@dimen/space_medium"
                         android:background="@color/grey_3"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"

@@ -24,7 +24,7 @@ import kotlinx.android.synthetic.main.fragment_book_list.btnFirst
 import kotlinx.android.synthetic.main.fragment_book_list.btnLast
 import kotlinx.android.synthetic.main.fragment_book_list.clNavigation
 import kotlinx.android.synthetic.main.fragment_book_list.clNothing
-import kotlinx.android.synthetic.main.fragment_book_list.mtvReload
+import kotlinx.android.synthetic.main.fragment_book_list.clReload
 import kotlinx.android.synthetic.main.fragment_book_list.mtv_search_result
 import kotlinx.android.synthetic.main.fragment_book_list.nsvMainList
 import kotlinx.android.synthetic.main.fragment_book_list.refreshHeader
@@ -112,7 +112,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                 return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header)
             }
         })
-        mtvReload.setOnClickListener {
+        clReload.setOnClickListener {
             mHomePresenter.reloadCurrentPage {
 
             }

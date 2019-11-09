@@ -139,6 +139,7 @@ class HomePresenter @Inject constructor(
 
                 main.launch {
                     if (!isCurrentPageEmpty) {
+                        mView.refreshHomePagination(mCurrentNumOfPages)
                         mView.refreshHomeBookList()
                     }
                     onRefreshed()
