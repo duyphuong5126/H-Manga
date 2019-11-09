@@ -1,7 +1,7 @@
 package nhdphuong.com.manga.views
 
 import android.annotation.SuppressLint
-import android.content.Context
+import android.support.constraint.ConstraintLayout
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.TextAppearanceSpan
@@ -21,13 +21,9 @@ import java.util.Collections
 /*
  * Created by nhdphuong on 4/15/18.
  */
-class InfoCardLayout(
-        private val layoutInflater: LayoutInflater,
-        private val tagList: List<Tag>,
-        private val mContext: Context
-) {
+class InformationCardAdapter(private val tagList: List<Tag>) {
     companion object {
-        private const val TAG = "InfoCardLayout"
+        private const val TAG = "InformationCardAdapter"
     }
 
     @SuppressLint("InflateParams")
@@ -35,6 +31,8 @@ class InfoCardLayout(
         if (tagList.isEmpty()) {
             return
         }
+        val context = viewGroup.context
+        val layoutInflater = LayoutInflater.from(context)
         var tagLine = layoutInflater.inflate(
                 R.layout.item_tag_line,
                 viewGroup,
@@ -52,7 +50,7 @@ class InfoCardLayout(
             viewList.add(view)
         }
         val totalWidth = viewGroup.measuredWidth
-        val totalMargin = SupportUtils.dp2Pixel(mContext, 6)
+        val totalMargin = SupportUtils.dp2Pixel(context, 6)
         if (viewList.size >= 3) {
             sortViewList(viewList, totalWidth, totalMargin / 2)
         }
@@ -83,26 +81,28 @@ class InfoCardLayout(
             private val tag: Tag
     ) : View.OnClickListener {
         private val mTvLabel: TextView = view.findViewById(R.id.tvLabel)
+        private val mClickableArea: ConstraintLayout = view.findViewById(R.id.clClickableArea)
 
         init {
+            val context = view.context
             val label = if (NHentaiApp.instance.isCensored) "Censored" else tag.name
-            val count = String.format(mContext.getString(R.string.count), SupportUtils.formatBigNumber(tag.count))
+            val count = String.format(context.getString(R.string.count), SupportUtils.formatBigNumber(tag.count))
             val finalText = "$label $count"
             val spannableText = SpannableString(finalText)
             spannableText.setSpan(
-                    TextAppearanceSpan(mContext, R.style.InfoCardLabel),
+                    TextAppearanceSpan(context, R.style.InfoCardLabel),
                     0,
                     label.length,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             spannableText.setSpan(
-                    TextAppearanceSpan(mContext, R.style.InfoCardCount),
+                    TextAppearanceSpan(context, R.style.InfoCardCount),
                     label.length + 1,
                     finalText.length,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             mTvLabel.text = spannableText
-            mTvLabel.setOnClickListener(this)
+            mClickableArea.setOnClickListener(this)
         }
 
         override fun onClick(p0: View?) {

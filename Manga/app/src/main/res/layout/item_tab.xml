@@ -5,8 +5,8 @@
     android:id="@+id/container"
     android:layout_width="80dp"
     android:layout_height="match_parent"
-    android:layout_marginEnd="5dp"
     android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
     tools:targetApi="jelly_bean">
 
     <nhdphuong.com.manga.views.customs.MyTextView
@@ -15,6 +15,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
+        android:paddingTop="3dp"
         android:text="@string/groups"
         android:textColor="@color/redED2553"
         android:textSize="14sp"
@@ -22,8 +23,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:myFont="@string/NotoSansRegular"
-        android:paddingTop="3dp"/>
+        app:myFont="@string/NotoSansRegular" />
 
     <View
         android:id="@+id/vTabIndicator"
@@ -34,5 +34,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvTabLabel" />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/tabClickArea"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

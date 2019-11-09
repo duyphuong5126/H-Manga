@@ -5,4 +5,16 @@
     <dimen name="dp30">30dp</dimen>
     <dimen name="dp40">40dp</dimen>
     <dimen name="dp50">50dp</dimen>
+
+    <dimen name="header_size">32dp</dimen>
+
+    <dimen name="normal_button_size">32dp</dimen>
+    <dimen name="medium_button_size">24dp</dimen>
+
+    <dimen name="space_normal">16dp</dimen>
+    <dimen name="space_medium">8dp</dimen>
+    <dimen name="space_small">4dp</dimen>
+
+    <dimen name="header_title_size">18sp</dimen>
+    <dimen name="normal_text_size">16sp</dimen>
 </resources>

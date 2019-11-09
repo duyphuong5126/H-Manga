@@ -11,7 +11,7 @@
         style="@style/PageNotSelected"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:background="@drawable/bg_circle_grey_1"
+        android:background="@drawable/bg_circle_grey"
         android:gravity="center"
         android:minWidth="30dp"
         android:text="@string/page_number"

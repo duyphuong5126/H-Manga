@@ -106,9 +106,9 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
         ibSwitch.setImageResource(
                 if (recentType == Constants.RECENT) {
-                    R.drawable.ic_recent_white
-                } else {
                     R.drawable.ic_heart_white
+                } else {
+                    R.drawable.ic_recent_white
                 }
         )
 

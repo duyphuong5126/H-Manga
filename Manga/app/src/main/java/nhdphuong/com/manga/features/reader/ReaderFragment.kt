@@ -1,6 +1,5 @@
 package nhdphuong.com.manga.features.reader
 
-import android.app.Dialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
@@ -43,7 +42,6 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     private lateinit var mPresenter: ReaderContract.Presenter
     private lateinit var mRotationAnimation: Animation
     private lateinit var mBookReaderAdapter: BookReaderAdapter
-    private lateinit var mLoadingDialog: Dialog
 
     override fun setPresenter(presenter: ReaderContract.Presenter) {
         mPresenter = presenter
@@ -59,7 +57,6 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mLoadingDialog = DialogHelper.showLoadingDialog(activity!!)
         ibBack.setOnClickListener {
             navigateToGallery()
         }
@@ -238,14 +235,12 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
     override fun showLoading() {
         if (isAdded) {
-            mLoadingDialog.show()
             ibRefresh.startAnimation(mRotationAnimation)
         }
     }
 
     override fun hideLoading() {
         if (isAdded) {
-            mLoadingDialog.hide()
             ibRefresh.clearAnimation()
         }
     }

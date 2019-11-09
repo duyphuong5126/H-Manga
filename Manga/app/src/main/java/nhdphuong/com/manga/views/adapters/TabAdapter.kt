@@ -7,7 +7,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import kotlinx.android.synthetic.main.item_tab.view.tabClickArea
+import kotlinx.android.synthetic.main.item_tab.view.tvTabLabel
+import kotlinx.android.synthetic.main.item_tab.view.vTabIndicator
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
@@ -77,14 +79,13 @@ class TabAdapter(
             private val mOnMainTabClick: OnMainTabClick
     ) : RecyclerView.ViewHolder(itemView),
             View.OnClickListener {
-        private val mTvLabel = itemView.findViewById<TextView>(R.id.tvTabLabel)
-        private val mTabIndicator = itemView.findViewById<View>(R.id.vTabIndicator)
+        private val mTvLabel = itemView.tvTabLabel
+        private val mTabIndicator = itemView.vTabIndicator
+        private val mTabClickArea = itemView.tabClickArea
         private lateinit var mTab: Tab
 
         init {
-            mTvLabel.setOnClickListener { this@MainTabViewHolder.onClick(it) }
-            mTabIndicator.setOnClickListener { this@MainTabViewHolder.onClick(it) }
-            itemView.setOnClickListener { this@MainTabViewHolder.onClick(it) }
+            mTabClickArea.setOnClickListener { this@MainTabViewHolder.onClick(it) }
         }
 
         override fun onClick(p0: View?) {

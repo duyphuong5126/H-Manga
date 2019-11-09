@@ -26,7 +26,7 @@
                 android:scaleType="center"
                 android:scaleX="0.7"
                 android:scaleY="0.7"
-                android:src="@drawable/ic_back_white_1"
+                android:src="@drawable/ic_back_white"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/mtv_title"
                 app:layout_constraintBottom_toBottomOf="@id/mtv_title"/>

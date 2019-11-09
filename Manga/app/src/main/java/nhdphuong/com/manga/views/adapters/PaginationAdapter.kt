@@ -89,7 +89,7 @@ class PaginationAdapter(
             val selected = pageSelected == mCurrentPage
             if (selected) {
                 TextViewCompat.setTextAppearance(mTvPageNumber, R.style.PageSelected)
-                mTvPageNumber.setBackgroundResource(R.drawable.bg_circle_grey_1)
+                mTvPageNumber.setBackgroundResource(R.drawable.bg_circle_grey)
             } else {
                 TextViewCompat.setTextAppearance(mTvPageNumber, R.style.PageNotSelected)
                 mTvPageNumber.setBackgroundResource(0)
@@ -130,7 +130,7 @@ class PaginationAdapter(
             val selected = pageSelected == mCurrentPage
             if (selected) {
                 TextViewCompat.setTextAppearance(mTvPageNumber, R.style.PageSelected)
-                mTvPageNumber.setBackgroundResource(R.drawable.bg_circle_grey_1)
+                mTvPageNumber.setBackgroundResource(R.drawable.bg_circle_grey)
             } else {
                 TextViewCompat.setTextAppearance(mTvPageNumber, R.style.PageNotSelected)
                 mTvPageNumber.setBackgroundResource(0)

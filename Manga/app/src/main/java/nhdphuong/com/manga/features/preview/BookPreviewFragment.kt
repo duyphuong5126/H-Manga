@@ -59,7 +59,7 @@ import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.DialogHelper
-import nhdphuong.com.manga.views.InfoCardLayout
+import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PreviewAdapter
@@ -70,7 +70,7 @@ import nhdphuong.com.manga.views.adapters.PreviewAdapter
 class BookPreviewFragment :
         Fragment(),
         BookPreviewContract.View,
-        InfoCardLayout.TagSelectedListener {
+        InformationCardAdapter.TagSelectedListener {
     companion object {
         private const val TAG = "BookPreviewFragment"
         private const val NUM_OF_ROWS = 2
@@ -501,7 +501,7 @@ class BookPreviewFragment :
     }
 
     private fun loadInfoList(layout: ViewGroup, infoList: List<Tag>) {
-        val infoCardLayout = InfoCardLayout(activity?.layoutInflater!!, infoList, context!!)
+        val infoCardLayout = InformationCardAdapter(infoList)
         infoCardLayout.loadInfoList(layout)
         infoCardLayout.setTagSelectedListener(this)
     }
