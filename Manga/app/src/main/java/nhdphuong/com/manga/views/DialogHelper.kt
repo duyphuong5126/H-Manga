@@ -152,6 +152,7 @@ class DialogHelper {
                 dialog.dismiss()
                 onOk()
             }
+            dialog.setCanceledOnTouchOutside(false)
             dialog.setContentView(contentView)
             dialog.show()
             dialog.window?.let { window ->
@@ -196,6 +197,7 @@ class DialogHelper {
                 dialog.dismiss()
                 onDismiss()
             }
+            dialog.setCanceledOnTouchOutside(false)
             dialog.setContentView(contentView)
             dialog.show()
             dialog.window?.let { window ->

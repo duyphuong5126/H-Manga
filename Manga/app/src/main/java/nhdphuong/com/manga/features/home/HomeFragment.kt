@@ -50,12 +50,6 @@ import nhdphuong.com.manga.views.adapters.PaginationAdapter
  */
 class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
-    companion object {
-        private const val TAG = "HomeFragment"
-        private const val GRID_COLUMNS = 2
-        private const val LANDSCAPE_GRID_COLUMNS = 3
-    }
-
     private lateinit var mHomeListAdapter: BookAdapter
     private lateinit var mHomePaginationAdapter: PaginationAdapter
     private lateinit var mHomePresenter: HomeContract.Presenter
@@ -100,7 +94,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                 mHomePresenter.reloadCurrentPage {
                     frame?.postDelayed({
                         srlPullToReload.refreshComplete()
-                    }, 1000)
+                    }, REFRESH_COMPLETE_DURATION)
                 }
             }
 
@@ -310,7 +304,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                 "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}")
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
             refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
-            refreshHeader.ivRefresh.rotation = 180F
+            refreshHeader.ivRefresh.rotation = REFRESH_HEADER_ANGEL
         }
     }
 
@@ -355,7 +349,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         val runnable = object : Runnable {
             override fun run() {
                 updateDotsTask()
-                mUpdateDotsHandler.postDelayed(this, 500)
+                mUpdateDotsHandler.postDelayed(this, DOTS_UPDATE_INTERVAL)
             }
         }
         runnable.run()
@@ -372,5 +366,14 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             text = String.format(mSearchResultTitle, data)
             visibility = if (data.isBlank()) View.GONE else View.VISIBLE
         }
+    }
+
+    companion object {
+        private const val TAG = "HomeFragment"
+        private const val GRID_COLUMNS = 2
+        private const val LANDSCAPE_GRID_COLUMNS = 3
+        private const val DOTS_UPDATE_INTERVAL = 500L
+        private const val REFRESH_COMPLETE_DURATION = 800L
+        private const val REFRESH_HEADER_ANGEL = 180F
     }
 }

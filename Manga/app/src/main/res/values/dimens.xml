@@ -3,14 +3,20 @@
     <dimen name="dp10">10dp</dimen>
     <dimen name="dp20">20dp</dimen>
     <dimen name="dp30">30dp</dimen>
-    <dimen name="dp40">40dp</dimen>
-    <dimen name="dp50">50dp</dimen>
 
     <dimen name="header_size">32dp</dimen>
+    <dimen name="header_size_large">36dp</dimen>
+
+    <dimen name="normal_box_size">32dp</dimen>
+    <dimen name="big_box_size">48dp</dimen>
+
+    <dimen name="normal_icon_size">16dp</dimen>
+
+    <dimen name="search_width">40dp</dimen>
 
     <dimen name="normal_button_size">32dp</dimen>
-    <dimen name="medium_button_size">24dp</dimen>
 
+    <dimen name="space_large">24dp</dimen>
     <dimen name="space_normal">16dp</dimen>
     <dimen name="space_medium">8dp</dimen>
     <dimen name="space_small">4dp</dimen>

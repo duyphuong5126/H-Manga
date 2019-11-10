@@ -20,6 +20,7 @@ import java.util.LinkedList
 import java.util.Random
 import java.util.Collections
 import java.util.Stack
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.collections.HashMap
 import kotlin.coroutines.resume
@@ -53,7 +54,7 @@ class HomePresenter @Inject constructor(
 
     private var isLoadingPreventiveData = false
     private val mJobStack = Stack<Job>()
-    private var isRefreshing: Boolean = false
+    private var isRefreshing = AtomicBoolean(false)
 
     private var mSearchData: String = ""
     private val isSearching: Boolean get() = !TextUtils.isEmpty(mSearchData)
@@ -117,8 +118,7 @@ class HomePresenter @Inject constructor(
     }
 
     override fun reloadCurrentPage(onRefreshed: () -> Unit) {
-        if (!isRefreshing) {
-            isRefreshing = true
+        if (isRefreshing.compareAndSet(false, true)) {
             io.launch {
                 val remoteBooks = getBooksListByPage(mCurrentPage)
                 mCurrentNumOfPages = remoteBooks?.numOfPages ?: 0L
@@ -135,7 +135,7 @@ class HomePresenter @Inject constructor(
                 } else {
                     true
                 }
-                isRefreshing = false
+                isRefreshing.compareAndSet(true, false)
 
                 main.launch {
                     if (!isCurrentPageEmpty) {
@@ -387,7 +387,7 @@ class HomePresenter @Inject constructor(
         mCurrentLimitPerPage = 0
         mCurrentPage = 1
         isLoadingPreventiveData = false
-        isRefreshing = false
+        isRefreshing.compareAndSet(true, false)
     }
 
     private suspend fun getBooksListByPage(pageNumber: Long): RemoteBook? {

@@ -33,15 +33,19 @@
         </activity>
         <activity
             android:name=".features.preview.BookPreviewActivity"
+            android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
             android:name=".features.reader.ReaderActivity"
+            android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
             android:name=".features.tags.TagsActivity"
+            android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
             android:name=".features.recent.RecentActivity"
+            android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".features.admin.AdminActivity" />
 
