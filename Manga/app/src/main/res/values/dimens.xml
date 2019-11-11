@@ -21,6 +21,9 @@
     <dimen name="space_medium">8dp</dimen>
     <dimen name="space_small">4dp</dimen>
 
+    <dimen name="dialog_single_button_width">200dp</dimen>
+
     <dimen name="header_title_size">18sp</dimen>
+    <dimen name="dialog_header_title_size">24sp</dimen>
     <dimen name="normal_text_size">16sp</dimen>
 </resources>

@@ -229,7 +229,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
                 button.setTextColor(Color.WHITE)
             } else {
                 button.setBackgroundResource(android.R.color.transparent)
-                button.setTextColor(ContextCompat.getColor(this, R.color.grey_1))
+                button.setTextColor(ContextCompat.getColor(this, R.color.grey767676))
             }
         }
     }
