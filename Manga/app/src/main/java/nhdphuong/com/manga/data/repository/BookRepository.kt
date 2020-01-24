@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.data.repository
 
+import io.reactivex.Completable
 import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.Book
@@ -16,50 +17,54 @@ import javax.inject.Singleton
  */
 @Singleton
 class BookRepository @Inject constructor(
-        @Remote private val mBookRemoteDataSource: BookDataSource.Remote,
-        @Local private val mBookLocalDataSource: BookDataSource.Local
+    @Remote private val bookRemoteDataSource: BookDataSource.Remote,
+    @Local private val bookLocalDataSource: BookDataSource.Local
 ) : BookDataSource.Remote, BookDataSource.Local {
     override suspend fun getBookByPage(page: Long): RemoteBook? {
-        return mBookRemoteDataSource.getBookByPage(page)
+        return bookRemoteDataSource.getBookByPage(page)
     }
 
     override suspend fun getBookByPage(searchContent: String, page: Long): RemoteBook? {
-        return mBookRemoteDataSource.getBookByPage(searchContent, page)
+        return bookRemoteDataSource.getBookByPage(searchContent, page)
     }
 
     override suspend fun getRecommendBook(bookId: String): RecommendBook? {
-        return mBookRemoteDataSource.getRecommendBook(bookId)
+        return bookRemoteDataSource.getRecommendBook(bookId)
     }
 
     override suspend fun getBookDetails(bookId: String): Book? {
-        return mBookRemoteDataSource.getBookDetails(bookId)
+        return bookRemoteDataSource.getBookDetails(bookId)
     }
 
     override suspend fun saveFavoriteBook(bookId: String, isFavorite: Boolean) {
-        mBookLocalDataSource.saveFavoriteBook(bookId, isFavorite)
+        bookLocalDataSource.saveFavoriteBook(bookId, isFavorite)
     }
 
     override suspend fun saveRecentBook(bookId: String) {
-        mBookLocalDataSource.saveRecentBook(bookId)
+        bookLocalDataSource.saveRecentBook(bookId)
     }
 
     override suspend fun getFavoriteBook(limit: Int, offset: Int): LinkedList<RecentBook> {
-        return mBookLocalDataSource.getFavoriteBook(limit, offset)
+        return bookLocalDataSource.getFavoriteBook(limit, offset)
     }
 
     override suspend fun getRecentBooks(limit: Int, offset: Int): LinkedList<RecentBook> {
-        return mBookLocalDataSource.getRecentBooks(limit, offset)
+        return bookLocalDataSource.getRecentBooks(limit, offset)
     }
 
     override suspend fun isFavoriteBook(bookId: String): Boolean {
-        return mBookLocalDataSource.isFavoriteBook(bookId)
+        return bookLocalDataSource.isFavoriteBook(bookId)
     }
 
     override suspend fun isRecentBook(bookId: String): Boolean {
-        return mBookLocalDataSource.isRecentBook(bookId)
+        return bookLocalDataSource.isRecentBook(bookId)
     }
 
-    override suspend fun getRecentCount(): Int = mBookLocalDataSource.getRecentCount()
+    override suspend fun getRecentCount(): Int = bookLocalDataSource.getRecentCount()
 
-    override suspend fun getFavoriteCount(): Int = mBookLocalDataSource.getFavoriteCount()
+    override suspend fun getFavoriteCount(): Int = bookLocalDataSource.getFavoriteCount()
+
+    override fun addToRecentList(bookId: String): Completable {
+        return bookLocalDataSource.addToRecentList(bookId)
+    }
 }

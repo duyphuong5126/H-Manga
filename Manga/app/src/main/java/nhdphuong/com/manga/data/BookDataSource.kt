@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.data
 
+import io.reactivex.Completable
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RecommendBook
@@ -20,6 +21,7 @@ interface BookDataSource {
     interface Local {
         suspend fun saveRecentBook(bookId: String)
         suspend fun saveFavoriteBook(bookId: String, isFavorite: Boolean)
+        fun addToRecentList(bookId: String): Completable
         suspend fun getRecentBooks(limit: Int, offset: Int): LinkedList<RecentBook>
         suspend fun getFavoriteBook(limit: Int, offset: Int): LinkedList<RecentBook>
         suspend fun isFavoriteBook(bookId: String): Boolean

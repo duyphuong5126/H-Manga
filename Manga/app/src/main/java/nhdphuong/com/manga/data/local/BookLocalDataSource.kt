@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.data.local
 
+import io.reactivex.Completable
 import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.entity.RecentBook
 import java.util.LinkedList
@@ -9,37 +10,43 @@ import javax.inject.Inject
  * Created by nhdphuong on 6/9/18.
  */
 class BookLocalDataSource @Inject constructor(
-    private val mRecentBookDAO: RecentBookDAO
+    private val recentBookDAO: RecentBookDAO
 ) : BookDataSource.Local {
     override suspend fun saveRecentBook(bookId: String) {
-        mRecentBookDAO.insertRecentBooks(RecentBook(bookId, false, System.currentTimeMillis()))
+        recentBookDAO.insertRecentBooks(RecentBook(bookId, false, System.currentTimeMillis()))
     }
 
     override suspend fun saveFavoriteBook(bookId: String, isFavorite: Boolean) {
-        mRecentBookDAO.insertRecentBooks(RecentBook(bookId, isFavorite, System.currentTimeMillis()))
+        recentBookDAO.insertRecentBooks(RecentBook(bookId, isFavorite, System.currentTimeMillis()))
     }
 
     override suspend fun getRecentBooks(limit: Int, offset: Int): LinkedList<RecentBook> {
         val result = LinkedList<RecentBook>()
-        result.addAll(mRecentBookDAO.getRecentBooks(limit, offset))
+        result.addAll(recentBookDAO.getRecentBooks(limit, offset))
         return result
     }
 
     override suspend fun getFavoriteBook(limit: Int, offset: Int): LinkedList<RecentBook> {
         val result = LinkedList<RecentBook>()
-        result.addAll(mRecentBookDAO.getFavoriteBooks(limit, offset))
+        result.addAll(recentBookDAO.getFavoriteBooks(limit, offset))
         return result
     }
 
     override suspend fun isFavoriteBook(bookId: String): Boolean {
-        return mRecentBookDAO.isFavoriteBook(bookId) == 1
+        return recentBookDAO.isFavoriteBook(bookId) == 1
     }
 
     override suspend fun isRecentBook(bookId: String): Boolean {
-        return mRecentBookDAO.getRecentBookId(bookId) == bookId
+        return recentBookDAO.getRecentBookId(bookId) == bookId
     }
 
-    override suspend fun getRecentCount(): Int = mRecentBookDAO.getRecentBookCount()
+    override suspend fun getRecentCount(): Int = recentBookDAO.getRecentBookCount()
 
-    override suspend fun getFavoriteCount(): Int = mRecentBookDAO.getFavoriteBookCount()
+    override suspend fun getFavoriteCount(): Int = recentBookDAO.getFavoriteBookCount()
+
+    override fun addToRecentList(bookId: String): Completable {
+        return Completable.fromCallable {
+            recentBookDAO.insertRecentBooks(RecentBook(bookId, false, System.currentTimeMillis()))
+        }
+    }
 }
