@@ -2,16 +2,16 @@ package nhdphuong.com.manga.features.home
 
 import android.annotation.TargetApi
 import android.app.Activity
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import javax.inject.Inject
 import android.content.Intent
 import android.os.Build
-import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.view.KeyEvent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.features.RandomContract
@@ -74,8 +74,8 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
             KeyEvent.KEYCODE_BACK -> {
                 return if (isTaskRoot) {
                     val homeIntent = Intent(Intent.ACTION_MAIN)
-                            .addCategory(Intent.CATEGORY_HOME)
-                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .addCategory(Intent.CATEGORY_HOME)
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(homeIntent)
                     true
                 } else {
@@ -106,9 +106,9 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
         if (homeFragment == null) {
             homeFragment = HomeFragment()
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.clMainFragment, homeFragment, TAG)
-                    .addToBackStack(TAG)
-                    .commitAllowingStateLoss()
+                .replace(R.id.clMainFragment, homeFragment, TAG)
+                .addToBackStack(TAG)
+                .commitAllowingStateLoss()
         }
         mHomeFragment = homeFragment
 
@@ -117,15 +117,15 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
         if (headerFragment == null) {
             headerFragment = HeaderFragment()
             supportFragmentManager.beginTransaction().replace(R.id.clHeader, headerFragment, TAG)
-                    .addToBackStack(TAG).commitAllowingStateLoss()
+                .addToBackStack(TAG).commitAllowingStateLoss()
         }
         headerFragment.setSearchInputListener(this)
         headerFragment.setRandomContract(this)
         mHeaderFragment = headerFragment
 
         NHentaiApp.instance.applicationComponent.plus(
-                HomeModule(homeFragment),
-                HeaderModule(headerFragment)
+            HomeModule(homeFragment),
+            HeaderModule(headerFragment)
         ).inject(this)
     }
 }

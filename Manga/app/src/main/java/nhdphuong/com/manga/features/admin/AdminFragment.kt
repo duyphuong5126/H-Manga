@@ -2,11 +2,11 @@ package nhdphuong.com.manga.features.admin
 
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_admin.mbt_start_downloading
 import kotlinx.android.synthetic.main.fragment_admin.mtv_artists_count
 import kotlinx.android.synthetic.main.fragment_admin.mtv_categories_count
@@ -33,9 +33,9 @@ class AdminFragment : Fragment(), AdminContract.View {
     private lateinit var mPresenter: AdminContract.Presenter
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_admin, container, false)
     }
@@ -64,9 +64,9 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
@@ -88,15 +88,15 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     override fun updateDownloadingStatistics(
-            downloadedPages: Long,
-            artists: Int,
-            characters: Int,
-            categories: Int,
-            languages: Int,
-            parodies: Int,
-            groups: Int,
-            tags: Int,
-            unknownsTypes: Int
+        downloadedPages: Long,
+        artists: Int,
+        characters: Int,
+        categories: Int,
+        languages: Int,
+        parodies: Int,
+        groups: Int,
+        tags: Int,
+        unknownsTypes: Int
     ) {
         val resources = resources
         mtv_pages_downloaded.text = resources.getString(R.string.downloaded_pages, downloadedPages)
@@ -117,7 +117,11 @@ class AdminFragment : Fragment(), AdminContract.View {
         DialogHelper.showStoragePermissionDialog(activity!!, onOk = {
             requestStoragePermission()
         }, onDismiss = {
-            Toast.makeText(context, getString(R.string.toast_storage_permission_require), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                getString(R.string.toast_storage_permission_require),
+                Toast.LENGTH_SHORT
+            ).show()
         })
     }
 

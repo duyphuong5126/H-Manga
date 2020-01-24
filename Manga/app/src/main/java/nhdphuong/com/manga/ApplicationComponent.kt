@@ -16,13 +16,14 @@ import nhdphuong.com.manga.features.recent.RecentModule
 import nhdphuong.com.manga.features.tags.TagsComponent
 import nhdphuong.com.manga.features.tags.TagsModule
 import nhdphuong.com.manga.service.TagsUpdateService
+import nhdphuong.com.manga.usecase.UseCaseModule
 import javax.inject.Singleton
 
 /*
  * Created by nhdphuong on 3/21/18.
  */
 @Singleton
-@Component(modules = [ApplicationModule::class, RepositoryModule::class])
+@Component(modules = [ApplicationModule::class, RepositoryModule::class, UseCaseModule::class])
 interface ApplicationComponent {
     fun plus(homeModule: HomeModule, headerModule: HeaderModule): HomeComponent
     fun plus(bookPreviewModule: BookPreviewModule): BookPreviewComponent

@@ -2,9 +2,9 @@ package nhdphuong.com.manga.features.tags
 
 import android.app.Activity
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -48,8 +48,8 @@ class TagsActivity : AppCompatActivity(), SearchContract {
         if (tagsFragment == null) {
             tagsFragment = TagsFragment()
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.clTagsFragment, tagsFragment)
-                    .commitAllowingStateLoss()
+                .replace(R.id.clTagsFragment, tagsFragment)
+                .commitAllowingStateLoss()
         }
         tagsFragment.setSearchInputListener(this)
 
@@ -58,16 +58,16 @@ class TagsActivity : AppCompatActivity(), SearchContract {
         if (headerFragment == null) {
             headerFragment = HeaderFragment()
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.clHeader, headerFragment)
-                    .commitAllowingStateLoss()
+                .replace(R.id.clHeader, headerFragment)
+                .commitAllowingStateLoss()
         }
         headerFragment.setSearchInputListener(this)
         intent.getStringExtra(Constants.TAG_TYPE)?.let { tag ->
             headerFragment.arguments = getTagBundle(tag)
             headerFragment.setTagChangeListener(tagsFragment)
             NHentaiApp.instance.applicationComponent.plus(
-                    TagsModule(tagsFragment, tag),
-                    HeaderModule(headerFragment)
+                TagsModule(tagsFragment, tag),
+                HeaderModule(headerFragment)
             ).inject(this)
         }
     }

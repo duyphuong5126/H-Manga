@@ -3,15 +3,15 @@ package nhdphuong.com.manga.features.reader
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.app.Fragment
-import android.support.v4.app.NotificationCompat
-import android.support.v4.view.ViewPager
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.fragment.app.Fragment
+import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.fragment_reader.clDownloadedPopup
 import kotlinx.android.synthetic.main.fragment_reader.clReaderBottom
 import kotlinx.android.synthetic.main.fragment_reader.clReaderTop
@@ -48,9 +48,9 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_reader, container, false)
     }
@@ -105,9 +105,9 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
@@ -158,9 +158,9 @@ class ReaderFragment : Fragment(), ReaderContract.View {
             }
 
             override fun onPageScrolled(
-                    position: Int,
-                    positionOffset: Float,
-                    positionOffsetPixels: Int
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
             ) {
 
             }
@@ -199,9 +199,9 @@ class ReaderFragment : Fragment(), ReaderContract.View {
             requestStoragePermission()
         }, onDismiss = {
             Toast.makeText(
-                    context,
-                    getString(R.string.toast_storage_permission_require),
-                    Toast.LENGTH_SHORT
+                context,
+                getString(R.string.toast_storage_permission_require),
+                Toast.LENGTH_SHORT
             ).show()
         })
     }
@@ -220,10 +220,10 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
     override fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int) {
         NotificationHelper.sendBigContentNotification(
-                getString(R.string.now_reading),
-                NotificationCompat.PRIORITY_DEFAULT,
-                readingTitle,
-                true
+            getString(R.string.now_reading),
+            NotificationCompat.PRIORITY_DEFAULT,
+            readingTitle,
+            true
         ).let { notificationId ->
             mPresenter.updateNotificationId(notificationId)
         }

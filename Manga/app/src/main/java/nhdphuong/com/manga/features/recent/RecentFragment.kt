@@ -12,14 +12,14 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_recent_list.btnFirst
 import kotlinx.android.synthetic.main.fragment_recent_list.btnLast
 import kotlinx.android.synthetic.main.fragment_recent_list.clNavigation
@@ -67,9 +67,9 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_recent_list, container, false)
     }
@@ -78,7 +78,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         super.onViewCreated(view, savedInstanceState)
 
         val recentType = activity?.intent?.extras?.getString(
-                Constants.RECENT_TYPE, Constants.RECENT
+            Constants.RECENT_TYPE, Constants.RECENT
         ) ?: Constants.RECENT
 
         mLoadingDialog = DialogHelper.showLoadingDialog(activity!!)
@@ -92,33 +92,34 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             }
 
             override fun checkCanDoRefresh(
-                    frame: PtrFrameLayout?,
-                    content: View?,
-                    header: View?
+                frame: PtrFrameLayout?,
+                content: View?,
+                header: View?
             ): Boolean {
                 return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header)
             }
         })
 
         mtvRecentTitle.text = getString(
-                if (recentType == Constants.RECENT) R.string.recent else R.string.favorite
+            if (recentType == Constants.RECENT) R.string.recent else R.string.favorite
         ).toUpperCase(Locale.US)
 
         ibSwitch.setImageResource(
-                if (recentType == Constants.RECENT) {
-                    R.drawable.ic_heart_white
-                } else {
-                    R.drawable.ic_recent_white
-                }
+            if (recentType == Constants.RECENT) {
+                R.drawable.ic_heart_white
+            } else {
+                R.drawable.ic_recent_white
+            }
         )
 
         ibSwitch.setOnClickListener {
             RecentActivity.restart(
-                    if (recentType == Constants.RECENT) {
-                        Constants.FAVORITE
-                    } else {
-                        Constants.RECENT
-                    })
+                if (recentType == Constants.RECENT) {
+                    Constants.FAVORITE
+                } else {
+                    Constants.RECENT
+                }
+            )
         }
         ibBack.setOnClickListener {
             activity?.onBackPressed()
@@ -136,7 +137,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         mPresenter.start()
 
         val recentType = activity?.intent?.extras?.getString(
-                Constants.RECENT_TYPE, Constants.RECENT
+            Constants.RECENT_TYPE, Constants.RECENT
         ) ?: Constants.RECENT
         mPresenter.setType(recentType)
     }
@@ -164,19 +165,19 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     override fun setUpRecentBookList(recentBookList: List<Book>) {
         val recentFragment = this
         mRecentListAdapter = BookAdapter(
-                recentBookList,
-                BookAdapter.HOME_PREVIEW_BOOK,
-                object : BookAdapter.OnBookClick {
-                    override fun onItemClick(item: Book) {
-                        BookPreviewActivity.start(recentFragment, item)
-                    }
+            recentBookList,
+            BookAdapter.HOME_PREVIEW_BOOK,
+            object : BookAdapter.OnBookClick {
+                override fun onItemClick(item: Book) {
+                    BookPreviewActivity.start(recentFragment, item)
                 }
+            }
         )
         val recentList: RecyclerView = rvMainList
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
         val recentListLayoutManager = object : GridLayoutManager(
-                context,
-                if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
+            context,
+            if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
         ) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
@@ -211,12 +212,13 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         }
         recentPagination.visibility = View.VISIBLE
         recentPagination.layoutManager = LinearLayoutManager(
-                activity,
-                LinearLayoutManager.HORIZONTAL,
-                false
+            activity,
+            LinearLayoutManager.HORIZONTAL,
+            false
         )
         recentPagination.adapter = mPaginationAdapter
-        recentPagination.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+        recentPagination.viewTreeObserver.addOnGlobalLayoutListener(object :
+            OnGlobalLayoutListener {
             @Suppress("DEPRECATION")
             override fun onGlobalLayout() {
                 if (mPaginationAdapter.maxVisible >= pageCount - 1) {
@@ -276,14 +278,16 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     }
 
     override fun onUIPositionChange(
-            frame: PtrFrameLayout?,
-            isUnderTouch: Boolean,
-            status: Byte,
-            ptrIndicator: PtrIndicator?
+        frame: PtrFrameLayout?,
+        isUnderTouch: Boolean,
+        status: Byte,
+        ptrIndicator: PtrIndicator?
     ) {
-        Logger.d(TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
-                "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
-                "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}")
+        Logger.d(
+            TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
+                    "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
+                    "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}"
+        )
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
             refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
             refreshHeader.ivRefresh.rotation = 180F
@@ -317,7 +321,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             val loadingString = getString(R.string.updating)
             Logger.d("Dialog", "Current pos: $currentPos")
             refreshHeader.mtvRefresh.text =
-                    String.format(loadingString, dotsArray[currentPos])
+                String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }
         val runnable = object : Runnable {

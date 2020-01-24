@@ -1,6 +1,6 @@
 package nhdphuong.com.manga.data
 
-import android.support.annotation.NonNull
+import androidx.annotation.NonNull
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope

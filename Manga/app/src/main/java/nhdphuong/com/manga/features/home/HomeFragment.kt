@@ -13,13 +13,13 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.StaggeredGridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import kotlinx.android.synthetic.main.fragment_book_list.btnFirst
 import kotlinx.android.synthetic.main.fragment_book_list.btnLast
 import kotlinx.android.synthetic.main.fragment_book_list.clNavigation
@@ -64,9 +64,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         Logger.d(TAG, "onCreateView")
         return inflater.inflate(R.layout.fragment_book_list, container, false)
@@ -99,9 +99,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             }
 
             override fun checkCanDoRefresh(
-                    frame: PtrFrameLayout?,
-                    content: View?,
-                    header: View?
+                frame: PtrFrameLayout?,
+                content: View?,
+                header: View?
             ): Boolean {
                 return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header)
             }
@@ -126,13 +126,13 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         mHomePresenter.stop()
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         Logger.d(TAG, "onConfigurationChanged")
-        val isLandscape = newConfig?.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
         val mainListLayoutManager = object : StaggeredGridLayoutManager(
-                if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS,
-                VERTICAL
+            if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS,
+            VERTICAL
         ) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
@@ -148,7 +148,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             return
         }
         if (requestCode == Constants.BOOK_PREVIEW_RESULT &&
-                data?.action == Constants.RECENT_DATA_UPDATED_ACTION) {
+            data?.action == Constants.RECENT_DATA_UPDATED_ACTION
+        ) {
             mHomePresenter.reloadRecentBooks()
         }
     }
@@ -157,18 +158,18 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun setUpHomeBookList(homeBookList: List<Book>) {
         val homeFragment = this
         mHomeListAdapter = BookAdapter(
-                homeBookList,
-                BookAdapter.HOME_PREVIEW_BOOK,
-                object : BookAdapter.OnBookClick {
-                    override fun onItemClick(item: Book) {
-                        BookPreviewActivity.start(homeFragment, item)
-                    }
-                })
+            homeBookList,
+            BookAdapter.HOME_PREVIEW_BOOK,
+            object : BookAdapter.OnBookClick {
+                override fun onItemClick(item: Book) {
+                    BookPreviewActivity.start(homeFragment, item)
+                }
+            })
         val mainList: RecyclerView = rvMainList
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
         val mainListLayoutManager = object : StaggeredGridLayoutManager(
-                if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS,
-                VERTICAL
+            if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS,
+            VERTICAL
         ) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
@@ -198,17 +199,17 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         }
         mHomePaginationAdapter = PaginationAdapter(context!!, pageCount.toInt())
         mHomePaginationAdapter.onPageSelectCallback =
-                object : PaginationAdapter.OnPageSelectCallback {
-                    override fun onPageSelected(page: Int) {
-                        Logger.d(TAG, "Page $page is selected")
-                        mHomePresenter.jumpToPage(page.toLong())
-                    }
+            object : PaginationAdapter.OnPageSelectCallback {
+                override fun onPageSelected(page: Int) {
+                    Logger.d(TAG, "Page $page is selected")
+                    mHomePresenter.jumpToPage(page.toLong())
                 }
+            }
         mainPagination.visibility = View.VISIBLE
         mainPagination.layoutManager = LinearLayoutManager(
-                activity,
-                LinearLayoutManager.HORIZONTAL,
-                false
+            activity,
+            LinearLayoutManager.HORIZONTAL,
+            false
         )
         mainPagination.adapter = mHomePaginationAdapter
         mainPagination.viewTreeObserver.addOnGlobalLayoutListener {
@@ -294,14 +295,16 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     }
 
     override fun onUIPositionChange(
-            frame: PtrFrameLayout?,
-            isUnderTouch: Boolean,
-            status: Byte,
-            ptrIndicator: PtrIndicator?
+        frame: PtrFrameLayout?,
+        isUnderTouch: Boolean,
+        status: Byte,
+        ptrIndicator: PtrIndicator?
     ) {
-        Logger.d(TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
-                "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
-                "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}")
+        Logger.d(
+            TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
+                    "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
+                    "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}"
+        )
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
             refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
             refreshHeader.ivRefresh.rotation = REFRESH_HEADER_ANGEL
@@ -343,7 +346,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             val loadingString = getString(R.string.updating)
             Logger.d(TAG, "Current pos: $currentPos")
             refreshHeader.mtvRefresh.text =
-                    String.format(loadingString, dotsArray[currentPos])
+                String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }
         val runnable = object : Runnable {

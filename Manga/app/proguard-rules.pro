@@ -19,22 +19,3 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--dontwarn android.arch.persistence.room.**
--dontwarn android.content.**
--dontwarn android.graphics.**
--dontwarn android.util.**
--dontwarn com.google.auto.common.**
--dontwarn com.google.common.**
--dontwarn com.squareup.javapoet.**
--dontwarn me.eugeniomarletti.kotlin.**
--dontwarn org.abego.treelayout.**
--dontwarn org.antlr.v4.gui.**
--dontwarn org.stringtemplate.v4.gui.**
--dontwarn okhttp3.**
--dontwarn okio.**
--dontwarn org.antlr.runtime.**
--dontwarn retrofit2.**
--dontwarn Type_mirror_extKt
--dontwarn Type_mirror_extKt$WhenMappings
--keepattributes SourceFile,LineNumberTable
--keepnames class kotlinx.** { *; }

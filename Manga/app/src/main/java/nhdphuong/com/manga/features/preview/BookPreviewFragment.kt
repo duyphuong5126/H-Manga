@@ -10,14 +10,14 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.support.annotation.RequiresApi
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.Fragment
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_book_preview.clArtists
 import kotlinx.android.synthetic.main.fragment_book_preview.clCategories
 import kotlinx.android.synthetic.main.fragment_book_preview.clCharacters
@@ -68,9 +68,9 @@ import nhdphuong.com.manga.views.adapters.PreviewAdapter
  * Created by nhdphuong on 4/14/18.
  */
 class BookPreviewFragment :
-        Fragment(),
-        BookPreviewContract.View,
-        InformationCardAdapter.TagSelectedListener {
+    Fragment(),
+    BookPreviewContract.View,
+    InformationCardAdapter.TagSelectedListener {
     companion object {
         private const val TAG = "BookPreviewFragment"
         private const val NUM_OF_ROWS = 2
@@ -98,9 +98,9 @@ class BookPreviewFragment :
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         Logger.d(TAG, "onCreateView")
         return inflater.inflate(R.layout.fragment_book_preview, container, false)
@@ -112,11 +112,11 @@ class BookPreviewFragment :
         super.onViewCreated(view, savedInstanceState)
         svBookCover.let { svBookCover ->
             val scrollDownAnimator =
-                    ObjectAnimator.ofInt(svBookCover, "scrollY", 1000)
+                ObjectAnimator.ofInt(svBookCover, "scrollY", 1000)
             scrollDownAnimator.startDelay = 100
             scrollDownAnimator.duration = 6500
             val scrollUpAnimator =
-                    ObjectAnimator.ofInt(svBookCover, "scrollY", -1000)
+                ObjectAnimator.ofInt(svBookCover, "scrollY", -1000)
             scrollUpAnimator.startDelay = 100
             scrollUpAnimator.duration = 6500
             scrollDownAnimator.addListener(getAnimationListener(scrollUpAnimator))
@@ -159,9 +159,9 @@ class BookPreviewFragment :
     }
 
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
@@ -187,16 +187,16 @@ class BookPreviewFragment :
     override fun showBookCoverImage(coverUrl: String) {
         if (!NHentaiApp.instance.isCensored) {
             ImageUtils.loadImage(
-                    coverUrl,
-                    R.drawable.ic_404_not_found,
-                    ivBookCover,
-                    onLoadSuccess = {
-                        mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
-                        mAnimatorSet.start()
-                    },
-                    onLoadFailed = {
-                        mPresenter.reloadCoverImage()
-                    })
+                coverUrl,
+                R.drawable.ic_404_not_found,
+                ivBookCover,
+                onLoadSuccess = {
+                    mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
+                    mAnimatorSet.start()
+                },
+                onLoadFailed = {
+                    mPresenter.reloadCoverImage()
+                })
         } else {
             ivBookCover.setImageResource(R.drawable.ic_nothing_here_grey)
             mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
@@ -313,8 +313,10 @@ class BookPreviewFragment :
             spanCount++
         }
 
-        Logger.d(TAG, "thumbnails: ${thumbnailList.size}," +
-                " number of rows: $NUM_OF_ROWS, spanCount: $spanCount")
+        Logger.d(
+            TAG, "thumbnails: ${thumbnailList.size}," +
+                    " number of rows: $NUM_OF_ROWS, spanCount: $spanCount"
+        )
         mPreviewLayoutManager = object : MyGridLayoutManager(context!!, spanCount) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
@@ -323,13 +325,13 @@ class BookPreviewFragment :
         rvPreviewList.run {
             layoutManager = mPreviewLayoutManager
             mPreviewAdapter = PreviewAdapter(
-                    NUM_OF_ROWS,
-                    thumbnailList,
-                    object : PreviewAdapter.ThumbnailClickCallback {
-                        override fun onThumbnailClicked(page: Int) {
-                            mPresenter.startReadingFrom(page)
-                        }
-                    })
+                NUM_OF_ROWS,
+                thumbnailList,
+                object : PreviewAdapter.ThumbnailClickCallback {
+                    override fun onThumbnailClicked(page: Int) {
+                        mPresenter.startReadingFrom(page)
+                    }
+                })
             adapter = mPreviewAdapter
         }
 
@@ -363,13 +365,13 @@ class BookPreviewFragment :
 
         rvRecommendList.layoutManager = gridLayoutManager
         mRecommendBookAdapter = BookAdapter(
-                bookList,
-                BookAdapter.RECOMMEND_BOOK,
-                object : BookAdapter.OnBookClick {
-                    override fun onItemClick(item: Book) {
-                        BookPreviewActivity.restart(item)
-                    }
-                })
+            bookList,
+            BookAdapter.RECOMMEND_BOOK,
+            object : BookAdapter.OnBookClick {
+                override fun onItemClick(item: Book) {
+                    BookPreviewActivity.restart(item)
+                }
+            })
         rvRecommendList.adapter = mRecommendBookAdapter
     }
 
@@ -382,9 +384,9 @@ class BookPreviewFragment :
             requestStoragePermission()
         }, onDismiss = {
             Toast.makeText(
-                    context,
-                    getString(R.string.toast_storage_permission_require),
-                    Toast.LENGTH_SHORT
+                context,
+                getString(R.string.toast_storage_permission_require),
+                Toast.LENGTH_SHORT
             ).show()
             isDownloadRequested = false
         })
@@ -401,7 +403,8 @@ class BookPreviewFragment :
         pbDownloading.max = total
         pbDownloading.progressDrawable = getProgressDrawableId(progress, total)
         pbDownloading.progress = progress
-        mtvDownloaded.text = String.format(getString(R.string.preview_download_progress), progress, total)
+        mtvDownloaded.text =
+            String.format(getString(R.string.preview_download_progress), progress, total)
     }
 
     override fun finishDownloading() {
@@ -409,7 +412,7 @@ class BookPreviewFragment :
         val handler = Handler()
         handler.postDelayed({
             pbDownloading.progressDrawable =
-                    getProgressDrawableId(0, pbDownloading.max)
+                getProgressDrawableId(0, pbDownloading.max)
             pbDownloading.max = 0
             clDownloadProgress.visibility = View.GONE
             mtvDownloaded.text = getString(R.string.preview_download_progress)
@@ -418,11 +421,11 @@ class BookPreviewFragment :
 
     override fun finishDownloading(downloadFailedCount: Int, total: Int) {
         mtvDownloaded.text =
-                String.format(getString(R.string.fail_to_download), downloadFailedCount)
+            String.format(getString(R.string.fail_to_download), downloadFailedCount)
         val handler = Handler()
         handler.postDelayed({
             pbDownloading.progressDrawable =
-                    getProgressDrawableId(0, pbDownloading.max)
+                getProgressDrawableId(0, pbDownloading.max)
             pbDownloading.max = 0
             clDownloadProgress.visibility = View.GONE
             mtvDownloaded.text = getString(R.string.preview_download_progress)
@@ -467,7 +470,12 @@ class BookPreviewFragment :
                 val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
                 viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 viewGalleryIntent.type = "image/*"
-                startActivity(Intent.createChooser(viewGalleryIntent, getString(R.string.open_with)))
+                startActivity(
+                    Intent.createChooser(
+                        viewGalleryIntent,
+                        getString(R.string.open_with)
+                    )
+                )
             }, onDismiss = {
 
             })
@@ -507,7 +515,7 @@ class BookPreviewFragment :
     }
 
     private fun getAnimationListener(
-            callOnEndingObject: ObjectAnimator
+        callOnEndingObject: ObjectAnimator
     ): Animator.AnimatorListener {
         return object : Animator.AnimatorListener {
             override fun onAnimationEnd(p0: Animator?) {
@@ -535,10 +543,12 @@ class BookPreviewFragment :
 
     private fun getProgressDrawableId(progress: Int, max: Int): Drawable {
         val percentage = (progress * 1f) / (max * 1f)
-        return ActivityCompat.getDrawable(context!!, when {
-            percentage >= Constants.DOWNLOAD_GREEN_LEVEL -> R.drawable.bg_download_green
-            percentage >= Constants.DOWNLOAD_YELLOW_LEVEL -> R.drawable.bg_download_yellow
-            else -> R.drawable.bg_download_red
-        })!!
+        return ActivityCompat.getDrawable(
+            context!!, when {
+                percentage >= Constants.DOWNLOAD_GREEN_LEVEL -> R.drawable.bg_download_green
+                percentage >= Constants.DOWNLOAD_YELLOW_LEVEL -> R.drawable.bg_download_yellow
+                else -> R.drawable.bg_download_red
+            }
+        )!!
     }
 }

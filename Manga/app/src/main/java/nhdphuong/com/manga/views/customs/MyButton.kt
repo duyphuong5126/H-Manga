@@ -2,8 +2,8 @@ package nhdphuong.com.manga.views.customs
 
 import android.content.Context
 import android.graphics.Typeface
-import android.support.v7.widget.AppCompatButton
 import android.util.AttributeSet
+import androidx.appcompat.widget.AppCompatButton
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 
@@ -11,9 +11,9 @@ import nhdphuong.com.manga.R
  * Created by nhdphuong on 4/22/18.
  */
 class MyButton(
-        context: Context,
-        attrs: AttributeSet?,
-        defStyle: Int
+    context: Context,
+    attrs: AttributeSet?,
+    defStyle: Int
 ) : AppCompatButton(context, attrs, defStyle) {
     companion object {
         private const val TAG = "MyButton"

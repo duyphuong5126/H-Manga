@@ -13,11 +13,9 @@ import nhdphuong.com.manga.data.local.TagDAO
 import nhdphuong.com.manga.scope.corountine.Default
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
-import nhdphuong.com.manga.supports.FileUtils
-import nhdphuong.com.manga.supports.IFileUtils
-import nhdphuong.com.manga.supports.INetworkUtils
-import nhdphuong.com.manga.supports.NetworkUtils
-import nhdphuong.com.manga.supports.ServiceGenerator
+import nhdphuong.com.manga.supports.*
+import nhdphuong.com.manga.usecase.DownloadBookUseCase
+import nhdphuong.com.manga.usecase.DownloadBookUseCaseImpl
 import javax.inject.Singleton
 
 /*
@@ -77,4 +75,7 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
     @Provides
     @Default
     fun providesDefaultDispatcher(): CoroutineScope = CoroutineScope(Dispatchers.Default)
+
+    @Provides
+    fun providesAppSupportUtils(): AppSupportUtils = SupportUtils()
 }

@@ -1,10 +1,10 @@
 package nhdphuong.com.manga.views.adapters
 
 import android.content.Context
-import android.support.v4.view.PagerAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.viewpager.widget.PagerAdapter
 import com.ortiz.touchview.TouchImageView
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -16,9 +16,9 @@ import nhdphuong.com.manga.views.customs.MyTextView
  * Created by nhdphuong on 5/5/18.
  */
 class BookReaderAdapter(
-        private val mContext: Context,
-        private val mPageUrlList: List<String>,
-        private val mOnTapListener: View.OnClickListener
+    private val mContext: Context,
+    private val mPageUrlList: List<String>,
+    private val mOnTapListener: View.OnClickListener
 ) : PagerAdapter() {
     companion object {
         private const val TAG = "BookReaderAdapter"
@@ -32,10 +32,9 @@ class BookReaderAdapter(
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val readerViewHolder = BookReaderViewHolder(
-                LayoutInflater.from(mContext).
-                        inflate(R.layout.item_book_page, container, false),
-                mPageUrlList[position],
-                position + 1
+            LayoutInflater.from(mContext).inflate(R.layout.item_book_page, container, false),
+            mPageUrlList[position],
+            position + 1
         )
         mPageMap[position] = readerViewHolder
         container.addView(readerViewHolder.view)

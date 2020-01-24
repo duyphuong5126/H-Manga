@@ -4,9 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -14,6 +11,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_header.edtSearch
 import kotlinx.android.synthetic.main.fragment_header.ibHamburger
 import kotlinx.android.synthetic.main.fragment_header.ibSearch
@@ -52,9 +52,9 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_header, container, false)
     }
@@ -111,12 +111,12 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         val tabSelector: RecyclerView = rvMainTabs
         tabSelector.adapter = mTabAdapter
         tabSelector.addItemDecoration(
-                SpaceItemDecoration(context, R.dimen.dp20, true, showLastDivider = true)
+            SpaceItemDecoration(context, R.dimen.dp20, true, showLastDivider = true)
         )
         tabSelector.layoutManager = LinearLayoutManager(
-                activity,
-                LinearLayoutManager.HORIZONTAL,
-                false
+            activity,
+            LinearLayoutManager.HORIZONTAL,
+            false
         )
 
         ivMainLogo.setOnClickListener {
@@ -150,10 +150,10 @@ class HeaderFragment : Fragment(), HeaderContract.View {
             }
 
             override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
             ) {
 
             }

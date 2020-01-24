@@ -2,13 +2,13 @@ package nhdphuong.com.manga.views.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import jp.shts.android.library.TriangleLabelView
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.Constants
@@ -23,9 +23,9 @@ import java.util.ArrayList
  * Created by nhdphuong on 3/18/18.
  */
 class BookAdapter(
-        private val mItemList: List<Book>,
-        private val mAdapterType: Int,
-        private val mBookClickCallback: OnBookClick
+    private val mItemList: List<Book>,
+    private val mAdapterType: Int,
+    private val mBookClickCallback: OnBookClick
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TAG = "BookAdapter"
@@ -37,8 +37,8 @@ class BookAdapter(
     private val mFavoriteList = ArrayList<Int>()
 
     override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
+        parent: ViewGroup,
+        viewType: Int
     ): RecyclerView.ViewHolder {
         val layoutResId = when (viewType) {
             HOME_PREVIEW_BOOK -> R.layout.item_home_list
@@ -46,7 +46,7 @@ class BookAdapter(
             else -> R.layout.item_home_list
         }
         val view = LayoutInflater.from(parent.context)
-                .inflate(layoutResId, parent, false)
+            .inflate(layoutResId, parent, false)
         return MainListViewHolder(view, mBookClickCallback)
     }
 
@@ -97,8 +97,8 @@ class BookAdapter(
     }
 
     inner class MainListViewHolder(
-            itemView: View,
-            private val mBookClickCallback: OnBookClick
+        itemView: View,
+        private val mBookClickCallback: OnBookClick
     ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private lateinit var mBookPreview: Book
         private val mIvItemThumbnail: ImageView = itemView.findViewById(R.id.ivItemThumbnail)
@@ -127,7 +127,7 @@ class BookAdapter(
             mTlvRecent.visibility = View.VISIBLE
             mTlvRecent.primaryText = mContext.getString(R.string.recent)
             mTlvRecent.setTriangleBackgroundColor(
-                    ContextCompat.getColor(mContext, R.color.blue0673B7)
+                ContextCompat.getColor(mContext, R.color.blue0673B7)
             )
         }
 
@@ -135,7 +135,7 @@ class BookAdapter(
             mTlvRecent.visibility = View.VISIBLE
             mTlvRecent.primaryText = mContext.getString(R.string.favorite)
             mTlvRecent.setTriangleBackgroundColor(
-                    ContextCompat.getColor(mContext, R.color.redED2553)
+                ContextCompat.getColor(mContext, R.color.redED2553)
             )
         }
 

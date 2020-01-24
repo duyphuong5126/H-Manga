@@ -3,7 +3,7 @@ package nhdphuong.com.manga.views.customs
 import android.content.Context
 import android.util.AttributeSet
 import android.graphics.Typeface
-import android.support.v7.widget.AppCompatTextView
+import androidx.appcompat.widget.AppCompatTextView
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 
@@ -12,9 +12,9 @@ import nhdphuong.com.manga.R
  * Created by nhdphuong on 4/21/18.
  */
 class MyTextView(
-        context: Context,
-        attrs: AttributeSet?,
-        defStyle: Int
+    context: Context,
+    attrs: AttributeSet?,
+    defStyle: Int
 ) : AppCompatTextView(context, attrs, defStyle) {
     companion object {
         private const val TAG = "MyTextView"

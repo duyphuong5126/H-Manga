@@ -9,14 +9,14 @@ import javax.inject.Inject
  * Created by nhdphuong on 6/9/18.
  */
 class BookLocalDataSource @Inject constructor(
-        private val mRecentBookDAO: RecentBookDAO
+    private val mRecentBookDAO: RecentBookDAO
 ) : BookDataSource.Local {
     override suspend fun saveRecentBook(bookId: String) {
-        mRecentBookDAO.insertRecentBooks(RecentBook(bookId, false))
+        mRecentBookDAO.insertRecentBooks(RecentBook(bookId, false, System.currentTimeMillis()))
     }
 
     override suspend fun saveFavoriteBook(bookId: String, isFavorite: Boolean) {
-        mRecentBookDAO.insertRecentBooks(RecentBook(bookId, isFavorite))
+        mRecentBookDAO.insertRecentBooks(RecentBook(bookId, isFavorite, System.currentTimeMillis()))
     }
 
     override suspend fun getRecentBooks(limit: Int, offset: Int): LinkedList<RecentBook> {
@@ -36,7 +36,7 @@ class BookLocalDataSource @Inject constructor(
     }
 
     override suspend fun isRecentBook(bookId: String): Boolean {
-        return mRecentBookDAO.getRecentBook(bookId) == bookId
+        return mRecentBookDAO.getRecentBookId(bookId) == bookId
     }
 
     override suspend fun getRecentCount(): Int = mRecentBookDAO.getRecentBookCount()

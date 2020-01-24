@@ -1,7 +1,6 @@
 package nhdphuong.com.manga.features.preview
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nhdphuong.com.manga.Constants
@@ -17,32 +16,38 @@ import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.IFileUtils
 import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.SupportUtils
+import nhdphuong.com.manga.usecase.DownloadBookUseCase
 import java.util.LinkedList
-import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.min
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.disposables.CompositeDisposable
+import nhdphuong.com.manga.data.entity.DownloadingResult
 
 /*
  * Created by nhdphuong on 4/14/18.
  */
 class BookPreviewPresenter @Inject constructor(
-        private val mView: BookPreviewContract.View,
-        private val mBook: Book,
-        private val mBookRepository: BookRepository,
-        private val networkUtils: INetworkUtils,
-        private val fileUtils: IFileUtils,
-        @IO private val io: CoroutineScope,
-        @Main private val main: CoroutineScope
+    private val mView: BookPreviewContract.View,
+    private val mBook: Book,
+    private val mBookRepository: BookRepository,
+    private val downloadBookUseCase: DownloadBookUseCase,
+    private val networkUtils: INetworkUtils,
+    private val fileUtils: IFileUtils,
+    @IO private val io: CoroutineScope,
+    @Main private val main: CoroutineScope
 ) : BookPreviewContract.Presenter, DownloadManager.BookDownloadCallback {
 
     companion object {
         private const val TAG = "BookPreviewPresenter"
         private const val MILLISECOND: Long = 1000
 
-        private const val BATCH_COUNT = 5
         private const val THUMBNAILS_LIMIT = 30
     }
 
@@ -69,24 +74,15 @@ class BookPreviewPresenter @Inject constructor(
 
     private var mCurrentThumbnailPosition = 0
 
-    private val mPrefixNumber: Int
-        get() {
-            var totalPages = mBook.numOfPages
-            var prefixCount = 1
-            while (totalPages / 10 > 0) {
-                totalPages /= 10
-                prefixCount++
-            }
-            return prefixCount
-        }
-
     private val uploadedTimeStamp: String = SupportUtils.getTimeElapsed(
-            System.currentTimeMillis() - mBook.updateAt * MILLISECOND
+        System.currentTimeMillis() - mBook.updateAt * MILLISECOND
     )
 
     private var isFavoriteBook: Boolean = false
 
     private val mBookDownloader = DownloadManager.Companion.BookDownloader
+
+    private val compositeDisposable = CompositeDisposable()
 
     init {
         mView.setPresenter(this)
@@ -226,80 +222,26 @@ class BookPreviewPresenter @Inject constructor(
         }
 
         if (!mBookDownloader.isDownloading) {
-            val bookPages = LinkedList<String>()
-            for (pageId in mBook.bookImages.pages.indices) {
-                val page = mBook.bookImages.pages[pageId]
-                bookPages.add(ApiConstants.getPictureUrl(
-                        mBook.mediaId,
-                        pageId + 1,
-                        page.imageType
-                ))
-            }
-            bookPages.size.let { total ->
-                if (total > 0) {
+            downloadBookUseCase.execute(mBook)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
                     mBookDownloader.setDownloadCallback(this)
-                    mBookDownloader.startDownloading(mBook.bookId, total)
-                    io.launch {
-                        var progress = 0
-                        val resultList = LinkedList<String>()
-                        var currentPage = 0
-                        val resultFilePath = fileUtils.getImageDirectory(mBook.usefulName)
-                        while (currentPage < total) {
-                            val lastPage = if (currentPage + BATCH_COUNT <= total) {
-                                currentPage + BATCH_COUNT
-                            } else {
-                                total
-                            }
-                            suspendCoroutine<Boolean> { booleanContinuation ->
-                                val currentTotal = lastPage - currentPage
-                                val currentIndex = AtomicInteger(0)
-                                for (downloadPage in currentPage until lastPage) {
-                                    launch {
-                                        val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
-                                        try {
-                                            mBook.bookImages.pages[downloadPage].let { page ->
-                                                Logger.d(TAG, "Downloading page ${bookPages[downloadPage]}")
-                                                val result = SupportUtils.downloadImageBitmap(
-                                                        bookPages[downloadPage],
-                                                        false
-                                                )!!
-
-                                                val resultPath = SupportUtils.saveImage(result, resultFilePath, fileName, page.imageType)
-                                                resultList.add(resultPath)
-                                                Logger.d(TAG, "Page $fileName is saved successfully")
-                                            }
-                                            progress++
-                                            mBookDownloader.updateProgress(
-                                                    mBook.bookId,
-                                                    progress
-                                            )
-                                            if (currentIndex.incrementAndGet() >= currentTotal) {
-                                                booleanContinuation.resume(true)
-                                            }
-                                        } catch (exception: Exception) {
-                                            Logger.d(TAG, "Downloading page $fileName failed with exception=$exception")
-                                            if (currentIndex.incrementAndGet() >= currentTotal) {
-                                                booleanContinuation.resume(false)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            currentPage += BATCH_COUNT
-                        }
-                        main.launch {
-                            fileUtils.refreshGallery(*resultList.toTypedArray())
-                            mBookDownloader.endDownloading(progress, total)
-                        }
-
-                        delay(2000)
-
-                        main.launch {
-                            mView.showOpenFolderView()
+                    mBookDownloader.startDownloading(mBook.bookId, mBook.numOfPages)
+                }
+                .subscribeBy(onNext = { result ->
+                    when (result) {
+                        is DownloadingResult.DownloadingProgress -> {
+                            mBookDownloader.updateProgress(mBook.bookId, result.progress)
                         }
                     }
-                }
-            }
+                }, onError = {
+                    Logger.e(TAG, "Failure in downloading book ${mBook.mediaId} with error: $it")
+                    mBookDownloader.endDownloading(mBookDownloader.progress, mBookDownloader.total)
+                }, onComplete = {
+                    mBookDownloader.endDownloading(mBookDownloader.progress, mBookDownloader.total)
+                    mView.showOpenFolderView()
+                }).addTo(compositeDisposable)
         } else {
             if (mBookDownloader.bookId == mBook.bookId) {
                 mView.showThisBookBeingDownloaded()
@@ -379,7 +321,8 @@ class BookPreviewPresenter @Inject constructor(
             var isReachable = false
             val bookPages = mBook.bookImages.pages
             var currentPage = 0
-            var url = ApiConstants.getPictureUrl(mediaId, currentPage, bookPages[currentPage].imageType)
+            var url =
+                ApiConstants.getPictureUrl(mediaId, currentPage, bookPages[currentPage].imageType)
             while (!isReachable && currentPage < bookPages.size) {
                 isReachable = try {
                     networkUtils.isReachableUrl(url)
@@ -390,7 +333,11 @@ class BookPreviewPresenter @Inject constructor(
                     return url
                 }
                 currentPage++
-                url = ApiConstants.getPictureUrl(mediaId, currentPage, bookPages[currentPage].imageType)
+                url = ApiConstants.getPictureUrl(
+                    mediaId,
+                    currentPage,
+                    bookPages[currentPage].imageType
+                )
             }
         }
         return coverUrl
@@ -406,9 +353,9 @@ class BookPreviewPresenter @Inject constructor(
         for (pageId in mCurrentThumbnailPosition until maxPosition) {
             val page = bookPages[pageId]
             val url = ApiConstants.getThumbnailByPage(
-                    mediaId,
-                    pageId + 1,
-                    page.imageType
+                mediaId,
+                pageId + 1,
+                page.imageType
             )
             mBookThumbnailList.add(url)
         }
@@ -431,8 +378,10 @@ class BookPreviewPresenter @Inject constructor(
                         }
                     }
                 }
-                Logger.d(TAG, "Number of recommend book of book ${mBook.bookId}:" +
-                        " ${bookList.size}")
+                Logger.d(
+                    TAG, "Number of recommend book of book ${mBook.bookId}:" +
+                            " ${bookList.size}"
+                )
                 main.launch {
                     if (!bookList.isEmpty()) {
                         mView.showRecommendBook(bookList)

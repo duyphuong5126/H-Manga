@@ -2,11 +2,11 @@ package nhdphuong.com.manga.views.adapters
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_tab.view.tabClickArea
 import kotlinx.android.synthetic.main.item_tab.view.tvTabLabel
 import kotlinx.android.synthetic.main.item_tab.view.vTabIndicator
@@ -19,15 +19,15 @@ import java.util.LinkedList
  * Created by nhdphuong on 3/17/18.
  */
 class TabAdapter(
-        context: Context,
-        private val mOnMainTabClick: OnMainTabClick
+    context: Context,
+    private val mOnMainTabClick: OnMainTabClick
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var mTabList: LinkedList<Tab> = LinkedList()
     private var mCurrentTab: Tab = Tab.NONE
     private val mEnableTextColor = ContextCompat.getColor(context, R.color.colorPrimaryDark)
     private val mDisableTextColor = ContextCompat.getColor(context, R.color.greyBBB)
     private val isDebugVersion: Boolean =
-            (NHentaiApp.instance.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        (NHentaiApp.instance.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
     private val mRecentTitle = context.getString(R.string.recent)
     private val mFavoriteTitle = context.getString(R.string.favorite)
@@ -57,9 +57,9 @@ class TabAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(
-                R.layout.item_tab,
-                parent,
-                false
+            R.layout.item_tab,
+            parent,
+            false
         )
         return MainTabViewHolder(view, mOnMainTabClick)
     }
@@ -75,10 +75,10 @@ class TabAdapter(
     }
 
     private inner class MainTabViewHolder(
-            itemView: View,
-            private val mOnMainTabClick: OnMainTabClick
+        itemView: View,
+        private val mOnMainTabClick: OnMainTabClick
     ) : RecyclerView.ViewHolder(itemView),
-            View.OnClickListener {
+        View.OnClickListener {
         private val mTvLabel = itemView.tvTabLabel
         private val mTabIndicator = itemView.vTabIndicator
         private val mTabClickArea = itemView.tabClickArea

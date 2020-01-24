@@ -2,12 +2,12 @@ package nhdphuong.com.manga.features.tags
 
 import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_tags.btn_first
 import kotlinx.android.synthetic.main.fragment_tags.btn_first_page
 import kotlinx.android.synthetic.main.fragment_tags.btn_last
@@ -58,9 +58,9 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_tags, container, false)
     }
@@ -68,24 +68,24 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mCharacterAdapter = PaginationAdapter(
-                context!!,
-                mCharacterCount,
-                PaginationAdapter.PaginationMode.CHARACTER
+            context!!,
+            mCharacterCount,
+            PaginationAdapter.PaginationMode.CHARACTER
         )
         mCharacterAdapter.onCharacterSelectCallback =
-                object : PaginationAdapter.OnCharacterSelectCallback {
-                    override fun onPageSelected(character: Char) {
-                        Logger.d(TAG, "character=$character")
-                        mPresenter.filterByCharacter(character)
-                    }
+            object : PaginationAdapter.OnCharacterSelectCallback {
+                override fun onPageSelected(character: Char) {
+                    Logger.d(TAG, "character=$character")
+                    mPresenter.filterByCharacter(character)
                 }
+            }
         rv_alphabet_pagination.run {
             adapter = mCharacterAdapter
             visibility = View.VISIBLE
             layoutManager = LinearLayoutManager(
-                    activity,
-                    LinearLayoutManager.HORIZONTAL,
-                    false
+                activity,
+                LinearLayoutManager.HORIZONTAL,
+                false
             )
             adapter = mCharacterAdapter
         }
@@ -144,8 +144,8 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     override fun updateTag(tagType: String, tagCount: Int) {
         mtv_title.text = tagType
         mtv_count.text = String.format(
-                mTagCountString,
-                SupportUtils.formatBigNumber(tagCount.toLong())
+            mTagCountString,
+            SupportUtils.formatBigNumber(tagCount.toLong())
         )
     }
 
@@ -165,9 +165,9 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
         }
         rv_pagination.visibility = View.VISIBLE
         rv_pagination.layoutManager = LinearLayoutManager(
-                activity,
-                LinearLayoutManager.HORIZONTAL,
-                false
+            activity,
+            LinearLayoutManager.HORIZONTAL,
+            false
         )
         rv_pagination.adapter = mNumberAdapter
     }

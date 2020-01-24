@@ -1,11 +1,13 @@
 package nhdphuong.com.manga.data.local
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.Update
-import nhdphuong.com.manga.Constants
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Update
+import androidx.room.Query
+import nhdphuong.com.manga.Constants.Companion.BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.IS_FAVORITE
+import nhdphuong.com.manga.Constants.Companion.CREATED_AT
 import nhdphuong.com.manga.data.entity.RecentBook
 
 /*
@@ -15,8 +17,6 @@ import nhdphuong.com.manga.data.entity.RecentBook
 interface RecentBookDAO {
     companion object {
         private const val RECENT_BOOK_TABLE: String = "RecentBook"
-        private const val BOOK_ID = Constants.BOOK_ID
-        private const val IS_FAVORITE = Constants.IS_FAVORITE
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -28,17 +28,17 @@ interface RecentBookDAO {
     @Update
     fun updateRecentBook(recentBookEntity: RecentBook)
 
-    @Query("select * from $RECENT_BOOK_TABLE limit :limit offset :offset")
+    @Query("select * from $RECENT_BOOK_TABLE order by $CREATED_AT desc limit :limit offset :offset")
     fun getRecentBooks(limit: Int, offset: Int): List<RecentBook>
 
-    @Query("select * from $RECENT_BOOK_TABLE where $IS_FAVORITE = 1 limit :limit offset :offset")
+    @Query("select * from $RECENT_BOOK_TABLE where $IS_FAVORITE = 1 order by $CREATED_AT desc limit :limit offset :offset")
     fun getFavoriteBooks(limit: Int, offset: Int): List<RecentBook>
 
     @Query("select $IS_FAVORITE from $RECENT_BOOK_TABLE where $BOOK_ID = :bookId")
     fun isFavoriteBook(bookId: String): Int
 
     @Query("select $BOOK_ID from $RECENT_BOOK_TABLE where $BOOK_ID = :bookId")
-    fun getRecentBook(bookId: String): String
+    fun getRecentBookId(bookId: String): String
 
     @Query("select count(*) from $RECENT_BOOK_TABLE")
     fun getRecentBookCount(): Int

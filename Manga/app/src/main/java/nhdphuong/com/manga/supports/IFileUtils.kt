@@ -6,7 +6,7 @@ import android.os.Build
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
-import java.util.*
+import java.util.Locale
 
 interface IFileUtils {
     fun isStoragePermissionAccepted(): Boolean
@@ -21,7 +21,7 @@ interface IFileUtils {
 class FileUtils : IFileUtils {
     override fun isStoragePermissionAccepted(): Boolean {
         val context = NHentaiApp.instance.applicationContext
-        return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             context.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED
         } else {
@@ -47,7 +47,8 @@ class FileUtils : IFileUtils {
     }
 
 
-    override fun getTagDirectory(): String = "${NHentaiApp.instance.getTagDirectory()}/${Constants.TAGS.toLowerCase(Locale.US)}"
+    override fun getTagDirectory(): String =
+        "${NHentaiApp.instance.getTagDirectory()}/${Constants.TAGS.toLowerCase(Locale.US)}"
 
     companion object {
         private const val TAG = "FileUtils"

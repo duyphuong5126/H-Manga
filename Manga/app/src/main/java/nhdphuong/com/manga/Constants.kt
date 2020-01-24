@@ -89,8 +89,6 @@ class Constants {
 
         // App DB
         const val NHENTAI_DB = "nHentai"
-        const val BOOK_ID = "bookId"
-        const val IS_FAVORITE = "isFavorite"
         const val TABLE_ARTIST = "Artists"
         const val TABLE_CHARACTER = "Characters"
         const val TABLE_CATEGORY = "Categories"
@@ -99,6 +97,9 @@ class Constants {
         const val TABLE_GROUP = "Groups"
         const val TABLE_TAG = "Tags"
         const val TABLE_UNKNOWN = "UnknownTags"
+        const val BOOK_ID = "bookId"
+        const val IS_FAVORITE = "isFavorite"
+        const val CREATED_AT = "createdAt"
 
         // Notifications
         const val NOTIFICATION_CHANNEL_ID = "nHentaiApp"

@@ -2,18 +2,18 @@ package nhdphuong.com.manga.features.preview
 
 import android.annotation.TargetApi
 import android.app.Activity
-import android.support.v4.app.Fragment
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import javax.inject.Inject
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 
 
 class BookPreviewActivity : AppCompatActivity() {
@@ -44,20 +44,20 @@ class BookPreviewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_book_preview)
         mInstance = this
 
-        val book = intent.extras?.getParcelable(Constants.BOOK) as Book
-
-        var bookPreviewFragment = supportFragmentManager.findFragmentById(R.id.clBookPreview)
-                as BookPreviewFragment?
-        if (bookPreviewFragment == null) {
-            bookPreviewFragment = BookPreviewFragment()
-            supportFragmentManager.beginTransaction()
+        intent.extras?.getParcelable<Book>(Constants.BOOK)?.let { book ->
+            var bookPreviewFragment = supportFragmentManager.findFragmentById(R.id.clBookPreview)
+                    as BookPreviewFragment?
+            if (bookPreviewFragment == null) {
+                bookPreviewFragment = BookPreviewFragment()
+                supportFragmentManager.beginTransaction()
                     .replace(R.id.clBookPreview, bookPreviewFragment)
                     .commitAllowingStateLoss()
-        }
+            }
 
-        NHentaiApp.instance.applicationComponent.plus(
+            NHentaiApp.instance.applicationComponent.plus(
                 BookPreviewModule(bookPreviewFragment, book)
-        ).inject(this)
+            ).inject(this)
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

@@ -1,21 +1,21 @@
 package nhdphuong.com.manga.views.adapters
 
 import android.content.Context
-import android.support.constraint.ConstraintLayout
-import android.support.v4.widget.TextViewCompat
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.widget.TextViewCompat
+import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.SupportUtils
 
 class PaginationAdapter(
-        context: Context,
-        private var pageCount: Int,
-        private var paginationMode: PaginationMode = PaginationMode.NUMBER
+    context: Context,
+    private var pageCount: Int,
+    private var paginationMode: PaginationMode = PaginationMode.NUMBER
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TAG_PREFIXES = Constants.TAG_PREFIXES
@@ -34,9 +34,9 @@ class PaginationAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(
-                R.layout.item_home_pagination,
-                parent,
-                false
+            R.layout.item_home_pagination,
+            parent,
+            false
         )
         return if (paginationMode == PaginationMode.NUMBER) {
             NumberPaginationViewHolder(view)
@@ -65,9 +65,9 @@ class PaginationAdapter(
     }
 
     private inner class NumberPaginationViewHolder(
-            itemView: View
+        itemView: View
     ) : RecyclerView.ViewHolder(itemView),
-            View.OnClickListener {
+        View.OnClickListener {
         private val mTvPageNumber: TextView = itemView.findViewById(R.id.tvPageNumber)
         private var mPage = -1
 
@@ -106,9 +106,9 @@ class PaginationAdapter(
     }
 
     private inner class CharacterPaginationViewHolder(
-            itemView: View
+        itemView: View
     ) : RecyclerView.ViewHolder(itemView),
-            View.OnClickListener {
+        View.OnClickListener {
         private val mTvPageNumber: TextView = itemView.findViewById(R.id.tvPageNumber)
         private var mPage = -1
 
