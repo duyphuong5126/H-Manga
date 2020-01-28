@@ -57,5 +57,9 @@ interface BookPreviewContract {
         fun restartBookPreview(bookId: String)
         fun changeBookFavorite()
         fun loadMoreThumbnails()
+        fun initDownloading(bookId: String, total: Int)
+        fun updateDownloadingProgress(bookId: String, progress: Int, total: Int)
+        fun finishDownloading(bookId: String)
+        fun finishDownloading(bookId: String, downloadFailedCount: Int, total: Int)
     }
 }

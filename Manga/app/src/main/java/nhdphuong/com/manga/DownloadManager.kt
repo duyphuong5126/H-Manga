@@ -6,6 +6,7 @@ package nhdphuong.com.manga
 class DownloadManager {
     companion object {
         private const val TAG = "DownloadManager"
+
         object BookDownloader {
             private var mBookId: String = ""
                 set(value) {
@@ -55,11 +56,19 @@ class DownloadManager {
                 }
             }
 
-            fun endDownloading(downloaded: Int, total: Int) {
+            fun endDownloading(bookId: String, downloaded: Int, total: Int) {
                 mTotal = 0
                 mProgress = 0
                 mBookId = ""
-                mDownloadCallback?.onDownloadingEnded(downloaded, total)
+                mDownloadCallback?.onDownloadingEnded(bookId, downloaded, total)
+                mDownloadCallback = null
+            }
+
+            fun endDownloadingWithError(bookId: String, downloaded: Int, total: Int) {
+                mTotal = 0
+                mProgress = 0
+                mBookId = ""
+                mDownloadCallback?.onDownloadingEndedWithError(bookId, total - downloaded, total)
                 mDownloadCallback = null
             }
 
@@ -78,8 +87,10 @@ class DownloadManager {
                 if (!isTagDownloading) {
                     mIsTagsDownloading = true
                 } else {
-                    Logger.d(TAG,
-                            "A downloading process right now, cannot start another one")
+                    Logger.d(
+                        TAG,
+                        "A downloading process right now, cannot start another one"
+                    )
                 }
             }
 
@@ -87,8 +98,10 @@ class DownloadManager {
                 if (isTagDownloading) {
                     mIsTagsDownloading = false
                 } else {
-                    Logger.d(TAG,
-                            "No downloading process right now, nothing can be stopped")
+                    Logger.d(
+                        TAG,
+                        "No downloading process right now, nothing can be stopped"
+                    )
                 }
             }
         }
@@ -97,6 +110,7 @@ class DownloadManager {
     interface BookDownloadCallback {
         fun onDownloadingStarted(bookId: String, total: Int)
         fun onProgressUpdated(bookId: String, progress: Int, total: Int)
-        fun onDownloadingEnded(downloaded: Int, total: Int)
+        fun onDownloadingEnded(bookId: String, downloaded: Int, total: Int)
+        fun onDownloadingEndedWithError(bookId: String, downloadingFailedCount: Int, total: Int)
     }
 }

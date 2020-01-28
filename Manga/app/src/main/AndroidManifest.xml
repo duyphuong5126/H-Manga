@@ -20,7 +20,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:allowBackup">
-        <activity android:name=".features.downloaded.DownloadedBooksActivity"></activity>
+        <activity android:name=".features.NavigationRedirectActivity"></activity>
+        <activity android:name=".features.downloaded.DownloadedBooksActivity" />
         <activity
             android:name=".features.home.HomeActivity"
             android:configChanges="orientation|screenSize|keyboardHidden">
@@ -51,6 +52,9 @@
 
         <service
             android:name=".service.TagsUpdateService"
+            android:exported="false" />
+        <service
+            android:name=".service.BookDownloadingServices"
             android:exported="false" />
     </application>
 

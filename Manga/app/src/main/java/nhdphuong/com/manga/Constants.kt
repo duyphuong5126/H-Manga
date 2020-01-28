@@ -111,6 +111,17 @@ class Constants {
 
         // Notifications
         const val NOTIFICATION_CHANNEL_ID = "nHentaiApp"
+        const val NOTIFICATION_ID = 22545
+
+        // Broadcast receiver
+        const val ACTION_DOWNLOADING_STARTED = "ACTION_DOWNLOADING_STARTED"
+        const val ACTION_DOWNLOADING_PROGRESS = "ACTION_DOWNLOADING_PROGRESS"
+        const val ACTION_DOWNLOADING_FAILED = "ACTION_DOWNLOADING_FAILED"
+        const val ACTION_DOWNLOADING_COMPLETED = "ACTION_DOWNLOADING_COMPLETED"
+
+        const val TOTAL = "total"
+        const val PROGRESS = "progress"
+        const val DOWNLOADING_FAILED_COUNT = "downloadingFailedCount"
 
         const val TAG_PREFIXES = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 

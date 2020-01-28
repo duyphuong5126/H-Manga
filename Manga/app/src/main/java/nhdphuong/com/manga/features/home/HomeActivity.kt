@@ -2,6 +2,7 @@ package nhdphuong.com.manga.features.home
 
 import android.annotation.TargetApi
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -24,6 +25,12 @@ import nhdphuong.com.manga.features.header.HeaderPresenter
 class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
     companion object {
         private const val TAG = "HomeActivity"
+
+        @JvmStatic
+        fun start(fromContext: Context) {
+            val intent = Intent(fromContext, HomeActivity::class.java)
+            fromContext.startActivity(intent)
+        }
     }
 
     @Suppress("unused")

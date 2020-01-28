@@ -6,6 +6,9 @@ import dagger.Module
 @Module
 interface UseCaseModule {
     @Binds
+    fun startBookDownloadingUseCase(startBookDownloadingUseCaseImpl: StartBookDownloadingUseCaseImpl): StartBookDownloadingUseCase
+
+    @Binds
     fun downloadBookUseCase(downloadBookUseCaseImpl: DownloadBookUseCaseImpl): DownloadBookUseCase
 
     @Binds

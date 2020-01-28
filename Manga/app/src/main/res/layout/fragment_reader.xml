@@ -54,7 +54,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/ibDownload"
                 app:layout_constraintStart_toEndOf="@id/ibBack"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_goneMarginEnd="@dimen/space_medium">
 
                 <nhdphuong.com.manga.views.customs.MyTextView
                     android:id="@+id/mtvBookTitle"

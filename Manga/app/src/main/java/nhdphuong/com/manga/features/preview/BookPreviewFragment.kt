@@ -4,6 +4,8 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
@@ -51,19 +53,26 @@ import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_1
 import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_2
 import kotlinx.android.synthetic.main.fragment_book_preview.tvUpdatedAt
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
+import nhdphuong.com.manga.Constants.Companion.PROGRESS
+import nhdphuong.com.manga.Constants.Companion.TOTAL
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
+import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.ImageUtils
-import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
+import nhdphuong.com.manga.views.becomeVisible
+import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PreviewAdapter
-import nhdphuong.com.manga.views.becomeVisibleIf
 
 /*
  * Created by nhdphuong on 4/14/18.
@@ -90,6 +99,36 @@ class BookPreviewFragment :
     private var viewDownloadedData = false
 
     private lateinit var previewLayoutManager: MyGridLayoutManager
+
+    private val bookDownloadingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when (intent.action) {
+                Constants.ACTION_DOWNLOADING_STARTED -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
+                    presenter.initDownloading(bookId, totalBookPages)
+                }
+                Constants.ACTION_DOWNLOADING_PROGRESS -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
+                    val progress = intent.extras?.getInt(PROGRESS) ?: 0
+                    presenter.updateDownloadingProgress(bookId, progress, totalBookPages)
+                }
+                Constants.ACTION_DOWNLOADING_COMPLETED -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    presenter.finishDownloading(bookId)
+                }
+                Constants.ACTION_DOWNLOADING_FAILED -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
+                    val downloadingFailedCount =
+                        intent.extras?.getInt(DOWNLOADING_FAILED_COUNT) ?: 0
+                    presenter.finishDownloading(bookId, downloadingFailedCount, totalBookPages)
+                }
+                else -> Unit
+            }
+        }
+    }
 
     override fun setPresenter(presenter: BookPreviewContract.Presenter) {
         this.presenter = presenter
@@ -167,6 +206,18 @@ class BookPreviewFragment :
         presenter.start()
     }
 
+    override fun onStart() {
+        super.onStart()
+        BroadCastReceiverHelper.registerBroadcastReceiver(
+            context,
+            bookDownloadingReceiver,
+            Constants.ACTION_DOWNLOADING_STARTED,
+            Constants.ACTION_DOWNLOADING_PROGRESS,
+            Constants.ACTION_DOWNLOADING_FAILED,
+            Constants.ACTION_DOWNLOADING_COMPLETED
+        )
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -189,8 +240,13 @@ class BookPreviewFragment :
 
     override fun onStop() {
         super.onStop()
-        presenter.stop()
         isPresenterStarted = false
+        BroadCastReceiverHelper.unRegisterBroadcastReceiver(context, bookDownloadingReceiver)
+    }
+
+    override fun onDestroy() {
+        presenter.stop()
+        super.onDestroy()
     }
 
     override fun showBookCoverImage(coverUrl: String) {
@@ -402,13 +458,13 @@ class BookPreviewFragment :
     }
 
     override fun initDownloading(total: Int) {
-        clDownloadProgress.visibility = View.VISIBLE
+        clDownloadProgress.becomeVisible()
         pbDownloading.max = total
         mtvDownloaded.text = String.format(getString(R.string.preview_download_progress), 0, total)
     }
 
     override fun updateDownloadProgress(progress: Int, total: Int) {
-        clDownloadProgress.visibility = View.VISIBLE
+        clDownloadProgress.becomeVisible()
         pbDownloading.max = total
         pbDownloading.progressDrawable = getProgressDrawableId(progress, total)
         pbDownloading.progress = progress
@@ -423,7 +479,7 @@ class BookPreviewFragment :
             pbDownloading.progressDrawable =
                 getProgressDrawableId(0, pbDownloading.max)
             pbDownloading.max = 0
-            clDownloadProgress.visibility = View.GONE
+            clDownloadProgress.gone()
             mtvDownloaded.text = getString(R.string.preview_download_progress)
         }, 2000)
     }
@@ -436,7 +492,7 @@ class BookPreviewFragment :
             pbDownloading.progressDrawable =
                 getProgressDrawableId(0, pbDownloading.max)
             pbDownloading.max = 0
-            clDownloadProgress.visibility = View.GONE
+            clDownloadProgress.gone()
             mtvDownloaded.text = getString(R.string.preview_download_progress)
         }, 2000)
     }

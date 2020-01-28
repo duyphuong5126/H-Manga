@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nhdphuong.com.manga.Constants
-import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
@@ -16,7 +15,6 @@ import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.IFileUtils
 import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.SupportUtils
-import nhdphuong.com.manga.usecase.DownloadBookUseCase
 import java.util.LinkedList
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -28,8 +26,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.disposables.CompositeDisposable
-import nhdphuong.com.manga.data.entity.DownloadingResult
+import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
 import nhdphuong.com.manga.usecase.GetDownloadedBookCoverUseCase
+import nhdphuong.com.manga.usecase.StartBookDownloadingUseCase
 
 /*
  * Created by nhdphuong on 4/14/18.
@@ -38,13 +37,13 @@ class BookPreviewPresenter @Inject constructor(
     private val view: BookPreviewContract.View,
     private val book: Book,
     private val getDownloadedBookCoverUseCase: GetDownloadedBookCoverUseCase,
+    private val startBookDownloadingUseCase: StartBookDownloadingUseCase,
     private val bookRepository: BookRepository,
-    private val downloadBookUseCase: DownloadBookUseCase,
     private val networkUtils: INetworkUtils,
     private val fileUtils: IFileUtils,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
-) : BookPreviewContract.Presenter, DownloadManager.BookDownloadCallback {
+) : BookPreviewContract.Presenter {
 
     companion object {
         private const val TAG = "BookPreviewPresenter"
@@ -83,8 +82,6 @@ class BookPreviewPresenter @Inject constructor(
     private var isFavoriteBook: Boolean = false
 
     private var viewDownloadedData: Boolean = false
-
-    private val bookDownloader = DownloadManager.Companion.BookDownloader
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -130,10 +127,6 @@ class BookPreviewPresenter @Inject constructor(
         languageList = LinkedList()
         parodyList = LinkedList()
         groupList = LinkedList()
-        if (bookDownloader.isDownloading && bookDownloader.bookId == book.bookId) {
-            bookDownloader.setDownloadCallback(this)
-            view.updateDownloadProgress(bookDownloader.progress, bookDownloader.total)
-        }
     }
 
     override fun loadInfoLists() {
@@ -245,25 +238,13 @@ class BookPreviewPresenter @Inject constructor(
         }
 
         if (!bookDownloader.isDownloading) {
-            downloadBookUseCase.execute(book)
+            startBookDownloadingUseCase.execute(book)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    bookDownloader.setDownloadCallback(this)
-                    bookDownloader.startDownloading(book.bookId, book.numOfPages)
-                }
-                .subscribeBy(onNext = { result ->
-                    when (result) {
-                        is DownloadingResult.DownloadingProgress -> {
-                            bookDownloader.updateProgress(book.bookId, result.progress)
-                        }
-                    }
+                .subscribeBy(onComplete = {
+                    Logger.d(TAG, "Started downloading book ${book.bookId}")
                 }, onError = {
-                    Logger.e(TAG, "Failure in downloading book ${book.mediaId} with error: $it")
-                    bookDownloader.endDownloading(bookDownloader.progress, bookDownloader.total)
-                }, onComplete = {
-                    bookDownloader.endDownloading(bookDownloader.progress, bookDownloader.total)
-                    view.showOpenFolderView()
+                    Logger.d(TAG, "Failed to start downloading book ${book.bookId}: $it")
                 }).addTo(compositeDisposable)
         } else {
             if (bookDownloader.bookId == book.bookId) {
@@ -295,37 +276,33 @@ class BookPreviewPresenter @Inject constructor(
         }
     }
 
+    override fun initDownloading(bookId: String, total: Int) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.initDownloading(total)
+        }
+    }
+
+    override fun updateDownloadingProgress(bookId: String, progress: Int, total: Int) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.updateDownloadProgress(progress, total)
+        }
+    }
+
+    override fun finishDownloading(bookId: String) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.finishDownloading()
+            view.showOpenFolderView()
+        }
+    }
+
+    override fun finishDownloading(bookId: String, downloadFailedCount: Int, total: Int) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.finishDownloading(downloadFailedCount, total)
+        }
+    }
+
     override fun stop() {
-
-    }
-
-    override fun onDownloadingStarted(bookId: String, total: Int) {
-        if (view.isActive()) {
-            main.launch {
-                view.initDownloading(total)
-            }
-        }
-    }
-
-    override fun onProgressUpdated(bookId: String, progress: Int, total: Int) {
-        if (view.isActive()) {
-            main.launch {
-                view.updateDownloadProgress(progress, total)
-            }
-        }
-    }
-
-    override fun onDownloadingEnded(downloaded: Int, total: Int) {
-        Logger.d(TAG, "$downloaded/$total pages are downloaded")
-        if (view.isActive()) {
-            main.launch {
-                if (downloaded == total) {
-                    view.finishDownloading()
-                } else {
-                    view.finishDownloading(total - downloaded, total)
-                }
-            }
-        }
+        compositeDisposable.clear()
     }
 
     override fun loadMoreThumbnails() {

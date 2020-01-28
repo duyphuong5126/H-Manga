@@ -102,6 +102,8 @@
     <string name="downloaded">Downloaded</string>
     <string name="downloaded_books">Downloaded Books</string>
 
+    <string name="downloading_book">Downloading Book</string>
+
     <string name="notification_channel_name">NHentai App</string>
     <string name="notification_channel_description">Hentai manga</string>
 
