@@ -12,6 +12,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -129,9 +130,13 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         }
         btnFirst.setOnClickListener {
             presenter.jumToFirstPage()
+            paginationAdapter.jumpToFirst()
+            jumpTo(0)
         }
         btnLast.setOnClickListener {
             presenter.jumToLastPage()
+            paginationAdapter.jumpToLast()
+            jumpTo(paginationAdapter.itemCount - 1)
         }
     }
 
@@ -339,6 +344,13 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     private fun endUpdateDotsTask() {
         if (this::updateDotsHandler.isInitialized) {
             updateDotsHandler.removeCallbacksAndMessages(null)
+        }
+    }
+
+    private fun jumpTo(pageNumber: Int) {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post {
+            rvPagination.scrollToPosition(pageNumber)
         }
     }
 }

@@ -12,6 +12,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.GridLayoutManager
@@ -85,9 +86,13 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
         }
         btnFirst.setOnClickListener {
             downloadedBooksPresenter.jumToFirstPage()
+            paginationAdapter.jumpToFirst()
+            jumpTo(0)
         }
         btnLast.setOnClickListener {
             downloadedBooksPresenter.jumToLastPage()
+            paginationAdapter.jumpToLast()
+            jumpTo(paginationAdapter.itemCount - 1)
         }
         downloadedBooksPresenter.start()
     }
@@ -256,6 +261,13 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
     private fun endUpdateDotsTask() {
         if (this::updateDotsHandler.isInitialized) {
             updateDotsHandler.removeCallbacksAndMessages(null)
+        }
+    }
+
+    private fun jumpTo(pageNumber: Int) {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post {
+            rvPagination.scrollToPosition(pageNumber)
         }
     }
 

@@ -21,6 +21,9 @@
 #-renamesourcefileattribute SourceFile
 -dontwarn android.arch.persistence.room.**
 -dontwarn androidx.room.**
+-dontwarn android.content.**
+-dontwarn android.graphics.**
+-dontwarn android.util.**
 -dontwarn com.google.auto.common.**
 -dontwarn com.google.common.**
 -dontwarn com.squareup.javapoet.**
@@ -34,3 +37,5 @@
 -dontwarn retrofit2.**
 -dontwarn Type_mirror_extKt
 -dontwarn Type_mirror_extKt$WhenMappings
+-keepattributes SourceFile,LineNumberTable
+-keepnames class kotlinx.** { *; }
