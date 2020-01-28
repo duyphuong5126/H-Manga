@@ -85,6 +85,11 @@ class BookPreviewFragment :
         private const val TAG = "BookPreviewFragment"
         private const val NUM_OF_ROWS = 2
         private const val REQUEST_STORAGE_PERMISSION = 3142
+        private const val COVER_IMAGE_ANIMATION_START_DELAY = 100L
+        private const val COVER_IMAGE_ANIMATION_DURATION = 6500L
+        private const val COVER_IMAGE_ANIMATION_UP_OFFSET = -1000
+        private const val COVER_IMAGE_ANIMATION_DOWN_OFFSET = 1000
+        private const val DOWNLOADING_BAR_HIDING_DELAY = 2000L
     }
 
     private lateinit var presenter: BookPreviewContract.Presenter
@@ -158,13 +163,13 @@ class BookPreviewFragment :
         }
         svBookCover.let { svBookCover ->
             val scrollDownAnimator =
-                ObjectAnimator.ofInt(svBookCover, "scrollY", 1000)
-            scrollDownAnimator.startDelay = 100
-            scrollDownAnimator.duration = 6500
+                ObjectAnimator.ofInt(svBookCover, "scrollY", COVER_IMAGE_ANIMATION_DOWN_OFFSET)
+            scrollDownAnimator.startDelay = COVER_IMAGE_ANIMATION_START_DELAY
+            scrollDownAnimator.duration = COVER_IMAGE_ANIMATION_DURATION
             val scrollUpAnimator =
-                ObjectAnimator.ofInt(svBookCover, "scrollY", -1000)
-            scrollUpAnimator.startDelay = 100
-            scrollUpAnimator.duration = 6500
+                ObjectAnimator.ofInt(svBookCover, "scrollY", COVER_IMAGE_ANIMATION_UP_OFFSET)
+            scrollUpAnimator.startDelay = COVER_IMAGE_ANIMATION_START_DELAY
+            scrollUpAnimator.duration = COVER_IMAGE_ANIMATION_DURATION
             scrollDownAnimator.addListener(getAnimationListener(scrollUpAnimator))
             scrollUpAnimator.addListener(getAnimationListener(scrollDownAnimator))
 
@@ -481,7 +486,7 @@ class BookPreviewFragment :
             pbDownloading.max = 0
             clDownloadProgress.gone()
             mtvDownloaded.text = getString(R.string.preview_download_progress)
-        }, 2000)
+        }, DOWNLOADING_BAR_HIDING_DELAY)
     }
 
     override fun finishDownloading(downloadFailedCount: Int, total: Int) {
@@ -494,7 +499,7 @@ class BookPreviewFragment :
             pbDownloading.max = 0
             clDownloadProgress.gone()
             mtvDownloaded.text = getString(R.string.preview_download_progress)
-        }, 2000)
+        }, DOWNLOADING_BAR_HIDING_DELAY)
     }
 
     override fun showBookBeingDownloaded(bookId: String) {

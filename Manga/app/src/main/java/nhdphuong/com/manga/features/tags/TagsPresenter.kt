@@ -207,8 +207,8 @@ class TagsPresenter @Inject constructor(
 
     /**
      * Usage: used to setup data list, pages count and so on when user
-     * - change the tag imageType (tag, artists, parodies and so on)
-     * - change the tag filtering imageType (alphabet, popularity)
+     * - change the tag type (tag, artists, parodies and so on)
+     * - change the tag filtering type (alphabet, popularity)
      * - change the character prefix (alphabet mode)
      */
     private fun notifyTagsChanged() {

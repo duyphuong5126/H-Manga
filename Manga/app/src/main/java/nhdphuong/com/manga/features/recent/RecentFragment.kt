@@ -53,6 +53,9 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
         private const val GRID_COLUMNS = 2
         private const val LANDSCAPE_GRID_COLUMNS = 3
+        private const val REFRESHING_DELAY = 1000L
+        private const val REFRESHING_ROTATION = 180F
+        private const val DOT_TASK_DELAY = 500L
     }
 
     private lateinit var presenter: RecentContract.Presenter
@@ -88,7 +91,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
                 frame?.postDelayed({
                     srlPullToReload.refreshComplete()
                     RecentActivity.restart(recentType)
-                }, 1000)
+                }, REFRESHING_DELAY)
             }
 
             override fun checkCanDoRefresh(
@@ -290,7 +293,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         )
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
             refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
-            refreshHeader.ivRefresh.rotation = 180F
+            refreshHeader.ivRefresh.rotation = REFRESHING_ROTATION
         }
     }
 
@@ -327,7 +330,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         val runnable = object : Runnable {
             override fun run() {
                 updateDotsTask()
-                updateDotsHandler.postDelayed(this, 500)
+                updateDotsHandler.postDelayed(this, DOT_TASK_DELAY)
             }
         }
         runnable.run()
