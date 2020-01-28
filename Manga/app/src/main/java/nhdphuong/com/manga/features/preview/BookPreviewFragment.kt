@@ -4,20 +4,22 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.support.annotation.RequiresApi
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.Fragment
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_book_preview.clArtists
 import kotlinx.android.synthetic.main.fragment_book_preview.clCategories
 import kotlinx.android.synthetic.main.fragment_book_preview.clCharacters
@@ -51,16 +53,24 @@ import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_1
 import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_2
 import kotlinx.android.synthetic.main.fragment_book_preview.tvUpdatedAt
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
+import nhdphuong.com.manga.Constants.Companion.PROGRESS
+import nhdphuong.com.manga.Constants.Companion.TOTAL
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
+import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.ImageUtils
-import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
+import nhdphuong.com.manga.views.becomeVisible
+import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PreviewAdapter
 
@@ -68,28 +78,65 @@ import nhdphuong.com.manga.views.adapters.PreviewAdapter
  * Created by nhdphuong on 4/14/18.
  */
 class BookPreviewFragment :
-        Fragment(),
-        BookPreviewContract.View,
-        InformationCardAdapter.TagSelectedListener {
+    Fragment(),
+    BookPreviewContract.View,
+    InformationCardAdapter.TagSelectedListener {
     companion object {
         private const val TAG = "BookPreviewFragment"
         private const val NUM_OF_ROWS = 2
         private const val REQUEST_STORAGE_PERMISSION = 3142
+        private const val COVER_IMAGE_ANIMATION_START_DELAY = 100L
+        private const val COVER_IMAGE_ANIMATION_DURATION = 6500L
+        private const val COVER_IMAGE_ANIMATION_UP_OFFSET = -1000
+        private const val COVER_IMAGE_ANIMATION_DOWN_OFFSET = 1000
+        private const val DOWNLOADING_BAR_HIDING_DELAY = 2000L
     }
 
-    private lateinit var mPresenter: BookPreviewContract.Presenter
-    private lateinit var mPreviewAdapter: PreviewAdapter
-    private lateinit var mRecommendBookAdapter: BookAdapter
-    private lateinit var mAnimatorSet: AnimatorSet
+    private lateinit var presenter: BookPreviewContract.Presenter
+    private lateinit var previewAdapter: PreviewAdapter
+    private lateinit var recommendBookAdapter: BookAdapter
+    private lateinit var animatorSet: AnimatorSet
     private var isDownloadRequested = false
 
     @Volatile
     private var isPresenterStarted: Boolean = false
 
-    private lateinit var mPreviewLayoutManager: MyGridLayoutManager
+    private var viewDownloadedData = false
+
+    private lateinit var previewLayoutManager: MyGridLayoutManager
+
+    private val bookDownloadingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when (intent.action) {
+                Constants.ACTION_DOWNLOADING_STARTED -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
+                    presenter.initDownloading(bookId, totalBookPages)
+                }
+                Constants.ACTION_DOWNLOADING_PROGRESS -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
+                    val progress = intent.extras?.getInt(PROGRESS) ?: 0
+                    presenter.updateDownloadingProgress(bookId, progress, totalBookPages)
+                }
+                Constants.ACTION_DOWNLOADING_COMPLETED -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    presenter.finishDownloading(bookId)
+                }
+                Constants.ACTION_DOWNLOADING_FAILED -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
+                    val downloadingFailedCount =
+                        intent.extras?.getInt(DOWNLOADING_FAILED_COUNT) ?: 0
+                    presenter.finishDownloading(bookId, downloadingFailedCount, totalBookPages)
+                }
+                else -> Unit
+            }
+        }
+    }
 
     override fun setPresenter(presenter: BookPreviewContract.Presenter) {
-        mPresenter = presenter
+        this.presenter = presenter
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,9 +145,9 @@ class BookPreviewFragment :
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         Logger.d(TAG, "onCreateView")
         return inflater.inflate(R.layout.fragment_book_preview, container, false)
@@ -110,44 +157,50 @@ class BookPreviewFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Logger.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
+        viewDownloadedData = arguments?.getBoolean(Constants.VIEW_DOWNLOADED_DATA) ?: false
+        if (viewDownloadedData) {
+            presenter.enableViewDownloadedDataMode()
+        }
         svBookCover.let { svBookCover ->
             val scrollDownAnimator =
-                    ObjectAnimator.ofInt(svBookCover, "scrollY", 1000)
-            scrollDownAnimator.startDelay = 100
-            scrollDownAnimator.duration = 6500
+                ObjectAnimator.ofInt(svBookCover, "scrollY", COVER_IMAGE_ANIMATION_DOWN_OFFSET)
+            scrollDownAnimator.startDelay = COVER_IMAGE_ANIMATION_START_DELAY
+            scrollDownAnimator.duration = COVER_IMAGE_ANIMATION_DURATION
             val scrollUpAnimator =
-                    ObjectAnimator.ofInt(svBookCover, "scrollY", -1000)
-            scrollUpAnimator.startDelay = 100
-            scrollUpAnimator.duration = 6500
+                ObjectAnimator.ofInt(svBookCover, "scrollY", COVER_IMAGE_ANIMATION_UP_OFFSET)
+            scrollUpAnimator.startDelay = COVER_IMAGE_ANIMATION_START_DELAY
+            scrollUpAnimator.duration = COVER_IMAGE_ANIMATION_DURATION
             scrollDownAnimator.addListener(getAnimationListener(scrollUpAnimator))
             scrollUpAnimator.addListener(getAnimationListener(scrollDownAnimator))
 
-            mAnimatorSet = AnimatorSet()
-            mAnimatorSet.playTogether(scrollDownAnimator)
+            animatorSet = AnimatorSet()
+            animatorSet.playTogether(scrollDownAnimator)
             svBookCover.setOnTouchListener { _, _ ->
                 true
             }
         }
 
+        mtvDownload.becomeVisibleIf(!viewDownloadedData)
         mtvDownload.setOnClickListener {
             isDownloadRequested = true
-            mPresenter.downloadBook()
+            presenter.downloadBook()
         }
 
-        val changeFavoriteListener = View.OnClickListener { mPresenter.changeBookFavorite() }
+        val changeFavoriteListener = View.OnClickListener { presenter.changeBookFavorite() }
         mtvFavorite.setOnClickListener(changeFavoriteListener)
         mtvNotFavorite.setOnClickListener(changeFavoriteListener)
 
-        // Gingerbread
         hsvPreviewThumbNail.overScrollMode = View.OVER_SCROLL_NEVER
         hsvRecommendList.overScrollMode = View.OVER_SCROLL_NEVER
+        hsvRecommendList.becomeVisibleIf(!viewDownloadedData)
+        mtvRecommendBook.becomeVisibleIf(!viewDownloadedData)
         svPreview.overScrollMode = View.OVER_SCROLL_NEVER
         svBookCover.overScrollMode = View.OVER_SCROLL_NEVER
 
         view.viewTreeObserver.addOnGlobalLayoutListener {
             if (!isPresenterStarted) {
                 isPresenterStarted = true
-                mPresenter.loadInfoLists()
+                presenter.loadInfoLists()
             }
         }
     }
@@ -155,13 +208,25 @@ class BookPreviewFragment :
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Logger.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
-        mPresenter.start()
+        presenter.start()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        BroadCastReceiverHelper.registerBroadcastReceiver(
+            context,
+            bookDownloadingReceiver,
+            Constants.ACTION_DOWNLOADING_STARTED,
+            Constants.ACTION_DOWNLOADING_PROGRESS,
+            Constants.ACTION_DOWNLOADING_FAILED,
+            Constants.ACTION_DOWNLOADING_COMPLETED
+        )
     }
 
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
@@ -170,7 +235,7 @@ class BookPreviewFragment :
                 showRequestStoragePermission()
             } else {
                 if (isDownloadRequested) {
-                    mPresenter.downloadBook()
+                    presenter.downloadBook()
                 }
             }
             val result = if (permissionGranted) "granted" else "denied"
@@ -180,27 +245,32 @@ class BookPreviewFragment :
 
     override fun onStop() {
         super.onStop()
-        mPresenter.stop()
         isPresenterStarted = false
+        BroadCastReceiverHelper.unRegisterBroadcastReceiver(context, bookDownloadingReceiver)
+    }
+
+    override fun onDestroy() {
+        presenter.stop()
+        super.onDestroy()
     }
 
     override fun showBookCoverImage(coverUrl: String) {
         if (!NHentaiApp.instance.isCensored) {
             ImageUtils.loadImage(
-                    coverUrl,
-                    R.drawable.ic_404_not_found,
-                    ivBookCover,
-                    onLoadSuccess = {
-                        mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
-                        mAnimatorSet.start()
-                    },
-                    onLoadFailed = {
-                        mPresenter.reloadCoverImage()
-                    })
+                coverUrl,
+                R.drawable.ic_404_not_found,
+                ivBookCover,
+                onLoadSuccess = {
+                    presenter.saveCurrentAvailableCoverUrl(coverUrl)
+                    animatorSet.start()
+                },
+                onLoadFailed = {
+                    presenter.reloadCoverImage()
+                })
         } else {
             ivBookCover.setImageResource(R.drawable.ic_nothing_here_grey)
-            mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
-            mAnimatorSet.start()
+            presenter.saveCurrentAvailableCoverUrl(coverUrl)
+            animatorSet.start()
         }
     }
 
@@ -313,43 +383,45 @@ class BookPreviewFragment :
             spanCount++
         }
 
-        Logger.d(TAG, "thumbnails: ${thumbnailList.size}," +
-                " number of rows: $NUM_OF_ROWS, spanCount: $spanCount")
-        mPreviewLayoutManager = object : MyGridLayoutManager(context!!, spanCount) {
+        Logger.d(
+            TAG, "thumbnails: ${thumbnailList.size}," +
+                    " number of rows: $NUM_OF_ROWS, spanCount: $spanCount"
+        )
+        previewLayoutManager = object : MyGridLayoutManager(context!!, spanCount) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
             }
         }
         rvPreviewList.run {
-            layoutManager = mPreviewLayoutManager
-            mPreviewAdapter = PreviewAdapter(
-                    NUM_OF_ROWS,
-                    thumbnailList,
-                    object : PreviewAdapter.ThumbnailClickCallback {
-                        override fun onThumbnailClicked(page: Int) {
-                            mPresenter.startReadingFrom(page)
-                        }
-                    })
-            adapter = mPreviewAdapter
+            layoutManager = previewLayoutManager
+            previewAdapter = PreviewAdapter(
+                NUM_OF_ROWS,
+                thumbnailList,
+                object : PreviewAdapter.ThumbnailClickCallback {
+                    override fun onThumbnailClicked(page: Int) {
+                        presenter.startReadingFrom(page)
+                    }
+                })
+            adapter = previewAdapter
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             hsvPreviewThumbNail.setOnScrollChangeListener { _, _, _, _, _ ->
                 if (!hsvPreviewThumbNail.canScrollHorizontally(1)) {
                     Logger.d(TAG, "End of list, load more thumbnails")
-                    mPresenter.loadMoreThumbnails()
+                    presenter.loadMoreThumbnails()
                 }
             }
         }
     }
 
     override fun updateBookThumbnailList() {
-        var spanCount = mPreviewAdapter.itemCount / NUM_OF_ROWS
-        if (mPreviewAdapter.itemCount % NUM_OF_ROWS != 0) {
+        var spanCount = previewAdapter.itemCount / NUM_OF_ROWS
+        if (previewAdapter.itemCount % NUM_OF_ROWS != 0) {
             spanCount++
         }
-        mPreviewLayoutManager.spanCount = spanCount
-        mPreviewAdapter.notifyDataSetChanged()
+        previewLayoutManager.spanCount = spanCount
+        previewAdapter.notifyDataSetChanged()
     }
 
     override fun showRecommendBook(bookList: List<Book>) {
@@ -362,15 +434,15 @@ class BookPreviewFragment :
         }
 
         rvRecommendList.layoutManager = gridLayoutManager
-        mRecommendBookAdapter = BookAdapter(
-                bookList,
-                BookAdapter.RECOMMEND_BOOK,
-                object : BookAdapter.OnBookClick {
-                    override fun onItemClick(item: Book) {
-                        BookPreviewActivity.restart(item)
-                    }
-                })
-        rvRecommendList.adapter = mRecommendBookAdapter
+        recommendBookAdapter = BookAdapter(
+            bookList,
+            BookAdapter.RECOMMEND_BOOK,
+            object : BookAdapter.OnBookClick {
+                override fun onItemClick(item: Book) {
+                    BookPreviewActivity.restart(item)
+                }
+            })
+        rvRecommendList.adapter = recommendBookAdapter
     }
 
     override fun showNoRecommendBook() {
@@ -382,26 +454,27 @@ class BookPreviewFragment :
             requestStoragePermission()
         }, onDismiss = {
             Toast.makeText(
-                    context,
-                    getString(R.string.toast_storage_permission_require),
-                    Toast.LENGTH_SHORT
+                context,
+                getString(R.string.toast_storage_permission_require),
+                Toast.LENGTH_SHORT
             ).show()
             isDownloadRequested = false
         })
     }
 
     override fun initDownloading(total: Int) {
-        clDownloadProgress.visibility = View.VISIBLE
+        clDownloadProgress.becomeVisible()
         pbDownloading.max = total
         mtvDownloaded.text = String.format(getString(R.string.preview_download_progress), 0, total)
     }
 
     override fun updateDownloadProgress(progress: Int, total: Int) {
-        clDownloadProgress.visibility = View.VISIBLE
+        clDownloadProgress.becomeVisible()
         pbDownloading.max = total
         pbDownloading.progressDrawable = getProgressDrawableId(progress, total)
         pbDownloading.progress = progress
-        mtvDownloaded.text = String.format(getString(R.string.preview_download_progress), progress, total)
+        mtvDownloaded.text =
+            String.format(getString(R.string.preview_download_progress), progress, total)
     }
 
     override fun finishDownloading() {
@@ -409,29 +482,29 @@ class BookPreviewFragment :
         val handler = Handler()
         handler.postDelayed({
             pbDownloading.progressDrawable =
-                    getProgressDrawableId(0, pbDownloading.max)
+                getProgressDrawableId(0, pbDownloading.max)
             pbDownloading.max = 0
-            clDownloadProgress.visibility = View.GONE
+            clDownloadProgress.gone()
             mtvDownloaded.text = getString(R.string.preview_download_progress)
-        }, 2000)
+        }, DOWNLOADING_BAR_HIDING_DELAY)
     }
 
     override fun finishDownloading(downloadFailedCount: Int, total: Int) {
         mtvDownloaded.text =
-                String.format(getString(R.string.fail_to_download), downloadFailedCount)
+            String.format(getString(R.string.fail_to_download), downloadFailedCount)
         val handler = Handler()
         handler.postDelayed({
             pbDownloading.progressDrawable =
-                    getProgressDrawableId(0, pbDownloading.max)
+                getProgressDrawableId(0, pbDownloading.max)
             pbDownloading.max = 0
-            clDownloadProgress.visibility = View.GONE
+            clDownloadProgress.gone()
             mtvDownloaded.text = getString(R.string.preview_download_progress)
-        }, 2000)
+        }, DOWNLOADING_BAR_HIDING_DELAY)
     }
 
     override fun showBookBeingDownloaded(bookId: String) {
         DialogHelper.showBookDownloadingDialog(activity!!, bookId, onOk = {
-            mPresenter.restartBookPreview(bookId)
+            presenter.restartBookPreview(bookId)
         }, onDismiss = {
 
         })
@@ -453,12 +526,12 @@ class BookPreviewFragment :
         }
     }
 
-    override fun showFavoriteBooks(favoriteList: List<Int>) {
-        mRecommendBookAdapter.setFavoriteList(favoriteList)
+    override fun showFavoriteBooks(favoriteList: List<String>) {
+        recommendBookAdapter.setFavoriteList(favoriteList)
     }
 
-    override fun showRecentBooks(recentList: List<Int>) {
-        mRecommendBookAdapter.setRecentList(recentList)
+    override fun showRecentBooks(recentList: List<String>) {
+        recommendBookAdapter.setRecentList(recentList)
     }
 
     override fun showOpenFolderView() {
@@ -467,7 +540,12 @@ class BookPreviewFragment :
                 val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
                 viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 viewGalleryIntent.type = "image/*"
-                startActivity(Intent.createChooser(viewGalleryIntent, getString(R.string.open_with)))
+                startActivity(
+                    Intent.createChooser(
+                        viewGalleryIntent,
+                        getString(R.string.open_with)
+                    )
+                )
             }, onDismiss = {
 
             })
@@ -476,7 +554,7 @@ class BookPreviewFragment :
 
     override fun startReadingFromPage(page: Int, book: Book) {
         context?.run {
-            ReaderActivity.start(this, page, book)
+            ReaderActivity.start(this, page, book, viewDownloadedData)
         }
     }
 
@@ -491,6 +569,9 @@ class BookPreviewFragment :
     override fun isActive() = isAdded
 
     override fun onTagSelected(tag: Tag) {
+        if (viewDownloadedData) {
+            return
+        }
         activity?.run {
             val intent = intent
             intent.action = Constants.TAG_SELECTED_ACTION
@@ -507,7 +588,7 @@ class BookPreviewFragment :
     }
 
     private fun getAnimationListener(
-            callOnEndingObject: ObjectAnimator
+        callOnEndingObject: ObjectAnimator
     ): Animator.AnimatorListener {
         return object : Animator.AnimatorListener {
             override fun onAnimationEnd(p0: Animator?) {
@@ -535,10 +616,12 @@ class BookPreviewFragment :
 
     private fun getProgressDrawableId(progress: Int, max: Int): Drawable {
         val percentage = (progress * 1f) / (max * 1f)
-        return ActivityCompat.getDrawable(context!!, when {
-            percentage >= Constants.DOWNLOAD_GREEN_LEVEL -> R.drawable.bg_download_green
-            percentage >= Constants.DOWNLOAD_YELLOW_LEVEL -> R.drawable.bg_download_yellow
-            else -> R.drawable.bg_download_red
-        })!!
+        return ActivityCompat.getDrawable(
+            context!!, when {
+                percentage >= Constants.DOWNLOAD_GREEN_LEVEL -> R.drawable.bg_download_green
+                percentage >= Constants.DOWNLOAD_YELLOW_LEVEL -> R.drawable.bg_download_yellow
+                else -> R.drawable.bg_download_red
+            }
+        )!!
     }
 }

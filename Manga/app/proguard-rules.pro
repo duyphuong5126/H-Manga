@@ -20,6 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -dontwarn android.arch.persistence.room.**
+-dontwarn androidx.room.**
 -dontwarn android.content.**
 -dontwarn android.graphics.**
 -dontwarn android.util.**

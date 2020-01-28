@@ -1,27 +1,25 @@
 package nhdphuong.com.manga.views.adapters
 
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.item_tag_list.view.tvCount
+import kotlinx.android.synthetic.main.item_tag_list.view.tvLabel
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.tags.ITag
-import nhdphuong.com.manga.databinding.ItemTagListBinding
 
 class TagItemAdapter(
-        private val mTagList: ArrayList<ITag>,
-        private val mOnTagClickListener: OnTagClickListener
+    private val mTagList: ArrayList<ITag>,
+    private val mOnTagClickListener: OnTagClickListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(
-            viewGroup: ViewGroup,
-            viewType: Int
+        viewGroup: ViewGroup,
+        viewType: Int
     ): RecyclerView.ViewHolder {
-        val binding = ItemTagListBinding.inflate(
-                LayoutInflater.from(viewGroup.context),
-                viewGroup,
-                false
-        )
-        return TagViewHolder(binding)
+        val view =
+            LayoutInflater.from(viewGroup.context).inflate(R.layout.item_tag_list, viewGroup, false)
+        return TagViewHolder(view)
     }
 
     override fun getItemCount(): Int = mTagList.size
@@ -40,14 +38,14 @@ class TagItemAdapter(
     }
 
     private inner class TagViewHolder(
-            itemTagListBinding: ItemTagListBinding
-    ) : RecyclerView.ViewHolder(itemTagListBinding.root), View.OnClickListener {
-        private val mtvTagLabel = itemTagListBinding.tvLabel
-        private val mtvTagCount = itemTagListBinding.tvCount
+        itemView: View
+    ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        private val mtvTagLabel = itemView.tvLabel
+        private val mtvTagCount = itemView.tvCount
         private var mTag: ITag? = null
 
         init {
-            itemTagListBinding.root.setOnClickListener(this)
+            itemView.setOnClickListener(this)
             mtvTagLabel.setOnClickListener(this)
             mtvTagCount.setOnClickListener(this)
         }

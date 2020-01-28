@@ -1,9 +1,13 @@
 package nhdphuong.com.manga.data
 
+import io.reactivex.Completable
+import io.reactivex.Single
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.Book
+import nhdphuong.com.manga.data.entity.book.ImageMeasurements
 import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.data.entity.book.RemoteBook
+import nhdphuong.com.manga.data.local.model.ImageUsageType
 import java.util.LinkedList
 
 /*
@@ -26,5 +30,22 @@ interface BookDataSource {
         suspend fun isRecentBook(bookId: String): Boolean
         suspend fun getRecentCount(): Int
         suspend fun getFavoriteCount(): Int
+        fun getDownloadedBookList(): Single<List<Book>>
+        fun addToRecentList(bookId: String): Completable
+        fun saveDownloadedBook(book: Book): Completable
+        fun saveImageOfBook(
+            bookId: String,
+            imageMeasurements: ImageMeasurements,
+            @ImageUsageType usageType: String,
+            localPath: String
+        ): Completable
+
+        fun getDownloadedBookCoverPath(bookId: String): Single<String>
+
+        fun getDownloadedBookImagePaths(bookId: String): Single<List<String>>
+
+        fun getDownloadedBookThumbnailPaths(bookIds: List<String>): Single<List<Pair<String, String>>>
+
+        fun clearDownloadedImagesOfBook(bookId: String): Completable
     }
 }

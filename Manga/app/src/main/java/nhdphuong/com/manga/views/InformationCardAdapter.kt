@@ -1,7 +1,6 @@
 package nhdphuong.com.manga.views
 
 import android.annotation.SuppressLint
-import android.support.constraint.ConstraintLayout
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.TextAppearanceSpan
@@ -10,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -34,18 +34,20 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
         val context = viewGroup.context
         val layoutInflater = LayoutInflater.from(context)
         var tagLine = layoutInflater.inflate(
-                R.layout.item_tag_line,
-                viewGroup,
-                false
+            R.layout.item_tag_line,
+            viewGroup,
+            false
         ).findViewById<LinearLayout>(R.id.lineRoot)
         viewGroup.addView(tagLine)
         val viewList = LinkedList<View>()
         for (tag in tagList) {
-            val view = InfoCardViewHolder(layoutInflater.inflate(
+            val view = InfoCardViewHolder(
+                layoutInflater.inflate(
                     R.layout.item_tag,
                     viewGroup,
                     false
-            ), tag).view
+                ), tag
+            ).view
             view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
             viewList.add(view)
         }
@@ -65,9 +67,9 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
             Logger.d(TAG, "Item: $itemWidth, widthCount: $widthCount, total: $totalWidth")
             if (widthCount > totalWidth) {
                 tagLine = layoutInflater.inflate(
-                        R.layout.item_tag_line,
-                        viewGroup,
-                        false
+                    R.layout.item_tag_line,
+                    viewGroup,
+                    false
                 ).findViewById(R.id.lineRoot)
                 viewGroup.addView(tagLine)
                 widthCount = itemWidth
@@ -77,8 +79,8 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
     }
 
     private inner class InfoCardViewHolder(
-            val view: View,
-            private val tag: Tag
+        val view: View,
+        private val tag: Tag
     ) : View.OnClickListener {
         private val mTvLabel: TextView = view.findViewById(R.id.tvLabel)
         private val mClickableArea: ConstraintLayout = view.findViewById(R.id.clClickableArea)
@@ -86,20 +88,23 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
         init {
             val context = view.context
             val label = if (NHentaiApp.instance.isCensored) "Censored" else tag.name
-            val count = String.format(context.getString(R.string.count), SupportUtils.formatBigNumber(tag.count))
+            val count = String.format(
+                context.getString(R.string.count),
+                SupportUtils.formatBigNumber(tag.count)
+            )
             val finalText = "$label $count"
             val spannableText = SpannableString(finalText)
             spannableText.setSpan(
-                    TextAppearanceSpan(context, R.style.InfoCardLabel),
-                    0,
-                    label.length,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                TextAppearanceSpan(context, R.style.InfoCardLabel),
+                0,
+                label.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             spannableText.setSpan(
-                    TextAppearanceSpan(context, R.style.InfoCardCount),
-                    label.length + 1,
-                    finalText.length,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                TextAppearanceSpan(context, R.style.InfoCardCount),
+                label.length + 1,
+                finalText.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             mTvLabel.text = spannableText
             mClickableArea.setOnClickListener(this)

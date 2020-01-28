@@ -3,15 +3,15 @@ package nhdphuong.com.manga.features.reader
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.app.Fragment
-import android.support.v4.app.NotificationCompat
-import android.support.v4.view.ViewPager
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.fragment.app.Fragment
+import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.fragment_reader.clDownloadedPopup
 import kotlinx.android.synthetic.main.fragment_reader.clReaderBottom
 import kotlinx.android.synthetic.main.fragment_reader.clReaderTop
@@ -23,12 +23,14 @@ import kotlinx.android.synthetic.main.fragment_reader.mtvBookTitle
 import kotlinx.android.synthetic.main.fragment_reader.mtvCurrentPage
 import kotlinx.android.synthetic.main.fragment_reader.mtvDownloadTitle
 import kotlinx.android.synthetic.main.fragment_reader.vpPages
+import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.BookReaderAdapter
+import nhdphuong.com.manga.views.becomeVisibleIf
 
 /*
  * Created by nhdphuong on 5/5/18.
@@ -39,24 +41,30 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         private const val REQUEST_STORAGE_PERMISSION = 2364
     }
 
-    private lateinit var mPresenter: ReaderContract.Presenter
-    private lateinit var mRotationAnimation: Animation
-    private lateinit var mBookReaderAdapter: BookReaderAdapter
+    private lateinit var presenter: ReaderContract.Presenter
+    private lateinit var rotationAnimation: Animation
+    private lateinit var bookReaderAdapter: BookReaderAdapter
+
+    private var viewDownloadedData = false
 
     override fun setPresenter(presenter: ReaderContract.Presenter) {
-        mPresenter = presenter
+        this.presenter = presenter
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_reader, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewDownloadedData = arguments?.getBoolean(Constants.VIEW_DOWNLOADED_DATA) ?: false
+        if (viewDownloadedData) {
+            presenter.enableViewDownloadedDataMode()
+        }
         ibBack.setOnClickListener {
             navigateToGallery()
         }
@@ -66,22 +74,23 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         }
 
         mtvCurrentPage.setOnClickListener {
-            mPresenter.backToGallery()
+            presenter.backToGallery()
         }
 
+        ibDownload.becomeVisibleIf(!viewDownloadedData)
         ibDownload.setOnClickListener {
-            mPresenter.downloadCurrentPage()
+            presenter.downloadCurrentPage()
         }
 
         ibDownloadPopupClose.setOnClickListener {
             hideDownloadPopup()
         }
-        mRotationAnimation = AnimationHelper.getRotationAnimation(context!!)
+        rotationAnimation = AnimationHelper.getRotationAnimation(context!!)
         ibRefresh.let { ibRefresh ->
             ibRefresh.setOnClickListener {
-                ibRefresh.startAnimation(mRotationAnimation)
-                mPresenter.reloadCurrentPage { currentPage: Int ->
-                    mBookReaderAdapter.resetPage(currentPage)
+                ibRefresh.startAnimation(rotationAnimation)
+                presenter.reloadCurrentPage { currentPage: Int ->
+                    bookReaderAdapter.resetPage(currentPage)
                     val handler = Handler()
                     handler.postDelayed({
                         ibRefresh.clearAnimation()
@@ -93,7 +102,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         view.requestFocus()
         view.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == KeyEvent.ACTION_UP) {
-                mPresenter.endReading()
+                presenter.endReading()
             }
             return@OnKeyListener false
         })
@@ -101,13 +110,13 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        mPresenter.start()
+        presenter.start()
     }
 
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
@@ -122,7 +131,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
     override fun onStop() {
         super.onStop()
-        mPresenter.stop()
+        presenter.stop()
     }
 
     override fun showBookTitle(bookTitle: String) {
@@ -134,7 +143,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
     override fun showBookPages(pageList: List<String>) {
         val activity = activity!!
-        mBookReaderAdapter = BookReaderAdapter(context!!, pageList, View.OnClickListener {
+        bookReaderAdapter = BookReaderAdapter(context!!, pageList, View.OnClickListener {
             if (clReaderBottom.visibility == View.VISIBLE) {
                 AnimationHelper.startSlideOutTop(activity, clReaderTop) {
                     clReaderTop.visibility = View.GONE
@@ -151,27 +160,27 @@ class ReaderFragment : Fragment(), ReaderContract.View {
                 }
             }
         })
-        vpPages.adapter = mBookReaderAdapter
+        vpPages.adapter = bookReaderAdapter
         vpPages.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
 
             }
 
             override fun onPageScrolled(
-                    position: Int,
-                    positionOffset: Float,
-                    positionOffsetPixels: Int
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
             ) {
 
             }
 
             override fun onPageSelected(position: Int) {
-                mPresenter.updatePageIndicator(position)
+                presenter.updatePageIndicator(position)
                 if (position - 1 >= 0) {
-                    mBookReaderAdapter.resetPageToNormal(position - 1)
+                    bookReaderAdapter.resetPageToNormal(position - 1)
                 }
-                if (position + 1 < mBookReaderAdapter.count) {
-                    mBookReaderAdapter.resetPageToNormal(position + 1)
+                if (position + 1 < bookReaderAdapter.count) {
+                    bookReaderAdapter.resetPageToNormal(position + 1)
                 }
             }
         })
@@ -190,7 +199,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun navigateToGallery() {
-        mPresenter.endReading()
+        presenter.endReading()
         activity?.onBackPressed()
     }
 
@@ -199,9 +208,9 @@ class ReaderFragment : Fragment(), ReaderContract.View {
             requestStoragePermission()
         }, onDismiss = {
             Toast.makeText(
-                    context,
-                    getString(R.string.toast_storage_permission_require),
-                    Toast.LENGTH_SHORT
+                context,
+                getString(R.string.toast_storage_permission_require),
+                Toast.LENGTH_SHORT
             ).show()
         })
     }
@@ -220,12 +229,12 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
     override fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int) {
         NotificationHelper.sendBigContentNotification(
-                getString(R.string.now_reading),
-                NotificationCompat.PRIORITY_DEFAULT,
-                readingTitle,
-                true
+            getString(R.string.now_reading),
+            NotificationCompat.PRIORITY_DEFAULT,
+            readingTitle,
+            true
         ).let { notificationId ->
-            mPresenter.updateNotificationId(notificationId)
+            presenter.updateNotificationId(notificationId)
         }
     }
 
@@ -235,7 +244,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
     override fun showLoading() {
         if (isAdded) {
-            ibRefresh.startAnimation(mRotationAnimation)
+            ibRefresh.startAnimation(rotationAnimation)
         }
     }
 

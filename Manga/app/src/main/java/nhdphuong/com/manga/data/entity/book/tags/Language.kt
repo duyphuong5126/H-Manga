@@ -1,10 +1,10 @@
 package nhdphuong.com.manga.data.entity.book.tags
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Ignore
-import android.arch.persistence.room.Index
-import android.arch.persistence.room.PrimaryKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Ignore
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.JsonObject
@@ -13,13 +13,13 @@ import nhdphuong.com.manga.Constants
 
 @Entity(tableName = Constants.TABLE_LANGUAGE, indices = [Index(value = [Constants.NAME])])
 data class Language(
-        @field:SerializedName(Constants.ID)
-        @PrimaryKey @ColumnInfo(name = Constants.ID) var tagId: Long,
+    @field:SerializedName(Constants.ID)
+    @PrimaryKey @ColumnInfo(name = Constants.ID) var tagId: Long,
 
-        @field:SerializedName(Constants.TYPE) @ColumnInfo(name = Constants.TYPE) var type: String,
-        @field:SerializedName(Constants.NAME) @ColumnInfo(name = Constants.NAME) var name: String,
-        @field:SerializedName(Constants.URL) @ColumnInfo(name = Constants.URL) var url: String,
-        @field:SerializedName(Constants.COUNT) @ColumnInfo(name = Constants.COUNT) var count: Long
+    @field:SerializedName(Constants.TYPE) @ColumnInfo(name = Constants.TYPE) var type: String,
+    @field:SerializedName(Constants.NAME) @ColumnInfo(name = Constants.NAME) var name: String,
+    @field:SerializedName(Constants.URL) @ColumnInfo(name = Constants.URL) var url: String,
+    @field:SerializedName(Constants.COUNT) @ColumnInfo(name = Constants.COUNT) var count: Long
 ) : Parcelable, ITag {
 
     @Suppress("unused")
@@ -35,11 +35,11 @@ data class Language(
         }
 
     constructor(parcel: Parcel) : this(
-            parcel.readLong(),
-            parcel.readString() ?: Constants.LANGUAGE,
-            parcel.readString().orEmpty(),
-            parcel.readString().orEmpty(),
-            parcel.readLong()
+        parcel.readLong(),
+        parcel.readString() ?: Constants.LANGUAGE,
+        parcel.readString().orEmpty(),
+        parcel.readString().orEmpty(),
+        parcel.readLong()
     )
 
     @Ignore

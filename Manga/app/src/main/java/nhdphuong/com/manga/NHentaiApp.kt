@@ -33,24 +33,40 @@ class NHentaiApp : Application() {
 
     private val isExternalStorageWritable: Boolean
         get() = Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
+
     private val imagesDirectory: String
         get() {
             val rootDirectory = if (isExternalStorageWritable) {
-                Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_PICTURES
-                ).toString()
+                val apiVersion = Build.VERSION.SDK_INT
+                when {
+                    apiVersion >= Build.VERSION_CODES.Q -> {
+                        applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                    }
+                    else -> {
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                    }
+                }
             } else {
-                applicationContext.filesDir.toString()
-            }
+                applicationContext.filesDir
+            }.toString()
             return "$rootDirectory/${Constants.NHENTAI_DIRECTORY}"
         }
+
     private val tagsDirectory: String
         get() {
             val rootDirectory = if (isExternalStorageWritable) {
-                Environment.getExternalStorageDirectory().toString()
+                val apiVersion = Build.VERSION.SDK_INT
+                when {
+                    apiVersion >= Build.VERSION_CODES.Q -> {
+                        applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                    }
+                    else -> {
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    }
+                }
             } else {
-                applicationContext.filesDir.toString()
-            }
+                applicationContext.filesDir
+            }.toString()
             return "$rootDirectory/${Constants.NHENTAI_DIRECTORY}"
         }
 
@@ -76,8 +92,8 @@ class NHentaiApp : Application() {
         super.onCreate()
         mInstance = this
         mApplicationComponent = DaggerApplicationComponent.builder()
-                .applicationModule(ApplicationModule(this))
-                .build()
+            .applicationModule(ApplicationModule(this))
+            .build()
         mApplicationComponent.inject(this)
         createNotificationChannel()
         mServiceConnection = object : ServiceConnection {

@@ -3,8 +3,8 @@ package nhdphuong.com.manga
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Intent
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import nhdphuong.com.manga.features.home.HomeActivity
 
 class NotificationHelper {
@@ -13,7 +13,7 @@ class NotificationHelper {
 
         private fun sendNotification(notification: Notification, notificationId: Int): Int {
             val notificationManagerCompat = NotificationManagerCompat.from(
-                    NHentaiApp.instance.applicationContext
+                NHentaiApp.instance.applicationContext
             )
             notificationManagerCompat.notify(notificationId, notification)
             return notificationId
@@ -21,16 +21,16 @@ class NotificationHelper {
 
         @Suppress("unused")
         fun sendNotification(
-                title: String,
-                priority: Int,
-                content: String,
-                usedAppIcon: Boolean
+            title: String,
+            priority: Int,
+            content: String,
+            usedAppIcon: Boolean
         ): Int {
             val context = NHentaiApp.instance.applicationContext
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setContentTitle(title)
-                    .setContentText(content)
-                    .setPriority(priority)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setPriority(priority)
             if (usedAppIcon) {
                 notificationBuilder.setSmallIcon(R.drawable.ic_app)
             }
@@ -39,19 +39,19 @@ class NotificationHelper {
         }
 
         fun sendBigContentNotification(
-                title: String,
-                priority: Int,
-                content: String,
-                usedAppIcon: Boolean
+            title: String,
+            priority: Int,
+            content: String,
+            usedAppIcon: Boolean
         ): Int {
             val context = NHentaiApp.instance.applicationContext
             val bigTextStyle = NotificationCompat.BigTextStyle()
-                    .bigText(content)
-                    .setSummaryText(content)
+                .bigText(content)
+                .setSummaryText(content)
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setStyle(bigTextStyle)
-                    .setContentTitle(title)
-                    .setPriority(priority)
+                .setStyle(bigTextStyle)
+                .setContentTitle(title)
+                .setPriority(priority)
             if (usedAppIcon) {
                 notificationBuilder.setSmallIcon(R.drawable.ic_app)
             }
@@ -61,17 +61,17 @@ class NotificationHelper {
 
         @Suppress("unused")
         fun sendNotification(
-                title: String,
-                priority: Int,
-                content: String,
-                usedAppIcon: Boolean,
-                allowTap: Boolean
+            title: String,
+            priority: Int,
+            content: String,
+            usedAppIcon: Boolean,
+            allowTap: Boolean
         ): Int {
             val context = NHentaiApp.instance.applicationContext
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setContentTitle(title)
-                    .setContentText(content)
-                    .setPriority(priority)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setPriority(priority)
             if (usedAppIcon) {
                 notificationBuilder.setSmallIcon(R.drawable.ic_app)
             }
@@ -79,7 +79,7 @@ class NotificationHelper {
             if (allowTap) {
                 val intent = Intent(context, HomeActivity::class.java)
                 notificationBuilder.setContentIntent(
-                        PendingIntent.getActivity(context, 0, intent, 0)
+                    PendingIntent.getActivity(context, 0, intent, 0)
                 )
             }
 
@@ -88,24 +88,24 @@ class NotificationHelper {
 
         fun cancelNotification(notificationId: Int) {
             val notificationManagerCompat = NotificationManagerCompat.from(
-                    NHentaiApp.instance.applicationContext
+                NHentaiApp.instance.applicationContext
             )
             notificationManagerCompat.cancel(notificationId)
         }
 
         @Suppress("unused")
         fun updateNotification(
-                notificationId: Int,
-                title: String,
-                priority: Int,
-                content: String,
-                usedAppIcon: Boolean
+            notificationId: Int,
+            title: String,
+            priority: Int,
+            content: String,
+            usedAppIcon: Boolean
         ) {
             val context = NHentaiApp.instance.applicationContext
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setContentTitle(title)
-                    .setContentText(content)
-                    .setPriority(priority)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setPriority(priority)
             if (usedAppIcon) {
                 notificationBuilder.setSmallIcon(R.drawable.ic_app)
             }
@@ -115,18 +115,18 @@ class NotificationHelper {
 
         @Suppress("unused")
         fun updateNotification(
-                notificationId: Int,
-                title: String,
-                priority: Int,
-                content: String,
-                usedAppIcon: Boolean,
-                allowTap: Boolean
+            notificationId: Int,
+            title: String,
+            priority: Int,
+            content: String,
+            usedAppIcon: Boolean,
+            allowTap: Boolean
         ) {
             val context = NHentaiApp.instance.applicationContext
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setContentTitle(title)
-                    .setContentText(content)
-                    .setPriority(priority)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setPriority(priority)
             if (usedAppIcon) {
                 notificationBuilder.setSmallIcon(R.drawable.ic_app)
             }
@@ -134,7 +134,7 @@ class NotificationHelper {
             if (allowTap) {
                 val intent = Intent(context, HomeActivity::class.java)
                 notificationBuilder.setContentIntent(
-                        PendingIntent.getActivity(context, 0, intent, 0)
+                    PendingIntent.getActivity(context, 0, intent, 0)
                 )
             }
 

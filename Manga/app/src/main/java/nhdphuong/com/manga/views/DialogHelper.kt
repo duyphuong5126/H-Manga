@@ -21,16 +21,16 @@ class DialogHelper {
         private const val TAG = "DialogHelper"
 
         @SuppressLint("InflateParams", "SetTextI18n")
-        fun showLoadingDialog(activity: Activity): Dialog {
+        fun createLoadingDialog(activity: Activity): Dialog {
             val dotsArray = activity.resources.getStringArray(R.array.dots)
             var currentPos = 0
             val loadingString = activity.getString(R.string.loading)
             val dialog = Dialog(activity, android.R.style.Theme_Black_NoTitleBar)
             val layoutInflater = activity.layoutInflater
             val contentView = layoutInflater.inflate(
-                    R.layout.layout_loading_dialog,
-                    null,
-                    false
+                R.layout.layout_loading_dialog,
+                null,
+                false
             )
             val tvLoading: TextView = contentView.findViewById(R.id.tvLoading)
             val ivLoading: ImageView = contentView.findViewById(R.id.ivLoading)
@@ -51,52 +51,56 @@ class DialogHelper {
             return dialog
         }
 
-        fun showStoragePermissionDialog(activity: Activity, onOk: () -> Unit, onDismiss: () -> Unit) {
+        fun showStoragePermissionDialog(
+            activity: Activity,
+            onOk: () -> Unit,
+            onDismiss: () -> Unit
+        ) {
             val permissionTitle = activity.getString(R.string.permission_require)
             val permissionDescription = activity.getString(R.string.storage_permission_require)
             val okString = activity.getString(R.string.ok)
             val dismissString = activity.getString(R.string.dismiss)
             showOkDismissDialog(
-                    activity,
-                    permissionTitle,
-                    permissionDescription,
-                    okString,
-                    dismissString,
-                    onOk,
-                    onDismiss
+                activity,
+                permissionTitle,
+                permissionDescription,
+                okString,
+                dismissString,
+                onOk,
+                onDismiss
             )
         }
 
         fun showDownloadingFinishedDialog(
-                activity: Activity,
-                onOk: () -> Unit,
-                onDismiss: () -> Unit
+            activity: Activity,
+            onOk: () -> Unit,
+            onDismiss: () -> Unit
         ) {
             val permissionTitle = activity.getString(R.string.book_downloading_finished)
             val permissionDescription = activity.getString(R.string.is_want_to_open_folder)
             val okString = activity.getString(R.string.ok)
             val dismissString = activity.getString(R.string.dismiss)
             showOkDismissDialog(
-                    activity,
-                    permissionTitle,
-                    permissionDescription,
-                    okString,
-                    dismissString,
-                    onOk,
-                    onDismiss
+                activity,
+                permissionTitle,
+                permissionDescription,
+                okString,
+                dismissString,
+                onOk,
+                onDismiss
             )
         }
 
         fun showBookDownloadingDialog(
-                activity: Activity,
-                mediaId: String,
-                onOk: () -> Unit,
-                onDismiss: () -> Unit
+            activity: Activity,
+            mediaId: String,
+            onOk: () -> Unit,
+            onDismiss: () -> Unit
         ) {
             val title = activity.getString(R.string.is_book_being_downloaded)
             val message = String.format(
-                    activity.getString(R.string.is_downloading_another_book),
-                    mediaId
+                activity.getString(R.string.is_downloading_another_book),
+                mediaId
             )
             val okString = activity.getString(R.string.view)
             val dismissString = activity.getString(R.string.ok)
@@ -113,35 +117,56 @@ class DialogHelper {
 
         fun showThisBookDownloadingDialog(activity: Activity, onOk: () -> Unit) {
             val message = activity.getString(R.string.is_downloading_this_book)
-            showOkDialog(activity, activity.getString(R.string.is_book_being_downloaded), message, onOk)
+            showOkDialog(
+                activity,
+                activity.getString(R.string.is_book_being_downloaded),
+                message,
+                onOk
+            )
         }
 
         fun showBookListRefreshingDialog(activity: Activity, onOk: () -> Unit) {
-            showOkDialog(activity, activity.getString(R.string.book_list_refreshing_title),
-                    activity.getString(R.string.book_list_refreshing_description), onOk)
+            showOkDialog(
+                activity, activity.getString(R.string.book_list_refreshing_title),
+                activity.getString(R.string.book_list_refreshing_description), onOk
+            )
+        }
+
+        fun showInternetRequiredDialog(activity: Activity, onOk: () -> Unit) {
+            showOkDialog(
+                activity, activity.getString(R.string.no_network_title),
+                activity.getString(R.string.no_network_description), onOk
+            )
         }
 
         fun showTagsNotAvailable(activity: Activity, onOk: () -> Unit) {
-            showOkDialog(activity, activity.getString(R.string.under_construction_title),
-                    activity.getString(R.string.feature_under_construction_description), onOk)
+            showOkDialog(
+                activity, activity.getString(R.string.under_construction_title),
+                activity.getString(R.string.feature_under_construction_description), onOk
+            )
         }
 
         fun showTagsDownloadingDialog(activity: Activity, onOk: () -> Unit) {
             val message = activity.getString(R.string.is_downloading_tags)
-            showOkDialog(activity, activity.getString(R.string.are_tags_being_downloaded), message, onOk)
+            showOkDialog(
+                activity,
+                activity.getString(R.string.are_tags_being_downloaded),
+                message,
+                onOk
+            )
         }
 
         @SuppressLint("InflateParams")
         private fun showOkDialog(
-                activity: Activity,
-                title: String,
-                description: String,
-                onOk: () -> Unit
+            activity: Activity,
+            title: String,
+            description: String,
+            onOk: () -> Unit
         ) {
             val contentView = activity.layoutInflater.inflate(
-                    R.layout.dialog_ok,
-                    null,
-                    false
+                R.layout.dialog_ok,
+                null,
+                false
             )
             val dialog = Dialog(activity)
             val mtvPermissionTitle: MyTextView = contentView.findViewById(R.id.mtvDialogTitle)
@@ -157,8 +182,8 @@ class DialogHelper {
             dialog.show()
             dialog.window?.let { window ->
                 window.setLayout(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
                 )
                 window.setGravity(Gravity.CENTER)
                 window.decorView.setBackgroundResource(android.R.color.transparent)
@@ -167,18 +192,18 @@ class DialogHelper {
 
         @SuppressLint("InflateParams")
         private fun showOkDismissDialog(
-                activity: Activity,
-                title: String,
-                description: String,
-                ok: String,
-                dismiss: String,
-                onOk: () -> Unit,
-                onDismiss: () -> Unit
+            activity: Activity,
+            title: String,
+            description: String,
+            ok: String,
+            dismiss: String,
+            onOk: () -> Unit,
+            onDismiss: () -> Unit
         ) {
             val contentView = activity.layoutInflater.inflate(
-                    R.layout.dialog_ok_dismiss,
-                    null,
-                    false
+                R.layout.dialog_ok_dismiss,
+                null,
+                false
             )
             val dialog = Dialog(activity)
             val mtvTitle: MyTextView = contentView.findViewById(R.id.mtvDialogTitle)
@@ -202,8 +227,8 @@ class DialogHelper {
             dialog.show()
             dialog.window?.let { window ->
                 window.setLayout(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
                 )
                 window.setGravity(Gravity.CENTER)
                 window.decorView.setBackgroundResource(android.R.color.transparent)

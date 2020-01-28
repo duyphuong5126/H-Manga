@@ -11,7 +11,7 @@ import java.io.FileOutputStream
 import java.text.NumberFormat
 import java.util.Locale
 import android.graphics.BitmapFactory
-import android.support.annotation.WorkerThread
+import androidx.annotation.WorkerThread
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -19,8 +19,16 @@ import java.io.BufferedInputStream
 import java.io.OutputStreamWriter
 import java.net.URL
 
+interface AppSupportUtils {
+    fun downloadAndSaveImage(
+        fromUrl: String,
+        directory: String,
+        fileName: String,
+        format: String
+    ): String
+}
 
-class SupportUtils {
+class SupportUtils : AppSupportUtils {
     companion object {
         private const val TAG = "SupportUtils"
 
@@ -33,9 +41,9 @@ class SupportUtils {
         private const val YEAR: Long = DAY * 365
 
         fun dp2Pixel(context: Context, dp: Int): Int = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                dp * 1F,
-                context.resources.displayMetrics
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp * 1F,
+            context.resources.displayMetrics
         ).toInt()
 
         fun formatBigNumber(number: Long): String {
@@ -59,12 +67,12 @@ class SupportUtils {
 
             while (hasLines < lines - 1) {
                 cnt = paint.breakText(
-                        text,
-                        startPosition,
-                        len,
-                        true,
-                        width.toFloat(),
-                        null
+                    text,
+                    startPosition,
+                    len,
+                    true,
+                    width.toFloat(),
+                    null
                 )
                 if (cnt >= len - startPosition) {
                     result.append(text.substring(startPosition))
@@ -92,12 +100,12 @@ class SupportUtils {
 
             if (startPosition < len) {
                 result.append(
-                        TextUtils.ellipsize(
-                                text.subSequence(startPosition, len),
-                                paint,
-                                width.toFloat(),
-                                where
-                        )
+                    TextUtils.ellipsize(
+                        text.subSequence(startPosition, len),
+                        paint,
+                        width.toFloat(),
+                        where
+                    )
                 )
             }
 
@@ -133,8 +141,8 @@ class SupportUtils {
             return resultPath
         }
 
-        fun downloadImageBitmap(urlString: String, simulateDownloadFail: Boolean): Bitmap? {
-            var bitmap: Bitmap? = null
+        fun downloadImageBitmap(urlString: String, simulateDownloadFail: Boolean): Bitmap {
+            val bitmap: Bitmap
             val downloadingUrl = if (simulateDownloadFail) urlString + "idghfhidu" else urlString
             val connectTimeOut = if (simulateDownloadFail) 5000 else 10000
             val readTimeOut = if (simulateDownloadFail) 10000 else 20000
@@ -150,7 +158,8 @@ class SupportUtils {
                 bufferedInputStream.close()
                 inputStream.close()
             } catch (e: Exception) {
-                Logger.d(TAG, "Downloading $urlString causes exception: $e")
+                Logger.e(TAG, "Downloading $urlString causes exception: $e")
+                throw e
             }
 
             return bitmap
@@ -236,5 +245,15 @@ class SupportUtils {
             }
             return false
         }
+    }
+
+    override fun downloadAndSaveImage(
+        fromUrl: String,
+        directory: String,
+        fileName: String,
+        format: String
+    ): String {
+        val result = downloadImageBitmap(fromUrl, false)
+        return saveImage(result, directory, fileName, format)
     }
 }

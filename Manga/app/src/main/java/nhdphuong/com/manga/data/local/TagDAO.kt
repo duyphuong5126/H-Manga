@@ -1,10 +1,11 @@
 package nhdphuong.com.manga.data.local
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.ID
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Category
 import nhdphuong.com.manga.data.entity.book.tags.Tag
@@ -44,6 +45,9 @@ interface TagDAO {
 
     @Query("SELECT count(*) FROM $TABLE_TAG")
     fun getTagCount(): Int
+
+    @Query("SELECT * FROM $TABLE_TAG where $ID = :tagId")
+    fun getTagById(tagId: Long): Tag
 
     // From A-Z only
     @Query("SELECT count(*) FROM $TABLE_TAG WHERE $COLUMN_NAME LIKE :prefixString")
@@ -130,10 +134,18 @@ interface TagDAO {
     fun getCharactersBySpecialCharactersPrefixDescending(limit: Int, offset: Int): List<Character>
 
     @Query("SELECT * FROM $TABLE_CHARACTER WHERE $COLUMN_NAME LIKE :prefixString ORDER BY $COLUMN_NAME ASC LIMIT :limit OFFSET :offset")
-    fun getCharactersByPrefixAscending(prefixString: String, limit: Int, offset: Int): List<Character>
+    fun getCharactersByPrefixAscending(
+        prefixString: String,
+        limit: Int,
+        offset: Int
+    ): List<Character>
 
     @Query("SELECT * FROM $TABLE_CHARACTER WHERE $COLUMN_NAME LIKE :prefixString ORDER BY $COLUMN_NAME DESC LIMIT :limit OFFSET :offset")
-    fun getCharactersByPrefixDescending(prefixString: String, limit: Int, offset: Int): List<Character>
+    fun getCharactersByPrefixDescending(
+        prefixString: String,
+        limit: Int,
+        offset: Int
+    ): List<Character>
 
     @Query("SELECT * FROM $TABLE_CHARACTER ORDER BY $COLUMN_COUNT ASC LIMIT :limit OFFSET :offset")
     fun getCharactersByPopularityAscending(limit: Int, offset: Int): List<Character>

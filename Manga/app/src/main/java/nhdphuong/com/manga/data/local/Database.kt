@@ -1,6 +1,6 @@
 package nhdphuong.com.manga.data.local
 
-import android.arch.persistence.room.Room
+import androidx.room.Room
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.NHentaiApp
 
@@ -14,9 +14,9 @@ class Database {
             get() {
                 if (mInstance == null) {
                     mInstance = Room.databaseBuilder(
-                            NHentaiApp.instance.applicationContext,
-                            NHentaiDB::class.java,
-                            Constants.NHENTAI_DB
+                        NHentaiApp.instance.applicationContext,
+                        NHentaiDB::class.java,
+                        Constants.NHENTAI_DB
                     ).fallbackToDestructiveMigration().build()
                 }
                 return mInstance!!

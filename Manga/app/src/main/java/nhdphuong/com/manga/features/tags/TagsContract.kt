@@ -13,6 +13,7 @@ interface TagsContract {
     fun onTagChange(@Tag tag: String)
 
     interface View : Base.View<Presenter> {
+        fun setPresenter(presenter: Presenter)
         fun updateTag(@Tag tagType: String, tagCount: Int)
         fun refreshPages(pagesCount: Int)
         fun setUpTagsList(source: ArrayList<ITag>, tags: List<ITag>)

@@ -8,16 +8,18 @@ import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.api.TagApiService
 import nhdphuong.com.manga.data.local.Database
-import nhdphuong.com.manga.data.local.RecentBookDAO
+import nhdphuong.com.manga.data.local.BookDAO
 import nhdphuong.com.manga.data.local.TagDAO
 import nhdphuong.com.manga.scope.corountine.Default
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
-import nhdphuong.com.manga.supports.FileUtils
-import nhdphuong.com.manga.supports.IFileUtils
+import nhdphuong.com.manga.supports.ServiceGenerator
 import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.NetworkUtils
-import nhdphuong.com.manga.supports.ServiceGenerator
+import nhdphuong.com.manga.supports.IFileUtils
+import nhdphuong.com.manga.supports.FileUtils
+import nhdphuong.com.manga.supports.AppSupportUtils
+import nhdphuong.com.manga.supports.SupportUtils
 import javax.inject.Singleton
 
 /*
@@ -54,7 +56,7 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
 
     @Singleton
     @Provides
-    fun providesRecentBookDAO(): RecentBookDAO = Database.instance.getRecentBookDAO()
+    fun providesRecentBookDAO(): BookDAO = Database.instance.getRecentBookDAO()
 
     @Singleton
     @Provides
@@ -77,4 +79,7 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
     @Provides
     @Default
     fun providesDefaultDispatcher(): CoroutineScope = CoroutineScope(Dispatchers.Default)
+
+    @Provides
+    fun providesAppSupportUtils(): AppSupportUtils = SupportUtils()
 }

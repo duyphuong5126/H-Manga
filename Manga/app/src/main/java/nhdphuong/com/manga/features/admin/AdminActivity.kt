@@ -2,8 +2,8 @@ package nhdphuong.com.manga.features.admin
 
 import android.content.Context
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import javax.inject.Inject
@@ -30,12 +30,14 @@ class AdminActivity : AppCompatActivity() {
                 adminFragment = AdminFragment()
 
                 beginTransaction().replace(R.id.layout_root, adminFragment, AdminFragment.TAG)
-                        .addToBackStack(AdminFragment.TAG)
-                        .commitAllowingStateLoss()
+                    .addToBackStack(AdminFragment.TAG)
+                    .commitAllowingStateLoss()
             }
 
             NHentaiApp.instance.applicationComponent.plus(
-                    AdminModule(adminFragment)).inject(this@AdminActivity
+                AdminModule(adminFragment)
+            ).inject(
+                this@AdminActivity
             )
         }
     }

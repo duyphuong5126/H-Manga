@@ -5,7 +5,7 @@
     tools:ignore="RtlCompat"
     tools:targetApi="jelly_bean">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -19,7 +19,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="@dimen/dp10"
@@ -28,7 +28,7 @@
                 android:paddingBottom="@dimen/dp10">
 
                 <!-- Book cover-->
-                <android.support.v4.widget.NestedScrollView
+                <androidx.core.widget.NestedScrollView
                     android:id="@+id/svBookCover"
                     android:layout_width="0dp"
                     android:layout_height="300dp"
@@ -50,7 +50,7 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
                     </LinearLayout>
-                </android.support.v4.widget.NestedScrollView>
+                </androidx.core.widget.NestedScrollView>
 
                 <!-- Book info-->
                 <nhdphuong.com.manga.views.customs.MyTextView
@@ -330,7 +330,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/tvUpdatedAt"
                     app:myFont="@string/NotoSansBold" />
 
-                <android.support.constraint.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/clDownloadProgress"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -341,7 +341,7 @@
                     app:layout_constraintBottom_toTopOf="@+id/mtvPreview"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/mtvDownload">
+                    app:layout_constraintTop_toBottomOf="@+id/mtvFavorite">
 
                     <ProgressBar
                         android:id="@+id/pbDownloading"
@@ -371,7 +371,7 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:myFont="@string/NotoSansRegular" />
 
-                </android.support.constraint.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <!-- Book preview thumbnails-->
                 <nhdphuong.com.manga.views.customs.MyTextView
@@ -394,17 +394,17 @@
                     app:layout_constraintStart_toStartOf="@id/mtvPreview"
                     app:layout_constraintTop_toBottomOf="@+id/mtvPreview">
 
-                    <android.support.constraint.ConstraintLayout
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
-                        <android.support.v7.widget.RecyclerView
+                        <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rvPreviewList"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
-                    </android.support.constraint.ConstraintLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
                 </HorizontalScrollView>
 
                 <nhdphuong.com.manga.views.customs.MyTextView
@@ -429,21 +429,21 @@
                     app:layout_constraintStart_toStartOf="@id/mtvRecommendBook"
                     app:layout_constraintTop_toBottomOf="@id/mtvRecommendBook">
 
-                    <android.support.constraint.ConstraintLayout
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
-                        <android.support.v7.widget.RecyclerView
+                        <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rvRecommendList"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
-                    </android.support.constraint.ConstraintLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </HorizontalScrollView>
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

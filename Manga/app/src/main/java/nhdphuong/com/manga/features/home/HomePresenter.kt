@@ -32,62 +32,64 @@ import kotlin.math.abs
  */
 
 class HomePresenter @Inject constructor(
-        private val mView: HomeContract.View,
-        private val mBookRepository: BookRepository,
-        private val mTagRepository: TagRepository,
-        private val mSharedPreferencesManager: SharedPreferencesManager,
-        @IO private val io: CoroutineScope,
-        @Main private val main: CoroutineScope
+    private val view: HomeContract.View,
+    private val bookRepository: BookRepository,
+    private val tagRepository: TagRepository,
+    private val sharedPreferencesManager: SharedPreferencesManager,
+    @IO private val io: CoroutineScope,
+    @Main private val main: CoroutineScope
 ) : HomeContract.Presenter {
     companion object {
         private const val TAG = "HomePresenter"
         private const val NUMBER_OF_PREVENTIVE_PAGES = 10
     }
 
-    private var mMainList = LinkedList<Book>()
-    private var mCurrentNumOfPages = 0L
-    private var mCurrentLimitPerPage = 0
-    private var mCurrentPage = 1L
+    private var mainList = LinkedList<Book>()
+    private var currentNumOfPages = 0L
+    private var currentLimitPerPage = 0
+    private var currentPage = 1L
 
     @SuppressLint("UseSparseArrays")
-    private var mPreventiveData = HashMap<Long, LinkedList<Book>>()
+    private var preventiveData = HashMap<Long, LinkedList<Book>>()
 
     private var isLoadingPreventiveData = false
-    private val mJobStack = Stack<Job>()
+    private val jobStack = Stack<Job>()
     private var isRefreshing = AtomicBoolean(false)
 
-    private var mSearchData: String = ""
-    private val isSearching: Boolean get() = !TextUtils.isEmpty(mSearchData)
+    private var searchData: String = ""
+    private val isSearching: Boolean get() = !TextUtils.isEmpty(searchData)
 
-    private val mTagsDownloadManager = DownloadManager.Companion.TagsDownloadManager
+    private val tagsDownloadManager = DownloadManager.Companion.TagsDownloadManager
 
     init {
-        mView.setPresenter(this)
+        view.setPresenter(this)
     }
 
     override fun start() {
         Logger.d(TAG, "start")
         reload()
-        if (!mSharedPreferencesManager.tagsDataDownloaded) {
-            mTagsDownloadManager.startDownloading()
-            mTagRepository.fetchAllTagLists { isSuccess ->
+        if (!sharedPreferencesManager.tagsDataDownloaded) {
+            tagsDownloadManager.startDownloading()
+            tagRepository.fetchAllTagLists { isSuccess ->
                 Logger.d(TAG, "Tags fetching completed, isSuccess=$isSuccess")
                 if (isSuccess) {
-                    mSharedPreferencesManager.tagsDataDownloaded = true
+                    sharedPreferencesManager.tagsDataDownloaded = true
                 }
-                mTagsDownloadManager.stopDownloading()
+                tagsDownloadManager.stopDownloading()
 
                 val onVersionFetched = {
                     main.launch {
-                        mView.startUpdateTagsService()
+                        view.startUpdateTagsService()
                     }
                 }
-                mTagRepository.getCurrentVersion(onSuccess = { newVersion ->
-                    if (mSharedPreferencesManager.currentTagVersion != newVersion) {
-                        Logger.d(TAG, "New version is available, " +
-                                "new version: $newVersion," +
-                                " current version: ${mSharedPreferencesManager.currentTagVersion}")
-                        mSharedPreferencesManager.currentTagVersion = newVersion
+                tagRepository.getCurrentVersion(onSuccess = { newVersion ->
+                    if (sharedPreferencesManager.currentTagVersion != newVersion) {
+                        Logger.d(
+                            TAG, "New version is available, " +
+                                    "new version: $newVersion," +
+                                    " current version: ${sharedPreferencesManager.currentTagVersion}"
+                        )
+                        sharedPreferencesManager.currentTagVersion = newVersion
                     } else {
                         Logger.d(TAG, "App is already updated to the version $newVersion")
                     }
@@ -98,7 +100,7 @@ class HomePresenter @Inject constructor(
                 })
             }
         } else {
-            mView.startUpdateTagsService()
+            view.startUpdateTagsService()
         }
     }
 
@@ -113,23 +115,23 @@ class HomePresenter @Inject constructor(
     }
 
     override fun jumToLastPage() {
-        Logger.d(TAG, "Navigate to last page: $mCurrentNumOfPages")
-        onPageChange(mCurrentNumOfPages)
+        Logger.d(TAG, "Navigate to last page: $currentNumOfPages")
+        onPageChange(currentNumOfPages)
     }
 
     override fun reloadCurrentPage(onRefreshed: () -> Unit) {
         if (isRefreshing.compareAndSet(false, true)) {
             io.launch {
-                val remoteBooks = getBooksListByPage(mCurrentPage)
-                mCurrentNumOfPages = remoteBooks?.numOfPages ?: 0L
+                val remoteBooks = getBooksListByPage(currentPage)
+                currentNumOfPages = remoteBooks?.numOfPages ?: 0L
                 val isCurrentPageEmpty = if (remoteBooks != null) {
                     remoteBooks.bookList.let { bookList ->
-                        mPreventiveData[mCurrentPage]?.let { page ->
+                        preventiveData[currentPage]?.let { page ->
                             page.clear()
                             page.addAll(bookList)
                         }
-                        mMainList.clear()
-                        mMainList.addAll(bookList)
+                        mainList.clear()
+                        mainList.addAll(bookList)
                     }
                     false
                 } else {
@@ -139,62 +141,61 @@ class HomePresenter @Inject constructor(
 
                 main.launch {
                     if (!isCurrentPageEmpty) {
-                        mView.refreshHomePagination(mCurrentNumOfPages)
-                        mView.refreshHomeBookList()
+                        view.refreshHomePagination(currentNumOfPages)
+                        view.refreshHomeBookList()
                     }
                     onRefreshed()
-                    mView.showNothingView(isCurrentPageEmpty)
+                    view.showNothingView(isCurrentPageEmpty)
                 }
             }
         } else {
-            mView.showRefreshingDialog()
+            view.showRefreshingDialog()
         }
     }
 
     override fun reloadLastBookListRefreshTime() {
-        mSharedPreferencesManager.getLastBookListRefreshTime().let { lastRefreshTime ->
-            mView.showLastBookListRefreshTime(
-                    SupportUtils.getTimeElapsed(
-                            System.currentTimeMillis() - lastRefreshTime
-                    ).toLowerCase(Locale.US)
+        sharedPreferencesManager.getLastBookListRefreshTime().let { lastRefreshTime ->
+            view.showLastBookListRefreshTime(
+                SupportUtils.getTimeElapsed(
+                    System.currentTimeMillis() - lastRefreshTime
+                ).toLowerCase(Locale.US)
             )
         }
     }
 
     override fun reloadRecentBooks() {
         io.launch {
-            val recentList = LinkedList<Int>()
-            val favoriteList = LinkedList<Int>()
-            for (id in 0 until mMainList.size) {
-                mMainList[id].bookId.let { bookId ->
-                    when {
-                        mBookRepository.isFavoriteBook(bookId) -> favoriteList.add(id)
-                        mBookRepository.isRecentBook(bookId) -> recentList.add(id)
-                        else -> {
-                        }
+            val recentList = LinkedList<String>()
+            val favoriteList = LinkedList<String>()
+            mainList.forEach {
+                val bookId = it.bookId
+                when {
+                    bookRepository.isFavoriteBook(bookId) -> favoriteList.add(bookId)
+                    bookRepository.isRecentBook(bookId) -> recentList.add(bookId)
+                    else -> {
                     }
                 }
             }
 
             main.launch {
                 if (!recentList.isEmpty()) {
-                    mView.showRecentBooks(recentList)
+                    view.showRecentBooks(recentList)
                 }
                 if (!favoriteList.isEmpty()) {
-                    mView.showFavoriteBooks(favoriteList)
+                    view.showFavoriteBooks(favoriteList)
                 }
             }
         }
     }
 
     override fun saveLastBookListRefreshTime() {
-        mSharedPreferencesManager.setLastBookListRefreshTime(System.currentTimeMillis())
+        sharedPreferencesManager.setLastBookListRefreshTime(System.currentTimeMillis())
     }
 
     override fun updateSearchData(data: String) {
-        if (!mSearchData.equals(data, ignoreCase = true)) {
-            mSearchData = data
-            mView.changeSearchResult(data)
+        if (!searchData.equals(data, ignoreCase = true)) {
+            searchData = data
+            view.changeSearchResult(data)
             reload()
         } else {
             Logger.d(TAG, "Search data is not changed")
@@ -202,18 +203,20 @@ class HomePresenter @Inject constructor(
     }
 
     override fun pickBookRandomly() {
-        mView.showLoading()
+        view.showLoading()
         io.launch {
             val random = Random()
-            val randomPage = random.nextInt(mCurrentNumOfPages.toInt()) + 1
+            val randomPage = random.nextInt(currentNumOfPages.toInt()) + 1
             getBooksListByPage(randomPage.toLong())?.bookList.let { randomBooks ->
-                Logger.d(TAG, "Randomized paged $randomPage," +
-                        " books count=${randomBooks?.size ?: 0}")
+                Logger.d(
+                    TAG, "Randomized paged $randomPage," +
+                            " books count=${randomBooks?.size ?: 0}"
+                )
                 if (randomBooks?.isEmpty() == false) {
                     val randomIndex = random.nextInt(randomBooks.size)
                     main.launch {
-                        mView.hideLoading()
-                        mView.showRandomBook(randomBooks[randomIndex])
+                        view.hideLoading()
+                        view.showRandomBook(randomBooks[randomIndex])
                     }
                 }
             }
@@ -223,8 +226,8 @@ class HomePresenter @Inject constructor(
     override fun stop() {
         Logger.d(TAG, "stop")
         io.launch {
-            while (mJobStack.size > 0) {
-                val job = mJobStack.pop()
+            while (jobStack.size > 0) {
+                val job = jobStack.pop()
                 job.cancel()
             }
         }
@@ -234,18 +237,18 @@ class HomePresenter @Inject constructor(
     private fun reload() {
         clearData()
 
-        mView.showLoading()
-        mView.setUpHomeBookList(mMainList)
+        view.showLoading()
+        view.setUpHomeBookList(mainList)
         val downloadingJob = io.launch {
             val startTime = System.currentTimeMillis()
-            getBooksListByPage(mCurrentPage).let { remoteBook ->
+            getBooksListByPage(currentPage).let { remoteBook ->
                 Logger.d(TAG, "Time spent=${System.currentTimeMillis() - startTime}")
-                mCurrentNumOfPages = remoteBook?.numOfPages ?: 0L
-                mCurrentLimitPerPage = remoteBook?.numOfBooksPerPage ?: 0
-                Logger.d(TAG, "Remote books: $mCurrentNumOfPages")
+                currentNumOfPages = remoteBook?.numOfPages ?: 0L
+                currentLimitPerPage = remoteBook?.numOfBooksPerPage ?: 0
+                Logger.d(TAG, "Remote books: $currentNumOfPages")
                 val bookList = remoteBook?.bookList ?: LinkedList()
-                mMainList.addAll(bookList)
-                mPreventiveData[mCurrentPage] = bookList
+                mainList.addAll(bookList)
+                preventiveData[currentPage] = bookList
                 for (book in bookList) {
                     Logger.d(TAG, book.logString)
                 }
@@ -253,74 +256,74 @@ class HomePresenter @Inject constructor(
                 loadPreventiveData()
 
                 main.launch {
-                    mView.refreshHomeBookList()
-                    if (mCurrentNumOfPages > 0) {
-                        mView.refreshHomePagination(mCurrentNumOfPages)
-                        mView.showNothingView(false)
+                    view.refreshHomeBookList()
+                    if (currentNumOfPages > 0) {
+                        view.refreshHomePagination(currentNumOfPages)
+                        view.showNothingView(false)
                     } else {
-                        mView.showNothingView(true)
+                        view.showNothingView(true)
                     }
-                    mView.hideLoading()
+                    view.hideLoading()
                 }
             }
         }
-        mJobStack.push(downloadingJob)
+        jobStack.push(downloadingJob)
     }
 
     private fun onPageChange(pageNumber: Long) {
-        mCurrentPage = pageNumber
+        currentPage = pageNumber
         io.launch {
-            mMainList.clear()
+            mainList.clear()
             var newPage = false
-            val currentList: LinkedList<Book> = if (mPreventiveData.containsKey(mCurrentPage)) {
-                mPreventiveData[mCurrentPage] as LinkedList<Book>
+            val currentList: LinkedList<Book> = if (preventiveData.containsKey(currentPage)) {
+                preventiveData[currentPage] as LinkedList<Book>
             } else {
                 newPage = true
                 main.launch {
-                    mView.showLoading()
+                    view.showLoading()
                 }
-                val bookList = getBooksListByPage(mCurrentPage)?.bookList ?: LinkedList()
-                mPreventiveData[mCurrentPage] = bookList
+                val bookList = getBooksListByPage(currentPage)?.bookList ?: LinkedList()
+                preventiveData[currentPage] = bookList
                 bookList
             }
-            mMainList.addAll(currentList)
+            mainList.addAll(currentList)
 
-            val toLoadList: List<Long> = when (mCurrentPage) {
+            val toLoadList: List<Long> = when (currentPage) {
                 1L -> listOf(2L)
-                mCurrentNumOfPages -> listOf(mCurrentNumOfPages - 1)
-                else -> listOf(mCurrentPage - 1, mCurrentPage + 1)
+                currentNumOfPages -> listOf(currentNumOfPages - 1)
+                else -> listOf(currentPage - 1, currentPage + 1)
             }
             logListLong("To load list: ", toLoadList)
 
             for (page in toLoadList.iterator()) {
-                if (!mPreventiveData.containsKey(page)) {
-                    mPreventiveData[page] = LinkedList()
+                if (!preventiveData.containsKey(page)) {
+                    preventiveData[page] = LinkedList()
                     launch {
                         getBooksListByPage(page)?.bookList?.let { bookList ->
-                            mPreventiveData[page]?.addAll(bookList)
+                            preventiveData[page]?.addAll(bookList)
                         }
                     }
                     Logger.d(TAG, "Page $page loaded")
                 }
             }
 
-            if (mPreventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
-                val pageList = sortListPage(mCurrentPage, LinkedList(mPreventiveData.keys))
+            if (preventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
+                val pageList = sortListPage(currentPage, LinkedList(preventiveData.keys))
                 var pageId = 0
                 logListLong("Before deleted page list: ", pageList)
-                while (mPreventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
+                while (preventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
                     Logger.d(TAG, "Remove page: $pageId")
                     val page = pageList[pageId++]
-                    (mPreventiveData[page] as LinkedList).clear()
-                    mPreventiveData.remove(page)
+                    (preventiveData[page] as LinkedList).clear()
+                    preventiveData.remove(page)
                 }
             }
-            logListLong("Final page list: ", LinkedList(mPreventiveData.keys))
+            logListLong("Final page list: ", LinkedList(preventiveData.keys))
 
             main.launch {
-                mView.refreshHomeBookList()
+                view.refreshHomeBookList()
                 if (newPage) {
-                    mView.hideLoading()
+                    view.hideLoading()
                 }
             }
         }
@@ -355,14 +358,14 @@ class HomePresenter @Inject constructor(
 
         suspendCoroutine<Boolean> { continuation ->
             NUMBER_OF_PREVENTIVE_PAGES.toLong().let {
-                for (page in mCurrentPage + 1L..NUMBER_OF_PREVENTIVE_PAGES.toLong()) {
+                for (page in currentPage + 1L..NUMBER_OF_PREVENTIVE_PAGES.toLong()) {
                     Logger.d(TAG, "Start loading page $page")
                     io.launch {
                         val remoteBook = getBooksListByPage(page)
                         Logger.d(TAG, "Done loading page $page")
                         remoteBook?.bookList?.let { bookList ->
                             if (!bookList.isEmpty()) {
-                                mPreventiveData[page] = bookList
+                                preventiveData[page] = bookList
                             }
                         }
                         if (page == NUMBER_OF_PREVENTIVE_PAGES.toLong()) {
@@ -378,23 +381,23 @@ class HomePresenter @Inject constructor(
     }
 
     private fun clearData() {
-        mMainList.clear()
-        for (entry in mPreventiveData.entries) {
+        mainList.clear()
+        for (entry in preventiveData.entries) {
             entry.value.clear()
         }
-        mPreventiveData.clear()
-        mCurrentNumOfPages = 0L
-        mCurrentLimitPerPage = 0
-        mCurrentPage = 1
+        preventiveData.clear()
+        currentNumOfPages = 0L
+        currentLimitPerPage = 0
+        currentPage = 1
         isLoadingPreventiveData = false
         isRefreshing.compareAndSet(true, false)
     }
 
     private suspend fun getBooksListByPage(pageNumber: Long): RemoteBook? {
         return if (isSearching) {
-            mBookRepository.getBookByPage(mSearchData, pageNumber)
+            bookRepository.getBookByPage(searchData, pageNumber)
         } else {
-            mBookRepository.getBookByPage(pageNumber)
+            bookRepository.getBookByPage(pageNumber)
         }
     }
 }

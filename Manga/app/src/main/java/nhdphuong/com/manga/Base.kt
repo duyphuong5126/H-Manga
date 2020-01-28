@@ -5,7 +5,6 @@ package nhdphuong.com.manga
  */
 interface Base {
     interface View<in T : Presenter> {
-        fun setPresenter(presenter: T)
         fun showLoading()
         fun hideLoading()
         fun isActive(): Boolean

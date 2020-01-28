@@ -1,11 +1,9 @@
 package nhdphuong.com.manga.features.preview
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nhdphuong.com.manga.Constants
-import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
@@ -18,31 +16,39 @@ import nhdphuong.com.manga.supports.IFileUtils
 import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.LinkedList
-import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.min
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.disposables.CompositeDisposable
+import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
+import nhdphuong.com.manga.usecase.GetDownloadedBookCoverUseCase
+import nhdphuong.com.manga.usecase.StartBookDownloadingUseCase
 
 /*
  * Created by nhdphuong on 4/14/18.
  */
 class BookPreviewPresenter @Inject constructor(
-        private val mView: BookPreviewContract.View,
-        private val mBook: Book,
-        private val mBookRepository: BookRepository,
-        private val networkUtils: INetworkUtils,
-        private val fileUtils: IFileUtils,
-        @IO private val io: CoroutineScope,
-        @Main private val main: CoroutineScope
-) : BookPreviewContract.Presenter, DownloadManager.BookDownloadCallback {
+    private val view: BookPreviewContract.View,
+    private val book: Book,
+    private val getDownloadedBookCoverUseCase: GetDownloadedBookCoverUseCase,
+    private val startBookDownloadingUseCase: StartBookDownloadingUseCase,
+    private val bookRepository: BookRepository,
+    private val networkUtils: INetworkUtils,
+    private val fileUtils: IFileUtils,
+    @IO private val io: CoroutineScope,
+    @Main private val main: CoroutineScope
+) : BookPreviewContract.Presenter {
 
     companion object {
         private const val TAG = "BookPreviewPresenter"
         private const val MILLISECOND: Long = 1000
 
-        private const val BATCH_COUNT = 5
         private const val THUMBNAILS_LIMIT = 30
     }
 
@@ -55,145 +61,151 @@ class BookPreviewPresenter @Inject constructor(
     private var isGroupListInitialized = false
     private var isInfoLoaded = false
     private var isBookCoverReloaded = false
-    private lateinit var mCacheCoverUrl: String
+    private lateinit var cacheCoverUrl: String
 
-    private lateinit var mTagList: LinkedList<Tag>
-    private lateinit var mArtistList: LinkedList<Tag>
-    private lateinit var mCategoryList: LinkedList<Tag>
-    private lateinit var mLanguageList: LinkedList<Tag>
-    private lateinit var mParodyList: LinkedList<Tag>
-    private lateinit var mCharacterList: LinkedList<Tag>
-    private lateinit var mGroupList: LinkedList<Tag>
+    private lateinit var tagList: LinkedList<Tag>
+    private lateinit var artistList: LinkedList<Tag>
+    private lateinit var categoryList: LinkedList<Tag>
+    private lateinit var languageList: LinkedList<Tag>
+    private lateinit var parodyList: LinkedList<Tag>
+    private lateinit var characterList: LinkedList<Tag>
+    private lateinit var groupList: LinkedList<Tag>
 
-    private val mBookThumbnailList = ArrayList<String>()
+    private val bookThumbnailList = ArrayList<String>()
 
-    private var mCurrentThumbnailPosition = 0
-
-    private val mPrefixNumber: Int
-        get() {
-            var totalPages = mBook.numOfPages
-            var prefixCount = 1
-            while (totalPages / 10 > 0) {
-                totalPages /= 10
-                prefixCount++
-            }
-            return prefixCount
-        }
+    private var currentThumbnailPosition = 0
 
     private val uploadedTimeStamp: String = SupportUtils.getTimeElapsed(
-            System.currentTimeMillis() - mBook.updateAt * MILLISECOND
+        System.currentTimeMillis() - book.updateAt * MILLISECOND
     )
 
     private var isFavoriteBook: Boolean = false
 
-    private val mBookDownloader = DownloadManager.Companion.BookDownloader
+    private var viewDownloadedData: Boolean = false
+
+    private val compositeDisposable = CompositeDisposable()
 
     init {
-        mView.setPresenter(this)
+        view.setPresenter(this)
+    }
+
+    override fun enableViewDownloadedDataMode() {
+        viewDownloadedData = true
     }
 
     override fun start() {
-        mBookThumbnailList.clear()
-        mCurrentThumbnailPosition = 0
-        if (!this::mCacheCoverUrl.isInitialized) {
-            mView.showBookCoverImage(ApiConstants.getBookCover(mBook.mediaId))
+        bookThumbnailList.clear()
+        currentThumbnailPosition = 0
+        if (!this::cacheCoverUrl.isInitialized) {
+            if (viewDownloadedData) {
+                getDownloadedBookCoverUseCase.execute(book.bookId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeBy(onSuccess = { coverImagePath ->
+                        Logger.d(TAG, "Downloaded cover of book ${book.bookId}: $coverImagePath")
+                        view.showBookCoverImage(coverImagePath)
+                    }, onError = {
+                        Logger.e(TAG, "Failed to get downloaded cover of book ${book.bookId}: $it")
+                        view.showBookCoverImage(ApiConstants.getBookCover(book.mediaId))
+                    }).addTo(compositeDisposable)
+            } else {
+                view.showBookCoverImage(ApiConstants.getBookCover(book.mediaId))
+            }
         } else {
-            mView.showBookCoverImage(mCacheCoverUrl)
+            view.showBookCoverImage(cacheCoverUrl)
         }
         refreshBookFavorite()
-        mView.showFavoriteBookSaved(isFavoriteBook)
-        mView.show1stTitle(mBook.title.englishName)
-        mView.show2ndTitle(mBook.title.japaneseName)
-        mView.showUploadedTime(uploadedTimeStamp)
-        mView.showPageCount(mBook.numOfPages)
-        mTagList = LinkedList()
-        mCategoryList = LinkedList()
-        mArtistList = LinkedList()
-        mCharacterList = LinkedList()
-        mLanguageList = LinkedList()
-        mParodyList = LinkedList()
-        mGroupList = LinkedList()
-        if (mBookDownloader.isDownloading && mBookDownloader.bookId == mBook.bookId) {
-            mBookDownloader.setDownloadCallback(this)
-            mView.updateDownloadProgress(mBookDownloader.progress, mBookDownloader.total)
-        }
+        view.showFavoriteBookSaved(isFavoriteBook)
+        view.show1stTitle(book.title.englishName)
+        view.show2ndTitle(book.title.japaneseName)
+        view.showUploadedTime(uploadedTimeStamp)
+        view.showPageCount(book.numOfPages)
+        tagList = LinkedList()
+        categoryList = LinkedList()
+        artistList = LinkedList()
+        characterList = LinkedList()
+        languageList = LinkedList()
+        parodyList = LinkedList()
+        groupList = LinkedList()
     }
 
     override fun loadInfoLists() {
         if (!isInfoLoaded) {
-            for (tag in mBook.tags) {
+            for (tag in book.tags) {
                 when (tag.type) {
-                    Constants.TAG -> mTagList.add(tag)
-                    Constants.CATEGORY -> mCategoryList.add(tag)
-                    Constants.CHARACTER -> mCharacterList.add(tag)
-                    Constants.ARTIST -> mArtistList.add(tag)
-                    Constants.LANGUAGE -> mLanguageList.add(tag)
-                    Constants.PARODY -> mParodyList.add(tag)
-                    Constants.GROUP -> mGroupList.add(tag)
+                    Constants.TAG -> tagList.add(tag)
+                    Constants.CATEGORY -> categoryList.add(tag)
+                    Constants.CHARACTER -> characterList.add(tag)
+                    Constants.ARTIST -> artistList.add(tag)
+                    Constants.LANGUAGE -> languageList.add(tag)
+                    Constants.PARODY -> parodyList.add(tag)
+                    Constants.GROUP -> groupList.add(tag)
                 }
             }
 
             if (!isTagListInitialized) {
-                if (mTagList.isEmpty()) {
-                    mView.hideTagList()
+                if (tagList.isEmpty()) {
+                    view.hideTagList()
                 } else {
-                    mView.showTagList(mTagList)
+                    view.showTagList(tagList)
                 }
                 isTagListInitialized = true
             }
             if (!isArtistListInitialized) {
-                if (mArtistList.isEmpty()) {
-                    mView.hideArtistList()
+                if (artistList.isEmpty()) {
+                    view.hideArtistList()
                 } else {
-                    mView.showArtistList(mArtistList)
+                    view.showArtistList(artistList)
                 }
                 isArtistListInitialized = true
             }
             if (!isLanguageListInitialized) {
-                if (mLanguageList.isEmpty()) {
-                    mView.hideLanguageList()
+                if (languageList.isEmpty()) {
+                    view.hideLanguageList()
                 } else {
-                    mView.showLanguageList(mLanguageList)
+                    view.showLanguageList(languageList)
                 }
                 isLanguageListInitialized = true
             }
             if (!isCategoryListInitialized) {
-                if (mCategoryList.isEmpty()) {
-                    mView.hideCategoryList()
+                if (categoryList.isEmpty()) {
+                    view.hideCategoryList()
                 } else {
-                    mView.showCategoryList(mCategoryList)
+                    view.showCategoryList(categoryList)
                 }
                 isCategoryListInitialized = true
             }
             if (!isCharacterListInitialized) {
-                if (mCharacterList.isEmpty()) {
-                    mView.hideCharacterList()
+                if (characterList.isEmpty()) {
+                    view.hideCharacterList()
                 } else {
-                    mView.showCharacterList(mCharacterList)
+                    view.showCharacterList(characterList)
                 }
                 isCharacterListInitialized = true
             }
             if (!isGroupListInitialized) {
-                if (mGroupList.isEmpty()) {
-                    mView.hideGroupList()
+                if (groupList.isEmpty()) {
+                    view.hideGroupList()
                 } else {
-                    mView.showGroupList(mGroupList)
+                    view.showGroupList(groupList)
                 }
                 isGroupListInitialized = true
             }
             if (!isParodyListInitialized) {
-                if (mParodyList.isEmpty()) {
-                    mView.hideParodyList()
+                if (parodyList.isEmpty()) {
+                    view.hideParodyList()
                 } else {
-                    mView.showParodyList(mParodyList)
+                    view.showParodyList(parodyList)
                 }
                 isParodyListInitialized = true
             }
 
             loadBookThumbnails()
-            mView.showBookThumbnailList(mBookThumbnailList)
+            view.showBookThumbnailList(bookThumbnailList)
 
-            loadRecommendBook()
+            if (!viewDownloadedData) {
+                loadRecommendBook()
+            }
         }
     }
 
@@ -204,7 +216,7 @@ class BookPreviewPresenter @Inject constructor(
                 val coverUrl: String = getReachableBookCover()
 
                 main.launch {
-                    mView.showBookCoverImage(coverUrl)
+                    view.showBookCoverImage(coverUrl)
                 }
             }
         }
@@ -212,106 +224,40 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun saveCurrentAvailableCoverUrl(url: String) {
         Logger.d(TAG, "Current available url: $url")
-        mCacheCoverUrl = url
+        cacheCoverUrl = url
     }
 
     override fun startReadingFrom(startReadingPage: Int) {
-        mView.startReadingFromPage(startReadingPage, mBook)
+        view.startReadingFromPage(startReadingPage, book)
     }
 
     override fun downloadBook() {
         if (!fileUtils.isStoragePermissionAccepted()) {
-            mView.showRequestStoragePermission()
+            view.showRequestStoragePermission()
             return
         }
 
-        if (!mBookDownloader.isDownloading) {
-            val bookPages = LinkedList<String>()
-            for (pageId in mBook.bookImages.pages.indices) {
-                val page = mBook.bookImages.pages[pageId]
-                bookPages.add(ApiConstants.getPictureUrl(
-                        mBook.mediaId,
-                        pageId + 1,
-                        page.imageType
-                ))
-            }
-            bookPages.size.let { total ->
-                if (total > 0) {
-                    mBookDownloader.setDownloadCallback(this)
-                    mBookDownloader.startDownloading(mBook.bookId, total)
-                    io.launch {
-                        var progress = 0
-                        val resultList = LinkedList<String>()
-                        var currentPage = 0
-                        val resultFilePath = fileUtils.getImageDirectory(mBook.usefulName)
-                        while (currentPage < total) {
-                            val lastPage = if (currentPage + BATCH_COUNT <= total) {
-                                currentPage + BATCH_COUNT
-                            } else {
-                                total
-                            }
-                            suspendCoroutine<Boolean> { booleanContinuation ->
-                                val currentTotal = lastPage - currentPage
-                                val currentIndex = AtomicInteger(0)
-                                for (downloadPage in currentPage until lastPage) {
-                                    launch {
-                                        val fileName = String.format("%0${mPrefixNumber}d", downloadPage + 1)
-                                        try {
-                                            mBook.bookImages.pages[downloadPage].let { page ->
-                                                Logger.d(TAG, "Downloading page ${bookPages[downloadPage]}")
-                                                val result = SupportUtils.downloadImageBitmap(
-                                                        bookPages[downloadPage],
-                                                        false
-                                                )!!
-
-                                                val resultPath = SupportUtils.saveImage(result, resultFilePath, fileName, page.imageType)
-                                                resultList.add(resultPath)
-                                                Logger.d(TAG, "Page $fileName is saved successfully")
-                                            }
-                                            progress++
-                                            mBookDownloader.updateProgress(
-                                                    mBook.bookId,
-                                                    progress
-                                            )
-                                            if (currentIndex.incrementAndGet() >= currentTotal) {
-                                                booleanContinuation.resume(true)
-                                            }
-                                        } catch (exception: Exception) {
-                                            Logger.d(TAG, "Downloading page $fileName failed with exception=$exception")
-                                            if (currentIndex.incrementAndGet() >= currentTotal) {
-                                                booleanContinuation.resume(false)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            currentPage += BATCH_COUNT
-                        }
-                        main.launch {
-                            fileUtils.refreshGallery(*resultList.toTypedArray())
-                            mBookDownloader.endDownloading(progress, total)
-                        }
-
-                        delay(2000)
-
-                        main.launch {
-                            mView.showOpenFolderView()
-                        }
-                    }
-                }
-            }
+        if (!bookDownloader.isDownloading) {
+            startBookDownloadingUseCase.execute(book)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(onComplete = {
+                    Logger.d(TAG, "Started downloading book ${book.bookId}")
+                }, onError = {
+                    Logger.d(TAG, "Failed to start downloading book ${book.bookId}: $it")
+                }).addTo(compositeDisposable)
         } else {
-            if (mBookDownloader.bookId == mBook.bookId) {
-                mView.showThisBookBeingDownloaded()
+            if (bookDownloader.bookId == book.bookId) {
+                view.showThisBookBeingDownloaded()
             } else {
-                mView.showBookBeingDownloaded(mBookDownloader.bookId)
+                view.showBookBeingDownloaded(bookDownloader.bookId)
             }
         }
     }
 
     override fun restartBookPreview(bookId: String) {
         io.launch {
-            val bookDetails = mBookRepository.getBookDetails(bookId)
+            val bookDetails = bookRepository.getBookDetails(bookId)
             bookDetails?.let {
                 main.launch {
                     BookPreviewActivity.restart(bookDetails)
@@ -322,64 +268,61 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun changeBookFavorite() {
         io.launch {
-            mBookRepository.saveFavoriteBook(mBook.bookId, !isFavoriteBook)
+            bookRepository.saveFavoriteBook(book.bookId, !isFavoriteBook)
             refreshBookFavorite()
             main.launch {
-                mView.showFavoriteBookSaved(isFavoriteBook)
+                view.showFavoriteBookSaved(isFavoriteBook)
             }
+        }
+    }
+
+    override fun initDownloading(bookId: String, total: Int) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.initDownloading(total)
+        }
+    }
+
+    override fun updateDownloadingProgress(bookId: String, progress: Int, total: Int) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.updateDownloadProgress(progress, total)
+        }
+    }
+
+    override fun finishDownloading(bookId: String) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.finishDownloading()
+            view.showOpenFolderView()
+        }
+    }
+
+    override fun finishDownloading(bookId: String, downloadFailedCount: Int, total: Int) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.finishDownloading(downloadFailedCount, total)
         }
     }
 
     override fun stop() {
-
-    }
-
-    override fun onDownloadingStarted(bookId: String, total: Int) {
-        if (mView.isActive()) {
-            main.launch {
-                mView.initDownloading(total)
-            }
-        }
-    }
-
-    override fun onProgressUpdated(bookId: String, progress: Int, total: Int) {
-        if (mView.isActive()) {
-            main.launch {
-                mView.updateDownloadProgress(progress, total)
-            }
-        }
-    }
-
-    override fun onDownloadingEnded(downloaded: Int, total: Int) {
-        Logger.d(TAG, "$downloaded/$total pages are downloaded")
-        if (mView.isActive()) {
-            main.launch {
-                if (downloaded == total) {
-                    mView.finishDownloading()
-                } else {
-                    mView.finishDownloading(total - downloaded, total)
-                }
-            }
-        }
+        compositeDisposable.clear()
     }
 
     override fun loadMoreThumbnails() {
-        if (mBookThumbnailList.size < mBook.numOfPages) {
+        if (bookThumbnailList.size < book.numOfPages) {
             loadBookThumbnails()
-            mView.updateBookThumbnailList()
+            view.updateBookThumbnailList()
         } else {
             Logger.d(TAG, "End of thumbnails list")
         }
     }
 
     private fun getReachableBookCover(): String {
-        val mediaId = mBook.mediaId
+        val mediaId = book.mediaId
         val coverUrl = ApiConstants.getBookCover(mediaId)
         if (networkUtils.isNetworkConnected()) {
             var isReachable = false
-            val bookPages = mBook.bookImages.pages
+            val bookPages = book.bookImages.pages
             var currentPage = 0
-            var url = ApiConstants.getPictureUrl(mediaId, currentPage, bookPages[currentPage].imageType)
+            var url =
+                ApiConstants.getPictureUrl(mediaId, currentPage, bookPages[currentPage].imageType)
             while (!isReachable && currentPage < bookPages.size) {
                 isReachable = try {
                     networkUtils.isReachableUrl(url)
@@ -389,61 +332,66 @@ class BookPreviewPresenter @Inject constructor(
                 if (isReachable) {
                     return url
                 }
+                url = ApiConstants.getPictureUrl(
+                    mediaId,
+                    currentPage,
+                    bookPages[currentPage].imageType
+                )
                 currentPage++
-                url = ApiConstants.getPictureUrl(mediaId, currentPage, bookPages[currentPage].imageType)
             }
         }
         return coverUrl
     }
 
     private fun loadBookThumbnails() {
-        val mediaId = mBook.mediaId
-        val bookPages: List<ImageMeasurements> = mBook.bookImages.pages
+        val mediaId = book.mediaId
+        val bookPages: List<ImageMeasurements> = book.bookImages.pages
         if (bookPages.isEmpty()) {
             return
         }
-        val maxPosition = min(bookPages.size, mCurrentThumbnailPosition + THUMBNAILS_LIMIT)
-        for (pageId in mCurrentThumbnailPosition until maxPosition) {
+        val maxPosition = min(bookPages.size, currentThumbnailPosition + THUMBNAILS_LIMIT)
+        for (pageId in currentThumbnailPosition until maxPosition) {
             val page = bookPages[pageId]
             val url = ApiConstants.getThumbnailByPage(
-                    mediaId,
-                    pageId + 1,
-                    page.imageType
+                mediaId,
+                pageId + 1,
+                page.imageType
             )
-            mBookThumbnailList.add(url)
+            bookThumbnailList.add(url)
         }
-        mCurrentThumbnailPosition += THUMBNAILS_LIMIT
+        currentThumbnailPosition += THUMBNAILS_LIMIT
         isInfoLoaded = true
     }
 
     private fun loadRecommendBook() {
         io.launch {
-            mBookRepository.getRecommendBook(mBook.bookId)?.bookList?.let { bookList ->
-                val recentList = LinkedList<Int>()
-                val favoriteList = LinkedList<Int>()
-                for (id in 0 until bookList.size) {
-                    bookList[id].bookId.let { bookId ->
-                        when {
-                            mBookRepository.isFavoriteBook(bookId) -> favoriteList.add(id)
-                            mBookRepository.isRecentBook(bookId) -> recentList.add(id)
-                            else -> {
-                            }
+            bookRepository.getRecommendBook(book.bookId)?.bookList?.let { bookList ->
+                val recentList = LinkedList<String>()
+                val favoriteList = LinkedList<String>()
+                bookList.forEach {
+                    val bookId = it.bookId
+                    when {
+                        bookRepository.isFavoriteBook(bookId) -> favoriteList.add(bookId)
+                        bookRepository.isRecentBook(bookId) -> recentList.add(bookId)
+                        else -> {
                         }
                     }
                 }
-                Logger.d(TAG, "Number of recommend book of book ${mBook.bookId}:" +
-                        " ${bookList.size}")
+                Logger.d(
+                    TAG, "Number of recommend book of book ${book.bookId}:" +
+                            " ${bookList.size}"
+                )
                 main.launch {
                     if (!bookList.isEmpty()) {
-                        mView.showRecommendBook(bookList)
+                        view.showRecommendBook(bookList)
                         if (!recentList.isEmpty()) {
-                            mView.showRecentBooks(recentList)
+                            view.showRecentBooks(recentList)
                         }
                         if (!favoriteList.isEmpty()) {
-                            mView.showFavoriteBooks(favoriteList)
+                            view.showFavoriteBooks(favoriteList)
                         }
                     } else {
-                        mView.showNoRecommendBook()
+                        view.showNoRecommendBook()
                     }
                 }
             }
@@ -454,7 +402,7 @@ class BookPreviewPresenter @Inject constructor(
         runBlocking {
             isFavoriteBook = suspendCoroutine { continuation ->
                 io.launch {
-                    continuation.resume(mBookRepository.isFavoriteBook(mBook.bookId))
+                    continuation.resume(bookRepository.isFavoriteBook(book.bookId))
                 }
             }
             Logger.d(TAG, "isFavoriteBook: $isFavoriteBook")

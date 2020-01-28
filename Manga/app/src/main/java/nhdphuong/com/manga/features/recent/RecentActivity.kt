@@ -1,9 +1,9 @@
 package nhdphuong.com.manga.features.recent
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -42,12 +42,12 @@ class RecentActivity : AppCompatActivity() {
         if (recentFragment == null) {
             recentFragment = RecentFragment()
             supportFragmentManager.beginTransaction()
-                    .add(R.id.clRecentFragment, recentFragment)
-                    .commitAllowingStateLoss()
+                .add(R.id.clRecentFragment, recentFragment)
+                .commitAllowingStateLoss()
         }
 
         NHentaiApp.instance.applicationComponent.plus(
-                RecentModule(recentFragment)
+            RecentModule(recentFragment)
         ).inject(this)
     }
 }

@@ -8,14 +8,15 @@ import nhdphuong.com.manga.data.entity.book.Book
  */
 interface HomeContract {
     interface View : Base.View<Presenter> {
+        fun setPresenter(presenter: Presenter)
         fun setUpHomeBookList(homeBookList: List<Book>)
         fun refreshHomeBookList()
         fun refreshHomePagination(pageCount: Long)
         fun showNothingView(isEmpty: Boolean)
         fun showLastBookListRefreshTime(lastRefreshTimeStamp: String)
         fun showRefreshingDialog()
-        fun showRecentBooks(recentList: List<Int>)
-        fun showFavoriteBooks(favoriteList: List<Int>)
+        fun showRecentBooks(recentList: List<String>)
+        fun showFavoriteBooks(favoriteList: List<String>)
         fun changeSearchResult(data: String)
         fun showRandomBook(randomBook: Book)
         fun startUpdateTagsService()

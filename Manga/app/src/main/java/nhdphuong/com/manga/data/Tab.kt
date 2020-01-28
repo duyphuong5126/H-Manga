@@ -8,6 +8,7 @@ import nhdphuong.com.manga.Constants
 enum class Tab(val defaultName: String) {
     RECENT(Constants.RECENT),
     FAVORITE(Constants.FAVORITE),
+    DOWNLOADED(Constants.DOWNLOADED),
 
     RANDOM(Constants.RANDOM),
     ARTISTS(Constants.ARTISTS),

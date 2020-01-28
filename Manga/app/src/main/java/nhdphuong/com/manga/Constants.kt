@@ -46,6 +46,7 @@ class Constants {
         const val GROUPS = "Groups"
         const val INFO = "Info"
         const val ARTISTS = "Artists"
+        const val DOWNLOADED = "Downloaded"
 
         @Suppress("unused")
         const val SETTINGS = "Settings"
@@ -61,6 +62,8 @@ class Constants {
         const val NONE = "None"
 
         const val BOOK = "book"
+
+        const val VIEW_DOWNLOADED_DATA = "viewDownloadedData"
 
         const val START_PAGE = "start_page"
 
@@ -89,8 +92,6 @@ class Constants {
 
         // App DB
         const val NHENTAI_DB = "nHentai"
-        const val BOOK_ID = "bookId"
-        const val IS_FAVORITE = "isFavorite"
         const val TABLE_ARTIST = "Artists"
         const val TABLE_CHARACTER = "Characters"
         const val TABLE_CATEGORY = "Categories"
@@ -99,9 +100,28 @@ class Constants {
         const val TABLE_GROUP = "Groups"
         const val TABLE_TAG = "Tags"
         const val TABLE_UNKNOWN = "UnknownTags"
+        const val TABLE_DOWNLOADED_BOOK = "DownLoadedBook"
+        const val TABLE_DOWNLOADED_IMAGE = "DownLoadedImage"
+        const val TABLE_BOOK_TAG = "BookTag"
+        const val BOOK_ID = "bookId"
+        const val TAG_ID = "tagId"
+        const val IS_FAVORITE = "isFavorite"
+        const val CREATED_AT = "createdAt"
+        const val LOCAL_PATH = "localPath"
 
         // Notifications
         const val NOTIFICATION_CHANNEL_ID = "nHentaiApp"
+        const val NOTIFICATION_ID = 22545
+
+        // Broadcast receiver
+        const val ACTION_DOWNLOADING_STARTED = "ACTION_DOWNLOADING_STARTED"
+        const val ACTION_DOWNLOADING_PROGRESS = "ACTION_DOWNLOADING_PROGRESS"
+        const val ACTION_DOWNLOADING_FAILED = "ACTION_DOWNLOADING_FAILED"
+        const val ACTION_DOWNLOADING_COMPLETED = "ACTION_DOWNLOADING_COMPLETED"
+
+        const val TOTAL = "total"
+        const val PROGRESS = "progress"
+        const val DOWNLOADING_FAILED_COUNT = "downloadingFailedCount"
 
         const val TAG_PREFIXES = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 

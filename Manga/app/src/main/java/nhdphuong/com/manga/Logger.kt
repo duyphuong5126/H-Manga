@@ -6,11 +6,11 @@ import android.util.Log
 class Logger {
     companion object {
         private val loggable: Boolean =
-                (NHentaiApp.instance.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+            (NHentaiApp.instance.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
         fun d(tag: String?, message: String?) {
             if (loggable) {
-                Log.d(tag, message)
+                Log.d(tag, "$message")
             }
         }
 
@@ -22,7 +22,7 @@ class Logger {
 
         fun e(tag: String?, message: String?) {
             if (loggable) {
-                Log.e(tag, message)
+                Log.e(tag, "$message")
             }
         }
 
@@ -36,7 +36,7 @@ class Logger {
         @Suppress("unused")
         fun i(tag: String?, message: String?) {
             if (loggable) {
-                Log.i(tag, message)
+                Log.i(tag, "$message")
             }
         }
 
@@ -50,7 +50,7 @@ class Logger {
         @Suppress("unused")
         fun w(tag: String?, message: String?) {
             if (loggable) {
-                Log.w(tag, message)
+                Log.w(tag, "$message")
             }
         }
 
@@ -69,7 +69,7 @@ class Logger {
         }
 
         @Suppress("unused")
-        fun wtf(tag: String?, throwable: Throwable?) {
+        fun wtf(tag: String?, throwable: Throwable) {
             if (loggable) {
                 Log.wtf(tag, throwable)
             }

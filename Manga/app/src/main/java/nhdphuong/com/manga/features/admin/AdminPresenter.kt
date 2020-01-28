@@ -10,6 +10,7 @@ import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
+import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.IFileUtils
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.TreeMap
@@ -18,37 +19,38 @@ import java.util.Locale
 import javax.inject.Inject
 
 class AdminPresenter @Inject constructor(
-        private val mView: AdminContract.View,
-        private val mBookRepository: BookRepository,
-        private val fileUtils: IFileUtils,
-        private val mSharedPreferencesManager: SharedPreferencesManager,
-        @IO private val io: CoroutineScope
+    private val view: AdminContract.View,
+    private val bookRepository: BookRepository,
+    private val fileUtils: IFileUtils,
+    private val sharedPreferencesManager: SharedPreferencesManager,
+    @IO private val io: CoroutineScope,
+    @Main private val main: CoroutineScope
 ) : AdminContract.Presenter {
     companion object {
         private const val TAG = "AdminPresenter"
     }
 
     init {
-        mView.setPresenter(this)
+        view.setPresenter(this)
     }
 
-    private val mArtists = TreeMap<Long, Tag>()
-    private val mCharacters = TreeMap<Long, Tag>()
-    private val mCategories = TreeMap<Long, Tag>()
-    private val mLanguages = TreeMap<Long, Tag>()
-    private val mParodies = TreeMap<Long, Tag>()
-    private val mGroups = TreeMap<Long, Tag>()
-    private val mTags = TreeMap<Long, Tag>()
-    private val mUnknownTypes = TreeMap<Long, Tag>()
+    private val artists = TreeMap<Long, Tag>()
+    private val characters = TreeMap<Long, Tag>()
+    private val categories = TreeMap<Long, Tag>()
+    private val languages = TreeMap<Long, Tag>()
+    private val parodies = TreeMap<Long, Tag>()
+    private val groups = TreeMap<Long, Tag>()
+    private val tags = TreeMap<Long, Tag>()
+    private val unknownTypes = TreeMap<Long, Tag>()
 
-    private var mCurrentPage = 1L
-    private var mNumberOfPage = -1L
+    private var currentPage = 1L
+    private var numberOfPage = -1L
 
     override fun start() {
         clearData()
         io.launch {
-            mNumberOfPage = mBookRepository.getBookByPage(mCurrentPage)?.numOfPages ?: 0L
-            Logger.d(TAG, "Number Of pages=$mNumberOfPage")
+            numberOfPage = bookRepository.getBookByPage(currentPage)?.numOfPages ?: 0L
+            Logger.d(TAG, "Number Of pages=$numberOfPage")
         }
     }
 
@@ -58,25 +60,25 @@ class AdminPresenter @Inject constructor(
 
     override fun startDownloading() {
         if (fileUtils.isStoragePermissionAccepted()) {
-            downloadPage(mCurrentPage)
+            downloadPage(currentPage)
         } else {
-            mView.showRequestStoragePermission()
+            view.showRequestStoragePermission()
         }
     }
 
     override fun toggleCensored(censored: Boolean) {
-        mSharedPreferencesManager.isCensored = censored
-        mView.restartApp()
+        sharedPreferencesManager.isCensored = censored
+        view.restartApp()
     }
 
     private fun downloadPage(page: Long) {
-        if (mNumberOfPage < 0) {
+        if (numberOfPage < 0) {
             return
         }
 
-        if (page <= mNumberOfPage) {
+        if (page <= numberOfPage) {
             io.launch {
-                val remoteBook = mBookRepository.getBookByPage(page)
+                val remoteBook = bookRepository.getBookByPage(page)
                 if (remoteBook != null) {
                     handleResponse(remoteBook)
                 } else {
@@ -86,14 +88,14 @@ class AdminPresenter @Inject constructor(
         } else {
             Logger.d(TAG, "Downloading completed")
 
-            saveTagsFiles(mArtists, Constants.ARTIST)
-            saveTagsFiles(mCharacters, Constants.CHARACTER)
-            saveTagsFiles(mCategories, Constants.CATEGORY)
-            saveTagsFiles(mLanguages, Constants.LANGUAGE)
-            saveTagsFiles(mParodies, Constants.PARODY)
-            saveTagsFiles(mGroups, Constants.GROUP)
-            saveTagsFiles(mTags, Constants.TAG)
-            saveTagsFiles(mUnknownTypes, "unknown")
+            saveTagsFiles(artists, Constants.ARTIST)
+            saveTagsFiles(characters, Constants.CHARACTER)
+            saveTagsFiles(categories, Constants.CATEGORY)
+            saveTagsFiles(languages, Constants.LANGUAGE)
+            saveTagsFiles(parodies, Constants.PARODY)
+            saveTagsFiles(groups, Constants.GROUP)
+            saveTagsFiles(tags, Constants.TAG)
+            saveTagsFiles(unknownTypes, "unknown")
             saveChangeSummaryData()
             saveChangeLogsFile()
         }
@@ -101,17 +103,18 @@ class AdminPresenter @Inject constructor(
 
     private fun handleError() {
         Logger.d(TAG, "Downloading tags failed")
-        downloadPage(++mCurrentPage)
+        downloadPage(++currentPage)
     }
 
     private fun handleResponse(remoteBook: RemoteBook) {
         Logger.d(TAG, "Downloading tags response: $remoteBook")
-        if (mNumberOfPage <= 0) {
-            mNumberOfPage = remoteBook.numOfPages
-            mView.showNumberOfPages(mNumberOfPage)
-            mSharedPreferencesManager.run {
-                mView.updateDownloadingStatistics(
-                        mCurrentPage,
+        if (numberOfPage <= 0) {
+            numberOfPage = remoteBook.numOfPages
+            main.launch {
+                view.showNumberOfPages(numberOfPage)
+                sharedPreferencesManager.run {
+                    view.updateDownloadingStatistics(
+                        currentPage,
                         lastArtistsCount,
                         lastCharactersCount,
                         lastCategoriesCount,
@@ -120,7 +123,8 @@ class AdminPresenter @Inject constructor(
                         lastGroupsCount,
                         lastTagsCount,
                         lastUnknownTypesCount
-                )
+                    )
+                }
             }
         } else {
             for (book in remoteBook.bookList) {
@@ -128,62 +132,80 @@ class AdminPresenter @Inject constructor(
                     addTag(tag)
                 }
             }
-            mView.updateDownloadingStatistics(
-                    mCurrentPage,
-                    mArtists.size,
-                    mCharacters.size,
-                    mCategories.size,
-                    mLanguages.size,
-                    mParodies.size,
-                    mGroups.size,
-                    mTags.size,
-                    mUnknownTypes.size
-            )
+            main.launch {
+                view.updateDownloadingStatistics(
+                    currentPage,
+                    artists.size,
+                    characters.size,
+                    categories.size,
+                    languages.size,
+                    parodies.size,
+                    groups.size,
+                    tags.size,
+                    unknownTypes.size
+                )
+            }
         }
-        downloadPage(++mCurrentPage)
+        downloadPage(++currentPage)
     }
 
     private fun addTag(tag: Tag) {
         when (tag.type.toLowerCase(Locale.US)) {
             Constants.ARTIST -> {
-                Logger.d(TAG, "Artist - id: ${tag.tagId}," +
-                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
-                mArtists[tag.tagId] = tag
+                Logger.d(
+                    TAG, "Artist - id: ${tag.tagId}," +
+                            " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
+                )
+                artists[tag.tagId] = tag
             }
             Constants.CHARACTER -> {
-                Logger.d(TAG, "Character - id: ${tag.tagId}," +
-                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
-                mCharacters[tag.tagId] = tag
+                Logger.d(
+                    TAG, "Character - id: ${tag.tagId}," +
+                            " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
+                )
+                characters[tag.tagId] = tag
             }
             Constants.CATEGORY -> {
-                Logger.d(TAG, "Category - id: ${tag.tagId}," +
-                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
-                mCategories[tag.tagId] = tag
+                Logger.d(
+                    TAG, "Category - id: ${tag.tagId}," +
+                            " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
+                )
+                categories[tag.tagId] = tag
             }
             Constants.LANGUAGE -> {
-                Logger.d(TAG, "Language - id: ${tag.tagId}," +
-                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
-                mLanguages[tag.tagId] = tag
+                Logger.d(
+                    TAG, "Language - id: ${tag.tagId}," +
+                            " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
+                )
+                languages[tag.tagId] = tag
             }
             Constants.PARODY -> {
-                Logger.d(TAG, "Parody - id: ${tag.tagId}," +
-                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
-                mParodies[tag.tagId] = tag
+                Logger.d(
+                    TAG, "Parody - id: ${tag.tagId}," +
+                            " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
+                )
+                parodies[tag.tagId] = tag
             }
             Constants.GROUP -> {
-                Logger.d(TAG, "Group - id: ${tag.tagId}," +
-                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
-                mGroups[tag.tagId] = tag
+                Logger.d(
+                    TAG, "Group - id: ${tag.tagId}," +
+                            " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
+                )
+                groups[tag.tagId] = tag
             }
             Constants.TAG -> {
-                Logger.d(TAG, "Tag - id: ${tag.tagId}," +
-                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
-                mTags[tag.tagId] = tag
+                Logger.d(
+                    TAG, "Tag - id: ${tag.tagId}," +
+                            " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
+                )
+                tags[tag.tagId] = tag
             }
             else -> {
-                Logger.d(TAG, "Unknown tag - id: ${tag.tagId}," +
-                        " name: ${tag.name}, type: ${tag.type}, url: ${tag.url}")
-                mUnknownTypes[tag.tagId] = tag
+                Logger.d(
+                    TAG, "Unknown tag - id: ${tag.tagId}," +
+                            " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
+                )
+                unknownTypes[tag.tagId] = tag
             }
         }
     }
@@ -194,7 +216,11 @@ class AdminPresenter @Inject constructor(
             for (entry in tagsMap.entries) {
                 jsonArray.add(entry.value.jsonValue)
             }
-            val saveResult = SupportUtils.saveStringFile(jsonArray.toString(), tagName, fileUtils.getTagDirectory())
+            val saveResult = SupportUtils.saveStringFile(
+                jsonArray.toString(),
+                tagName,
+                fileUtils.getTagDirectory()
+            )
             Logger.d(TAG, "$tagName list saving result=$saveResult")
         }
     }
@@ -202,9 +228,9 @@ class AdminPresenter @Inject constructor(
     private fun saveChangeSummaryData() {
         io.launch {
             val saveResult = SupportUtils.saveStringFile(
-                    System.currentTimeMillis().toString(),
-                    "CurrentVersion",
-                    fileUtils.getTagDirectory()
+                System.currentTimeMillis().toString(),
+                "CurrentVersion",
+                fileUtils.getTagDirectory()
             )
             Logger.d(TAG, "Current id saving result=$saveResult")
         }
@@ -214,54 +240,58 @@ class AdminPresenter @Inject constructor(
         io.launch {
             val stringBuffer = StringBuffer("")
             val calendar = Calendar.getInstance(Locale.US)
-            val total = mArtists.size +
-                    mCategories.size +
-                    mCharacters.size +
-                    mLanguages.size +
-                    mParodies.size +
-                    mGroups.size +
-                    mTags.size +
-                    mUnknownTypes.size
+            val total = artists.size +
+                    categories.size +
+                    characters.size +
+                    languages.size +
+                    parodies.size +
+                    groups.size +
+                    tags.size +
+                    unknownTypes.size
 
             stringBuffer.append("===========================NHentai Data===========================\n")
-            stringBuffer.append("Created date: ${calendar.get(Calendar.DAY_OF_MONTH)}/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.YEAR)}\n")
+            stringBuffer.append(
+                "Created date: ${calendar.get(Calendar.DAY_OF_MONTH)}/${calendar.get(
+                    Calendar.MONTH
+                ) + 1}/${calendar.get(Calendar.YEAR)}\n"
+            )
             stringBuffer.append("Total: $total items\n")
-            stringBuffer.append("Categories: ${mCategories.size} items, number of old items: ${mSharedPreferencesManager.lastCategoriesCount}\n")
-            stringBuffer.append("Characters: ${mCharacters.size} items, number of old items: ${mSharedPreferencesManager.lastCharactersCount}\n")
-            stringBuffer.append("Languages: ${mLanguages.size} items, number of old items: ${mSharedPreferencesManager.lastLanguagesCount}\n")
-            stringBuffer.append("Parodies: ${mParodies.size} items, number of old items: ${mSharedPreferencesManager.lastParodiesCount}\n")
-            stringBuffer.append("Artists: ${mArtists.size} items, number of old items: ${mSharedPreferencesManager.lastArtistsCount}\n")
-            stringBuffer.append("Groups: ${mGroups.size} items, number of old items: ${mSharedPreferencesManager.lastGroupsCount}\n")
-            stringBuffer.append("mTags: ${mTags.size} items, number of old items: ${mSharedPreferencesManager.lastTagsCount}\n")
-            stringBuffer.append("UnknownTypes: ${mUnknownTypes.size} items, number of old items: ${mSharedPreferencesManager.lastUnknownTypesCount}\n")
+            stringBuffer.append("Categories: ${categories.size} items, number of old items: ${sharedPreferencesManager.lastCategoriesCount}\n")
+            stringBuffer.append("Characters: ${characters.size} items, number of old items: ${sharedPreferencesManager.lastCharactersCount}\n")
+            stringBuffer.append("Languages: ${languages.size} items, number of old items: ${sharedPreferencesManager.lastLanguagesCount}\n")
+            stringBuffer.append("Parodies: ${parodies.size} items, number of old items: ${sharedPreferencesManager.lastParodiesCount}\n")
+            stringBuffer.append("Artists: ${artists.size} items, number of old items: ${sharedPreferencesManager.lastArtistsCount}\n")
+            stringBuffer.append("Groups: ${groups.size} items, number of old items: ${sharedPreferencesManager.lastGroupsCount}\n")
+            stringBuffer.append("mTags: ${tags.size} items, number of old items: ${sharedPreferencesManager.lastTagsCount}\n")
+            stringBuffer.append("UnknownTypes: ${unknownTypes.size} items, number of old items: ${sharedPreferencesManager.lastUnknownTypesCount}\n")
             stringBuffer.append("==================================================================")
             val saveResult = SupportUtils.saveStringFile(
-                    stringBuffer.toString(),
-                    "ChangeLogs",
-                    fileUtils.getTagDirectory()
+                stringBuffer.toString(),
+                "ChangeLogs",
+                fileUtils.getTagDirectory()
             )
             Logger.d(TAG, "NHentai.txt list saving result=$saveResult")
-            mSharedPreferencesManager.lastCategoriesCount = mCategories.size
-            mSharedPreferencesManager.lastCharactersCount = mCharacters.size
-            mSharedPreferencesManager.lastLanguagesCount = mLanguages.size
-            mSharedPreferencesManager.lastParodiesCount = mParodies.size
-            mSharedPreferencesManager.lastArtistsCount = mArtists.size
-            mSharedPreferencesManager.lastGroupsCount = mGroups.size
-            mSharedPreferencesManager.lastTagsCount = mTags.size
-            mSharedPreferencesManager.lastUnknownTypesCount = mUnknownTypes.size
+            sharedPreferencesManager.lastCategoriesCount = categories.size
+            sharedPreferencesManager.lastCharactersCount = characters.size
+            sharedPreferencesManager.lastLanguagesCount = languages.size
+            sharedPreferencesManager.lastParodiesCount = parodies.size
+            sharedPreferencesManager.lastArtistsCount = artists.size
+            sharedPreferencesManager.lastGroupsCount = groups.size
+            sharedPreferencesManager.lastTagsCount = tags.size
+            sharedPreferencesManager.lastUnknownTypesCount = unknownTypes.size
         }
     }
 
     private fun clearData() {
-        mCurrentPage = 1
-        mNumberOfPage = -1L
-        mArtists.clear()
-        mCharacters.clear()
-        mCategories.clear()
-        mLanguages.clear()
-        mParodies.clear()
-        mGroups.clear()
-        mTags.clear()
-        mUnknownTypes.clear()
+        currentPage = 1
+        numberOfPage = -1L
+        artists.clear()
+        characters.clear()
+        categories.clear()
+        languages.clear()
+        parodies.clear()
+        groups.clear()
+        tags.clear()
+        unknownTypes.clear()
     }
 }

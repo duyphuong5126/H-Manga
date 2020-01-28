@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -13,7 +13,7 @@
         android:background="@android:color/black"
         android:orientation="vertical">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -26,41 +26,41 @@
                 android:contentDescription="@string/main_search_button"
                 android:scaleType="fitStart"
                 android:src="@drawable/ic_404_not_found"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <jp.shts.android.library.TriangleLabelView
                 android:id="@+id/tlvRecent"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:visibility="gone"
                 app:backgroundColor="@color/redED2553"
                 app:corner="leftTop"
                 app:labelBottomPadding="5dp"
                 app:labelCenterPadding="5dp"
                 app:labelTopPadding="25dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:primaryText="@string/favorite"
                 app:primaryTextColor="@android:color/white"
-                app:primaryTextSize="15sp"
-                android:visibility="gone"/>
+                app:primaryTextSize="15sp" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clItemDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_grey_tiny_rounded_bottom_corners">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl1stTitlePart"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     android:id="@+id/ivLanguage"
@@ -91,7 +91,7 @@
                     app:layout_constraintStart_toEndOf="@id/ivLanguage"
                     app:layout_constraintTop_toTopOf="parent"
                     app:myFont="@string/NotoSansBold" />
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <nhdphuong.com.manga.views.customs.MyTextView
                 android:id="@+id/tv2ndTitlePart"
@@ -110,8 +110,8 @@
                 app:layout_constraintTop_toBottomOf="@id/cl1stTitlePart"
                 app:myFont="@string/NotoSansBold" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
 
-</android.support.v7.widget.CardView>
+</androidx.cardview.widget.CardView>
