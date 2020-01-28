@@ -7,6 +7,7 @@ import nhdphuong.com.manga.Base
  */
 interface ReaderContract {
     interface View : Base.View<Presenter> {
+        fun setPresenter(presenter: Presenter)
         fun showBookTitle(bookTitle: String)
         fun showBookPages(pageList: List<String>)
         fun jumpToPage(pageNumber: Int)
@@ -22,6 +23,7 @@ interface ReaderContract {
     }
 
     interface Presenter : Base.Presenter {
+        fun enableViewDownloadedDataMode()
         fun updatePageIndicator(page: Int)
         fun backToGallery()
         fun downloadCurrentPage()

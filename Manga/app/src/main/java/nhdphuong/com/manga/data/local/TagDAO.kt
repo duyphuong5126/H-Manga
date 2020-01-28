@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.ID
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Category
 import nhdphuong.com.manga.data.entity.book.tags.Tag
@@ -44,6 +45,9 @@ interface TagDAO {
 
     @Query("SELECT count(*) FROM $TABLE_TAG")
     fun getTagCount(): Int
+
+    @Query("SELECT * FROM $TABLE_TAG where $ID = :tagId")
+    fun getTagById(tagId: Long): Tag
 
     // From A-Z only
     @Query("SELECT count(*) FROM $TABLE_TAG WHERE $COLUMN_NAME LIKE :prefixString")

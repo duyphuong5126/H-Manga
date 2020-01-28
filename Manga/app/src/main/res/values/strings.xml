@@ -90,11 +90,17 @@
     <string name="are_tags_being_downloaded">Tags downloading</string>
     <string name="is_downloading_tags">Tags lists are being downloaded.\nPlease wait until they complete.</string>
 
+    <string name="no_network_title">No internet connection</string>
+    <string name="no_network_description">Your device is not connected to the Internet. Please check your connection and try again.</string>
+
     <string name="under_construction_title">Not available</string>
     <string name="feature_under_construction_description">Under construction feature.\nPlease try again later</string>
     <string name="refresh">Refresh</string>
     <string name="recent">Recent</string>
     <string name="switch_recent_list">Switch</string>
+
+    <string name="downloaded">Downloaded</string>
+    <string name="downloaded_books">Downloaded Books</string>
 
     <string name="notification_channel_name">NHentai App</string>
     <string name="notification_channel_description">Hentai manga</string>

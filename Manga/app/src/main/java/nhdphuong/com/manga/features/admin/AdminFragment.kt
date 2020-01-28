@@ -30,7 +30,7 @@ class AdminFragment : Fragment(), AdminContract.View {
         private const val REQUEST_STORAGE_PERMISSION = 3143
     }
 
-    private lateinit var mPresenter: AdminContract.Presenter
+    private lateinit var presenter: AdminContract.Presenter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,7 +44,7 @@ class AdminFragment : Fragment(), AdminContract.View {
         super.onViewCreated(view, savedInstanceState)
         mtv_pages_count.text = ""
         mbt_start_downloading.setOnClickListener {
-            mPresenter.startDownloading()
+            presenter.startDownloading()
         }
         mtv_pages_downloaded.text = ""
         mtv_artists_count.text = ""
@@ -58,9 +58,9 @@ class AdminFragment : Fragment(), AdminContract.View {
 
         sp_censored.isChecked = NHentaiApp.instance.isCensored
         sp_censored.setOnCheckedChangeListener { _, isChecked ->
-            mPresenter.toggleCensored(isChecked)
+            presenter.toggleCensored(isChecked)
         }
-        mPresenter.start()
+        presenter.start()
     }
 
     override fun onRequestPermissionsResult(
@@ -80,7 +80,7 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     override fun setPresenter(presenter: AdminContract.Presenter) {
-        mPresenter = presenter
+        this.presenter = presenter
     }
 
     override fun showNumberOfPages(numOfPages: Long) {

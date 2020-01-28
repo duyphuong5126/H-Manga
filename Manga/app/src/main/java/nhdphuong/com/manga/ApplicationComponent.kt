@@ -4,6 +4,8 @@ import dagger.Component
 import nhdphuong.com.manga.data.RepositoryModule
 import nhdphuong.com.manga.features.admin.AdminComponent
 import nhdphuong.com.manga.features.admin.AdminModule
+import nhdphuong.com.manga.features.downloaded.DownloadedBooksComponent
+import nhdphuong.com.manga.features.downloaded.DownloadedBooksModule
 import nhdphuong.com.manga.features.header.HeaderModule
 import nhdphuong.com.manga.features.home.HomeComponent
 import nhdphuong.com.manga.features.home.HomeModule
@@ -31,6 +33,7 @@ interface ApplicationComponent {
     fun plus(tagsModule: TagsModule, headerModule: HeaderModule): TagsComponent
     fun plus(recentModule: RecentModule): RecentComponent
     fun plus(adminModule: AdminModule): AdminComponent
+    fun plus(downloadedBooksModule: DownloadedBooksModule): DownloadedBooksComponent
 
     fun inject(service: TagsUpdateService)
     fun inject(nHentaiApp: NHentaiApp)

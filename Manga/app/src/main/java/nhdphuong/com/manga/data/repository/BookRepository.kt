@@ -1,9 +1,11 @@
 package nhdphuong.com.manga.data.repository
 
 import io.reactivex.Completable
+import io.reactivex.Single
 import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.Book
+import nhdphuong.com.manga.data.entity.book.ImageMeasurements
 import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.scope.Remote
 import nhdphuong.com.manga.data.entity.book.RemoteBook
@@ -66,5 +68,38 @@ class BookRepository @Inject constructor(
 
     override fun addToRecentList(bookId: String): Completable {
         return bookLocalDataSource.addToRecentList(bookId)
+    }
+
+    override fun saveDownloadedBook(book: Book): Completable {
+        return bookLocalDataSource.saveDownloadedBook(book)
+    }
+
+    override fun saveImageOfBook(
+        bookId: String,
+        imageMeasurements: ImageMeasurements,
+        usageType: String,
+        localPath: String
+    ): Completable {
+        return bookLocalDataSource.saveImageOfBook(bookId, imageMeasurements, usageType, localPath)
+    }
+
+    override fun getDownloadedBookList(): Single<List<Book>> {
+        return bookLocalDataSource.getDownloadedBookList()
+    }
+
+    override fun getDownloadedBookCoverPath(bookId: String): Single<String> {
+        return bookLocalDataSource.getDownloadedBookCoverPath(bookId)
+    }
+
+    override fun getDownloadedBookImagePaths(bookId: String): Single<List<String>> {
+        return bookLocalDataSource.getDownloadedBookImagePaths(bookId)
+    }
+
+    override fun getDownloadedBookThumbnailPaths(bookIds: List<String>): Single<List<Pair<String, String>>> {
+        return bookLocalDataSource.getDownloadedBookThumbnailPaths(bookIds)
+    }
+
+    override fun clearDownloadedImagesOfBook(bookId: String): Completable {
+        return bookLocalDataSource.clearDownloadedImagesOfBook(bookId)
     }
 }

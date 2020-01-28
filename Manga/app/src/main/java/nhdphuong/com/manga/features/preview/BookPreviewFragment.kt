@@ -63,6 +63,7 @@ import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PreviewAdapter
+import nhdphuong.com.manga.views.becomeVisibleIf
 
 /*
  * Created by nhdphuong on 4/14/18.
@@ -77,19 +78,21 @@ class BookPreviewFragment :
         private const val REQUEST_STORAGE_PERMISSION = 3142
     }
 
-    private lateinit var mPresenter: BookPreviewContract.Presenter
-    private lateinit var mPreviewAdapter: PreviewAdapter
-    private lateinit var mRecommendBookAdapter: BookAdapter
-    private lateinit var mAnimatorSet: AnimatorSet
+    private lateinit var presenter: BookPreviewContract.Presenter
+    private lateinit var previewAdapter: PreviewAdapter
+    private lateinit var recommendBookAdapter: BookAdapter
+    private lateinit var animatorSet: AnimatorSet
     private var isDownloadRequested = false
 
     @Volatile
     private var isPresenterStarted: Boolean = false
 
-    private lateinit var mPreviewLayoutManager: MyGridLayoutManager
+    private var viewDownloadedData = false
+
+    private lateinit var previewLayoutManager: MyGridLayoutManager
 
     override fun setPresenter(presenter: BookPreviewContract.Presenter) {
-        mPresenter = presenter
+        this.presenter = presenter
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,6 +113,10 @@ class BookPreviewFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Logger.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
+        viewDownloadedData = arguments?.getBoolean(Constants.VIEW_DOWNLOADED_DATA) ?: false
+        if (viewDownloadedData) {
+            presenter.enableViewDownloadedDataMode()
+        }
         svBookCover.let { svBookCover ->
             val scrollDownAnimator =
                 ObjectAnimator.ofInt(svBookCover, "scrollY", 1000)
@@ -122,32 +129,34 @@ class BookPreviewFragment :
             scrollDownAnimator.addListener(getAnimationListener(scrollUpAnimator))
             scrollUpAnimator.addListener(getAnimationListener(scrollDownAnimator))
 
-            mAnimatorSet = AnimatorSet()
-            mAnimatorSet.playTogether(scrollDownAnimator)
+            animatorSet = AnimatorSet()
+            animatorSet.playTogether(scrollDownAnimator)
             svBookCover.setOnTouchListener { _, _ ->
                 true
             }
         }
 
+        mtvDownload.becomeVisibleIf(!viewDownloadedData)
         mtvDownload.setOnClickListener {
             isDownloadRequested = true
-            mPresenter.downloadBook()
+            presenter.downloadBook()
         }
 
-        val changeFavoriteListener = View.OnClickListener { mPresenter.changeBookFavorite() }
+        val changeFavoriteListener = View.OnClickListener { presenter.changeBookFavorite() }
         mtvFavorite.setOnClickListener(changeFavoriteListener)
         mtvNotFavorite.setOnClickListener(changeFavoriteListener)
 
-        // Gingerbread
         hsvPreviewThumbNail.overScrollMode = View.OVER_SCROLL_NEVER
         hsvRecommendList.overScrollMode = View.OVER_SCROLL_NEVER
+        hsvRecommendList.becomeVisibleIf(!viewDownloadedData)
+        mtvRecommendBook.becomeVisibleIf(!viewDownloadedData)
         svPreview.overScrollMode = View.OVER_SCROLL_NEVER
         svBookCover.overScrollMode = View.OVER_SCROLL_NEVER
 
         view.viewTreeObserver.addOnGlobalLayoutListener {
             if (!isPresenterStarted) {
                 isPresenterStarted = true
-                mPresenter.loadInfoLists()
+                presenter.loadInfoLists()
             }
         }
     }
@@ -155,7 +164,7 @@ class BookPreviewFragment :
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Logger.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
-        mPresenter.start()
+        presenter.start()
     }
 
     override fun onRequestPermissionsResult(
@@ -170,7 +179,7 @@ class BookPreviewFragment :
                 showRequestStoragePermission()
             } else {
                 if (isDownloadRequested) {
-                    mPresenter.downloadBook()
+                    presenter.downloadBook()
                 }
             }
             val result = if (permissionGranted) "granted" else "denied"
@@ -180,7 +189,7 @@ class BookPreviewFragment :
 
     override fun onStop() {
         super.onStop()
-        mPresenter.stop()
+        presenter.stop()
         isPresenterStarted = false
     }
 
@@ -191,16 +200,16 @@ class BookPreviewFragment :
                 R.drawable.ic_404_not_found,
                 ivBookCover,
                 onLoadSuccess = {
-                    mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
-                    mAnimatorSet.start()
+                    presenter.saveCurrentAvailableCoverUrl(coverUrl)
+                    animatorSet.start()
                 },
                 onLoadFailed = {
-                    mPresenter.reloadCoverImage()
+                    presenter.reloadCoverImage()
                 })
         } else {
             ivBookCover.setImageResource(R.drawable.ic_nothing_here_grey)
-            mPresenter.saveCurrentAvailableCoverUrl(coverUrl)
-            mAnimatorSet.start()
+            presenter.saveCurrentAvailableCoverUrl(coverUrl)
+            animatorSet.start()
         }
     }
 
@@ -317,41 +326,41 @@ class BookPreviewFragment :
             TAG, "thumbnails: ${thumbnailList.size}," +
                     " number of rows: $NUM_OF_ROWS, spanCount: $spanCount"
         )
-        mPreviewLayoutManager = object : MyGridLayoutManager(context!!, spanCount) {
+        previewLayoutManager = object : MyGridLayoutManager(context!!, spanCount) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
             }
         }
         rvPreviewList.run {
-            layoutManager = mPreviewLayoutManager
-            mPreviewAdapter = PreviewAdapter(
+            layoutManager = previewLayoutManager
+            previewAdapter = PreviewAdapter(
                 NUM_OF_ROWS,
                 thumbnailList,
                 object : PreviewAdapter.ThumbnailClickCallback {
                     override fun onThumbnailClicked(page: Int) {
-                        mPresenter.startReadingFrom(page)
+                        presenter.startReadingFrom(page)
                     }
                 })
-            adapter = mPreviewAdapter
+            adapter = previewAdapter
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             hsvPreviewThumbNail.setOnScrollChangeListener { _, _, _, _, _ ->
                 if (!hsvPreviewThumbNail.canScrollHorizontally(1)) {
                     Logger.d(TAG, "End of list, load more thumbnails")
-                    mPresenter.loadMoreThumbnails()
+                    presenter.loadMoreThumbnails()
                 }
             }
         }
     }
 
     override fun updateBookThumbnailList() {
-        var spanCount = mPreviewAdapter.itemCount / NUM_OF_ROWS
-        if (mPreviewAdapter.itemCount % NUM_OF_ROWS != 0) {
+        var spanCount = previewAdapter.itemCount / NUM_OF_ROWS
+        if (previewAdapter.itemCount % NUM_OF_ROWS != 0) {
             spanCount++
         }
-        mPreviewLayoutManager.spanCount = spanCount
-        mPreviewAdapter.notifyDataSetChanged()
+        previewLayoutManager.spanCount = spanCount
+        previewAdapter.notifyDataSetChanged()
     }
 
     override fun showRecommendBook(bookList: List<Book>) {
@@ -364,7 +373,7 @@ class BookPreviewFragment :
         }
 
         rvRecommendList.layoutManager = gridLayoutManager
-        mRecommendBookAdapter = BookAdapter(
+        recommendBookAdapter = BookAdapter(
             bookList,
             BookAdapter.RECOMMEND_BOOK,
             object : BookAdapter.OnBookClick {
@@ -372,7 +381,7 @@ class BookPreviewFragment :
                     BookPreviewActivity.restart(item)
                 }
             })
-        rvRecommendList.adapter = mRecommendBookAdapter
+        rvRecommendList.adapter = recommendBookAdapter
     }
 
     override fun showNoRecommendBook() {
@@ -434,7 +443,7 @@ class BookPreviewFragment :
 
     override fun showBookBeingDownloaded(bookId: String) {
         DialogHelper.showBookDownloadingDialog(activity!!, bookId, onOk = {
-            mPresenter.restartBookPreview(bookId)
+            presenter.restartBookPreview(bookId)
         }, onDismiss = {
 
         })
@@ -456,12 +465,12 @@ class BookPreviewFragment :
         }
     }
 
-    override fun showFavoriteBooks(favoriteList: List<Int>) {
-        mRecommendBookAdapter.setFavoriteList(favoriteList)
+    override fun showFavoriteBooks(favoriteList: List<String>) {
+        recommendBookAdapter.setFavoriteList(favoriteList)
     }
 
-    override fun showRecentBooks(recentList: List<Int>) {
-        mRecommendBookAdapter.setRecentList(recentList)
+    override fun showRecentBooks(recentList: List<String>) {
+        recommendBookAdapter.setRecentList(recentList)
     }
 
     override fun showOpenFolderView() {
@@ -484,7 +493,7 @@ class BookPreviewFragment :
 
     override fun startReadingFromPage(page: Int, book: Book) {
         context?.run {
-            ReaderActivity.start(this, page, book)
+            ReaderActivity.start(this, page, book, viewDownloadedData)
         }
     }
 
@@ -499,6 +508,9 @@ class BookPreviewFragment :
     override fun isActive() = isAdded
 
     override fun onTagSelected(tag: Tag) {
+        if (viewDownloadedData) {
+            return
+        }
         activity?.run {
             val intent = intent
             intent.action = Constants.TAG_SELECTED_ACTION

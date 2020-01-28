@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="nhdphuong.com.manga">
@@ -19,6 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:allowBackup">
+        <activity android:name=".features.downloaded.DownloadedBooksActivity"></activity>
         <activity
             android:name=".features.home.HomeActivity"
             android:configChanges="orientation|screenSize|keyboardHidden">
@@ -31,24 +33,25 @@
         </activity>
         <activity
             android:name=".features.preview.BookPreviewActivity"
-            android:launchMode="singleTask"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:launchMode="singleTask" />
         <activity
             android:name=".features.reader.ReaderActivity"
-            android:launchMode="singleTask"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:launchMode="singleTask" />
         <activity
             android:name=".features.tags.TagsActivity"
-            android:launchMode="singleTask"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:launchMode="singleTask" />
         <activity
             android:name=".features.recent.RecentActivity"
-            android:launchMode="singleTask"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:launchMode="singleTask" />
         <activity android:name=".features.admin.AdminActivity" />
 
         <service
             android:name=".service.TagsUpdateService"
             android:exported="false" />
     </application>
+
 </manifest>

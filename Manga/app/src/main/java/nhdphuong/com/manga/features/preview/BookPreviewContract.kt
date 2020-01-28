@@ -9,6 +9,7 @@ import nhdphuong.com.manga.data.entity.book.tags.Tag
  */
 interface BookPreviewContract {
     interface View : Base.View<Presenter> {
+        fun setPresenter(presenter: Presenter)
         fun showBookCoverImage(coverUrl: String)
         fun show1stTitle(firstTitle: String)
         fun show2ndTitle(secondTitle: String)
@@ -40,13 +41,14 @@ interface BookPreviewContract {
         fun showThisBookBeingDownloaded()
         fun showBookBeingDownloaded(bookId: String)
         fun showFavoriteBookSaved(isFavorite: Boolean)
-        fun showRecentBooks(recentList: List<Int>)
-        fun showFavoriteBooks(favoriteList: List<Int>)
+        fun showRecentBooks(recentList: List<String>)
+        fun showFavoriteBooks(favoriteList: List<String>)
         fun showOpenFolderView()
         fun startReadingFromPage(page: Int, book: Book)
     }
 
     interface Presenter : Base.Presenter {
+        fun enableViewDownloadedDataMode()
         fun loadInfoLists()
         fun reloadCoverImage()
         fun saveCurrentAvailableCoverUrl(url: String)

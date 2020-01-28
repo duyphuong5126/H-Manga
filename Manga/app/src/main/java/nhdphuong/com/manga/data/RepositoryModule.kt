@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.api.TagApiService
 import nhdphuong.com.manga.data.local.BookLocalDataSource
-import nhdphuong.com.manga.data.local.RecentBookDAO
+import nhdphuong.com.manga.data.local.BookDAO
 import nhdphuong.com.manga.data.local.TagDAO
 import nhdphuong.com.manga.data.local.TagLocalDataSource
 import nhdphuong.com.manga.data.remote.BookRemoteDataSource
@@ -34,8 +34,8 @@ class RepositoryModule {
     @NonNull
     @Singleton
     @Local
-    fun providesBookLocalDataSource(recentBookDAO: RecentBookDAO): BookDataSource.Local {
-        return BookLocalDataSource(recentBookDAO)
+    fun providesBookLocalDataSource(bookDAO: BookDAO, tagDAO: TagDAO): BookDataSource.Local {
+        return BookLocalDataSource(bookDAO, tagDAO)
     }
 
     @Provides

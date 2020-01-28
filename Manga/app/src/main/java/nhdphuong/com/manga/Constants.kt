@@ -46,6 +46,7 @@ class Constants {
         const val GROUPS = "Groups"
         const val INFO = "Info"
         const val ARTISTS = "Artists"
+        const val DOWNLOADED = "Downloaded"
 
         @Suppress("unused")
         const val SETTINGS = "Settings"
@@ -61,6 +62,8 @@ class Constants {
         const val NONE = "None"
 
         const val BOOK = "book"
+
+        const val VIEW_DOWNLOADED_DATA = "viewDownloadedData"
 
         const val START_PAGE = "start_page"
 
@@ -97,9 +100,14 @@ class Constants {
         const val TABLE_GROUP = "Groups"
         const val TABLE_TAG = "Tags"
         const val TABLE_UNKNOWN = "UnknownTags"
+        const val TABLE_DOWNLOADED_BOOK = "DownLoadedBook"
+        const val TABLE_DOWNLOADED_IMAGE = "DownLoadedImage"
+        const val TABLE_BOOK_TAG = "BookTag"
         const val BOOK_ID = "bookId"
+        const val TAG_ID = "tagId"
         const val IS_FAVORITE = "isFavorite"
         const val CREATED_AT = "createdAt"
+        const val LOCAL_PATH = "localPath"
 
         // Notifications
         const val NOTIFICATION_CHANNEL_ID = "nHentaiApp"

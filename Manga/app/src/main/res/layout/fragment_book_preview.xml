@@ -341,7 +341,7 @@
                     app:layout_constraintBottom_toTopOf="@+id/mtvPreview"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/mtvDownload">
+                    app:layout_constraintTop_toBottomOf="@+id/mtvFavorite">
 
                     <ProgressBar
                         android:id="@+id/pbDownloading"

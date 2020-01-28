@@ -11,6 +11,9 @@ import nhdphuong.com.manga.data.entity.book.tags.Character
 import nhdphuong.com.manga.data.entity.book.tags.Parody
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.entity.book.tags.UnknownTag
+import nhdphuong.com.manga.data.local.model.BookImageModel
+import nhdphuong.com.manga.data.local.model.BookTagModel
+import nhdphuong.com.manga.data.local.model.DownloadedBookModel
 
 /*
  * Created by nhdphuong on 6/9/18.
@@ -25,10 +28,13 @@ import nhdphuong.com.manga.data.entity.book.tags.UnknownTag
         Category::class,
         Language::class,
         Parody::class,
-        UnknownTag::class],
+        UnknownTag::class,
+        DownloadedBookModel::class,
+        BookImageModel::class,
+        BookTagModel::class],
     version = 2
 )
 abstract class NHentaiDB : RoomDatabase() {
-    abstract fun getRecentBookDAO(): RecentBookDAO
+    abstract fun getRecentBookDAO(): BookDAO
     abstract fun getTagDAO(): TagDAO
 }

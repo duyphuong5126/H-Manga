@@ -20,36 +20,37 @@ import java.util.LinkedList
  */
 class TabAdapter(
     context: Context,
-    private val mOnMainTabClick: OnMainTabClick
+    private val onMainTabClick: OnMainTabClick
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private var mTabList: LinkedList<Tab> = LinkedList()
-    private var mCurrentTab: Tab = Tab.NONE
-    private val mEnableTextColor = ContextCompat.getColor(context, R.color.colorPrimaryDark)
-    private val mDisableTextColor = ContextCompat.getColor(context, R.color.greyBBB)
+    private var tabList: LinkedList<Tab> = LinkedList()
+    private var currentTab: Tab = Tab.NONE
+    private val enableTextColor = ContextCompat.getColor(context, R.color.colorPrimaryDark)
+    private val disableTextColor = ContextCompat.getColor(context, R.color.greyBBB)
     private val isDebugVersion: Boolean =
         (NHentaiApp.instance.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
-    private val mRecentTitle = context.getString(R.string.recent)
-    private val mFavoriteTitle = context.getString(R.string.favorite)
-    private val mRandomTitle = context.getString(R.string.random)
-    private val mArtistsTitle = context.getString(R.string.artists)
-    private val mTagsTitle = context.getString(R.string.tags)
-    private val mCharacterTitle = context.getString(R.string.characters)
-    private val mGroupsTitle = context.getString(R.string.groups)
-    private val mParodiesTitle = context.getString(R.string.parodies)
-    private val mInfoTitle = context.getString(R.string.info)
-    private val mAdminTitle = context.getString(R.string.admin)
+    private val recentTitle = context.getString(R.string.recent)
+    private val favoriteTitle = context.getString(R.string.favorite)
+    private val downloadedTitle = context.getString(R.string.downloaded)
+    private val randomTitle = context.getString(R.string.random)
+    private val artistsTitle = context.getString(R.string.artists)
+    private val tagsTitle = context.getString(R.string.tags)
+    private val characterTitle = context.getString(R.string.characters)
+    private val groupsTitle = context.getString(R.string.groups)
+    private val parodiesTitle = context.getString(R.string.parodies)
+    private val infoTitle = context.getString(R.string.info)
+    private val adminTitle = context.getString(R.string.admin)
 
     init {
-        mTabList.clear()
+        tabList.clear()
         for (tab in Tab.values()) {
             if (tab != Tab.NONE) {
                 if (tab == Tab.ADMIN) {
                     if (isDebugVersion) {
-                        mTabList.add(tab)
+                        tabList.add(tab)
                     }
                 } else {
-                    mTabList.add(tab)
+                    tabList.add(tab)
                 }
             }
         }
@@ -61,16 +62,16 @@ class TabAdapter(
             parent,
             false
         )
-        return MainTabViewHolder(view, mOnMainTabClick)
+        return MainTabViewHolder(view, onMainTabClick)
     }
 
-    override fun getItemCount(): Int = mTabList.size
+    override fun getItemCount(): Int = tabList.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val tabViewHolder = holder as MainTabViewHolder
-        mTabList[position].let { tab ->
+        tabList[position].let { tab ->
             tabViewHolder.setTab(tab)
-            tabViewHolder.toggleTab(tab == mCurrentTab && mCurrentTab != Tab.NONE)
+            tabViewHolder.toggleTab(tab == currentTab && currentTab != Tab.NONE)
         }
     }
 
@@ -96,34 +97,35 @@ class TabAdapter(
         fun setTab(tab: Tab) {
             mTab = tab
             mTvLabel.text = when (tab) {
-                Tab.RECENT -> mRecentTitle
-                Tab.FAVORITE -> mFavoriteTitle
-                Tab.RANDOM -> mRandomTitle
-                Tab.ARTISTS -> mArtistsTitle
-                Tab.TAGS -> mTagsTitle
-                Tab.CHARACTERS -> mCharacterTitle
-                Tab.GROUPS -> mGroupsTitle
-                Tab.PARODIES -> mParodiesTitle
-                Tab.INFO -> mInfoTitle
-                Tab.ADMIN -> mAdminTitle
+                Tab.RECENT -> recentTitle
+                Tab.FAVORITE -> favoriteTitle
+                Tab.DOWNLOADED -> downloadedTitle
+                Tab.RANDOM -> randomTitle
+                Tab.ARTISTS -> artistsTitle
+                Tab.TAGS -> tagsTitle
+                Tab.CHARACTERS -> characterTitle
+                Tab.GROUPS -> groupsTitle
+                Tab.PARODIES -> parodiesTitle
+                Tab.INFO -> infoTitle
+                Tab.ADMIN -> adminTitle
                 else -> tab.defaultName
             }
         }
 
         fun toggleTab(selected: Boolean) {
             mTabIndicator.visibility = if (selected) View.VISIBLE else View.INVISIBLE
-            val textColor = if (selected) mEnableTextColor else mDisableTextColor
+            val textColor = if (selected) enableTextColor else disableTextColor
             mTvLabel.setTextColor(textColor)
         }
     }
 
     fun updateTab(tab: Tab) {
-        val oldActiveTab = mCurrentTab
-        mCurrentTab = tab
+        val oldActiveTab = currentTab
+        currentTab = tab
         if (tab == Tab.NONE) {
             notifyDataSetChanged()
         } else {
-            notifyItemChanged(mCurrentTab.ordinal)
+            notifyItemChanged(currentTab.ordinal)
             notifyItemChanged(oldActiveTab.ordinal)
         }
     }

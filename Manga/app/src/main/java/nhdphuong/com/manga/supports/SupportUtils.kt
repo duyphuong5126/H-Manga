@@ -141,8 +141,8 @@ class SupportUtils : AppSupportUtils {
             return resultPath
         }
 
-        fun downloadImageBitmap(urlString: String, simulateDownloadFail: Boolean): Bitmap? {
-            var bitmap: Bitmap? = null
+        fun downloadImageBitmap(urlString: String, simulateDownloadFail: Boolean): Bitmap {
+            val bitmap: Bitmap
             val downloadingUrl = if (simulateDownloadFail) urlString + "idghfhidu" else urlString
             val connectTimeOut = if (simulateDownloadFail) 5000 else 10000
             val readTimeOut = if (simulateDownloadFail) 10000 else 20000
@@ -158,7 +158,8 @@ class SupportUtils : AppSupportUtils {
                 bufferedInputStream.close()
                 inputStream.close()
             } catch (e: Exception) {
-                Logger.d(TAG, "Downloading $urlString causes exception: $e")
+                Logger.e(TAG, "Downloading $urlString causes exception: $e")
+                throw e
             }
 
             return bitmap
@@ -252,7 +253,7 @@ class SupportUtils : AppSupportUtils {
         fileName: String,
         format: String
     ): String {
-        val result = downloadImageBitmap(fromUrl, false)!!
+        val result = downloadImageBitmap(fromUrl, false)
         return saveImage(result, directory, fileName, format)
     }
 }

@@ -12,7 +12,10 @@ import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
-import java.util.*
+import java.util.LinkedList
+import java.util.Collections
+import java.util.Stack
+import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 import kotlin.collections.HashMap
@@ -22,11 +25,11 @@ import kotlin.math.abs
  * Created by nhdphuong on 6/10/18.
  */
 class RecentPresenter @Inject constructor(
-        private val mView: RecentContract.View,
-        private val mBookRepository: BookRepository,
-        private val mSharedPreferencesManager: SharedPreferencesManager,
-        @IO private val io: CoroutineScope,
-        @Main private val main: CoroutineScope
+    private val view: RecentContract.View,
+    private val bookRepository: BookRepository,
+    private val sharedPreferencesManager: SharedPreferencesManager,
+    @IO private val io: CoroutineScope,
+    @Main private val main: CoroutineScope
 ) : RecentContract.Presenter {
     companion object {
         private const val TAG = "RecentPresenter"
@@ -35,62 +38,62 @@ class RecentPresenter @Inject constructor(
     }
 
     init {
-        mView.setPresenter(this)
+        view.setPresenter(this)
     }
 
-    private var mRecentCount: Int = 0
-    private var mFavoriteCount: Int = 0
+    private var recentCount: Int = 0
+    private var favoriteCount: Int = 0
     @RecentType
-    private var mType: String? = null
-    private var mCurrentPageCount: Int = 1
-    private var mCurrentPage: Int = 1
-    private val mRecentBookList = LinkedList<Book>()
+    private var type: String? = null
+    private var currentPageCount: Int = 1
+    private var currentPage: Int = 1
+    private val recentBookList = LinkedList<Book>()
 
     @SuppressLint("UseSparseArrays")
-    private var mPreventiveData = HashMap<Int, LinkedList<Book>>()
+    private var preventiveData = HashMap<Int, LinkedList<Book>>()
     private var isLoadingPreventiveData = false
-    private val mJobStack = Stack<Job>()
+    private val jobStack = Stack<Job>()
 
     override fun start() {
-        mRecentBookList.clear()
-        mView.setUpRecentBookList(mRecentBookList)
+        recentBookList.clear()
+        view.setUpRecentBookList(recentBookList)
 
         io.launch {
             val job = launch {
-                mRecentCount = mBookRepository.getRecentCount()
-                mFavoriteCount = mBookRepository.getFavoriteCount()
+                recentCount = bookRepository.getRecentCount()
+                favoriteCount = bookRepository.getFavoriteCount()
 
-                if (mType == Constants.RECENT) {
-                    mCurrentPageCount = mRecentCount / MAX_PER_PAGE
-                    if (mRecentCount % MAX_PER_PAGE > 0) {
-                        mCurrentPageCount++
+                if (type == Constants.RECENT) {
+                    currentPageCount = recentCount / MAX_PER_PAGE
+                    if (recentCount % MAX_PER_PAGE > 0) {
+                        currentPageCount++
                     }
                 } else {
-                    mCurrentPageCount = mFavoriteCount / MAX_PER_PAGE
-                    if (mFavoriteCount % MAX_PER_PAGE > 0) {
-                        mCurrentPageCount++
+                    currentPageCount = favoriteCount / MAX_PER_PAGE
+                    if (favoriteCount % MAX_PER_PAGE > 0) {
+                        currentPageCount++
                     }
                 }
                 main.launch {
-                    if (mView.isActive()) {
-                        mView.refreshRecentPagination(mCurrentPageCount)
+                    if (view.isActive()) {
+                        view.refreshRecentPagination(currentPageCount)
                     }
                 }
             }
-            mJobStack.push(job)
+            jobStack.push(job)
         }
     }
 
     override fun setType(recentType: String) {
-        mType = recentType
+        type = recentType
 
-        mView.showLoading()
+        view.showLoading()
         io.launch {
-            mRecentBookList.addAll(getRecentBook(mCurrentPage - 1))
+            recentBookList.addAll(getRecentBook(currentPage - 1))
             main.launch {
-                if (mView.isActive()) {
-                    mView.refreshRecentBookList()
-                    mView.hideLoading()
+                if (view.isActive()) {
+                    view.refreshRecentBookList()
+                    view.hideLoading()
                 }
             }
             loadPreventiveData()
@@ -98,13 +101,13 @@ class RecentPresenter @Inject constructor(
     }
 
     override fun reloadRecentMarks() {
-        val bookList = LinkedList<Int>()
+        val bookList = LinkedList<String>()
         io.launch {
-            if (mType == Constants.RECENT) {
-                for (id in 0 until mRecentBookList.size) {
-                    mRecentBookList[id].bookId.let { bookId ->
+            if (type == Constants.RECENT) {
+                for (id in 0 until recentBookList.size) {
+                    recentBookList[id].bookId.let { bookId ->
                         when {
-                            mBookRepository.isRecentBook(bookId) -> bookList.add(id)
+                            bookRepository.isRecentBook(bookId) -> bookList.add(bookId)
                             else -> {
                             }
                         }
@@ -113,14 +116,14 @@ class RecentPresenter @Inject constructor(
 
                 main.launch {
                     if (!bookList.isEmpty()) {
-                        mView.showRecentBooks(bookList)
+                        view.showRecentBooks(bookList)
                     }
                 }
             } else {
-                for (id in 0 until mRecentBookList.size) {
-                    mRecentBookList[id].bookId.let { bookId ->
+                for (id in 0 until recentBookList.size) {
+                    recentBookList[id].bookId.let { bookId ->
                         when {
-                            mBookRepository.isFavoriteBook(bookId) -> bookList.add(id)
+                            bookRepository.isFavoriteBook(bookId) -> bookList.add(bookId)
                             else -> {
                             }
                         }
@@ -129,7 +132,7 @@ class RecentPresenter @Inject constructor(
 
                 main.launch {
                     if (!bookList.isEmpty()) {
-                        mView.showFavoriteBooks(bookList)
+                        view.showFavoriteBooks(bookList)
                     }
                 }
             }
@@ -137,82 +140,82 @@ class RecentPresenter @Inject constructor(
     }
 
     override fun jumpToPage(pageNumber: Int) {
-        mCurrentPage = pageNumber
+        currentPage = pageNumber
         onPageChange()
     }
 
     override fun jumToFirstPage() {
-        mCurrentPage = 1
+        currentPage = 1
         onPageChange()
     }
 
     override fun jumToLastPage() {
-        mCurrentPage = mCurrentPageCount
+        currentPage = currentPageCount
         onPageChange()
     }
 
     override fun reloadLastBookListRefreshTime() {
-        mSharedPreferencesManager.getLastBookListRefreshTime().let { lastRefreshTime ->
-            mView.showLastBookListRefreshTime(
-                    SupportUtils.getTimeElapsed(
-                            System.currentTimeMillis() - lastRefreshTime
-                    ).toLowerCase(Locale.US)
+        sharedPreferencesManager.getLastBookListRefreshTime().let { lastRefreshTime ->
+            view.showLastBookListRefreshTime(
+                SupportUtils.getTimeElapsed(
+                    System.currentTimeMillis() - lastRefreshTime
+                ).toLowerCase(Locale.US)
             )
         }
     }
 
     override fun saveLastBookListRefreshTime() {
-        mSharedPreferencesManager.setLastBookListRefreshTime(System.currentTimeMillis())
+        sharedPreferencesManager.setLastBookListRefreshTime(System.currentTimeMillis())
     }
 
     override fun stop() {
         io.launch {
-            while (mJobStack.size > 0) {
-                val job = mJobStack.pop()
+            while (jobStack.size > 0) {
+                val job = jobStack.pop()
                 job.cancel()
             }
         }
-        mPreventiveData.clear()
-        mRecentBookList.clear()
+        preventiveData.clear()
+        recentBookList.clear()
         isLoadingPreventiveData = false
-        mCurrentPage = 1
-        mCurrentPageCount = 0
-        mType = null
+        currentPage = 1
+        currentPageCount = 0
+        type = null
     }
 
     private fun onPageChange() {
         io.launch {
-            mRecentBookList.clear()
+            recentBookList.clear()
             var newPage = false
-            val currentList: LinkedList<Book> = if (mPreventiveData.containsKey(mCurrentPage)) {
-                mPreventiveData[mCurrentPage] as LinkedList<Book>
+            val currentList: LinkedList<Book> = if (preventiveData.containsKey(currentPage)) {
+                preventiveData[currentPage] as LinkedList<Book>
             } else {
                 newPage = true
                 main.launch {
-                    mView.showLoading()
+                    view.showLoading()
                 }
-                val bookList = getRecentBook(mCurrentPage - 1)
-                mPreventiveData[mCurrentPage] = bookList
+                val bookList = getRecentBook(currentPage - 1)
+                preventiveData[currentPage] = bookList
                 bookList
             }
-            mRecentBookList.addAll(currentList)
+            recentBookList.addAll(currentList)
 
-            if (mPreventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
-                val pageList = sortListPage(mCurrentPage, LinkedList(mPreventiveData.keys))
+            if (preventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
+                val pageList = sortListPage(currentPage, LinkedList(preventiveData.keys))
                 var pageId = 0
                 logListInt("Before deleted page list: ", pageList)
-                while (mPreventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
+                while (preventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
                     val page = pageList[pageId++]
-                    (mPreventiveData[page] as LinkedList).clear()
-                    mPreventiveData.remove(page)
+                    (preventiveData[page] as LinkedList).clear()
+                    preventiveData.remove(page)
                 }
             }
-            logListInt("Final page list: ", LinkedList(mPreventiveData.keys))
+            logListInt("Final page list: ", LinkedList(preventiveData.keys))
 
             main.launch {
-                mView.refreshRecentBookList()
+                view.refreshRecentBookList()
                 if (newPage) {
-                    mView.hideLoading()
+                    view.hideLoading()
                 }
             }
         }
@@ -220,10 +223,10 @@ class RecentPresenter @Inject constructor(
 
     private suspend fun loadPreventiveData() {
         isLoadingPreventiveData = true
-        val countDownLatch = CountDownLatch(NUMBER_OF_PREVENTIVE_PAGES - mCurrentPage)
-        for (page in mCurrentPage + 1..NUMBER_OF_PREVENTIVE_PAGES) {
+        val countDownLatch = CountDownLatch(NUMBER_OF_PREVENTIVE_PAGES - currentPage)
+        for (page in currentPage + 1..NUMBER_OF_PREVENTIVE_PAGES) {
             Logger.d(TAG, "Start loading page $page")
-            mPreventiveData[page] = getRecentBook(page - 1)
+            preventiveData[page] = getRecentBook(page - 1)
             countDownLatch.countDown()
         }
         countDownLatch.await()
@@ -232,14 +235,14 @@ class RecentPresenter @Inject constructor(
     }
 
     private suspend fun getRecentBook(pageNumber: Int): LinkedList<Book> {
-        val recentList = if (mType == Constants.RECENT) {
-            mBookRepository.getRecentBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
+        val recentList = if (type == Constants.RECENT) {
+            bookRepository.getRecentBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
         } else {
-            mBookRepository.getFavoriteBook(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
+            bookRepository.getFavoriteBook(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
         }
         val bookList = LinkedList<Book>()
         for (recent in recentList) {
-            bookList.add(mBookRepository.getBookDetails(recent.bookId)!!)
+            bookList.add(bookRepository.getBookDetails(recent.bookId)!!)
         }
         return bookList
     }

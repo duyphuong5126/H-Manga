@@ -66,7 +66,10 @@ dependencies {
     implementation "android.arch.persistence.room:compiler:$room"
     implementation "android.arch.lifecycle:extensions:$room"
     implementation "android.arch.lifecycle:viewmodel:$room"
+    implementation "androidx.room:room-rxjava2:2.2.3"
+    implementation 'androidx.appcompat:appcompat:1.0.2'
     annotationProcessor "android.arch.persistence.room:compiler:$room"
+    annotationProcessor "androidx.room:room-compiler:$room"
     kapt "android.arch.persistence.room:compiler:$room"
 
     implementation "com.google.dagger:dagger:$dagger"

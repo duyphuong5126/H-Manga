@@ -23,9 +23,9 @@ import java.util.ArrayList
  * Created by nhdphuong on 3/18/18.
  */
 class BookAdapter(
-    private val mItemList: List<Book>,
-    private val mAdapterType: Int,
-    private val mBookClickCallback: OnBookClick
+    private val itemList: List<Book>,
+    private val adapterType: Int,
+    private val bookClickCallback: OnBookClick
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TAG = "BookAdapter"
@@ -33,8 +33,9 @@ class BookAdapter(
         const val RECOMMEND_BOOK = 2
     }
 
-    private val mRecentList = ArrayList<Int>()
-    private val mFavoriteList = ArrayList<Int>()
+    private val recentList = ArrayList<String>()
+    private val favoriteList = ArrayList<String>()
+    private val downloadedThumbnails = ArrayList<Pair<String, String>>()
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -47,7 +48,7 @@ class BookAdapter(
         }
         val view = LayoutInflater.from(parent.context)
             .inflate(layoutResId, parent, false)
-        return MainListViewHolder(view, mBookClickCallback)
+        return MainListViewHolder(view, bookClickCallback)
     }
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
@@ -56,23 +57,24 @@ class BookAdapter(
         ImageUtils.clear(mainListViewHolder.ivThumbnail)
     }
 
-    override fun getItemCount(): Int = mItemList.size
+    override fun getItemCount(): Int = itemList.size
 
-    override fun getItemViewType(position: Int): Int = mAdapterType
+    override fun getItemViewType(position: Int): Int = adapterType
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val mainLisViewHolder = holder as MainListViewHolder
-        mainLisViewHolder.setData(mItemList[position])
+        mainLisViewHolder.setData(itemList[position])
 
-        val isRecent = mRecentList.contains(position)
-        val isFavorite = mFavoriteList.contains(position)
+        val bookId = itemList[position].bookId
+        val isRecent = recentList.contains(bookId)
+        val isFavorite = favoriteList.contains(bookId)
         if (isFavorite || isRecent) {
             if (isRecent) {
-                mRecentList.remove(position)
+                recentList.remove(bookId)
                 mainLisViewHolder.showRecentLabel()
             }
             if (isFavorite) {
-                mFavoriteList.remove(position)
+                favoriteList.remove(bookId)
                 mainLisViewHolder.showFavoriteLabel()
             }
         } else {
@@ -80,96 +82,114 @@ class BookAdapter(
         }
     }
 
-    fun setRecentList(recentList: List<Int>) {
-        mRecentList.clear()
-        mRecentList.addAll(recentList)
-        for (recentId in recentList) {
-            notifyItemChanged(recentId)
+    fun setRecentList(recentList: List<String>) {
+        this.recentList.clear()
+        this.recentList.addAll(recentList)
+        this.recentList.forEach { bookId ->
+            itemList.indexOfFirst { it.bookId == bookId }.takeIf { it >= 0 }?.let { index ->
+                notifyItemChanged(index)
+            }
         }
     }
 
-    fun setFavoriteList(favoriteList: List<Int>) {
-        mFavoriteList.clear()
-        mFavoriteList.addAll(favoriteList)
-        for (favoriteId in favoriteList) {
-            notifyItemChanged(favoriteId)
+    fun setFavoriteList(favoriteList: List<String>) {
+        this.favoriteList.clear()
+        this.favoriteList.addAll(favoriteList)
+        this.favoriteList.forEach { bookId ->
+            itemList.indexOfFirst { it.bookId == bookId }.takeIf { it >= 0 }?.let { index ->
+                notifyItemChanged(index)
+            }
         }
+    }
+
+    fun publishDownloadedThumbnails(thumbnails: List<Pair<String, String>>) {
+        downloadedThumbnails.clear()
+        downloadedThumbnails.addAll(thumbnails)
+        notifyDataSetChanged()
     }
 
     inner class MainListViewHolder(
         itemView: View,
-        private val mBookClickCallback: OnBookClick
+        private val bookClickCallback: OnBookClick
     ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        private lateinit var mBookPreview: Book
-        private val mIvItemThumbnail: ImageView = itemView.findViewById(R.id.ivItemThumbnail)
-        private val mTv1stTitle: TextView = itemView.findViewById(R.id.tvItemTitle)
-        private val mTv2ndTitle: TextView = itemView.findViewById(R.id.tv2ndTitlePart)
-        private val mIvLanguage: ImageView = itemView.findViewById(R.id.ivLanguage)
-        private val mTlvRecent: TriangleLabelView = itemView.findViewById(R.id.tlvRecent)
-        private val mContext: Context = itemView.context
-        private var mIsTitleModifiable = true
+        private lateinit var bookPreview: Book
+        private val ivItemThumbnail: ImageView = itemView.findViewById(R.id.ivItemThumbnail)
+        private val tv1stTitle: TextView = itemView.findViewById(R.id.tvItemTitle)
+        private val tv2ndTitle: TextView = itemView.findViewById(R.id.tv2ndTitlePart)
+        private val tvLanguage: ImageView = itemView.findViewById(R.id.ivLanguage)
+        private val tlvRecent: TriangleLabelView = itemView.findViewById(R.id.tlvRecent)
+        private val context: Context = itemView.context
+        private var isTitleModifiable = true
 
         val ivThumbnail: ImageView
-            get() = mIvItemThumbnail
+            get() = ivItemThumbnail
 
         init {
-            mIvItemThumbnail.setOnClickListener(this)
-            mTv1stTitle.setOnClickListener(this)
-            mTv2ndTitle.setOnClickListener(this)
-            mIvLanguage.setOnClickListener(this)
+            ivItemThumbnail.setOnClickListener(this)
+            tv1stTitle.setOnClickListener(this)
+            tv2ndTitle.setOnClickListener(this)
+            tvLanguage.setOnClickListener(this)
         }
 
         override fun onClick(p0: View?) {
-            mBookClickCallback.onItemClick(mBookPreview)
+            bookClickCallback.onItemClick(bookPreview)
         }
 
         fun showRecentLabel() {
-            mTlvRecent.visibility = View.VISIBLE
-            mTlvRecent.primaryText = mContext.getString(R.string.recent)
-            mTlvRecent.setTriangleBackgroundColor(
-                ContextCompat.getColor(mContext, R.color.blue0673B7)
+            tlvRecent.visibility = View.VISIBLE
+            tlvRecent.primaryText = context.getString(R.string.recent)
+            tlvRecent.setTriangleBackgroundColor(
+                ContextCompat.getColor(context, R.color.blue0673B7)
             )
         }
 
         fun showFavoriteLabel() {
-            mTlvRecent.visibility = View.VISIBLE
-            mTlvRecent.primaryText = mContext.getString(R.string.favorite)
-            mTlvRecent.setTriangleBackgroundColor(
-                ContextCompat.getColor(mContext, R.color.redED2553)
+            tlvRecent.visibility = View.VISIBLE
+            tlvRecent.primaryText = context.getString(R.string.favorite)
+            tlvRecent.setTriangleBackgroundColor(
+                ContextCompat.getColor(context, R.color.redED2553)
             )
         }
 
         fun hideRecentView() {
-            mTlvRecent.visibility = View.GONE
+            tlvRecent.visibility = View.GONE
         }
 
         @SuppressLint("SetTextI18n")
         fun setData(item: Book) {
-            mIsTitleModifiable = true
-            mBookPreview = item
+            isTitleModifiable = true
+            bookPreview = item
             val languageIconResId = when (item.language) {
                 Constants.CHINESE_LANG -> R.drawable.ic_lang_cn
                 Constants.ENGLISH_LANG -> R.drawable.ic_lang_gb
                 else -> R.drawable.ic_lang_jp
             }
-            mIvLanguage.setImageResource(languageIconResId)
+            tvLanguage.setImageResource(languageIconResId)
 
             Logger.d(TAG, "Thumbnail: ${item.thumbnail}")
             if (!NHentaiApp.instance.isCensored) {
-                ImageUtils.loadImage(item.thumbnail, R.drawable.ic_404_not_found, mIvItemThumbnail)
+                val downloadedThumbnail = downloadedThumbnails.firstOrNull {
+                    it.first == item.bookId
+                }?.second.orEmpty()
+                val thumbnail = if (downloadedThumbnail.isBlank()) {
+                    item.thumbnail
+                } else {
+                    downloadedThumbnail
+                }
+                ImageUtils.loadImage(thumbnail, R.drawable.ic_404_not_found, ivItemThumbnail)
             } else {
-                mIvItemThumbnail.setImageResource(R.drawable.ic_nothing_here_grey)
+                ivItemThumbnail.setImageResource(R.drawable.ic_nothing_here_grey)
             }
 
-            mTv1stTitle.text = item.previewTitle
-            mTv1stTitle.viewTreeObserver.addOnGlobalLayoutListener {
-                if (mIsTitleModifiable) {
+            tv1stTitle.text = item.previewTitle
+            tv1stTitle.viewTreeObserver.addOnGlobalLayoutListener {
+                if (isTitleModifiable) {
                     val fullText = item.previewTitle
-                    val ellipsizedText = SupportUtils.getEllipsizedText(mTv1stTitle)
+                    val ellipsizedText = SupportUtils.getEllipsizedText(tv1stTitle)
                     val remainText = fullText.replace(ellipsizedText, "")
-                    mTv1stTitle.text = ellipsizedText
-                    mTv2ndTitle.text = remainText
-                    mIsTitleModifiable = false
+                    tv1stTitle.text = ellipsizedText
+                    tv2ndTitle.text = remainText
+                    isTitleModifiable = false
                 }
             }
         }

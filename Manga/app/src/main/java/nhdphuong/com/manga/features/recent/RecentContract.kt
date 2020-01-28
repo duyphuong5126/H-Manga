@@ -8,11 +8,12 @@ import nhdphuong.com.manga.data.entity.book.Book
  */
 interface RecentContract {
     interface View : Base.View<Presenter> {
+        fun setPresenter(presenter: Presenter)
         fun setUpRecentBookList(recentBookList: List<Book>)
         fun refreshRecentBookList()
         fun refreshRecentPagination(pageCount: Int)
-        fun showRecentBooks(recentList: List<Int>)
-        fun showFavoriteBooks(favoriteList: List<Int>)
+        fun showRecentBooks(recentList: List<String>)
+        fun showFavoriteBooks(favoriteList: List<String>)
         fun showLastBookListRefreshTime(lastRefreshTimeStamp: String)
     }
 

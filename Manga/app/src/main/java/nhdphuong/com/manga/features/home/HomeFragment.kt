@@ -50,17 +50,17 @@ import nhdphuong.com.manga.views.adapters.PaginationAdapter
  */
 class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
-    private lateinit var mHomeListAdapter: BookAdapter
-    private lateinit var mHomePaginationAdapter: PaginationAdapter
-    private lateinit var mHomePresenter: HomeContract.Presenter
-    private lateinit var mLoadingDialog: Dialog
+    private lateinit var homeListAdapter: BookAdapter
+    private lateinit var homePaginationAdapter: PaginationAdapter
+    private lateinit var homePresenter: HomeContract.Presenter
+    private lateinit var loadingDialog: Dialog
 
-    private val mSearchResultTitle: String = NHentaiApp.instance.getString(R.string.search_result)
+    private val searchResultTitle: String = NHentaiApp.instance.getString(R.string.search_result)
 
-    private lateinit var mUpdateDotsHandler: Handler
+    private lateinit var updateDotsHandler: Handler
 
     override fun setPresenter(presenter: HomeContract.Presenter) {
-        mHomePresenter = presenter
+        homePresenter = presenter
     }
 
     override fun onCreateView(
@@ -78,20 +78,20 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
         nsvMainList.overScrollMode = View.OVER_SCROLL_NEVER
         btnFirst.setOnClickListener {
-            mHomePresenter.jumToFirstPage()
-            mHomePaginationAdapter.selectFirstPage()
+            homePresenter.jumToFirstPage()
+            homePaginationAdapter.selectFirstPage()
             jumpTo(0)
         }
         btnLast.setOnClickListener {
-            mHomePresenter.jumToLastPage()
-            mHomePaginationAdapter.selectLastPage()
-            jumpTo(mHomePaginationAdapter.itemCount - 1)
+            homePresenter.jumToLastPage()
+            homePaginationAdapter.selectLastPage()
+            jumpTo(homePaginationAdapter.itemCount - 1)
         }
-        mLoadingDialog = DialogHelper.showLoadingDialog(activity!!)
+        loadingDialog = DialogHelper.createLoadingDialog(activity!!)
         srlPullToReload.addPtrUIHandler(this)
         srlPullToReload.setPtrHandler(object : PtrHandler {
             override fun onRefreshBegin(frame: PtrFrameLayout?) {
-                mHomePresenter.reloadCurrentPage {
+                homePresenter.reloadCurrentPage {
                     frame?.postDelayed({
                         srlPullToReload.refreshComplete()
                     }, REFRESH_COMPLETE_DURATION)
@@ -107,7 +107,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             }
         })
         clReload.setOnClickListener {
-            mHomePresenter.reloadCurrentPage {
+            homePresenter.reloadCurrentPage {
 
             }
         }
@@ -116,14 +116,14 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         Logger.d(TAG, "onActivityCreated")
-        mHomePresenter.start()
+        homePresenter.start()
         toggleSearchResult("")
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Logger.d(TAG, "onDestroy")
-        mHomePresenter.stop()
+        homePresenter.stop()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -150,14 +150,14 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         if (requestCode == Constants.BOOK_PREVIEW_RESULT &&
             data?.action == Constants.RECENT_DATA_UPDATED_ACTION
         ) {
-            mHomePresenter.reloadRecentBooks()
+            homePresenter.reloadRecentBooks()
         }
     }
 
     @SuppressLint("PrivateResource")
     override fun setUpHomeBookList(homeBookList: List<Book>) {
         val homeFragment = this
-        mHomeListAdapter = BookAdapter(
+        homeListAdapter = BookAdapter(
             homeBookList,
             BookAdapter.HOME_PREVIEW_BOOK,
             object : BookAdapter.OnBookClick {
@@ -177,16 +177,16 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         }
         mainListLayoutManager.gapStrategy = StaggeredGridLayoutManager.HORIZONTAL
         mainList.layoutManager = mainListLayoutManager
-        mainList.adapter = mHomeListAdapter
+        mainList.adapter = homeListAdapter
     }
 
     override fun refreshHomeBookList() {
-        mHomeListAdapter.notifyDataSetChanged()
-        mHomePresenter.saveLastBookListRefreshTime()
+        homeListAdapter.notifyDataSetChanged()
+        homePresenter.saveLastBookListRefreshTime()
         rvMainList.post {
             rvMainList.smoothScrollBy(0, 0)
         }
-        mHomePresenter.reloadRecentBooks()
+        homePresenter.reloadRecentBooks()
     }
 
     override fun refreshHomePagination(pageCount: Long) {
@@ -197,12 +197,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             mainPagination.visibility = View.GONE
             return
         }
-        mHomePaginationAdapter = PaginationAdapter(context!!, pageCount.toInt())
-        mHomePaginationAdapter.onPageSelectCallback =
+        homePaginationAdapter = PaginationAdapter(context!!, pageCount.toInt())
+        homePaginationAdapter.onPageSelectCallback =
             object : PaginationAdapter.OnPageSelectCallback {
                 override fun onPageSelected(page: Int) {
                     Logger.d(TAG, "Page $page is selected")
-                    mHomePresenter.jumpToPage(page.toLong())
+                    homePresenter.jumpToPage(page.toLong())
                 }
             }
         mainPagination.visibility = View.VISIBLE
@@ -211,9 +211,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        mainPagination.adapter = mHomePaginationAdapter
+        mainPagination.adapter = homePaginationAdapter
         mainPagination.viewTreeObserver.addOnGlobalLayoutListener {
-            if (mHomePaginationAdapter.maxVisible >= pageCount - 1) {
+            if (homePaginationAdapter.maxVisible >= pageCount - 1) {
                 btnFirst.visibility = View.GONE
                 btnLast.visibility = View.GONE
             } else {
@@ -238,12 +238,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         }
     }
 
-    override fun showFavoriteBooks(favoriteList: List<Int>) {
-        mHomeListAdapter.setFavoriteList(favoriteList)
+    override fun showFavoriteBooks(favoriteList: List<String>) {
+        homeListAdapter.setFavoriteList(favoriteList)
     }
 
-    override fun showRecentBooks(recentList: List<Int>) {
-        mHomeListAdapter.setRecentList(recentList)
+    override fun showRecentBooks(recentList: List<String>) {
+        homeListAdapter.setRecentList(recentList)
     }
 
     override fun changeSearchResult(data: String) {
@@ -259,23 +259,23 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     }
 
     fun changeSearchInputted(data: String) {
-        mHomePresenter.updateSearchData(data)
+        homePresenter.updateSearchData(data)
     }
 
     fun randomizeBook() {
-        mHomePresenter.pickBookRandomly()
+        homePresenter.pickBookRandomly()
     }
 
     override fun showLoading() {
         if (isAdded) {
-            mLoadingDialog.show()
+            loadingDialog.show()
             clNavigation.visibility = View.GONE
         }
     }
 
     override fun hideLoading() {
         if (isAdded) {
-            mLoadingDialog.dismiss()
+            loadingDialog.dismiss()
             clNavigation.visibility = View.VISIBLE
         }
     }
@@ -286,12 +286,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         Logger.d(TAG, "onUIRefreshComplete")
         endUpdateDotsTask()
         refreshHeader.mtvRefresh.text = getString(R.string.updated)
-        mHomePresenter.saveLastBookListRefreshTime()
-        mHomePresenter.reloadLastBookListRefreshTime()
+        homePresenter.saveLastBookListRefreshTime()
+        homePresenter.reloadLastBookListRefreshTime()
         refreshHeader.ivRefresh.rotation = 0F
         refreshHeader.ivRefresh.visibility = View.VISIBLE
         refreshHeader.pbRefresh.visibility = View.GONE
-        mUpdateDotsHandler.removeCallbacksAndMessages(null)
+        updateDotsHandler.removeCallbacksAndMessages(null)
     }
 
     override fun onUIPositionChange(
@@ -322,7 +322,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     override fun onUIRefreshPrepare(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshPrepare")
-        mHomePresenter.reloadLastBookListRefreshTime()
+        homePresenter.reloadLastBookListRefreshTime()
     }
 
     override fun onUIReset(frame: PtrFrameLayout?) {
@@ -339,7 +339,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     @SuppressLint("SetTextI18n")
     private fun runUpdateDotsTask() {
-        mUpdateDotsHandler = Handler()
+        updateDotsHandler = Handler()
         var currentPos = 0
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
@@ -352,21 +352,21 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         val runnable = object : Runnable {
             override fun run() {
                 updateDotsTask()
-                mUpdateDotsHandler.postDelayed(this, DOTS_UPDATE_INTERVAL)
+                updateDotsHandler.postDelayed(this, DOTS_UPDATE_INTERVAL)
             }
         }
         runnable.run()
     }
 
     private fun endUpdateDotsTask() {
-        if (this::mUpdateDotsHandler.isInitialized) {
-            mUpdateDotsHandler.removeCallbacksAndMessages(null)
+        if (this::updateDotsHandler.isInitialized) {
+            updateDotsHandler.removeCallbacksAndMessages(null)
         }
     }
 
     private fun toggleSearchResult(data: String) {
         mtv_search_result.run {
-            text = String.format(mSearchResultTitle, data)
+            text = String.format(searchResultTitle, data)
             visibility = if (data.isBlank()) View.GONE else View.VISIBLE
         }
     }
