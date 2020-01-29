@@ -172,6 +172,12 @@ class BookLocalDataSource @Inject constructor(
                 } else {
                     getFirstNotBlankBookPage(bookId)
                 }
+            }.onErrorResumeNext { error ->
+                if (error is EmptyResultSetException) {
+                    Single.just("")
+                } else {
+                    Single.error(error)
+                }
             }
     }
 
@@ -188,6 +194,12 @@ class BookLocalDataSource @Inject constructor(
                             Single.just(Pair(bookId, thumbnail))
                         } else {
                             getFirstNotBlankBookPage(bookId).map { Pair(bookId, it) }
+                        }
+                    }.onErrorResumeNext { error ->
+                        if (error is EmptyResultSetException) {
+                            Single.just(Pair(bookId, ""))
+                        } else {
+                            Single.error(error)
                         }
                     }
                     .toObservable()

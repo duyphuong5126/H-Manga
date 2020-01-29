@@ -378,6 +378,9 @@ class BookPreviewFragment :
     }
 
     override fun showBookThumbnailList(thumbnailList: List<String>) {
+        if (thumbnailList.isEmpty()) {
+            return
+        }
         var spanCount = thumbnailList.size / NUM_OF_ROWS
         if (thumbnailList.size % NUM_OF_ROWS != 0) {
             spanCount++
