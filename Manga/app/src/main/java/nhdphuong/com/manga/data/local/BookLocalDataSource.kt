@@ -51,6 +51,12 @@ class BookLocalDataSource @Inject constructor(
         return bookDAO.isFavoriteBook(bookId) == 1
     }
 
+    override fun checkIfFavoriteBook(bookId: String): Single<Boolean> {
+        return Single.fromCallable {
+            bookDAO.isFavoriteBook(bookId) == 1
+        }
+    }
+
     override suspend fun isRecentBook(bookId: String): Boolean {
         return bookDAO.getRecentBookId(bookId) == bookId
     }

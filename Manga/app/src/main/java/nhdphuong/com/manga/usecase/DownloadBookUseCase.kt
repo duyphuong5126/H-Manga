@@ -28,12 +28,23 @@ class DownloadBookUseCaseImpl @Inject constructor(
     private val bookRepository: BookRepository
 ) : DownloadBookUseCase {
     override fun execute(book: Book): Observable<DownloadingResult> {
-        return bookRepository.addToRecentList(book.bookId)
+        return checkAndAddToRecentList(book.bookId)
             .andThen(bookRepository.saveDownloadedBook(book))
             .andThen(bookRepository.clearDownloadedImagesOfBook(book.bookId))
             .andThen(saveBookCover(book))
             .andThen(saveBookThumbnail(book))
             .andThen(saveBookPages(book))
+    }
+
+    private fun checkAndAddToRecentList(bookId: String): Completable {
+        return bookRepository.checkIfFavoriteBook(bookId)
+            .flatMapCompletable { isFavorite ->
+                if (isFavorite) {
+                    Completable.complete()
+                } else {
+                    bookRepository.addToRecentList(bookId)
+                }
+            }
     }
 
     private fun saveBookCover(book: Book): Completable {

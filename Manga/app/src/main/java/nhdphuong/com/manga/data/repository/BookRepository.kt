@@ -58,6 +58,10 @@ class BookRepository @Inject constructor(
         return bookLocalDataSource.isFavoriteBook(bookId)
     }
 
+    override fun checkIfFavoriteBook(bookId: String): Single<Boolean> {
+        return bookLocalDataSource.checkIfFavoriteBook(bookId)
+    }
+
     override suspend fun isRecentBook(bookId: String): Boolean {
         return bookLocalDataSource.isRecentBook(bookId)
     }
