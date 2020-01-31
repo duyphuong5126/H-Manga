@@ -9,14 +9,12 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,6 +39,10 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
 import nhdphuong.com.manga.views.DialogHelper
+import nhdphuong.com.manga.views.becomeVisible
+import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import java.util.Locale
@@ -206,9 +208,9 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     override fun refreshRecentPagination(pageCount: Int) {
         val recentPagination = rvPagination
         if (pageCount == 0) {
-            btnFirst.visibility = View.GONE
-            btnLast.visibility = View.GONE
-            recentPagination.visibility = View.GONE
+            btnFirst.gone()
+            btnLast.gone()
+            recentPagination.gone()
             return
         }
         paginationAdapter = PaginationAdapter(context!!, pageCount)
@@ -225,24 +227,10 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             false
         )
         recentPagination.adapter = paginationAdapter
-        recentPagination.viewTreeObserver.addOnGlobalLayoutListener(object :
-            OnGlobalLayoutListener {
-            @Suppress("DEPRECATION")
-            override fun onGlobalLayout() {
-                if (paginationAdapter.maxVisible >= pageCount - 1) {
-                    btnFirst.visibility = View.GONE
-                    btnLast.visibility = View.GONE
-                } else {
-                    btnFirst.visibility = View.VISIBLE
-                    btnLast.visibility = View.VISIBLE
-                }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    recentPagination.viewTreeObserver.removeGlobalOnLayoutListener(this)
-                } else {
-                    recentPagination.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                }
-            }
-        })
+        recentPagination.doOnGlobalLayout {
+            btnFirst.becomeVisibleIf(paginationAdapter.maxVisible < pageCount - 1)
+            btnLast.becomeVisibleIf(paginationAdapter.maxVisible < pageCount - 1)
+        }
     }
 
     override fun showFavoriteBooks(favoriteList: List<String>) {
@@ -261,14 +249,14 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     override fun showLoading() {
         if (isAdded) {
             loadingDialog.show()
-            clNavigation.visibility = View.GONE
+            clNavigation.gone()
         }
     }
 
     override fun hideLoading() {
         if (isAdded) {
             loadingDialog.dismiss()
-            clNavigation.visibility = View.VISIBLE
+            clNavigation.gone()
         }
     }
 
@@ -281,8 +269,8 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         presenter.saveLastBookListRefreshTime()
         presenter.reloadLastBookListRefreshTime()
         refreshHeader.ivRefresh.rotation = 0F
-        refreshHeader.ivRefresh.visibility = View.VISIBLE
-        refreshHeader.pbRefresh.visibility = View.GONE
+        refreshHeader.ivRefresh.becomeVisible()
+        refreshHeader.pbRefresh.gone()
     }
 
     override fun onUIPositionChange(
@@ -304,8 +292,8 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshBegin")
-        refreshHeader.ivRefresh.visibility = View.GONE
-        refreshHeader.pbRefresh.visibility = View.VISIBLE
+        refreshHeader.ivRefresh.gone()
+        refreshHeader.pbRefresh.becomeVisible()
         refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
         runUpdateDotsTask()
     }

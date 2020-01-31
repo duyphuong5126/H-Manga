@@ -22,56 +22,66 @@ class ImageUtils {
         @SuppressLint("CheckResult")
         fun <IV : ImageView> loadOriginalImage(url: String, defaultResource: Int, imageView: IV) {
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                    .error(defaultResource)
-                    .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                    .timeout(TIME_OUT)
-                    .skipMemoryCache(true)
+                .error(defaultResource)
+                .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                .timeout(TIME_OUT)
+                .skipMemoryCache(true)
+            Glide.with(imageView).load(url).apply(requestOptions).into(imageView)
+        }
+
+        @SuppressLint("CheckResult")
+        fun <IV : ImageView> loadFitImage(url: String, defaultResource: Int, imageView: IV) {
+            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.DATA)
+                .error(defaultResource)
+                .override(imageView.measuredWidth, imageView.measuredHeight)
+                .timeout(TIME_OUT)
+                .skipMemoryCache(true)
             Glide.with(imageView).load(url).apply(requestOptions).into(imageView)
         }
 
         @SuppressLint("CheckResult")
         fun <IV : ImageView> loadImage(url: String, defaultResource: Int, imageView: IV) {
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                    .error(defaultResource)
-                    .timeout(TIME_OUT)
-                    .skipMemoryCache(true)
+                .error(defaultResource)
+                .timeout(TIME_OUT)
+                .skipMemoryCache(true)
             Glide.with(imageView).load(url).apply(requestOptions).into(imageView)
         }
 
         fun <IV : ImageView> loadImage(
-                url: String,
-                defaultResource: Int,
-                imageView: IV,
-                onLoadSuccess: () -> Unit,
-                onLoadFailed: () -> Unit
+            url: String,
+            defaultResource: Int,
+            imageView: IV,
+            onLoadSuccess: () -> Unit,
+            onLoadFailed: () -> Unit
         ) {
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                    .error(defaultResource)
-                    .timeout(TIME_OUT)
-                    .skipMemoryCache(true)
+                .error(defaultResource)
+                .timeout(TIME_OUT)
+                .skipMemoryCache(true)
             Glide.with(imageView).load(url).apply(requestOptions).listener(
-                    object : RequestListener<Drawable> {
-                        override fun onLoadFailed(
-                                e: GlideException?,
-                                model: Any?,
-                                target: Target<Drawable>?,
-                                isFirstResource: Boolean
-                        ): Boolean {
-                            onLoadFailed()
-                            return true
-                        }
+                object : RequestListener<Drawable> {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        onLoadFailed()
+                        return true
+                    }
 
-                        override fun onResourceReady(
-                                resource: Drawable?,
-                                model: Any?,
-                                target: Target<Drawable>?,
-                                dataSource: DataSource?,
-                                isFirstResource: Boolean
-                        ): Boolean {
-                            onLoadSuccess()
-                            return false
-                        }
-                    }).into(imageView)
+                    override fun onResourceReady(
+                        resource: Drawable?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        dataSource: DataSource?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        onLoadSuccess()
+                        return false
+                    }
+                }).into(imageView)
         }
 
         fun <IV : ImageView> loadGifImage(gifResource: Int, imageView: IV) {
@@ -87,48 +97,48 @@ class ImageUtils {
         fun downloadImage(url: String, onBitmapReady: (bitmap: Bitmap?) -> Unit) {
             val context = NHentaiApp.instance.applicationContext
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                    .timeout(TIME_OUT)
-                    .skipMemoryCache(true)
+                .timeout(TIME_OUT)
+                .skipMemoryCache(true)
             Glide.with(context)
-                    .asBitmap()
-                    .load(url)
-                    .apply(requestOptions)
-                    .listener(object : RequestListener<Bitmap> {
-                        override fun onLoadFailed(
-                                e: GlideException?,
-                                model: Any?,
-                                target: Target<Bitmap>?,
-                                isFirstResource: Boolean
-                        ): Boolean {
-                            Logger.d(TAG, "Downloading image: $url failed")
-                            onBitmapReady(null)
-                            return true
-                        }
+                .asBitmap()
+                .load(url)
+                .apply(requestOptions)
+                .listener(object : RequestListener<Bitmap> {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Bitmap>?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        Logger.d(TAG, "Downloading image: $url failed")
+                        onBitmapReady(null)
+                        return true
+                    }
 
-                        override fun onResourceReady(
-                                resource: Bitmap?,
-                                model: Any?,
-                                target: Target<Bitmap>?,
-                                dataSource: DataSource?,
-                                isFirstResource: Boolean
-                        ): Boolean {
-                            Logger.d(TAG, "Downloading image: $url succeeded")
-                            onBitmapReady(resource)
-                            return false
-                        }
-                    }).submit()
+                    override fun onResourceReady(
+                        resource: Bitmap?,
+                        model: Any?,
+                        target: Target<Bitmap>?,
+                        dataSource: DataSource?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        Logger.d(TAG, "Downloading image: $url succeeded")
+                        onBitmapReady(resource)
+                        return false
+                    }
+                }).submit()
         }
 
         fun downloadImage(url: String, width: Int, height: Int): Bitmap {
             val context = NHentaiApp.instance.applicationContext
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                    .timeout(TIME_OUT)
-                    .skipMemoryCache(true)
+                .timeout(TIME_OUT)
+                .skipMemoryCache(true)
             val future = Glide.with(context)
-                    .asBitmap()
-                    .load(url)
-                    .apply(requestOptions)
-                    .submit(width, height)
+                .asBitmap()
+                .load(url)
+                .apply(requestOptions)
+                .submit(width, height)
             val bitmap = future.get()
             future.cancel(true)
             return bitmap

@@ -10,13 +10,14 @@ import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.customs.MyTextView
+import nhdphuong.com.manga.views.doOnGlobalLayout
 
 /*
  * Created by nhdphuong on 4/28/18.
  */
 class PreviewAdapter(
-    private val mNumOfRows: Int,
-    private val mPreviewUrlList: List<String>,
+    private val numOfRows: Int,
+    private val previewUrlList: List<String>,
     private val callback: ThumbnailClickCallback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
@@ -33,18 +34,18 @@ class PreviewAdapter(
     }
 
     override fun getItemCount(): Int {
-        Logger.d(TAG, "Item count: ${mPreviewUrlList.size}")
-        return mPreviewUrlList.size
+        return previewUrlList.size
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val vhPreview = holder as PreviewViewHolder
         val zigzagPosition = getDisplayPositionByZigzag(position)
-        vhPreview.setData(mPreviewUrlList[zigzagPosition], zigzagPosition)
+        vhPreview.setData(previewUrlList[zigzagPosition], zigzagPosition)
     }
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
+        Logger.d(TAG, "View is recycled")
         val previewViewHolder = holder as PreviewViewHolder
         ImageUtils.clear(previewViewHolder.ivPageThumbnail)
     }
@@ -70,7 +71,9 @@ class PreviewAdapter(
             mPageNumber = pageNumber
             mtvPageNumber.text = (pageNumber + 1).toString()
             if (!NHentaiApp.instance.isCensored) {
-                ImageUtils.loadOriginalImage(url, R.drawable.ic_404_not_found, ivPageThumbnail)
+                ivPageThumbnail.doOnGlobalLayout {
+                    ImageUtils.loadFitImage(url, R.drawable.ic_404_not_found, ivPageThumbnail)
+                }
             } else {
                 ivPageThumbnail.setImageResource(R.drawable.ic_nothing_here_grey)
             }
@@ -78,8 +81,8 @@ class PreviewAdapter(
     }
 
     private fun getDisplayPositionByZigzag(position: Int): Int {
-        var currentSpanCount = mPreviewUrlList.size / mNumOfRows
-        if (mPreviewUrlList.size % mNumOfRows != 0) {
+        var currentSpanCount = previewUrlList.size / numOfRows
+        if (previewUrlList.size % numOfRows != 0) {
             currentSpanCount++
         }
 

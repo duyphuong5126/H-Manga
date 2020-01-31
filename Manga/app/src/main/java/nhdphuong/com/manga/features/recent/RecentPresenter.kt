@@ -44,7 +44,7 @@ class RecentPresenter @Inject constructor(
     private var recentCount: Int = 0
     private var favoriteCount: Int = 0
     @RecentType
-    private var type: String? = null
+    private var type: String = Constants.RECENT
     private var currentPageCount: Int = 1
     private var currentPage: Int = 1
     private val recentBookList = LinkedList<Book>()
@@ -180,7 +180,6 @@ class RecentPresenter @Inject constructor(
         isLoadingPreventiveData = false
         currentPage = 1
         currentPageCount = 0
-        type = null
     }
 
     private fun onPageChange() {
