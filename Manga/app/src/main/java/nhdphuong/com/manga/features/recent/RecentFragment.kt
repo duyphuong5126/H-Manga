@@ -45,7 +45,6 @@ import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
-import java.util.Locale
 
 /*
  * Created by nhdphuong on 6/10/18.
@@ -108,7 +107,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
         mtvTitle.text = getString(
             if (recentType == Constants.RECENT) R.string.recent else R.string.favorite
-        ).toUpperCase(Locale.US)
+        )
 
         ibSwitch.setImageResource(
             if (recentType == Constants.RECENT) {
@@ -144,12 +143,12 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        presenter.start()
 
         val recentType = activity?.intent?.extras?.getString(
             Constants.RECENT_TYPE, Constants.RECENT
         ) ?: Constants.RECENT
         presenter.setType(recentType)
+        presenter.start()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -256,7 +255,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     override fun hideLoading() {
         if (isAdded) {
             loadingDialog.dismiss()
-            clNavigation.gone()
+            clNavigation.becomeVisible()
         }
     }
 

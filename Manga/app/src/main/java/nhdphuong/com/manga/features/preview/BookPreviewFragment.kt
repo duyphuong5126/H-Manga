@@ -90,6 +90,7 @@ class BookPreviewFragment :
         private const val COVER_IMAGE_ANIMATION_UP_OFFSET = -1000
         private const val COVER_IMAGE_ANIMATION_DOWN_OFFSET = 1000
         private const val DOWNLOADING_BAR_HIDING_DELAY = 2000L
+        private const val PREVIEW_CACHE_SIZE = 10
     }
 
     private lateinit var presenter: BookPreviewContract.Presenter
@@ -406,6 +407,7 @@ class BookPreviewFragment :
                     }
                 })
             adapter = previewAdapter
+            setItemViewCacheSize(PREVIEW_CACHE_SIZE)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

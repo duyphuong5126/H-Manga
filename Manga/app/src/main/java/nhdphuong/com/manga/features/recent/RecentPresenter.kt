@@ -56,9 +56,16 @@ class RecentPresenter @Inject constructor(
 
     override fun start() {
         recentBookList.clear()
+        view.showLoading()
         view.setUpRecentBookList(recentBookList)
-
         io.launch {
+            recentBookList.addAll(getRecentBook(currentPage - 1))
+            main.launch {
+                if (view.isActive()) {
+                    view.refreshRecentBookList()
+                }
+            }
+
             val job = launch {
                 recentCount = bookRepository.getRecentCount()
                 favoriteCount = bookRepository.getFavoriteCount()
@@ -77,8 +84,11 @@ class RecentPresenter @Inject constructor(
                 main.launch {
                     if (view.isActive()) {
                         view.refreshRecentPagination(currentPageCount)
+                        view.hideLoading()
                     }
                 }
+
+                loadPreventiveData()
             }
             jobStack.push(job)
         }
@@ -86,18 +96,6 @@ class RecentPresenter @Inject constructor(
 
     override fun setType(recentType: String) {
         type = recentType
-
-        view.showLoading()
-        io.launch {
-            recentBookList.addAll(getRecentBook(currentPage - 1))
-            main.launch {
-                if (view.isActive()) {
-                    view.refreshRecentBookList()
-                    view.hideLoading()
-                }
-            }
-            loadPreventiveData()
-        }
     }
 
     override fun reloadRecentMarks() {
