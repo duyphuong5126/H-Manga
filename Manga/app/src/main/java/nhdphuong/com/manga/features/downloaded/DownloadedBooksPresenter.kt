@@ -52,6 +52,12 @@ class DownloadedBooksPresenter @Inject constructor(
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                view.showLoading()
+            }
+            .doAfterTerminate {
+                view.hideLoading()
+            }
             .subscribeBy(onSuccess = { downloadedBooks ->
                 Logger.d(TAG, "Downloaded books: ${downloadedBooks.size}")
                 val bookCount = downloadedBooks.size
@@ -60,6 +66,9 @@ class DownloadedBooksPresenter @Inject constructor(
                     totalPages++
                 }
                 currentPage = 0
+                if (bookCount == 0) {
+                    view.showNothingView()
+                }
                 totalBookList.addAll(downloadedBooks)
                 updateCurrentPage()
                 view.refreshRecentPagination(totalPages)

@@ -12,6 +12,7 @@ interface DownloadedBooksContract {
         fun showRecentBooks(recentList: List<String>)
         fun showFavoriteBooks(favoriteList: List<String>)
         fun refreshThumbnailList(thumbnailList: List<Pair<String, String>>)
+        fun showNothingView()
     }
 
     interface Presenter : Base.Presenter {

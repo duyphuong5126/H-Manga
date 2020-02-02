@@ -12,6 +12,10 @@ class GetAvailableBookThumbnailsUseCaseImpl @Inject constructor(
     private val bookRepository: BookRepository
 ) : GetAvailableBookThumbnailsUseCase {
     override fun execute(bookIds: List<String>): Single<List<Pair<String, String>>> {
-        return bookRepository.getDownloadedBookThumbnailPaths(bookIds)
+        return if (bookIds.isEmpty()) {
+            Single.just(emptyList())
+        } else {
+            bookRepository.getDownloadedBookThumbnailPaths(bookIds)
+        }
     }
 }

@@ -197,7 +197,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             mainPagination.visibility = View.GONE
             return
         }
-        homePaginationAdapter = PaginationAdapter(context!!, pageCount.toInt())
+        homePaginationAdapter = PaginationAdapter(pageCount.toInt())
         homePaginationAdapter.onPageSelectCallback =
             object : PaginationAdapter.OnPageSelectCallback {
                 override fun onPageSelected(page: Int) {

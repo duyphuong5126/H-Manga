@@ -235,6 +235,7 @@
                         app:myFont="@string/NotoSansBold" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/clReload"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"

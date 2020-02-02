@@ -15,6 +15,7 @@ interface RecentContract {
         fun showRecentBooks(recentList: List<String>)
         fun showFavoriteBooks(favoriteList: List<String>)
         fun showLastBookListRefreshTime(lastRefreshTimeStamp: String)
+        fun showNothingView(@RecentType recentType: String)
     }
 
     interface Presenter : Base.Presenter {

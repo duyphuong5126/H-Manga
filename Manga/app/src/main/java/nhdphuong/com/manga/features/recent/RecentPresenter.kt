@@ -83,7 +83,11 @@ class RecentPresenter @Inject constructor(
                 }
                 main.launch {
                     if (view.isActive()) {
-                        view.refreshRecentPagination(currentPageCount)
+                        if (currentPageCount == 0) {
+                            view.showNothingView(type)
+                        } else {
+                            view.refreshRecentPagination(currentPageCount)
+                        }
                         view.hideLoading()
                     }
                 }

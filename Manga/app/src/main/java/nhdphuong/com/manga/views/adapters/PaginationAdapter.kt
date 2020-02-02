@@ -1,29 +1,26 @@
 package nhdphuong.com.manga.views.adapters
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.R
-import nhdphuong.com.manga.supports.SupportUtils
 
 class PaginationAdapter(
-    context: Context,
     private var pageCount: Int,
     private var paginationMode: PaginationMode = PaginationMode.NUMBER
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TAG_PREFIXES = Constants.TAG_PREFIXES
+        private const val ROUNDED_RECT = 1
+        private const val CIRCLE = 2
     }
 
     private val mPageList: List<Int> = (1..pageCount).toList()
     private var mCurrentPage: Int = if (paginationMode == PaginationMode.NUMBER) mPageList[0] else 0
-    private val mDefaultTextSize = SupportUtils.dp2Pixel(context, 30)
 
     var onPageSelectCallback: OnPageSelectCallback? = null
     var onCharacterSelectCallback: OnCharacterSelectCallback? = null
@@ -33,11 +30,12 @@ class PaginationAdapter(
         get() = mMaxVisible
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(
-            R.layout.item_home_pagination,
-            parent,
-            false
-        )
+        val layoutRes = if (viewType == ROUNDED_RECT) {
+            R.layout.item_home_pagination_rect
+        } else {
+            R.layout.item_home_pagination
+        }
+        val view = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
         return if (paginationMode == PaginationMode.NUMBER) {
             NumberPaginationViewHolder(view)
         } else {
@@ -46,6 +44,14 @@ class PaginationAdapter(
     }
 
     override fun getItemCount(): Int = pageCount
+
+    override fun getItemViewType(position: Int): Int {
+        return if (position >= 100 && paginationMode == PaginationMode.NUMBER) {
+            ROUNDED_RECT
+        } else {
+            CIRCLE
+        }
+    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (paginationMode) {
@@ -88,20 +94,17 @@ class PaginationAdapter(
         fun setPageSelected(pageSelected: Int) {
             val selected = pageSelected == mCurrentPage
             if (selected) {
+                val bgRes = if (getItemViewType(pageSelected) == ROUNDED_RECT) {
+                    R.drawable.bg_rounded_grey
+                } else {
+                    R.drawable.bg_circle_grey
+                }
                 TextViewCompat.setTextAppearance(mTvPageNumber, R.style.PageSelected)
-                mTvPageNumber.setBackgroundResource(R.drawable.bg_circle_grey)
+                mTvPageNumber.setBackgroundResource(bgRes)
             } else {
                 TextViewCompat.setTextAppearance(mTvPageNumber, R.style.PageNotSelected)
                 mTvPageNumber.setBackgroundResource(0)
             }
-
-            val size = if (pageSelected >= 100) {
-                ConstraintLayout.LayoutParams.WRAP_CONTENT
-            } else {
-                mDefaultTextSize
-            }
-            mTvPageNumber.layoutParams.width = size
-            mTvPageNumber.layoutParams.height = size
         }
     }
 

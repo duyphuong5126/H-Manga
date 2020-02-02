@@ -29,6 +29,9 @@ import kotlinx.android.synthetic.main.layout_special_book_list.refreshHeader
 import kotlinx.android.synthetic.main.layout_special_book_list.rvBookList
 import kotlinx.android.synthetic.main.layout_special_book_list.rvPagination
 import kotlinx.android.synthetic.main.layout_special_book_list.srlPullToReload
+import kotlinx.android.synthetic.main.layout_special_book_list.clNothing
+import kotlinx.android.synthetic.main.layout_special_book_list.clReload
+import kotlinx.android.synthetic.main.layout_special_book_list.tvNothing
 import kotlinx.android.synthetic.main.layout_refresh_header.view.ivRefresh
 import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvLastUpdate
 import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvRefresh
@@ -139,6 +142,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             paginationAdapter.jumpToLast()
             jumpTo(paginationAdapter.itemCount - 1)
         }
+        clReload.gone()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -197,6 +201,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     }
 
     override fun refreshRecentBookList() {
+        clNothing.gone()
         recentListAdapter.notifyDataSetChanged()
         rvBookList.post {
             rvBookList.smoothScrollToPosition(0)
@@ -212,7 +217,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             recentPagination.gone()
             return
         }
-        paginationAdapter = PaginationAdapter(context!!, pageCount)
+        paginationAdapter = PaginationAdapter(pageCount)
         paginationAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
             override fun onPageSelected(page: Int) {
                 Logger.d(TAG, "Page $page is selected")
@@ -243,6 +248,15 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {
         val lastRefresh = String.format(getString(R.string.last_update), lastRefreshTimeStamp)
         refreshHeader.mtvLastUpdate.text = lastRefresh
+    }
+
+    override fun showNothingView(@RecentType recentType: String) {
+        tvNothing.text = if (recentType == Constants.RECENT) {
+            getString(R.string.no_recent_book)
+        } else {
+            getString(R.string.no_favorite_book)
+        }
+        clNothing.becomeVisible()
     }
 
     override fun showLoading() {

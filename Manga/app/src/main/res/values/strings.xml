@@ -33,6 +33,10 @@
     <string name="book_cover">Book cover</string>
     <string name="title_1">Title 1</string>
 
+    <string name="no_recent_book">You\'ve not read any book recently!</string>
+    <string name="no_favorite_book">You have no favorite book!</string>
+    <string name="no_downloaded_book">You\'ve not downloaded any book recently!</string>
+
     <string name="years_elapsed">%s years ago</string>
     <string name="year_elapsed">1 year ago</string>
     <string name="months_elapsed">%s months ago</string>

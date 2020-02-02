@@ -68,7 +68,6 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mCharacterAdapter = PaginationAdapter(
-            context!!,
             mCharacterCount,
             PaginationAdapter.PaginationMode.CHARACTER
         )
@@ -156,7 +155,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
             rv_pagination.visibility = View.GONE
             return
         }
-        mNumberAdapter = PaginationAdapter(context!!, pagesCount)
+        mNumberAdapter = PaginationAdapter(pagesCount)
         mNumberAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
             override fun onPageSelected(page: Int) {
                 Logger.d(TAG, "Page $page is selected")

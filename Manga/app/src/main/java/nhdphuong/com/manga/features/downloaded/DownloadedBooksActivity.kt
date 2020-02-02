@@ -30,6 +30,9 @@ import kotlinx.android.synthetic.main.layout_special_book_list.btnLast
 import kotlinx.android.synthetic.main.layout_special_book_list.rvBookList
 import kotlinx.android.synthetic.main.layout_special_book_list.rvPagination
 import kotlinx.android.synthetic.main.layout_special_book_list.refreshHeader
+import kotlinx.android.synthetic.main.layout_special_book_list.clNothing
+import kotlinx.android.synthetic.main.layout_special_book_list.clReload
+import kotlinx.android.synthetic.main.layout_special_book_list.tvNothing
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -40,6 +43,7 @@ import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.becomeInvisible
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import javax.inject.Inject
@@ -94,6 +98,8 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
             paginationAdapter.jumpToLast()
             jumpTo(paginationAdapter.itemCount - 1)
         }
+        clReload.gone()
+        tvNothing.text = getString(R.string.no_downloaded_book)
         downloadedBooksPresenter.start()
     }
 
@@ -137,6 +143,7 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
     }
 
     override fun refreshBookList() {
+        clNothing.gone()
         bookListAdapter.notifyDataSetChanged()
         downloadedBooksPresenter.reloadBookMarkers()
         downloadedBooksPresenter.reloadBookThumbnails()
@@ -144,6 +151,10 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
 
     override fun refreshThumbnailList(thumbnailList: List<Pair<String, String>>) {
         bookListAdapter.publishDownloadedThumbnails(thumbnailList)
+    }
+
+    override fun showNothingView() {
+        clNothing.becomeVisible()
     }
 
     override fun refreshRecentPagination(pageCount: Int) {
@@ -154,7 +165,7 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
             recentPagination.gone()
             return
         }
-        paginationAdapter = PaginationAdapter(this, pageCount)
+        paginationAdapter = PaginationAdapter(pageCount)
         paginationAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
             override fun onPageSelected(page: Int) {
                 Logger.d(TAG, "Page $page is selected")
