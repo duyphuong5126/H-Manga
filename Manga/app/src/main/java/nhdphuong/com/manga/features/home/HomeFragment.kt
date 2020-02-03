@@ -42,6 +42,10 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
+import nhdphuong.com.manga.views.becomeVisible
+import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 
@@ -192,9 +196,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun refreshHomePagination(pageCount: Long) {
         val mainPagination = rvPagination
         if (pageCount == 0L) {
-            btnFirst.visibility = View.GONE
-            btnLast.visibility = View.GONE
-            mainPagination.visibility = View.GONE
+            btnFirst.gone()
+            btnLast.gone()
+            mainPagination.gone()
             return
         }
         homePaginationAdapter = PaginationAdapter(pageCount.toInt())
@@ -205,21 +209,18 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                     homePresenter.jumpToPage(page.toLong())
                 }
             }
-        mainPagination.visibility = View.VISIBLE
-        mainPagination.layoutManager = LinearLayoutManager(
+        mainPagination.becomeVisible()
+        val layoutManager = LinearLayoutManager(
             activity,
             LinearLayoutManager.HORIZONTAL,
             false
         )
+        mainPagination.layoutManager = layoutManager
         mainPagination.adapter = homePaginationAdapter
-        mainPagination.viewTreeObserver.addOnGlobalLayoutListener {
-            if (homePaginationAdapter.maxVisible >= pageCount - 1) {
-                btnFirst.visibility = View.GONE
-                btnLast.visibility = View.GONE
-            } else {
-                btnFirst.visibility = View.VISIBLE
-                btnLast.visibility = View.VISIBLE
-            }
+        mainPagination.doOnGlobalLayout {
+            val lastVisiblePageItem = layoutManager.findLastVisibleItemPosition()
+            btnFirst.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
+            btnLast.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
         }
     }
 
@@ -229,7 +230,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     }
 
     override fun showNothingView(isEmpty: Boolean) {
-        clNothing.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        clNothing.becomeVisibleIf(isEmpty)
     }
 
     override fun showRefreshingDialog() {
@@ -269,14 +270,14 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun showLoading() {
         if (isAdded) {
             loadingDialog.show()
-            clNavigation.visibility = View.GONE
+            clNavigation.gone()
         }
     }
 
     override fun hideLoading() {
         if (isAdded) {
             loadingDialog.dismiss()
-            clNavigation.visibility = View.VISIBLE
+            clNavigation.becomeVisible()
         }
     }
 
@@ -289,8 +290,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         homePresenter.saveLastBookListRefreshTime()
         homePresenter.reloadLastBookListRefreshTime()
         refreshHeader.ivRefresh.rotation = 0F
-        refreshHeader.ivRefresh.visibility = View.VISIBLE
-        refreshHeader.pbRefresh.visibility = View.GONE
+        refreshHeader.ivRefresh.becomeVisible()
+        refreshHeader.pbRefresh.gone()
         updateDotsHandler.removeCallbacksAndMessages(null)
     }
 
@@ -313,8 +314,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshBegin")
-        refreshHeader.ivRefresh.visibility = View.GONE
-        refreshHeader.pbRefresh.visibility = View.VISIBLE
+        refreshHeader.ivRefresh.gone()
+        refreshHeader.pbRefresh.becomeVisible()
         refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
         runUpdateDotsTask()
 
@@ -367,7 +368,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     private fun toggleSearchResult(data: String) {
         mtv_search_result.run {
             text = String.format(searchResultTitle, data)
-            visibility = if (data.isBlank()) View.GONE else View.VISIBLE
+            becomeVisibleIf(data.isNotBlank())
         }
     }
 

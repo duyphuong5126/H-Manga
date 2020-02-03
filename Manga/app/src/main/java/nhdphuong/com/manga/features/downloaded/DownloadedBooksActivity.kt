@@ -172,13 +172,14 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
                 downloadedBooksPresenter.jumpToPage(page)
             }
         }
-        recentPagination.visibility = View.VISIBLE
-        recentPagination.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        recentPagination.becomeVisible()
+        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        recentPagination.layoutManager = layoutManager
         recentPagination.adapter = paginationAdapter
         recentPagination.doOnGlobalLayout {
-            btnFirst.becomeVisibleIf(paginationAdapter.maxVisible < pageCount - 1)
-            btnLast.becomeVisibleIf(paginationAdapter.maxVisible < pageCount - 1)
+            val lastVisiblePageItem = layoutManager.findLastVisibleItemPosition()
+            btnFirst.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
+            btnLast.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
         }
     }
 
@@ -209,7 +210,7 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
 
     override fun isActive(): Boolean {
         val currentState = lifecycle.currentState
-        return currentState == Lifecycle.State.STARTED || currentState == Lifecycle.State.RESUMED
+        return currentState != Lifecycle.State.DESTROYED
     }
 
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
@@ -217,8 +218,8 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
         refreshHeader.mtvRefresh.text = getString(R.string.updated)
         downloadedBooksPresenter.reloadLastBookListRefreshTime()
         refreshHeader.ivRefresh.rotation = 0F
-        refreshHeader.ivRefresh.visibility = View.VISIBLE
-        refreshHeader.pbRefresh.visibility = View.GONE
+        refreshHeader.ivRefresh.becomeVisible()
+        refreshHeader.pbRefresh.gone()
     }
 
     override fun onUIPositionChange(
@@ -234,8 +235,8 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
-        refreshHeader.ivRefresh.visibility = View.GONE
-        refreshHeader.pbRefresh.visibility = View.VISIBLE
+        refreshHeader.ivRefresh.gone()
+        refreshHeader.pbRefresh.becomeVisible()
         refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
         runUpdateDotsTask()
     }

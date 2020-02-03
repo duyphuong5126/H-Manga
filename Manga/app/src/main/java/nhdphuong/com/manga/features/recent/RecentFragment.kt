@@ -224,16 +224,18 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
                 presenter.jumpToPage(page)
             }
         }
-        recentPagination.visibility = View.VISIBLE
-        recentPagination.layoutManager = LinearLayoutManager(
+        recentPagination.becomeVisible()
+        val layoutManager = LinearLayoutManager(
             activity,
             LinearLayoutManager.HORIZONTAL,
             false
         )
+        recentPagination.layoutManager = layoutManager
         recentPagination.adapter = paginationAdapter
         recentPagination.doOnGlobalLayout {
-            btnFirst.becomeVisibleIf(paginationAdapter.maxVisible < pageCount - 1)
-            btnLast.becomeVisibleIf(paginationAdapter.maxVisible < pageCount - 1)
+            val lastVisiblePageItem = layoutManager.findLastVisibleItemPosition()
+            btnFirst.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
+            btnLast.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
         }
     }
 

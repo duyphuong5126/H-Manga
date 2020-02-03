@@ -25,10 +25,6 @@ class PaginationAdapter(
     var onPageSelectCallback: OnPageSelectCallback? = null
     var onCharacterSelectCallback: OnCharacterSelectCallback? = null
 
-    private var mMaxVisible: Int = 0
-    val maxVisible: Int
-        get() = mMaxVisible
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val layoutRes = if (viewType == ROUNDED_RECT) {
             R.layout.item_home_pagination_rect
@@ -59,13 +55,11 @@ class PaginationAdapter(
                 val characterPaginationViewHolder = holder as CharacterPaginationViewHolder
                 characterPaginationViewHolder.setData(position, TAG_PREFIXES[position])
                 characterPaginationViewHolder.setPageSelected(position)
-                mMaxVisible++
             }
             else -> {
                 val numberPaginationViewHolder = holder as NumberPaginationViewHolder
                 numberPaginationViewHolder.setData(mPageList[position])
                 numberPaginationViewHolder.setPageSelected(mPageList[position])
-                mMaxVisible++
             }
         }
     }

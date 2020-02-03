@@ -135,22 +135,26 @@ class DownloadedBooksPresenter @Inject constructor(
     }
 
     private fun updateCurrentPage() {
-        if (totalBookList.isEmpty()) {
-            return
+        io.launch {
+            if (totalBookList.isEmpty()) {
+                return@launch
+            }
+            currentBookList.clear()
+            val fromIndex = currentPage * MAX_PER_PAGE
+            val toIndex = if ((currentPage + 1) * MAX_PER_PAGE < totalBookList.size) {
+                (currentPage + 1) * MAX_PER_PAGE
+            } else totalBookList.size
+            if (fromIndex == toIndex) {
+                currentBookList.add(totalBookList[toIndex])
+            } else {
+                currentBookList.addAll(totalBookList.subList(fromIndex, toIndex))
+            }
+            bookIdList.clear()
+            bookIdList.addAll(currentBookList.map { it.bookId })
+            main.launch {
+                view.refreshBookList()
+            }
         }
-        currentBookList.clear()
-        val fromIndex = currentPage * MAX_PER_PAGE
-        val toIndex = if ((currentPage + 1) * MAX_PER_PAGE < totalBookList.size) {
-            (currentPage + 1) * MAX_PER_PAGE
-        } else totalBookList.size
-        if (fromIndex == toIndex) {
-            currentBookList.add(totalBookList[toIndex])
-        } else {
-            currentBookList.addAll(totalBookList.subList(fromIndex, toIndex))
-        }
-        bookIdList.clear()
-        bookIdList.addAll(currentBookList.map { it.bookId })
-        view.refreshBookList()
     }
 
     companion object {
