@@ -20,14 +20,14 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_book_preview.clArtists
-import kotlinx.android.synthetic.main.fragment_book_preview.clCategories
-import kotlinx.android.synthetic.main.fragment_book_preview.clCharacters
+import kotlinx.android.synthetic.main.fragment_book_preview.layoutArtists
+import kotlinx.android.synthetic.main.fragment_book_preview.layoutCategories
+import kotlinx.android.synthetic.main.fragment_book_preview.layoutCharacters
 import kotlinx.android.synthetic.main.fragment_book_preview.clDownloadProgress
-import kotlinx.android.synthetic.main.fragment_book_preview.clGroups
-import kotlinx.android.synthetic.main.fragment_book_preview.clLanguages
-import kotlinx.android.synthetic.main.fragment_book_preview.clParodies
-import kotlinx.android.synthetic.main.fragment_book_preview.clTags
+import kotlinx.android.synthetic.main.fragment_book_preview.layoutGroups
+import kotlinx.android.synthetic.main.fragment_book_preview.layoutLanguages
+import kotlinx.android.synthetic.main.fragment_book_preview.layoutParodies
+import kotlinx.android.synthetic.main.fragment_book_preview.layoutTags
 import kotlinx.android.synthetic.main.fragment_book_preview.hsvPreviewThumbNail
 import kotlinx.android.synthetic.main.fragment_book_preview.hsvRecommendList
 import kotlinx.android.synthetic.main.fragment_book_preview.ivBookCover
@@ -69,6 +69,7 @@ import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.becomeInvisible
 import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.BookAdapter
@@ -277,97 +278,97 @@ class BookPreviewFragment :
 
     override fun show1stTitle(firstTitle: String) {
         if (!TextUtils.isEmpty(firstTitle)) {
-            tvTitle_1.visibility = View.VISIBLE
+            tvTitle_1.becomeVisible()
             tvTitle_1.text = firstTitle
         } else {
-            tvTitle_1.visibility = View.GONE
+            tvTitle_1.gone()
         }
     }
 
     override fun show2ndTitle(secondTitle: String) {
         if (!TextUtils.isEmpty(secondTitle)) {
-            tvTitle_2.visibility = View.VISIBLE
+            tvTitle_2.becomeVisible()
             tvTitle_2.text = secondTitle
         } else {
-            tvTitle_2.visibility = View.GONE
+            tvTitle_2.gone()
         }
     }
 
     override fun showTagList(tagList: List<Tag>) {
-        tvTagsLabel.visibility = View.VISIBLE
-        clTags.visibility = View.VISIBLE
-        loadInfoList(clTags, tagList)
+        tvTagsLabel.becomeVisible()
+        layoutTags.becomeVisible()
+        loadInfoList(layoutTags, tagList)
     }
 
     override fun showArtistList(artistList: List<Tag>) {
-        tvArtistsLabel.visibility = View.VISIBLE
-        clArtists.visibility = View.VISIBLE
-        loadInfoList(clArtists, artistList)
+        tvArtistsLabel.becomeVisible()
+        layoutArtists.becomeVisible()
+        loadInfoList(layoutArtists, artistList)
     }
 
     override fun showLanguageList(languageList: List<Tag>) {
-        tvLanguagesLabel.visibility = View.VISIBLE
-        clLanguages.visibility = View.VISIBLE
-        loadInfoList(clLanguages, languageList)
+        tvLanguagesLabel.becomeVisible()
+        layoutLanguages.becomeVisible()
+        loadInfoList(layoutLanguages, languageList)
     }
 
     override fun showCategoryList(categoryList: List<Tag>) {
-        tvCategoriesLabel.visibility = View.VISIBLE
-        clCategories.visibility = View.VISIBLE
-        loadInfoList(clCategories, categoryList)
+        tvCategoriesLabel.becomeVisible()
+        layoutCategories.becomeVisible()
+        loadInfoList(layoutCategories, categoryList)
     }
 
     override fun showCharacterList(characterList: List<Tag>) {
-        tvCharactersLabel.visibility = View.VISIBLE
-        clCharacters.visibility = View.VISIBLE
-        loadInfoList(clCharacters, characterList)
+        tvCharactersLabel.becomeVisible()
+        layoutCharacters.becomeVisible()
+        loadInfoList(layoutCharacters, characterList)
     }
 
     override fun showGroupList(groupList: List<Tag>) {
-        tvGroupsLabel.visibility = View.VISIBLE
-        clGroups.visibility = View.VISIBLE
-        loadInfoList(clGroups, groupList)
+        tvGroupsLabel.becomeVisible()
+        layoutGroups.becomeVisible()
+        loadInfoList(layoutGroups, groupList)
     }
 
     override fun showParodyList(parodyList: List<Tag>) {
-        tvParodiesLabel.visibility = View.VISIBLE
-        clParodies.visibility = View.VISIBLE
-        loadInfoList(clParodies, parodyList)
+        tvParodiesLabel.becomeVisible()
+        layoutParodies.becomeVisible()
+        loadInfoList(layoutParodies, parodyList)
     }
 
     override fun hideTagList() {
-        tvTagsLabel.visibility = View.GONE
-        clTags.visibility = View.GONE
+        tvTagsLabel.gone()
+        layoutTags.gone()
     }
 
     override fun hideArtistList() {
-        tvArtistsLabel.visibility = View.GONE
-        clArtists.visibility = View.GONE
+        tvArtistsLabel.gone()
+        layoutArtists.gone()
     }
 
     override fun hideLanguageList() {
-        tvLanguagesLabel.visibility = View.GONE
-        clLanguages.visibility = View.GONE
+        tvLanguagesLabel.gone()
+        layoutLanguages.gone()
     }
 
     override fun hideCategoryList() {
-        tvCategoriesLabel.visibility = View.GONE
-        clCategories.visibility = View.GONE
+        tvCategoriesLabel.gone()
+        layoutCategories.gone()
     }
 
     override fun hideCharacterList() {
-        tvCharactersLabel.visibility = View.GONE
-        clCharacters.visibility = View.GONE
+        tvCharactersLabel.gone()
+        layoutCharacters.gone()
     }
 
     override fun hideGroupList() {
-        tvGroupsLabel.visibility = View.GONE
-        clGroups.visibility = View.GONE
+        tvGroupsLabel.gone()
+        layoutGroups.gone()
     }
 
     override fun hideParodyList() {
-        tvParodiesLabel.visibility = View.GONE
-        clParodies.visibility = View.GONE
+        tvParodiesLabel.gone()
+        layoutParodies.gone()
     }
 
     override fun showPageCount(pageCount: Int) {
@@ -431,7 +432,7 @@ class BookPreviewFragment :
 
     override fun showRecommendBook(bookList: List<Book>) {
         Logger.d(TAG, "recommended books, spanCount: ${bookList.size}")
-        mtvRecommendBook.visibility = View.VISIBLE
+        mtvRecommendBook.becomeVisible()
         val gridLayoutManager = object : MyGridLayoutManager(context!!, bookList.size) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
@@ -451,7 +452,7 @@ class BookPreviewFragment :
     }
 
     override fun showNoRecommendBook() {
-        mtvRecommendBook.visibility = View.GONE
+        mtvRecommendBook.gone()
     }
 
     override fun showRequestStoragePermission() {
@@ -523,11 +524,11 @@ class BookPreviewFragment :
 
     override fun showFavoriteBookSaved(isFavorite: Boolean) {
         if (isFavorite) {
-            mtvNotFavorite.visibility = View.INVISIBLE
-            mtvFavorite.visibility = View.VISIBLE
+            mtvNotFavorite.becomeInvisible()
+            mtvFavorite.becomeVisible()
         } else {
-            mtvNotFavorite.visibility = View.VISIBLE
-            mtvFavorite.visibility = View.INVISIBLE
+            mtvNotFavorite.becomeVisible()
+            mtvFavorite.becomeInvisible()
         }
     }
 
