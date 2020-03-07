@@ -81,7 +81,6 @@ class Constants {
         const val DOWNLOAD_GREEN_LEVEL = 0.8f
         const val DOWNLOAD_YELLOW_LEVEL = 0.6f
 
-        @Suppress("unused")
         const val MAX_PER_PAGE = 25
 
         const val BOOK_PREVIEW_RESULT = 10073

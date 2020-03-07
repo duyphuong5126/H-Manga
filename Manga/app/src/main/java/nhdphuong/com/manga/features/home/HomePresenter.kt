@@ -5,6 +5,7 @@ import android.text.TextUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import nhdphuong.com.manga.Constants.Companion.MAX_PER_PAGE
 import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
@@ -42,6 +43,7 @@ class HomePresenter @Inject constructor(
     companion object {
         private const val TAG = "HomePresenter"
         private const val NUMBER_OF_PREVENTIVE_PAGES = 10
+        private const val BOOKS_PER_PAGE = MAX_PER_PAGE
     }
 
     private var mainList = LinkedList<Book>()
@@ -216,7 +218,7 @@ class HomePresenter @Inject constructor(
                     val randomIndex = random.nextInt(randomBooks.size)
                     main.launch {
                         view.hideLoading()
-                        view.showRandomBook(randomBooks[randomIndex])
+                        view.showBookPreview(randomBooks[randomIndex])
                     }
                 }
             }
@@ -395,7 +397,18 @@ class HomePresenter @Inject constructor(
 
     private suspend fun getBooksListByPage(pageNumber: Long): RemoteBook? {
         return if (isSearching) {
-            bookRepository.getBookByPage(searchData, pageNumber)
+            val remoteBook = bookRepository.getBookByPage(searchData, pageNumber)
+            if (remoteBook != null && remoteBook.bookList.isNotEmpty()) {
+                remoteBook
+            } else if (searchData.toLongOrNull() != null) {
+                val bookData = bookRepository.getBookDetails(searchData)
+                val bookList = LinkedList<Book>().apply {
+                    if (bookData != null) {
+                        add(bookData)
+                    }
+                }
+                RemoteBook(bookList, 1, BOOKS_PER_PAGE)
+            } else null
         } else {
             bookRepository.getBookByPage(pageNumber)
         }

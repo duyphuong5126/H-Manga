@@ -18,7 +18,7 @@ interface HomeContract {
         fun showRecentBooks(recentList: List<String>)
         fun showFavoriteBooks(favoriteList: List<String>)
         fun changeSearchResult(data: String)
-        fun showRandomBook(randomBook: Book)
+        fun showBookPreview(book: Book)
         fun startUpdateTagsService()
     }
 

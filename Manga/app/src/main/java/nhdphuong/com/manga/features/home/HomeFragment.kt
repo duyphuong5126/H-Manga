@@ -251,8 +251,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         toggleSearchResult(data)
     }
 
-    override fun showRandomBook(randomBook: Book) {
-        BookPreviewActivity.start(this, randomBook)
+    override fun showBookPreview(book: Book) {
+        BookPreviewActivity.start(this, book)
     }
 
     override fun startUpdateTagsService() {
