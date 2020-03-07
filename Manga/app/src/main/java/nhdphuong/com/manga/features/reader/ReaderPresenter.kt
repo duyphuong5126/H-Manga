@@ -24,6 +24,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
+import java.io.File
 
 /*
  * Created by nhdphuong on 5/5/18.
@@ -147,7 +148,11 @@ class ReaderPresenter @Inject constructor(
                             page.height
                         )
 
-                        val resultFilePath = fileUtils.getImageDirectory(book.usefulName)
+                        val resultFilePath = fileUtils.getImageDirectory(
+                            book.usefulName.replace(
+                                File.separator, "_"
+                            )
+                        )
 
                         val fileName = String.format("%0${prefixNumber}d", downloadPage + 1)
                         val resultPath =

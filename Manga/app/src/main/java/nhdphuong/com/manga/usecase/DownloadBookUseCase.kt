@@ -14,6 +14,7 @@ import nhdphuong.com.manga.data.local.model.ImageUsageType
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.supports.AppSupportUtils
 import nhdphuong.com.manga.supports.IFileUtils
+import java.io.File
 import java.io.FileNotFoundException
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -49,7 +50,7 @@ class DownloadBookUseCaseImpl @Inject constructor(
 
     private fun saveBookCover(book: Book): Completable {
         return Single.fromCallable {
-            val resultDir = fileUtils.getImageDirectory(book.usefulName)
+            val resultDir = getBookDirectory(book)
             appSupportUtils.downloadAndSaveImage(
                 ApiConstants.getBookCover(book.mediaId),
                 resultDir,
@@ -75,7 +76,7 @@ class DownloadBookUseCaseImpl @Inject constructor(
 
     private fun saveBookThumbnail(book: Book): Completable {
         return Single.fromCallable {
-            val resultDir = fileUtils.getImageDirectory(book.usefulName)
+            val resultDir = getBookDirectory(book)
             appSupportUtils.downloadAndSaveImage(
                 ApiConstants.getBookCover(book.mediaId),
                 resultDir,
@@ -156,7 +157,7 @@ class DownloadBookUseCaseImpl @Inject constructor(
     ): String {
         val prefixNumber = getPrefixNumber(book.numOfPages)
         val fileName = String.format("%0${prefixNumber}d", index + 1)
-        val resultDir = fileUtils.getImageDirectory(book.usefulName)
+        val resultDir = getBookDirectory(book)
         return appSupportUtils.downloadAndSaveImage(
             imageUrl,
             resultDir,
@@ -186,6 +187,10 @@ class DownloadBookUseCaseImpl @Inject constructor(
             prefixCount++
         }
         return prefixCount
+    }
+
+    private fun getBookDirectory(book: Book): String {
+        return fileUtils.getImageDirectory(book.usefulName.replace(File.separator, "_"))
     }
 
     companion object {
