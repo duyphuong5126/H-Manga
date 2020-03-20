@@ -89,15 +89,20 @@ class PaginationAdapter(
             val selected = pageSelected == mCurrentPage
             if (selected) {
                 val bgRes = if (getItemViewType(pageSelected) == ROUNDED_RECT) {
-                    R.drawable.bg_rounded_grey
+                    R.drawable.ripple_rounded_grey
                 } else {
-                    R.drawable.bg_circle_grey
+                    R.drawable.ripple_circle_grey
                 }
                 TextViewCompat.setTextAppearance(mTvPageNumber, R.style.PageSelected)
                 mTvPageNumber.setBackgroundResource(bgRes)
             } else {
+                val bgRes = if (getItemViewType(pageSelected) == ROUNDED_RECT) {
+                    R.drawable.ripple_rounded_transparent
+                } else {
+                    R.drawable.ripple_circle_transparent
+                }
                 TextViewCompat.setTextAppearance(mTvPageNumber, R.style.PageNotSelected)
-                mTvPageNumber.setBackgroundResource(0)
+                mTvPageNumber.setBackgroundResource(bgRes)
             }
         }
     }

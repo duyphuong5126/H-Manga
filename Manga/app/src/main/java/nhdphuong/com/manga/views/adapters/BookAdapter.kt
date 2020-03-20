@@ -118,6 +118,7 @@ class BookAdapter(
         private val tv2ndTitle: TextView = itemView.findViewById(R.id.tv2ndTitlePart)
         private val tvLanguage: ImageView = itemView.findViewById(R.id.ivLanguage)
         private val tlvRecent: TriangleLabelView = itemView.findViewById(R.id.tlvRecent)
+        private val vNavigation: View = itemView.findViewById(R.id.vNavigation)
         private val context: Context = itemView.context
         private var isTitleModifiable = true
 
@@ -129,6 +130,7 @@ class BookAdapter(
             tv1stTitle.setOnClickListener(this)
             tv2ndTitle.setOnClickListener(this)
             tvLanguage.setOnClickListener(this)
+            vNavigation.setOnClickListener(this)
         }
 
         override fun onClick(p0: View?) {

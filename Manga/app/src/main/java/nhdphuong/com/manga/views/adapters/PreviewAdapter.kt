@@ -56,11 +56,14 @@ class PreviewAdapter(
     ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         val ivPageThumbnail: ImageView = itemView.findViewById(R.id.ivPageThumbnail)
         private val mtvPageNumber: MyTextView = itemView.findViewById(R.id.mtvPageNumber)
+        private val vNavigation: View = itemView.findViewById(R.id.vNavigation)
+
         private var mPageNumber: Int = -1
 
         init {
             ivPageThumbnail.setOnClickListener(this)
             mtvPageNumber.setOnClickListener(this)
+            vNavigation.setOnClickListener(this)
         }
 
         override fun onClick(p0: View?) {

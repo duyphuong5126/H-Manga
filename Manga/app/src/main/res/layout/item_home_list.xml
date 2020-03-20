@@ -7,15 +7,19 @@
     app:cardUseCompatPadding="true"
     tools:ignore="RtlCompat">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/black"
-        android:orientation="vertical">
+        android:background="@android:color/black">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:id="@+id/clThumbnail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/clItemDescription"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/ivItemThumbnail"
@@ -50,9 +54,13 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clItemDescription"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_grey_tiny_rounded_bottom_corners">
+            android:background="@drawable/bg_grey_tiny_rounded_bottom_corners"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/clThumbnail">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl1stTitlePart"
@@ -111,7 +119,19 @@
                 app:myFont="@string/NotoSansBold" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </LinearLayout>
+
+        <View
+            android:id="@+id/vNavigation"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/ripple_book_item"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.cardview.widget.CardView>
