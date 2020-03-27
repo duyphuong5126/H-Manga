@@ -41,22 +41,27 @@ class NotificationHelper {
         fun sendBigContentNotification(
             title: String,
             priority: Int,
-            content: String,
-            usedAppIcon: Boolean
+            content: String = "",
+            usedAppIcon: Boolean = true,
+            notificationId: Int = System.currentTimeMillis().toInt(),
+            pendingIntent: PendingIntent? = null
         ): Int {
             val context = NHentaiApp.instance.applicationContext
-            val bigTextStyle = NotificationCompat.BigTextStyle()
-                .bigText(content)
-                .setSummaryText(content)
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setStyle(bigTextStyle)
                 .setContentTitle(title)
                 .setPriority(priority)
+            if (content.isNotBlank()) {
+                val bigTextStyle = NotificationCompat.BigTextStyle()
+                    .bigText(content)
+                    .setSummaryText(content)
+                notificationBuilder.setStyle(bigTextStyle)
+            }
             if (usedAppIcon) {
                 notificationBuilder.setSmallIcon(R.drawable.ic_app_notification)
             }
+            pendingIntent?.let { notificationBuilder.setContentIntent(it) }
 
-            return sendNotification(notificationBuilder.build(), System.currentTimeMillis().toInt())
+            return sendNotification(notificationBuilder.build(), notificationId)
         }
 
         @Suppress("unused")

@@ -19,8 +19,6 @@ import nhdphuong.com.manga.Constants.Companion.DOWNLOADED
 import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
 import nhdphuong.com.manga.DownloadManager.BookDownloadCallback
 import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
-import nhdphuong.com.manga.Logger
-import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.data.entity.DownloadingResult.DownloadingProgress
 import nhdphuong.com.manga.data.entity.DownloadingResult.DownloadingFailure
@@ -29,9 +27,12 @@ import nhdphuong.com.manga.usecase.DownloadBookUseCase
 import javax.inject.Inject
 import android.app.PendingIntent
 import androidx.core.app.NotificationCompat
-import nhdphuong.com.manga.Constants
-import nhdphuong.com.manga.features.NavigationRedirectActivity
 import nhdphuong.com.manga.R
+import nhdphuong.com.manga.NHentaiApp
+import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NotificationHelper
+import nhdphuong.com.manga.features.NavigationRedirectActivity
 
 
 class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDownloadCallback {
@@ -52,9 +53,10 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
             )
 
             val notification = NotificationCompat.Builder(this, Constants.NOTIFICATION_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_app)
-                .setContentText(getString(R.string.downloading_book))
-                .setContentIntent(pendingIntent).build()
+                .setSmallIcon(R.drawable.ic_app_notification)
+                .setContentTitle(getString(R.string.downloading_book))
+                .setContentIntent(pendingIntent)
+                .build()
 
             startForeground(Constants.NOTIFICATION_ID, notification)
         }
@@ -120,6 +122,7 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
             putInt(TOTAL, total)
         }
         BroadCastReceiverHelper.sendBroadCast(this, ACTION_DOWNLOADING_PROGRESS, data)
+        sendDownloadingProgressNotification(bookId, progress, total)
     }
 
     override fun onDownloadingEnded(bookId: String, downloaded: Int, total: Int) {
@@ -129,6 +132,7 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
             putInt(TOTAL, total)
         }
         BroadCastReceiverHelper.sendBroadCast(this, ACTION_DOWNLOADING_COMPLETED, data)
+        sendDownloadingCompletedNotification(bookId)
     }
 
     override fun onDownloadingEndedWithError(
@@ -142,11 +146,71 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
             putInt(TOTAL, total)
         }
         BroadCastReceiverHelper.sendBroadCast(this, ACTION_DOWNLOADING_FAILED, data)
+        sendDownloadingFailedNotification(bookId, downloadingFailedCount, total)
+    }
+
+    private fun sendDownloadingProgressNotification(bookId: String, progress: Int, total: Int) {
+        val progressTitle = getString(R.string.downloading_in_progress)
+        val notificationDescription = getString(
+            R.string.downloading_book_template, bookId, progress, total
+        )
+        val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, notificationIntent, Intent.FILL_IN_ACTION
+        )
+
+        NotificationHelper.sendBigContentNotification(
+            progressTitle,
+            NotificationCompat.PRIORITY_DEFAULT,
+            notificationDescription,
+            true,
+            Constants.NOTIFICATION_ID,
+            pendingIntent
+        )
+    }
+
+    private fun sendDownloadingCompletedNotification(bookId: String) {
+        val progressTitle = getString(R.string.downloading_completed_template, bookId)
+        val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, notificationIntent, Intent.FILL_IN_ACTION
+        )
+
+        NotificationHelper.sendBigContentNotification(
+            progressTitle,
+            NotificationCompat.PRIORITY_DEFAULT,
+            "",
+            true,
+            System.currentTimeMillis().toInt(),
+            pendingIntent
+        )
+    }
+
+    private fun sendDownloadingFailedNotification(
+        bookId: String, downloadingFailedCount: Int, total: Int
+    ) {
+        val progressTitle = getString(
+            R.string.downloading_failed_template, downloadingFailedCount, total, bookId
+        )
+        val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, notificationIntent, Intent.FILL_IN_ACTION
+        )
+
+        NotificationHelper.sendBigContentNotification(
+            progressTitle,
+            NotificationCompat.PRIORITY_DEFAULT,
+            "",
+            true,
+            System.currentTimeMillis().toInt(),
+            pendingIntent
+        )
     }
 
     companion object {
         private const val TAG = "BookDownloadingServices"
         private const val BOOK = "book"
+
         @JvmStatic
         fun start(fromContext: Context, book: Book) {
             val intent = Intent(fromContext, BookDownloadingServices::class.java)
