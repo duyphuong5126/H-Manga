@@ -26,10 +26,12 @@ import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.usecase.DownloadBookUseCase
 import javax.inject.Inject
 import android.app.PendingIntent
+import android.content.Intent.FILL_IN_ACTION
 import androidx.core.app.NotificationCompat
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.NHentaiApp
-import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.NOTIFICATION_ID
+import nhdphuong.com.manga.Constants.Companion.NOTIFICATION_CHANNEL_ID
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.features.NavigationRedirectActivity
@@ -45,20 +47,21 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
     override fun onCreate() {
         super.onCreate()
         NHentaiApp.instance.applicationComponent.inject(this)
+        val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0,
+            notificationIntent, FILL_IN_ACTION
+        )
+
+        val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_app_notification)
+            .setContentTitle(getString(R.string.downloading_book))
+            .setContentIntent(pendingIntent)
+            .build()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
-            val pendingIntent = PendingIntent.getActivity(
-                this, 0,
-                notificationIntent, Intent.FILL_IN_ACTION
-            )
-
-            val notification = NotificationCompat.Builder(this, Constants.NOTIFICATION_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_app_notification)
-                .setContentTitle(getString(R.string.downloading_book))
-                .setContentIntent(pendingIntent)
-                .build()
-
-            startForeground(Constants.NOTIFICATION_ID, notification)
+            startForeground(NOTIFICATION_ID, notification)
+        } else {
+            NotificationHelper.sendNotification(notification, NOTIFICATION_ID)
         }
     }
 
@@ -156,7 +159,7 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
         )
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, notificationIntent, Intent.FILL_IN_ACTION
+            this, 0, notificationIntent, FILL_IN_ACTION
         )
 
         NotificationHelper.sendBigContentNotification(
@@ -164,16 +167,17 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
             NotificationCompat.PRIORITY_DEFAULT,
             notificationDescription,
             true,
-            Constants.NOTIFICATION_ID,
+            NOTIFICATION_ID,
             pendingIntent
         )
     }
 
     private fun sendDownloadingCompletedNotification(bookId: String) {
+        NotificationHelper.cancelNotification(NOTIFICATION_ID)
         val progressTitle = getString(R.string.downloading_completed_template, bookId)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, notificationIntent, Intent.FILL_IN_ACTION
+            this, 0, notificationIntent, FILL_IN_ACTION
         )
 
         NotificationHelper.sendBigContentNotification(
@@ -189,12 +193,13 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
     private fun sendDownloadingFailedNotification(
         bookId: String, downloadingFailedCount: Int, total: Int
     ) {
+        NotificationHelper.cancelNotification(NOTIFICATION_ID)
         val progressTitle = getString(
             R.string.downloading_failed_template, downloadingFailedCount, total, bookId
         )
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, notificationIntent, Intent.FILL_IN_ACTION
+            this, 0, notificationIntent, FILL_IN_ACTION
         )
 
         NotificationHelper.sendBigContentNotification(

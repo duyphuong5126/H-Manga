@@ -11,7 +11,7 @@ class NotificationHelper {
     companion object {
         private const val CHANNEL_ID = Constants.NOTIFICATION_CHANNEL_ID
 
-        private fun sendNotification(notification: Notification, notificationId: Int): Int {
+        fun sendNotification(notification: Notification, notificationId: Int): Int {
             val notificationManagerCompat = NotificationManagerCompat.from(
                 NHentaiApp.instance.applicationContext
             )
