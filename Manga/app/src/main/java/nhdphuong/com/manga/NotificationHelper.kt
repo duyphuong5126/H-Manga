@@ -32,7 +32,7 @@ class NotificationHelper {
                 .setContentText(content)
                 .setPriority(priority)
             if (usedAppIcon) {
-                notificationBuilder.setSmallIcon(R.drawable.ic_app)
+                notificationBuilder.setSmallIcon(R.drawable.ic_app_notification)
             }
 
             return sendNotification(notificationBuilder.build(), System.currentTimeMillis().toInt())
@@ -53,7 +53,7 @@ class NotificationHelper {
                 .setContentTitle(title)
                 .setPriority(priority)
             if (usedAppIcon) {
-                notificationBuilder.setSmallIcon(R.drawable.ic_app)
+                notificationBuilder.setSmallIcon(R.drawable.ic_app_notification)
             }
 
             return sendNotification(notificationBuilder.build(), System.currentTimeMillis().toInt())
@@ -73,7 +73,7 @@ class NotificationHelper {
                 .setContentText(content)
                 .setPriority(priority)
             if (usedAppIcon) {
-                notificationBuilder.setSmallIcon(R.drawable.ic_app)
+                notificationBuilder.setSmallIcon(R.drawable.ic_app_notification)
             }
 
             if (allowTap) {
@@ -107,7 +107,7 @@ class NotificationHelper {
                 .setContentText(content)
                 .setPriority(priority)
             if (usedAppIcon) {
-                notificationBuilder.setSmallIcon(R.drawable.ic_app)
+                notificationBuilder.setSmallIcon(R.drawable.ic_app_notification)
             }
 
             sendNotification(notificationBuilder.build(), notificationId)
@@ -128,7 +128,7 @@ class NotificationHelper {
                 .setContentText(content)
                 .setPriority(priority)
             if (usedAppIcon) {
-                notificationBuilder.setSmallIcon(R.drawable.ic_app)
+                notificationBuilder.setSmallIcon(R.drawable.ic_app_notification)
             }
 
             if (allowTap) {
