@@ -103,6 +103,12 @@
     <string name="recent">Recent</string>
     <string name="switch_recent_list">Switch</string>
 
+    <string name="about_us">About Us</string>
+    <string name="version_template">Version: %s</string>
+    <string name="repository_url_template">See other versions at: </string>
+    <string name="email_url_template">Email: </string>
+    <string name="twitter_url_template">Twitter: </string>
+
     <string name="downloaded">Downloaded</string>
     <string name="downloaded_books">Downloaded Books</string>
 

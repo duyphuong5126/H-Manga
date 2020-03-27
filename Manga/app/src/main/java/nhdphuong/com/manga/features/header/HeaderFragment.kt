@@ -25,6 +25,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
 import nhdphuong.com.manga.features.RandomContract
 import nhdphuong.com.manga.features.SearchContract
+import nhdphuong.com.manga.features.about.AboutUsActivity
 import nhdphuong.com.manga.features.admin.AdminActivity
 import nhdphuong.com.manga.features.downloaded.DownloadedBooksActivity
 import nhdphuong.com.manga.features.recent.RecentActivity
@@ -98,6 +99,9 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                     }
                     Tab.RANDOM -> {
                         presenter.processSelectedTab(tab)
+                    }
+                    Tab.INFO -> {
+                        AboutUsActivity.start(context)
                     }
                     else -> {
                         DialogHelper.showTagsNotAvailable(activity) {

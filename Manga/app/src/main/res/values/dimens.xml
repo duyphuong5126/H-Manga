@@ -7,6 +7,7 @@
     <dimen name="header_size">32dp</dimen>
     <dimen name="header_size_large">36dp</dimen>
 
+    <dimen name="large_box_size">64dp</dimen>
     <dimen name="normal_box_size">32dp</dimen>
     <dimen name="big_box_size">48dp</dimen>
 
