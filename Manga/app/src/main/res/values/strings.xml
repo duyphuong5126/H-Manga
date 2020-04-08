@@ -114,12 +114,17 @@
 
     <string name="downloading_book">Downloading Book</string>
     <string name="downloading_in_progress">Downloading in progress</string>
-    <string name="downloading_completed_template">Downloading book %s completed</string>
-    <string name="downloading_failed_template">Failed to download %d/%d pages of book %s</string>
-    <string name="downloading_book_template">Book ID: %s, progress %d/%d</string>
+    <string name="downloading_failure">Downloading failure</string>
+    <string name="downloading_completed">Downloading completed</string>
+    <string name="downloading_completed_template">The book %s was downloaded</string>
+    <string name="downloading_failed_template">Failed to download %d/%d pages of the book %s</string>
+    <string name="downloading_book_template">Book ID: %s, progress: %d/%d</string>
 
     <string name="notification_channel_name">NHentai App</string>
     <string name="notification_channel_description">Hentai manga</string>
+
+    <string name="tags_downloading_completed">Tag list is downloaded, new data version: %d</string>
+    <string name="tags_downloading_failed">Failed to download tag list</string>
 
     <string name="now_reading">Now reading</string>
 

@@ -1,14 +1,20 @@
 package nhdphuong.com.manga.service
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import nhdphuong.com.manga.DownloadManager
-import nhdphuong.com.manga.Logger
+import androidx.core.app.NotificationCompat
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.SharedPreferencesManager
+import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.DownloadManager
+import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NotificationHelper
+import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.repository.TagRepository
+import nhdphuong.com.manga.features.NavigationRedirectActivity
 import java.util.Timer
 import java.util.TimerTask
 import javax.inject.Inject
@@ -66,14 +72,18 @@ class TagsUpdateService : Service() {
     }
 
     fun suspendTask() {
-        Logger.d(TAG, "Updating task is being suspended," +
-                " task is running=${!isUpdateTagSuspended}")
+        Logger.d(
+            TAG, "Updating task is being suspended," +
+                    " task is running=${!isUpdateTagSuspended}"
+        )
         isUpdateTagSuspended = true
     }
 
     fun resumeTask() {
-        Logger.d(TAG, "Updating task is being resumed," +
-                " task is running=${!isUpdateTagSuspended}")
+        Logger.d(
+            TAG, "Updating task is being resumed," +
+                    " task is running=${!isUpdateTagSuspended}"
+        )
         isUpdateTagSuspended = false
     }
 
@@ -84,13 +94,18 @@ class TagsUpdateService : Service() {
     private fun checkForNewVersion() {
         mTagRepository.getCurrentVersion(onSuccess = { newVersion ->
             if (mSharedPreferencesManager.currentTagVersion != newVersion) {
-                Logger.d(TAG, "New version is available, new version: $newVersion," +
-                        " current version: ${mSharedPreferencesManager.currentTagVersion}")
+                Logger.d(
+                    TAG, "New version is available, new version: $newVersion," +
+                            " current version: ${mSharedPreferencesManager.currentTagVersion}"
+                )
                 mTagsDownloadManager.startDownloading()
                 mTagRepository.fetchAllTagLists { isSuccess ->
                     Logger.d(TAG, "Tags fetching completed, isSuccess=$isSuccess")
                     if (isSuccess) {
                         mSharedPreferencesManager.currentTagVersion = newVersion
+                        sendDownloadingCompletedNotification(newVersion)
+                    } else {
+                        sendDownloadingFailedNotification()
                     }
                     mTagsDownloadManager.stopDownloading()
                 }
@@ -100,5 +115,43 @@ class TagsUpdateService : Service() {
         }, onError = {
             Logger.d(TAG, "Version fetching failed")
         })
+    }
+
+    private fun sendDownloadingCompletedNotification(newVersion: Long) {
+        NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
+        val successTitle = getString(R.string.downloading_completed)
+        val successMessage = getString(R.string.tags_downloading_completed, newVersion)
+        val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, notificationIntent, Intent.FILL_IN_ACTION
+        )
+
+        NotificationHelper.sendBigContentNotification(
+            successTitle,
+            NotificationCompat.PRIORITY_DEFAULT,
+            successMessage,
+            true,
+            System.currentTimeMillis().toInt(),
+            pendingIntent
+        )
+    }
+
+    private fun sendDownloadingFailedNotification() {
+        NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
+        val failureTitle = getString(R.string.downloading_failure)
+        val failureMessage = getString(R.string.tags_downloading_failed)
+        val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, notificationIntent, Intent.FILL_IN_ACTION
+        )
+
+        NotificationHelper.sendBigContentNotification(
+            failureTitle,
+            NotificationCompat.PRIORITY_DEFAULT,
+            failureMessage,
+            true,
+            System.currentTimeMillis().toInt(),
+            pendingIntent
+        )
     }
 }

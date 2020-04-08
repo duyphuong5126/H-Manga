@@ -174,16 +174,17 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
 
     private fun sendDownloadingCompletedNotification(bookId: String) {
         NotificationHelper.cancelNotification(NOTIFICATION_ID)
-        val progressTitle = getString(R.string.downloading_completed_template, bookId)
+        val successTitle = getString(R.string.downloading_completed)
+        val successMessage = getString(R.string.downloading_completed_template, bookId)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, FILL_IN_ACTION
         )
 
         NotificationHelper.sendBigContentNotification(
-            progressTitle,
+            successTitle,
             NotificationCompat.PRIORITY_DEFAULT,
-            "",
+            successMessage,
             true,
             System.currentTimeMillis().toInt(),
             pendingIntent
@@ -194,7 +195,8 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
         bookId: String, downloadingFailedCount: Int, total: Int
     ) {
         NotificationHelper.cancelNotification(NOTIFICATION_ID)
-        val progressTitle = getString(
+        val failureTitle = getString(R.string.downloading_failure)
+        val failureMessage = getString(
             R.string.downloading_failed_template, downloadingFailedCount, total, bookId
         )
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
@@ -203,9 +205,9 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
         )
 
         NotificationHelper.sendBigContentNotification(
-            progressTitle,
+            failureTitle,
             NotificationCompat.PRIORITY_DEFAULT,
-            "",
+            failureMessage,
             true,
             System.currentTimeMillis().toInt(),
             pendingIntent

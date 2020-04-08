@@ -33,7 +33,7 @@ class RecentPresenter @Inject constructor(
 ) : RecentContract.Presenter {
     companion object {
         private const val TAG = "RecentPresenter"
-        private const val MAX_PER_PAGE = 10
+        private const val MAX_PER_PAGE = 25
         private const val NUMBER_OF_PREVENTIVE_PAGES = 5
     }
 
@@ -43,6 +43,7 @@ class RecentPresenter @Inject constructor(
 
     private var recentCount: Int = 0
     private var favoriteCount: Int = 0
+
     @RecentType
     private var type: String = Constants.RECENT
     private var currentPageCount: Int = 1
