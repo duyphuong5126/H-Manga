@@ -2,6 +2,8 @@ package nhdphuong.com.manga
 
 import dagger.Component
 import nhdphuong.com.manga.data.RepositoryModule
+import nhdphuong.com.manga.features.about.AboutUsComponent
+import nhdphuong.com.manga.features.about.AboutUsModule
 import nhdphuong.com.manga.features.admin.AdminComponent
 import nhdphuong.com.manga.features.admin.AdminModule
 import nhdphuong.com.manga.features.downloaded.DownloadedBooksComponent
@@ -35,6 +37,7 @@ interface ApplicationComponent {
     fun plus(recentModule: RecentModule): RecentComponent
     fun plus(adminModule: AdminModule): AdminComponent
     fun plus(downloadedBooksModule: DownloadedBooksModule): DownloadedBooksComponent
+    fun plus(aboutUsModule: AboutUsModule): AboutUsComponent
 
     fun inject(service: TagsUpdateService)
     fun inject(bookDownloadingServices: BookDownloadingServices)

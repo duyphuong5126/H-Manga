@@ -22,4 +22,7 @@ interface UseCaseModule {
 
     @Binds
     fun getAvailableBookThumbnailsUseCase(getAvailableBookThumbnailsUseCaseImpl: GetAvailableBookThumbnailsUseCaseImpl): GetAvailableBookThumbnailsUseCase
+
+    @Binds
+    fun getVersionCodeUseCase(getVersionCodeUseCaseImpl: GetVersionCodeUseCaseImpl): GetVersionCodeUseCase
 }

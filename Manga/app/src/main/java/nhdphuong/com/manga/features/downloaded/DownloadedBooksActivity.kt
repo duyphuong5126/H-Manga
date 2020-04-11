@@ -50,7 +50,7 @@ import javax.inject.Inject
 
 class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.View, PtrUIHandler {
     @Inject
-    lateinit var downloadedBooksPresenter: DownloadedBooksPresenter
+    lateinit var downloadedBooksPresenter: DownloadedBooksContract.Presenter
 
     private lateinit var loadingDialog: Dialog
     private lateinit var bookListAdapter: BookAdapter

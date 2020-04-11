@@ -98,11 +98,26 @@
             android:layout_marginLeft="@dimen/space_medium"
             android:layout_marginTop="@dimen/space_medium"
             android:layout_marginBottom="@dimen/space_medium"
-            android:text="@string/version_template"
+            android:text="@string/app_version_template"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvAppNameLabel"
+            app:myFont="@string/NotoSansBold" />
+
+        <nhdphuong.com.manga.views.customs.MyTextView
+            android:id="@+id/tvTagVersionLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_medium"
+            android:layout_marginLeft="@dimen/space_medium"
+            android:layout_marginTop="@dimen/space_medium"
+            android:layout_marginBottom="@dimen/space_medium"
+            android:text="@string/tag_data_version_template"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvVersionLabel"
             app:myFont="@string/NotoSansBold" />
 
         <nhdphuong.com.manga.views.customs.MyTextView
@@ -117,7 +132,7 @@
             android:textColor="@android:color/white"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvVersionLabel"
+            app:layout_constraintTop_toBottomOf="@id/tvTagVersionLabel"
             app:myFont="@string/NotoSansBold" />
 
         <nhdphuong.com.manga.views.customs.MyTextView

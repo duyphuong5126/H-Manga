@@ -159,6 +159,6 @@ class DownloadedBooksPresenter @Inject constructor(
 
     companion object {
         private const val TAG = "DownloadedBooksPresenter"
-        private const val MAX_PER_PAGE = 10
+        private const val MAX_PER_PAGE = 25
     }
 }

@@ -22,7 +22,7 @@ import javax.inject.Inject
 class TagsUpdateService : Service() {
     companion object {
         private const val TAG = "TagsUpdateService"
-        private const val TIME_INTERVAL: Long = 15 * 60 * 1000L
+        private const val TIME_INTERVAL: Long = 2 * 60 * 1000L
     }
 
     private var mUpdateTagTimer: Timer? = null
