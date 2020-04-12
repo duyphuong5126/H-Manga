@@ -3,7 +3,6 @@ package nhdphuong.com.manga.views
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
-import android.graphics.drawable.ColorDrawable
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
@@ -19,13 +18,14 @@ import nhdphuong.com.manga.views.customs.MyTextView
 class DialogHelper {
     companion object {
         private const val TAG = "DialogHelper"
+        private const val DEFAULT_LOADING_INTERVAL = 700L
 
         @SuppressLint("InflateParams", "SetTextI18n")
         fun createLoadingDialog(activity: Activity): Dialog {
             val dotsArray = activity.resources.getStringArray(R.array.dots)
             var currentPos = 0
             val loadingString = activity.getString(R.string.loading)
-            val dialog = Dialog(activity, android.R.style.Theme_Black_NoTitleBar)
+            val dialog = Dialog(activity)
             val layoutInflater = activity.layoutInflater
             val contentView = layoutInflater.inflate(
                 R.layout.layout_loading_dialog,
@@ -36,16 +36,24 @@ class DialogHelper {
             val ivLoading: ImageView = contentView.findViewById(R.id.ivLoading)
             dialog.setContentView(contentView)
             dialog.setCancelable(false)
-            dialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
             ImageUtils.loadGifImage(R.raw.ic_loading_cat_transparent, ivLoading)
             val onFinishTask = runScheduledTaskOnMainThread({
                 Logger.d(TAG, "Current pos: $currentPos")
                 tvLoading.text = loadingString + dotsArray[currentPos]
                 if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
-            }, 700)
+            })
 
             dialog.setOnDismissListener {
                 onFinishTask.invoke()
+            }
+            dialog.setCanceledOnTouchOutside(false)
+            dialog.window?.let { window ->
+                window.setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                window.setGravity(Gravity.CENTER)
+                window.decorView.setBackgroundResource(android.R.color.transparent)
             }
 
             return dialog
@@ -235,7 +243,10 @@ class DialogHelper {
             }
         }
 
-        private fun runScheduledTaskOnMainThread(task: () -> Unit, timeInterval: Long): () -> Unit {
+        private fun runScheduledTaskOnMainThread(
+            task: () -> Unit,
+            timeInterval: Long = DEFAULT_LOADING_INTERVAL
+        ): () -> Unit {
             val handler = Handler(Looper.getMainLooper())
             var canFinish = false
             val updateTask = object : Runnable {

@@ -1,6 +1,5 @@
 package nhdphuong.com.manga.views
 
-import android.os.Build
 import android.view.View
 import android.view.ViewTreeObserver
 
@@ -23,15 +22,9 @@ fun View.gone() {
 fun View.doOnGlobalLayout(task: () -> Unit) {
     viewTreeObserver.addOnGlobalLayoutListener(object :
         ViewTreeObserver.OnGlobalLayoutListener {
-        @Suppress("DEPRECATION")
         override fun onGlobalLayout() {
             task.invoke()
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                viewTreeObserver.removeGlobalOnLayoutListener(this)
-            } else {
-                viewTreeObserver.removeOnGlobalLayoutListener(this)
-            }
+            viewTreeObserver.removeOnGlobalLayoutListener(this)
         }
     })
 }

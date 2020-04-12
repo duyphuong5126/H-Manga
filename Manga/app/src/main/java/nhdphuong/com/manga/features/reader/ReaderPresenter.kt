@@ -1,8 +1,5 @@
 package nhdphuong.com.manga.features.reader
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
@@ -24,6 +21,10 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import nhdphuong.com.manga.supports.doInIOContext
 import java.io.File
 
 /*
@@ -137,7 +138,7 @@ class ReaderPresenter @Inject constructor(
         if (!isDownloading) {
             isDownloading = true
             view.showLoading()
-            io.launch {
+            io.doInIOContext {
                 val resultList = LinkedList<String>()
                 while (!downloadQueue.isEmpty()) {
                     val downloadPage = downloadQueue.take()
@@ -156,13 +157,20 @@ class ReaderPresenter @Inject constructor(
 
                         val fileName = String.format("%0${prefixNumber}d", downloadPage + 1)
                         val resultPath =
-                            SupportUtils.saveImage(result, resultFilePath, fileName, page.imageType)
+                            SupportUtils.saveImage(
+                                result,
+                                resultFilePath,
+                                fileName,
+                                page.imageType
+                            )
                         resultList.add(resultPath)
                         Logger.d(TAG, "$fileName is saved successfully")
                     }
                     main.launch {
-                        view.updateDownloadPopupTitle(downloadPage + 1)
-                        view.showDownloadPopup()
+                        if (view.isActive()) {
+                            view.updateDownloadPopupTitle(downloadPage + 1)
+                            view.showDownloadPopup()
+                        }
                     }
                     Logger.d(TAG, "Download page ${downloadPage + 1} completed")
                 }

@@ -3,29 +3,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white">
+    android:layout_height="@dimen/dialog_progress_height"
+    android:background="@drawable/bg_white_all_corners_radius">
 
     <ImageView
         android:id="@+id/ivLoading"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="@dimen/loading_icon_size"
+        android:layout_height="@dimen/loading_icon_size"
+        android:layout_marginStart="@dimen/space_normal"
+        android:layout_marginLeft="@dimen/space_normal"
         android:contentDescription="@string/loading"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <nhdphuong.com.manga.views.customs.MyTextView
         android:id="@+id/tvLoading"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginStart="@dimen/space_medium"
+        android:layout_marginLeft="@dimen/space_medium"
+        android:layout_marginEnd="@dimen/space_medium"
+        android:layout_marginRight="@dimen/space_medium"
+        android:gravity="center_vertical"
         android:text="@string/loading"
         android:textColor="@android:color/black"
         android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ivLoading"
+        app:layout_constraintStart_toEndOf="@id/ivLoading"
+        app:layout_constraintTop_toTopOf="parent"
         app:myFont="@string/NotoSansBold"
         tools:targetApi="jelly_bean" />
 
