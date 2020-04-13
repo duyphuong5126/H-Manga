@@ -28,7 +28,7 @@
         android:gravity="center_vertical"
         android:text="@string/loading"
         android:textColor="@android:color/black"
-        android:textSize="22sp"
+        android:textSize="@dimen/header_title_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/ivLoading"
