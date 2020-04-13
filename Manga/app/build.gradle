@@ -13,8 +13,8 @@ android {
         applicationId "nhdphuong.com.manga"
         minSdkVersion 16
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        versionCode 9
+        versionName "1.0.72"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         javaCompileOptions {
