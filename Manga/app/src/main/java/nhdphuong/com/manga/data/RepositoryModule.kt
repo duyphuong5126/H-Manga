@@ -6,13 +6,13 @@ import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import nhdphuong.com.manga.api.BookApiService
-import nhdphuong.com.manga.api.TagApiService
+import nhdphuong.com.manga.api.MasterDataApiService
 import nhdphuong.com.manga.data.local.BookLocalDataSource
 import nhdphuong.com.manga.data.local.BookDAO
 import nhdphuong.com.manga.data.local.TagDAO
-import nhdphuong.com.manga.data.local.TagLocalDataSource
+import nhdphuong.com.manga.data.local.MasterDataLocalDataSource
 import nhdphuong.com.manga.data.remote.BookRemoteDataSource
-import nhdphuong.com.manga.data.remote.TagRemoteDataSource
+import nhdphuong.com.manga.data.remote.MasterDataRemoteDataSource
 import nhdphuong.com.manga.scope.Local
 import nhdphuong.com.manga.scope.Remote
 import javax.inject.Singleton
@@ -42,15 +42,15 @@ class RepositoryModule {
     @NonNull
     @Singleton
     @Remote
-    fun provideTagRemoteDataSource(tagApiService: TagApiService): TagDataSource.Remote {
-        return TagRemoteDataSource(tagApiService)
+    fun provideMasterDataRemoteDataSource(masterDataApiService: MasterDataApiService): MasterDataSource.Remote {
+        return MasterDataRemoteDataSource(masterDataApiService)
     }
 
     @Provides
     @NonNull
     @Singleton
     @Local
-    fun providesTagLocalDataSource(tagDAO: TagDAO): TagDataSource.Local {
-        return TagLocalDataSource(tagDAO, CoroutineScope(Dispatchers.IO))
+    fun providesMasterDataLocalDataSource(tagDAO: TagDAO): MasterDataSource.Local {
+        return MasterDataLocalDataSource(tagDAO, CoroutineScope(Dispatchers.IO))
     }
 }

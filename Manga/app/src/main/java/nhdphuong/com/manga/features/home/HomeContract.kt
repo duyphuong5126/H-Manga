@@ -20,12 +20,15 @@ interface HomeContract {
         fun changeSearchResult(data: String)
         fun showBookPreview(book: Book)
         fun startUpdateTagsService()
+        fun showUpgradeNotification()
     }
 
     interface Presenter : Base.Presenter {
         fun jumpToPage(pageNumber: Long)
         fun jumToFirstPage()
         fun jumToLastPage()
+        fun setNewerVersionAcknowledged()
+        fun refreshAppVersion()
         fun reloadCurrentPage(onRefreshed: () -> Unit)
         fun reloadLastBookListRefreshTime()
         fun reloadRecentBooks()

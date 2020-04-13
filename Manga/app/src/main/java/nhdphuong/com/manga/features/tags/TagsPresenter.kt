@@ -7,7 +7,7 @@ import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.Tag
 import nhdphuong.com.manga.data.TagFilter
 import nhdphuong.com.manga.data.entity.book.tags.ITag
-import nhdphuong.com.manga.data.repository.TagRepository
+import nhdphuong.com.manga.data.repository.MasterDataRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import javax.inject.Inject
@@ -17,7 +17,7 @@ import javax.inject.Inject
  */
 class TagsPresenter @Inject constructor(
     private val view: TagsContract.View,
-    private val tagRepository: TagRepository,
+    private val masterDataRepository: MasterDataRepository,
     @Tag private var tagType: String,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
@@ -71,12 +71,12 @@ class TagsPresenter @Inject constructor(
                     when (tagFilter) {
                         TagFilter.ALPHABET -> {
                             if (currentPrefixChar == TAG_PREFIXES[0]) {
-                                tagRepository.getTagsBySpecialCharactersPrefixAscending(
+                                masterDataRepository.getTagsBySpecialCharactersPrefixAscending(
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
                                 )
                             } else {
-                                tagRepository.getTagsByPrefixAscending(
+                                masterDataRepository.getTagsByPrefixAscending(
                                     currentPrefixChar,
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
@@ -84,7 +84,7 @@ class TagsPresenter @Inject constructor(
                             }
                         }
                         else -> {
-                            tagRepository.getTagsByPopularityDescending(
+                            masterDataRepository.getTagsByPopularityDescending(
                                 TAGS_PER_PAGE,
                                 currentPage * TAGS_PER_PAGE
                             )
@@ -95,12 +95,12 @@ class TagsPresenter @Inject constructor(
                     when (tagFilter) {
                         TagFilter.ALPHABET -> {
                             if (currentPrefixChar == TAG_PREFIXES[0]) {
-                                tagRepository.getArtistsBySpecialCharactersPrefixAscending(
+                                masterDataRepository.getArtistsBySpecialCharactersPrefixAscending(
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
                                 )
                             } else {
-                                tagRepository.getArtistsByPrefixAscending(
+                                masterDataRepository.getArtistsByPrefixAscending(
                                     currentPrefixChar,
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
@@ -108,7 +108,7 @@ class TagsPresenter @Inject constructor(
                             }
                         }
                         else -> {
-                            tagRepository.getArtistsByPopularityDescending(
+                            masterDataRepository.getArtistsByPopularityDescending(
                                 TAGS_PER_PAGE,
                                 currentPage * TAGS_PER_PAGE
                             )
@@ -119,12 +119,12 @@ class TagsPresenter @Inject constructor(
                     when (tagFilter) {
                         TagFilter.ALPHABET -> {
                             if (currentPrefixChar == TAG_PREFIXES[0]) {
-                                tagRepository.getCharactersBySpecialCharactersPrefixAscending(
+                                masterDataRepository.getCharactersBySpecialCharactersPrefixAscending(
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
                                 )
                             } else {
-                                tagRepository.getCharactersByPrefixAscending(
+                                masterDataRepository.getCharactersByPrefixAscending(
                                     currentPrefixChar,
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
@@ -132,7 +132,7 @@ class TagsPresenter @Inject constructor(
                             }
                         }
                         else -> {
-                            tagRepository.getCharactersByPopularityDescending(
+                            masterDataRepository.getCharactersByPopularityDescending(
                                 TAGS_PER_PAGE,
                                 currentPage * TAGS_PER_PAGE
                             )
@@ -143,12 +143,12 @@ class TagsPresenter @Inject constructor(
                     when (tagFilter) {
                         TagFilter.ALPHABET -> {
                             if (currentPrefixChar == TAG_PREFIXES[0]) {
-                                tagRepository.getGroupsBySpecialCharactersPrefixAscending(
+                                masterDataRepository.getGroupsBySpecialCharactersPrefixAscending(
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
                                 )
                             } else {
-                                tagRepository.getGroupsByPrefixAscending(
+                                masterDataRepository.getGroupsByPrefixAscending(
                                     currentPrefixChar,
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
@@ -156,7 +156,7 @@ class TagsPresenter @Inject constructor(
                             }
                         }
                         else -> {
-                            tagRepository.getGroupsByPopularityDescending(
+                            masterDataRepository.getGroupsByPopularityDescending(
                                 TAGS_PER_PAGE,
                                 currentPage * TAGS_PER_PAGE
                             )
@@ -167,12 +167,12 @@ class TagsPresenter @Inject constructor(
                     when (tagFilter) {
                         TagFilter.ALPHABET -> {
                             if (currentPrefixChar == TAG_PREFIXES[0]) {
-                                tagRepository.getParodiesBySpecialCharactersPrefixAscending(
+                                masterDataRepository.getParodiesBySpecialCharactersPrefixAscending(
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
                                 )
                             } else {
-                                tagRepository.getParodiesByPrefixAscending(
+                                masterDataRepository.getParodiesByPrefixAscending(
                                     currentPrefixChar,
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
@@ -180,7 +180,7 @@ class TagsPresenter @Inject constructor(
                             }
                         }
                         else -> {
-                            tagRepository.getParodiesByPopularityDescending(
+                            masterDataRepository.getParodiesByPopularityDescending(
                                 TAGS_PER_PAGE,
                                 currentPage * TAGS_PER_PAGE
                             )
@@ -216,24 +216,25 @@ class TagsPresenter @Inject constructor(
         io.launch {
             val tagList: List<ITag> = when (tagType) {
                 Constants.TAGS -> {
-                    currentTagsCount = tagRepository.getTagCount()
+                    currentTagsCount = masterDataRepository.getTagCount()
 
                     when (tagFilter) {
                         TagFilter.ALPHABET -> {
                             if (currentPrefixChar == TAG_PREFIXES[0]) {
                                 currentFilteredTagsCount =
-                                    tagRepository.getTagCountBySpecialCharactersPrefix()
+                                    masterDataRepository.getTagCountBySpecialCharactersPrefix()
                                 updatePagination()
-                                tagRepository.getTagsBySpecialCharactersPrefixAscending(
+                                masterDataRepository.getTagsBySpecialCharactersPrefixAscending(
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
                                 )
                             } else {
-                                currentFilteredTagsCount = tagRepository.getTagsCountByPrefix(
-                                    currentPrefixChar
-                                )
+                                currentFilteredTagsCount =
+                                    masterDataRepository.getTagsCountByPrefix(
+                                        currentPrefixChar
+                                    )
                                 updatePagination()
-                                tagRepository.getTagsByPrefixAscending(
+                                masterDataRepository.getTagsByPrefixAscending(
                                     currentPrefixChar,
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
@@ -243,7 +244,7 @@ class TagsPresenter @Inject constructor(
                         else -> {
                             currentFilteredTagsCount = currentTagsCount
                             updatePagination()
-                            tagRepository.getTagsByPopularityDescending(
+                            masterDataRepository.getTagsByPopularityDescending(
                                 TAGS_PER_PAGE,
                                 currentPage * TAGS_PER_PAGE
                             )
@@ -251,24 +252,25 @@ class TagsPresenter @Inject constructor(
                     }
                 }
                 Constants.ARTISTS -> {
-                    currentTagsCount = tagRepository.getArtistsCount()
+                    currentTagsCount = masterDataRepository.getArtistsCount()
 
                     when (tagFilter) {
                         TagFilter.ALPHABET -> {
                             if (currentPrefixChar == TAG_PREFIXES[0]) {
                                 currentFilteredTagsCount =
-                                    tagRepository.getArtistsCountBySpecialCharactersPrefix()
+                                    masterDataRepository.getArtistsCountBySpecialCharactersPrefix()
                                 updatePagination()
-                                tagRepository.getArtistsBySpecialCharactersPrefixAscending(
+                                masterDataRepository.getArtistsBySpecialCharactersPrefixAscending(
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
                                 )
                             } else {
-                                currentFilteredTagsCount = tagRepository.getArtistsCountByPrefix(
-                                    currentPrefixChar
-                                )
+                                currentFilteredTagsCount =
+                                    masterDataRepository.getArtistsCountByPrefix(
+                                        currentPrefixChar
+                                    )
                                 updatePagination()
-                                tagRepository.getArtistsByPrefixAscending(
+                                masterDataRepository.getArtistsByPrefixAscending(
                                     currentPrefixChar,
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
@@ -278,7 +280,7 @@ class TagsPresenter @Inject constructor(
                         else -> {
                             currentFilteredTagsCount = currentTagsCount
                             updatePagination()
-                            tagRepository.getArtistsByPopularityDescending(
+                            masterDataRepository.getArtistsByPopularityDescending(
                                 TAGS_PER_PAGE,
                                 currentPage * TAGS_PER_PAGE
                             )
@@ -286,25 +288,25 @@ class TagsPresenter @Inject constructor(
                     }
                 }
                 Constants.CHARACTERS -> {
-                    currentTagsCount = tagRepository.getCharactersCount()
+                    currentTagsCount = masterDataRepository.getCharactersCount()
 
                     when (tagFilter) {
                         TagFilter.ALPHABET -> {
                             if (currentPrefixChar == TAG_PREFIXES[0]) {
                                 currentFilteredTagsCount =
-                                    tagRepository.getCharactersCountBySpecialCharactersPrefix()
+                                    masterDataRepository.getCharactersCountBySpecialCharactersPrefix()
                                 updatePagination()
-                                tagRepository.getCharactersBySpecialCharactersPrefixAscending(
+                                masterDataRepository.getCharactersBySpecialCharactersPrefixAscending(
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
                                 )
                             } else {
                                 currentFilteredTagsCount =
-                                    tagRepository.getCharactersCountByPrefix(
+                                    masterDataRepository.getCharactersCountByPrefix(
                                         currentPrefixChar
                                     )
                                 updatePagination()
-                                tagRepository.getCharactersByPrefixAscending(
+                                masterDataRepository.getCharactersByPrefixAscending(
                                     currentPrefixChar,
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
@@ -314,7 +316,7 @@ class TagsPresenter @Inject constructor(
                         else -> {
                             currentFilteredTagsCount = currentTagsCount
                             updatePagination()
-                            tagRepository.getCharactersByPopularityDescending(
+                            masterDataRepository.getCharactersByPopularityDescending(
                                 TAGS_PER_PAGE,
                                 currentPage * TAGS_PER_PAGE
                             )
@@ -322,23 +324,23 @@ class TagsPresenter @Inject constructor(
                     }
                 }
                 Constants.GROUPS -> {
-                    currentTagsCount = tagRepository.getGroupsCount()
+                    currentTagsCount = masterDataRepository.getGroupsCount()
 
                     when (tagFilter) {
                         TagFilter.ALPHABET -> {
                             if (currentPrefixChar == TAG_PREFIXES[0]) {
                                 currentFilteredTagsCount =
-                                    tagRepository.getGroupsCountBySpecialCharactersPrefix()
+                                    masterDataRepository.getGroupsCountBySpecialCharactersPrefix()
                                 updatePagination()
-                                tagRepository.getGroupsBySpecialCharactersPrefixAscending(
+                                masterDataRepository.getGroupsBySpecialCharactersPrefixAscending(
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
                                 )
                             } else {
                                 currentFilteredTagsCount =
-                                    tagRepository.getGroupsCountByPrefix(currentPrefixChar)
+                                    masterDataRepository.getGroupsCountByPrefix(currentPrefixChar)
                                 updatePagination()
-                                tagRepository.getGroupsByPrefixAscending(
+                                masterDataRepository.getGroupsByPrefixAscending(
                                     currentPrefixChar,
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
@@ -348,7 +350,7 @@ class TagsPresenter @Inject constructor(
                         else -> {
                             currentFilteredTagsCount = currentTagsCount
                             updatePagination()
-                            tagRepository.getGroupsByPopularityDescending(
+                            masterDataRepository.getGroupsByPopularityDescending(
                                 TAGS_PER_PAGE,
                                 currentPage * TAGS_PER_PAGE
                             )
@@ -356,23 +358,23 @@ class TagsPresenter @Inject constructor(
                     }
                 }
                 Constants.PARODIES -> {
-                    currentTagsCount = tagRepository.getParodiesCount()
+                    currentTagsCount = masterDataRepository.getParodiesCount()
 
                     when (tagFilter) {
                         TagFilter.ALPHABET -> {
                             if (currentPrefixChar == TAG_PREFIXES[0]) {
                                 currentFilteredTagsCount =
-                                    tagRepository.getParodiesCountBySpecialCharactersPrefix()
+                                    masterDataRepository.getParodiesCountBySpecialCharactersPrefix()
                                 updatePagination()
-                                tagRepository.getParodiesBySpecialCharactersPrefixAscending(
+                                masterDataRepository.getParodiesBySpecialCharactersPrefixAscending(
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
                                 )
                             } else {
                                 currentFilteredTagsCount =
-                                    tagRepository.getParodiesCountByPrefix(currentPrefixChar)
+                                    masterDataRepository.getParodiesCountByPrefix(currentPrefixChar)
                                 updatePagination()
-                                tagRepository.getParodiesByPrefixAscending(
+                                masterDataRepository.getParodiesByPrefixAscending(
                                     currentPrefixChar,
                                     TAGS_PER_PAGE,
                                     currentPage * TAGS_PER_PAGE
@@ -382,7 +384,7 @@ class TagsPresenter @Inject constructor(
                         else -> {
                             currentFilteredTagsCount = currentTagsCount
                             updatePagination()
-                            tagRepository.getParodiesByPopularityDescending(
+                            masterDataRepository.getParodiesByPopularityDescending(
                                 TAGS_PER_PAGE,
                                 currentPage * TAGS_PER_PAGE
                             )

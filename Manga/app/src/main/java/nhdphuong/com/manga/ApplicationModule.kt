@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.api.BookApiService
-import nhdphuong.com.manga.api.TagApiService
+import nhdphuong.com.manga.api.MasterDataApiService
 import nhdphuong.com.manga.data.local.Database
 import nhdphuong.com.manga.data.local.BookDAO
 import nhdphuong.com.manga.data.local.TagDAO
@@ -43,9 +43,9 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
 
     @Singleton
     @Provides
-    fun provideTagApiService(): TagApiService {
+    fun provideMasterDataApiService(): MasterDataApiService {
         ServiceGenerator.setInterceptor(null)
-        return ServiceGenerator.createService(TagApiService::class.java)
+        return ServiceGenerator.createService(MasterDataApiService::class.java)
     }
 
     @Singleton

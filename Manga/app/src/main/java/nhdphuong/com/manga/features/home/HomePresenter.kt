@@ -5,6 +5,7 @@ import android.text.TextUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import nhdphuong.com.manga.BuildConfig
 import nhdphuong.com.manga.Constants.Companion.MAX_PER_PAGE
 import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
@@ -12,7 +13,7 @@ import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.repository.BookRepository
-import nhdphuong.com.manga.data.repository.TagRepository
+import nhdphuong.com.manga.data.repository.MasterDataRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
@@ -35,7 +36,7 @@ import kotlin.math.abs
 class HomePresenter @Inject constructor(
     private val view: HomeContract.View,
     private val bookRepository: BookRepository,
-    private val tagRepository: TagRepository,
+    private val masterDataRepository: MasterDataRepository,
     private val sharedPreferencesManager: SharedPreferencesManager,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
@@ -61,6 +62,8 @@ class HomePresenter @Inject constructor(
     private var searchData: String = ""
     private val isSearching: Boolean get() = !TextUtils.isEmpty(searchData)
 
+    private val newerVersionAcknowledged = AtomicBoolean(false)
+
     private val tagsDownloadManager = DownloadManager.Companion.TagsDownloadManager
 
     init {
@@ -72,7 +75,7 @@ class HomePresenter @Inject constructor(
         reload()
         if (!sharedPreferencesManager.tagsDataDownloaded) {
             tagsDownloadManager.startDownloading()
-            tagRepository.fetchAllTagLists { isSuccess ->
+            masterDataRepository.fetchAllTagLists { isSuccess ->
                 Logger.d(TAG, "Tags fetching completed, isSuccess=$isSuccess")
                 if (isSuccess) {
                     sharedPreferencesManager.tagsDataDownloaded = true
@@ -84,7 +87,7 @@ class HomePresenter @Inject constructor(
                         view.startUpdateTagsService()
                     }
                 }
-                tagRepository.getCurrentVersion(onSuccess = { newVersion ->
+                masterDataRepository.getTagDataVersion(onSuccess = { newVersion ->
                     if (sharedPreferencesManager.currentTagVersion != newVersion) {
                         Logger.d(
                             TAG, "New version is available, " +
@@ -119,6 +122,28 @@ class HomePresenter @Inject constructor(
     override fun jumToLastPage() {
         Logger.d(TAG, "Navigate to last page: $currentNumOfPages")
         onPageChange(currentNumOfPages)
+    }
+
+    override fun setNewerVersionAcknowledged() {
+        newerVersionAcknowledged.compareAndSet(false, true)
+    }
+
+    override fun refreshAppVersion() {
+        io.launch {
+            val upgradeNotificationAllowed = sharedPreferencesManager.isUpgradeNotificationAllowed
+            masterDataRepository.getAppVersion(onSuccess = { latestVersion ->
+                Logger.d(TAG, "Latest version: $latestVersion")
+                val isLatestVersion = BuildConfig.VERSION_CODE == latestVersion
+                val versionAcknowledged = newerVersionAcknowledged.get()
+                if (!isLatestVersion && !versionAcknowledged && upgradeNotificationAllowed) {
+                    main.launch {
+                        view.showUpgradeNotification()
+                    }
+                }
+            }, onError = { error ->
+                Logger.e(TAG, "Failed to get app version with error: $error")
+            })
+        }
     }
 
     override fun reloadCurrentPage(onRefreshed: () -> Unit) {

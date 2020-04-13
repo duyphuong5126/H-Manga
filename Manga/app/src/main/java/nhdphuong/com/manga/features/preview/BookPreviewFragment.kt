@@ -52,6 +52,7 @@ import kotlinx.android.synthetic.main.fragment_book_preview.tvTagsLabel
 import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_1
 import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_2
 import kotlinx.android.synthetic.main.fragment_book_preview.tvUpdatedAt
+import kotlinx.android.synthetic.main.fragment_book_preview.ibBack
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
@@ -64,6 +65,7 @@ import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.features.reader.ReaderActivity
+import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
@@ -198,6 +200,24 @@ class BookPreviewFragment :
         mtvRecommendBook.becomeVisibleIf(!viewDownloadedData)
         svPreview.overScrollMode = View.OVER_SCROLL_NEVER
         svBookCover.overScrollMode = View.OVER_SCROLL_NEVER
+
+        ivBookCover.setOnClickListener {
+            activity?.let { activity ->
+                if (ibBack.visibility == View.VISIBLE) {
+                    AnimationHelper.startSlideOutTop(activity, ibBack) {
+                        ibBack.gone()
+                    }
+                } else {
+                    AnimationHelper.startSlideInTop(activity, ibBack) {
+                        ibBack.becomeVisible()
+                    }
+                }
+            }
+        }
+
+        ibBack.setOnClickListener {
+            activity?.onBackPressed()
+        }
 
         view.viewTreeObserver.addOnGlobalLayoutListener {
             if (!isPresenterStarted) {

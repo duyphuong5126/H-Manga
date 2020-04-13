@@ -26,6 +26,7 @@ class SharedPreferencesManager private constructor() {
         private const val KEY_TAGS_DATA_DOWNLOADED = "KEY_TAGS_DATA_DOWNLOADED"
         private const val KEY_CURRENT_TAG_VERSION = "KEY_CURRENT_TAG_VERSION"
         private const val KEY_CENSORED = "KEY_CENSORED"
+        private const val KEY_UPGRADE_NOTIFICATION_ALLOWED = "KEY_UPGRADE_NOTIFICATION_ALLOWED"
 
         private var mInstance: SharedPreferencesManager? = null
         val instance: SharedPreferencesManager
@@ -38,12 +39,12 @@ class SharedPreferencesManager private constructor() {
     }
 
     private val mBookPreferences: SharedPreferences = NHentaiApp.instance.getSharedPreferences(
-            BOOK_PREFERENCE,
-            Context.MODE_PRIVATE
+        BOOK_PREFERENCE,
+        Context.MODE_PRIVATE
     )
     private val mAdminPreferences: SharedPreferences = NHentaiApp.instance.getSharedPreferences(
-            ADMIN_PREFERENCE,
-            Context.MODE_PRIVATE
+        ADMIN_PREFERENCE,
+        Context.MODE_PRIVATE
     )
 
     fun setLastBookListRefreshTime(lastRefreshTime: Long) {
@@ -51,8 +52,8 @@ class SharedPreferencesManager private constructor() {
     }
 
     fun getLastBookListRefreshTime(): Long = mBookPreferences.getLong(
-            KEY_LAST_BOOK_LIST_REFRESH_TIME,
-            System.currentTimeMillis()
+        KEY_LAST_BOOK_LIST_REFRESH_TIME,
+        System.currentTimeMillis()
     )
 
     var lastArtistsCount: Int
@@ -120,4 +121,10 @@ class SharedPreferencesManager private constructor() {
             mAdminPreferences.edit().putBoolean(KEY_CENSORED, value).apply()
         }
         get() = mAdminPreferences.getBoolean(KEY_CENSORED, false)
+
+    var isUpgradeNotificationAllowed: Boolean
+        set(value) {
+            mAdminPreferences.edit().putBoolean(KEY_UPGRADE_NOTIFICATION_ALLOWED, value).apply()
+        }
+        get() = mAdminPreferences.getBoolean(KEY_UPGRADE_NOTIFICATION_ALLOWED, true)
 }

@@ -9,7 +9,7 @@ import nhdphuong.com.manga.data.entity.book.tags.Language
 import nhdphuong.com.manga.data.entity.book.tags.Parody
 import nhdphuong.com.manga.data.entity.book.tags.UnknownTag
 
-interface TagDataSource {
+interface MasterDataSource {
     interface Remote {
         suspend fun fetchArtistsList(onSuccess: (List<Artist>?) -> Unit, onError: () -> Unit)
         suspend fun fetchCharactersList(onSuccess: (List<Character>?) -> Unit, onError: () -> Unit)
@@ -19,11 +19,13 @@ interface TagDataSource {
         suspend fun fetchLanguagesList(onSuccess: (List<Language>?) -> Unit, onError: () -> Unit)
         suspend fun fetchTagsList(onSuccess: (List<Tag>?) -> Unit, onError: () -> Unit)
         suspend fun fetchUnknownTypesList(
-                onSuccess: (List<UnknownTag>?) -> Unit,
-                onError: () -> Unit
+            onSuccess: (List<UnknownTag>?) -> Unit,
+            onError: () -> Unit
         )
 
-        suspend fun fetchCurrentVersion(onSuccess: (Long) -> Unit, onError: () -> Unit)
+        suspend fun fetchTagDataVersion(onSuccess: (Long) -> Unit, onError: () -> Unit)
+
+        suspend fun fetchAppVersion(onSuccess: (Int) -> Unit, onError: (error: Throwable) -> Unit)
     }
 
     interface Local {
@@ -36,25 +38,25 @@ interface TagDataSource {
         suspend fun getArtistsCountByPrefix(prefix: String): Int
         suspend fun getArtistsCountBySpecialCharactersPrefix(): Int
         suspend fun getArtistsBySpecialCharactersPrefixAscending(
-                limit: Int,
-                offset: Int
+            limit: Int,
+            offset: Int
         ): List<Artist>
 
         suspend fun getArtistsBySpecialCharactersPrefixDescending(
-                limit: Int,
-                offset: Int
+            limit: Int,
+            offset: Int
         ): List<Artist>
 
         suspend fun getArtistsByPrefixAscending(
-                prefixString: String,
-                limit: Int,
-                offset: Int
+            prefixString: String,
+            limit: Int,
+            offset: Int
         ): List<Artist>
 
         suspend fun getArtistsByPrefixDescending(
-                prefixString: String,
-                limit: Int,
-                offset: Int
+            prefixString: String,
+            limit: Int,
+            offset: Int
         ): List<Artist>
 
         suspend fun getArtistsByPopularityAscending(limit: Int, offset: Int): List<Artist>
@@ -69,25 +71,25 @@ interface TagDataSource {
         suspend fun getCharactersCountByPrefix(prefix: String): Int
         suspend fun getCharactersCountBySpecialCharactersPrefix(): Int
         suspend fun getCharactersBySpecialCharactersPrefixAscending(
-                limit: Int,
-                offset: Int
+            limit: Int,
+            offset: Int
         ): List<Character>
 
         suspend fun getCharactersBySpecialCharactersPrefixDescending(
-                limit: Int,
-                offset: Int
+            limit: Int,
+            offset: Int
         ): List<Character>
 
         suspend fun getCharactersByPrefixAscending(
-                prefixString: String,
-                limit: Int,
-                offset: Int
+            prefixString: String,
+            limit: Int,
+            offset: Int
         ): List<Character>
 
         suspend fun getCharactersByPrefixDescending(
-                prefixString: String,
-                limit: Int,
-                offset: Int
+            prefixString: String,
+            limit: Int,
+            offset: Int
         ): List<Character>
 
         suspend fun getCharactersByPopularityAscending(limit: Int, offset: Int): List<Character>
@@ -107,25 +109,25 @@ interface TagDataSource {
         suspend fun getGroupsCountByPrefix(prefix: String): Int
         suspend fun getGroupsCountBySpecialCharactersPrefix(): Int
         suspend fun getGroupsBySpecialCharactersPrefixAscending(
-                limit: Int,
-                offset: Int
+            limit: Int,
+            offset: Int
         ): List<Group>
 
         suspend fun getGroupsBySpecialCharactersPrefixDescending(
-                limit: Int,
-                offset: Int
+            limit: Int,
+            offset: Int
         ): List<Group>
 
         suspend fun getGroupsByPrefixAscending(
-                prefixString: String,
-                limit: Int,
-                offset: Int
+            prefixString: String,
+            limit: Int,
+            offset: Int
         ): List<Group>
 
         suspend fun getGroupsByPrefixDescending(
-                prefixString: String,
-                limit: Int,
-                offset: Int
+            prefixString: String,
+            limit: Int,
+            offset: Int
         ): List<Group>
 
         suspend fun getGroupsByPopularityAscending(limit: Int, offset: Int): List<Group>
@@ -140,25 +142,25 @@ interface TagDataSource {
         suspend fun getParodiesCountByPrefix(prefix: String): Int
         suspend fun getParodiesCountBySpecialCharactersPrefix(): Int
         suspend fun getParodiesBySpecialCharactersPrefixAscending(
-                limit: Int,
-                offset: Int
+            limit: Int,
+            offset: Int
         ): List<Parody>
 
         suspend fun getParodiesBySpecialCharactersPrefixDescending(
-                limit: Int,
-                offset: Int
+            limit: Int,
+            offset: Int
         ): List<Parody>
 
         suspend fun getParodiesByPrefixAscending(
-                prefixString: String,
-                limit: Int,
-                offset: Int
+            prefixString: String,
+            limit: Int,
+            offset: Int
         ): List<Parody>
 
         suspend fun getParodiesByPrefixDescending(
-                prefixString: String,
-                limit: Int,
-                offset: Int
+            prefixString: String,
+            limit: Int,
+            offset: Int
         ): List<Parody>
 
         suspend fun getParodiesByPopularityAscending(limit: Int, offset: Int): List<Parody>
@@ -178,25 +180,25 @@ interface TagDataSource {
         suspend fun getTagCountByPrefix(prefix: String): Int
         suspend fun getTagCountBySpecialCharactersPrefix(): Int
         suspend fun getTagsBySpecialCharactersPrefixAscending(
-                limit: Int,
-                offset: Int
+            limit: Int,
+            offset: Int
         ): List<Tag>
 
         suspend fun getTagsBySpecialCharactersPrefixDescending(
-                limit: Int,
-                offset: Int
+            limit: Int,
+            offset: Int
         ): List<Tag>
 
         suspend fun getTagsByPrefixAscending(
-                prefixString: String,
-                limit: Int,
-                offset: Int
+            prefixString: String,
+            limit: Int,
+            offset: Int
         ): List<Tag>
 
         suspend fun getTagsByPrefixDescending(
-                prefixString: String,
-                limit: Int,
-                offset: Int
+            prefixString: String,
+            limit: Int,
+            offset: Int
         ): List<Tag>
 
         suspend fun getTagsByPopularityAscending(limit: Int, offset: Int): List<Tag>

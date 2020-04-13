@@ -52,6 +52,19 @@
                     </LinearLayout>
                 </androidx.core.widget.NestedScrollView>
 
+                <ImageButton
+                    android:id="@+id/ibBack"
+                    android:layout_width="@dimen/large_button_size"
+                    android:layout_height="@dimen/large_button_size"
+                    android:background="@drawable/white_transparent_rect_rounded_all_corners"
+                    android:contentDescription="@string/back"
+                    android:scaleType="center"
+                    android:scaleX="0.8"
+                    android:scaleY="0.8"
+                    android:src="@drawable/ic_back_white"
+                    app:layout_constraintStart_toStartOf="@id/svBookCover"
+                    app:layout_constraintTop_toTopOf="@id/svBookCover" />
+
                 <!-- Book info-->
                 <nhdphuong.com.manga.views.customs.MyTextView
                     android:id="@+id/tvTitle_1"

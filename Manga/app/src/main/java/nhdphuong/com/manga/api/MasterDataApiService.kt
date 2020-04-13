@@ -11,7 +11,7 @@ import nhdphuong.com.manga.data.entity.book.tags.Character
 import retrofit2.Call
 import retrofit2.http.GET
 
-interface TagApiService {
+interface MasterDataApiService {
     @GET("${ApiConstants.NHENTAI_DB}/tags/artist.txt")
     fun getArtistsList(): Call<List<Artist>>
 
@@ -37,5 +37,8 @@ interface TagApiService {
     fun getUnknownTagsList(): Call<List<UnknownTag>>
 
     @GET("${ApiConstants.NHENTAI_DB}/tags/CurrentVersion.txt")
-    fun getCurrentVersion(): Call<Long>
+    fun getTagDataVersion(): Call<Long>
+
+    @GET("${ApiConstants.NHENTAI_DB}/tags/AppVersion.txt")
+    fun getAppVersion(): Call<Int>
 }

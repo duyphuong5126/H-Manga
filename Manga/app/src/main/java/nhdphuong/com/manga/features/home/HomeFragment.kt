@@ -31,6 +31,9 @@ import kotlinx.android.synthetic.main.fragment_book_list.refreshHeader
 import kotlinx.android.synthetic.main.fragment_book_list.rvMainList
 import kotlinx.android.synthetic.main.fragment_book_list.rvPagination
 import kotlinx.android.synthetic.main.fragment_book_list.srlPullToReload
+import kotlinx.android.synthetic.main.fragment_book_list.clUpgradePopup
+import kotlinx.android.synthetic.main.fragment_book_list.ibUpgradePopupClose
+import kotlinx.android.synthetic.main.fragment_book_list.mtvUpgradeTitle
 import kotlinx.android.synthetic.main.layout_refresh_header.view.ivRefresh
 import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvLastUpdate
 import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvRefresh
@@ -42,6 +45,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
+import nhdphuong.com.manga.supports.openUrl
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.gone
@@ -122,6 +126,20 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         Logger.d(TAG, "onActivityCreated")
         homePresenter.start()
         toggleSearchResult("")
+        mtvUpgradeTitle.setOnClickListener {
+            clUpgradePopup.gone()
+            homePresenter.setNewerVersionAcknowledged()
+            context?.openUrl(REPOSITORY_URL)
+        }
+        ibUpgradePopupClose.setOnClickListener {
+            clUpgradePopup.gone()
+            homePresenter.setNewerVersionAcknowledged()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        homePresenter.refreshAppVersion()
     }
 
     override fun onDestroy() {
@@ -259,6 +277,13 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         NHentaiApp.instance.startUpdateTagsService()
     }
 
+    override fun showUpgradeNotification() {
+        clUpgradePopup.becomeVisible()
+        clUpgradePopup.postDelayed({
+            clUpgradePopup.gone()
+        }, APP_UPGRADE_TIME_OUT)
+    }
+
     fun changeSearchInputted(data: String) {
         homePresenter.updateSearchData(data)
     }
@@ -379,5 +404,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         private const val DOTS_UPDATE_INTERVAL = 500L
         private const val REFRESH_COMPLETE_DURATION = 800L
         private const val REFRESH_HEADER_ANGEL = 180F
+        private const val APP_UPGRADE_TIME_OUT = 2 * 60 * 1000L
+        private const val REPOSITORY_URL = "https://github.com/duyphuong5126/H-Manga/releases"
     }
 }

@@ -13,7 +13,7 @@ import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
-import nhdphuong.com.manga.data.repository.TagRepository
+import nhdphuong.com.manga.data.repository.MasterDataRepository
 import nhdphuong.com.manga.features.NavigationRedirectActivity
 import java.util.Timer
 import java.util.TimerTask
@@ -28,7 +28,7 @@ class TagsUpdateService : Service() {
     private var mUpdateTagTimer: Timer? = null
 
     @Inject
-    lateinit var mTagRepository: TagRepository
+    lateinit var mMasterDataRepository: MasterDataRepository
 
     @Inject
     lateinit var mSharedPreferencesManager: SharedPreferencesManager
@@ -92,14 +92,14 @@ class TagsUpdateService : Service() {
     }
 
     private fun checkForNewVersion() {
-        mTagRepository.getCurrentVersion(onSuccess = { newVersion ->
+        mMasterDataRepository.getTagDataVersion(onSuccess = { newVersion ->
             if (mSharedPreferencesManager.currentTagVersion != newVersion) {
                 Logger.d(
                     TAG, "New version is available, new version: $newVersion," +
                             " current version: ${mSharedPreferencesManager.currentTagVersion}"
                 )
                 mTagsDownloadManager.startDownloading()
-                mTagRepository.fetchAllTagLists { isSuccess ->
+                mMasterDataRepository.fetchAllTagLists { isSuccess ->
                     Logger.d(TAG, "Tags fetching completed, isSuccess=$isSuccess")
                     if (isSuccess) {
                         mSharedPreferencesManager.currentTagVersion = newVersion

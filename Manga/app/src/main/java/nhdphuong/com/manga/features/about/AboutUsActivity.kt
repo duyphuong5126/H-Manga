@@ -11,12 +11,15 @@ import kotlinx.android.synthetic.main.activity_about_us.tvRepositoryInfo
 import kotlinx.android.synthetic.main.activity_about_us.tvVersionLabel
 import kotlinx.android.synthetic.main.activity_about_us.tvTagVersionLabel
 import kotlinx.android.synthetic.main.activity_about_us.ibBack
+import kotlinx.android.synthetic.main.activity_about_us.mbUpgradeButton
+import kotlinx.android.synthetic.main.activity_about_us.scNotificationAcceptor
 import nhdphuong.com.manga.BuildConfig
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.addClickAbleText
 import nhdphuong.com.manga.supports.openEmailApp
 import nhdphuong.com.manga.supports.openUrl
+import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.customs.MyTextView
 import javax.inject.Inject
 
@@ -50,6 +53,12 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View {
         backButton.setOnClickListener {
             onBackPressed()
         }
+        scNotificationAcceptor.setOnCheckedChangeListener { _, isChecked ->
+            presenter.changeAppUpgradeNotificationAcceptance(isChecked)
+        }
+        mbUpgradeButton.setOnClickListener {
+            openUrl(REPOSITORY_URL)
+        }
     }
 
     override fun onStart() {
@@ -60,6 +69,18 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View {
     override fun onDestroy() {
         presenter.clear()
         super.onDestroy()
+    }
+
+    override fun showAppUpgradeNotificationAcceptance(notificationAllowed: Boolean) {
+        scNotificationAcceptor.isChecked = notificationAllowed
+    }
+
+    override fun showAppUpgradeNotification() {
+        mbUpgradeButton.becomeVisible()
+    }
+
+    override fun hideAppUpgradeNotification() {
+        mbUpgradeButton.becomeVisible()
     }
 
     override fun showTagDataVersion(versionCode: String) {
