@@ -34,6 +34,7 @@ import kotlinx.android.synthetic.main.fragment_book_list.srlPullToReload
 import kotlinx.android.synthetic.main.fragment_book_list.clUpgradePopup
 import kotlinx.android.synthetic.main.fragment_book_list.ibUpgradePopupClose
 import kotlinx.android.synthetic.main.fragment_book_list.mtvUpgradeTitle
+import kotlinx.android.synthetic.main.fragment_book_list.upgradePopupPlaceHolder
 import kotlinx.android.synthetic.main.layout_refresh_header.view.ivRefresh
 import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvLastUpdate
 import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvRefresh
@@ -128,11 +129,13 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         toggleSearchResult("")
         mtvUpgradeTitle.setOnClickListener {
             clUpgradePopup.gone()
+            upgradePopupPlaceHolder.gone()
             homePresenter.setNewerVersionAcknowledged()
             context?.openUrl(REPOSITORY_URL)
         }
         ibUpgradePopupClose.setOnClickListener {
             clUpgradePopup.gone()
+            upgradePopupPlaceHolder.gone()
             homePresenter.setNewerVersionAcknowledged()
         }
     }
@@ -279,8 +282,10 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     override fun showUpgradeNotification() {
         clUpgradePopup.becomeVisible()
+        upgradePopupPlaceHolder.becomeVisible()
         clUpgradePopup.postDelayed({
             clUpgradePopup.gone()
+            upgradePopupPlaceHolder.gone()
         }, APP_UPGRADE_TIME_OUT)
     }
 
