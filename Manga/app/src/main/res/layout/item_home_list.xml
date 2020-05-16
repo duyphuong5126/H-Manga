@@ -10,12 +10,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/black">
+        android:background="@android:color/black"
+        android:clickable="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clThumbnail"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:clickable="false"
             app:layout_constraintBottom_toTopOf="@id/clItemDescription"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -27,6 +29,7 @@
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
                 android:background="@android:color/black"
+                android:clickable="false"
                 android:contentDescription="@string/main_search_button"
                 android:scaleType="fitStart"
                 android:src="@drawable/ic_404_not_found"
@@ -36,6 +39,7 @@
                 android:id="@+id/tlvRecent"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:clickable="false"
                 android:visibility="gone"
                 app:backgroundColor="@color/redED2553"
                 app:corner="leftTop"
@@ -57,6 +61,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_grey_tiny_rounded_bottom_corners"
+            android:clickable="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -66,6 +71,7 @@
                 android:id="@+id/cl1stTitlePart"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:clickable="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -75,6 +81,7 @@
                     android:layout_width="20dp"
                     android:layout_height="15dp"
                     android:layout_marginStart="5dp"
+                    android:clickable="false"
                     android:contentDescription="@string/main_item_description"
                     android:scaleType="fitXY"
                     android:src="@drawable/ic_lang_jp"
@@ -88,6 +95,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
+                    android:clickable="false"
                     android:ellipsize="end"
                     android:lineSpacingExtra="6dp"
                     android:maxLines="1"
@@ -106,6 +114,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
+                android:clickable="false"
                 android:ellipsize="end"
                 android:gravity="center"
                 android:lineSpacingExtra="4dp"

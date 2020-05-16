@@ -64,4 +64,9 @@ class ReaderActivity : AppCompatActivity() {
         super.onResume()
         window?.statusBarColor = ContextCompat.getColor(this@ReaderActivity, R.color.grey_1)
     }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+    }
 }

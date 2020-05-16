@@ -66,6 +66,11 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View {
         presenter.setUp()
     }
 
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+    }
+
     override fun onDestroy() {
         presenter.clear()
         super.onDestroy()

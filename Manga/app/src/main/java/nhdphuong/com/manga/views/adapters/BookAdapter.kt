@@ -10,14 +10,15 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import jp.shts.android.library.TriangleLabelView
-import nhdphuong.com.manga.R
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
+import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SupportUtils
-import java.util.ArrayList
+import java.util.*
+
 
 /*
  * Created by nhdphuong on 3/18/18.
@@ -126,10 +127,6 @@ class BookAdapter(
             get() = ivItemThumbnail
 
         init {
-            ivItemThumbnail.setOnClickListener(this)
-            tv1stTitle.setOnClickListener(this)
-            tv2ndTitle.setOnClickListener(this)
-            tvLanguage.setOnClickListener(this)
             vNavigation.setOnClickListener(this)
         }
 

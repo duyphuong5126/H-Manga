@@ -99,6 +99,11 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
 
     }
 
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+    }
+
     override fun onSearchInputted(data: String) {
         mHomeFragment.changeSearchInputted(data)
     }

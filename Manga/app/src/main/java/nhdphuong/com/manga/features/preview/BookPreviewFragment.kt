@@ -685,6 +685,7 @@ class BookPreviewFragment :
     override fun startReadingFromPage(page: Int, book: Book) {
         context?.run {
             ReaderActivity.start(this, page, book, viewDownloadedData)
+            activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
     }
 

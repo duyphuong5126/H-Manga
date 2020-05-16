@@ -102,6 +102,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                     }
                     Tab.INFO -> {
                         AboutUsActivity.start(context)
+                        activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                     }
                     else -> {
                         DialogHelper.showTagsNotAvailable(activity) {

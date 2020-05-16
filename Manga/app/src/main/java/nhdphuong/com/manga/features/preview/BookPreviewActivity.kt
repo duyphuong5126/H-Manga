@@ -65,6 +65,7 @@ class BookPreviewActivity : AppCompatActivity() {
             setResult(Activity.RESULT_OK, intent)
         }
         super.finish()
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
 
     companion object {
@@ -72,6 +73,7 @@ class BookPreviewActivity : AppCompatActivity() {
             val intent = Intent(fragment.activity, BookPreviewActivity::class.java)
             intent.putExtra(Constants.BOOK, book)
             fragment.startActivityForResult(intent, Constants.BOOK_PREVIEW_REQUEST)
+            fragment.activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
 
         fun startViewDownloadedData(activity: AppCompatActivity, book: Book) {
@@ -79,6 +81,7 @@ class BookPreviewActivity : AppCompatActivity() {
             intent.putExtra(Constants.BOOK, book)
             intent.putExtra(Constants.VIEW_DOWNLOADED_DATA, true)
             activity.startActivityForResult(intent, Constants.DOWNLOADED_DATA_PREVIEW_REQUEST)
+            activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
 
         private var instance: BookPreviewActivity? = null

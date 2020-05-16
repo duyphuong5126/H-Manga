@@ -3,7 +3,6 @@ package nhdphuong.com.manga.views
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
@@ -41,14 +40,14 @@ class DialogHelper {
             dialog.setContentView(contentView)
             dialog.setCancelable(false)
             ImageUtils.loadGifImage(R.raw.ic_loading_cat_transparent, ivLoading)
-            val onFinishTask = runScheduledTaskOnMainThread({
+            val taskHandler = runScheduledTaskOnMainThread({
                 Logger.d(TAG, "Current pos: $currentPos")
                 tvLoading.text = loadingString + dotsArray[currentPos]
                 if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
             })
 
             dialog.setOnDismissListener {
-                onFinishTask.invoke()
+                taskHandler.removeCallbacksAndMessages(null)
             }
             dialog.setCanceledOnTouchOutside(false)
             dialog.window?.let { window ->
@@ -250,25 +249,18 @@ class DialogHelper {
         private fun runScheduledTaskOnMainThread(
             task: () -> Unit,
             timeInterval: Long = DEFAULT_LOADING_INTERVAL
-        ): () -> Unit {
+        ): Handler {
             val handler = Handler(Looper.getMainLooper())
-            var canFinish = false
             val updateTask = object : Runnable {
                 override fun run() {
-                    if (!canFinish) {
-                        task()
-                        handler.postDelayed(this, timeInterval)
-                    }
+                    task()
+                    handler.postDelayed(this, timeInterval)
                 }
             }
             handler.post {
                 updateTask.run()
             }
-            return {
-                Logger.d(TAG, "Task cancelled")
-                canFinish = true
-                handler.removeCallbacksAndMessages(null)
-            }
+            return handler
         }
     }
 }

@@ -18,12 +18,14 @@ class RecentActivity : AppCompatActivity() {
             val intent = Intent(fragment.context, RecentActivity::class.java)
             intent.putExtra(Constants.RECENT_TYPE, recentType)
             fragment.startActivityForResult(intent, Constants.BOOK_PREVIEW_REQUEST)
+            fragment.activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
 
         fun restart(@RecentType recentType: String) {
             mInstance?.let { recentActivity ->
                 recentActivity.intent.putExtra(Constants.RECENT_TYPE, recentType)
                 recentActivity.recreate()
+                recentActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             }
         }
     }
@@ -49,5 +51,10 @@ class RecentActivity : AppCompatActivity() {
         NHentaiApp.instance.applicationComponent.plus(
             RecentModule(recentFragment)
         ).inject(this)
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
 }

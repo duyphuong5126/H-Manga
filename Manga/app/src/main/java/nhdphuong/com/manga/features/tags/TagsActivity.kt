@@ -21,12 +21,14 @@ class TagsActivity : AppCompatActivity(), SearchContract {
             val intent = Intent(activity, TagsActivity::class.java)
             intent.putExtra(Constants.TAG_TYPE, tagType)
             activity.startActivityForResult(intent, requestCode)
+            activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
 
         fun start(fragment: Fragment, @Tag tagType: String, requestCode: Int) {
             val intent = Intent(fragment.context, TagsActivity::class.java)
             intent.putExtra(Constants.TAG_TYPE, tagType)
             fragment.startActivityForResult(intent, requestCode)
+            fragment.activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
     }
 
@@ -74,6 +76,7 @@ class TagsActivity : AppCompatActivity(), SearchContract {
 
     override fun finish() {
         super.finish()
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         NHentaiApp.instance.resumeUpdateTagsService()
     }
 
