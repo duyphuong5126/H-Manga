@@ -118,9 +118,7 @@ class RecentPresenter @Inject constructor(
                 }
 
                 main.launch {
-                    if (!bookList.isEmpty()) {
-                        view.showRecentBooks(bookList)
-                    }
+                    view.showRecentBooks(bookList)
                 }
             } else {
                 for (id in 0 until recentBookList.size) {
@@ -134,9 +132,7 @@ class RecentPresenter @Inject constructor(
                 }
 
                 main.launch {
-                    if (!bookList.isEmpty()) {
-                        view.showFavoriteBooks(bookList)
-                    }
+                    view.showFavoriteBooks(bookList)
                 }
             }
         }

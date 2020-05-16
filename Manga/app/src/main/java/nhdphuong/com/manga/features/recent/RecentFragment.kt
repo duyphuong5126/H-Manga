@@ -158,7 +158,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == Constants.BOOK_PREVIEW_REQUEST && data?.action == Constants.RECENT_DATA_UPDATED_ACTION) {
-            presenter.start()
+            presenter.reloadRecentMarks()
             return
         }
         if (resultCode != Activity.RESULT_OK || data?.action != Constants.TAG_SELECTED_ACTION) {
