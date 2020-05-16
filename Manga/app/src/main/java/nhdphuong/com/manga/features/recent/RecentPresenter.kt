@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
@@ -16,9 +17,10 @@ import java.util.LinkedList
 import java.util.Collections
 import java.util.Stack
 import java.util.Locale
-import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 import kotlin.collections.HashMap
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlin.math.abs
 
 /*
@@ -221,13 +223,15 @@ class RecentPresenter @Inject constructor(
 
     private suspend fun loadPreventiveData() {
         isLoadingPreventiveData = true
-        val countDownLatch = CountDownLatch(NUMBER_OF_PREVENTIVE_PAGES - currentPage)
-        for (page in currentPage + 1..NUMBER_OF_PREVENTIVE_PAGES) {
-            Logger.d(TAG, "Start loading page $page")
-            preventiveData[page] = getRecentBook(page - 1)
-            countDownLatch.countDown()
+        suspendCoroutine<Boolean> { continuation ->
+            runBlocking {
+                for (page in currentPage + 1..NUMBER_OF_PREVENTIVE_PAGES) {
+                    Logger.d(TAG, "Start loading page $page")
+                    preventiveData[page] = getRecentBook(page - 1)
+                }
+            }
+            continuation.resume(true)
         }
-        countDownLatch.await()
         Logger.d(TAG, "Load preventive data successfully")
         isLoadingPreventiveData = false
     }

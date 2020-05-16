@@ -109,9 +109,9 @@ class SpaceItemDecoration() : RecyclerView.ItemDecoration() {
 
     private fun getOrientation(parent: RecyclerView): Int {
         if (mOrientation == -1) {
-            mOrientation = when {
-                parent.layoutManager is GridLayoutManager -> 3
-                parent.layoutManager is LinearLayoutManager -> {
+            mOrientation = when (parent.layoutManager) {
+                is GridLayoutManager -> 3
+                is LinearLayoutManager -> {
                     val layoutManager = parent.layoutManager as LinearLayoutManager
                     layoutManager.orientation
                 }

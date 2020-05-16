@@ -453,6 +453,7 @@
                     android:id="@+id/hsvPreviewThumbNail"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:overScrollMode="never"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/mtvPreview"
                     app:layout_constraintTop_toBottomOf="@+id/mtvPreview">
@@ -488,6 +489,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
+                    android:overScrollMode="never"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/mtvRecommendBook"
                     app:layout_constraintTop_toBottomOf="@id/mtvRecommendBook">

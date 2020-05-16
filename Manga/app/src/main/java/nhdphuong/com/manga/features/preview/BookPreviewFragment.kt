@@ -29,7 +29,6 @@ import kotlinx.android.synthetic.main.fragment_book_preview.layoutGroups
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutLanguages
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutParodies
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutTags
-import kotlinx.android.synthetic.main.fragment_book_preview.hsvPreviewThumbNail
 import kotlinx.android.synthetic.main.fragment_book_preview.hsvRecommendList
 import kotlinx.android.synthetic.main.fragment_book_preview.ivBookCover
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvDownload
@@ -251,8 +250,6 @@ class BookPreviewFragment :
         mtvFavorite.setOnClickListener(changeFavoriteListener)
         mtvNotFavorite.setOnClickListener(changeFavoriteListener)
 
-        hsvPreviewThumbNail.overScrollMode = View.OVER_SCROLL_NEVER
-        hsvRecommendList.overScrollMode = View.OVER_SCROLL_NEVER
         hsvRecommendList.becomeVisibleIf(!viewDownloadedData)
         mtvRecommendBook.becomeVisibleIf(!viewDownloadedData)
         svPreview.overScrollMode = View.OVER_SCROLL_NEVER
@@ -486,22 +483,7 @@ class BookPreviewFragment :
         if (thumbnailList.isEmpty()) {
             return
         }
-        var spanCount = thumbnailList.size / NUM_OF_ROWS
-        if (thumbnailList.size % NUM_OF_ROWS != 0) {
-            spanCount++
-        }
-
-        Logger.d(
-            TAG, "thumbnails: ${thumbnailList.size}," +
-                    " number of rows: $NUM_OF_ROWS, spanCount: $spanCount"
-        )
-        previewLayoutManager = object : MyGridLayoutManager(context!!, spanCount) {
-            override fun isAutoMeasureEnabled(): Boolean {
-                return true
-            }
-        }
         rvPreviewList.run {
-            layoutManager = previewLayoutManager
             previewAdapter = PreviewAdapter(
                 NUM_OF_ROWS,
                 thumbnailList,
@@ -510,27 +492,21 @@ class BookPreviewFragment :
                         presenter.startReadingFrom(page)
                     }
                 })
-            adapter = previewAdapter
-            setItemViewCacheSize(PREVIEW_CACHE_SIZE)
-        }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            hsvPreviewThumbNail.setOnScrollChangeListener { _, _, _, _, _ ->
-                if (!hsvPreviewThumbNail.canScrollHorizontally(1)) {
-                    Logger.d(TAG, "End of list, load more thumbnails")
-                    presenter.loadMoreThumbnails()
+            var spanCount = previewAdapter.itemCount / NUM_OF_ROWS
+            if (previewAdapter.itemCount % NUM_OF_ROWS != 0) {
+                spanCount++
+            }
+            previewLayoutManager = object : MyGridLayoutManager(context!!, spanCount) {
+                override fun isAutoMeasureEnabled(): Boolean {
+                    return true
                 }
             }
-        }
-    }
+            layoutManager = previewLayoutManager
+            adapter = previewAdapter
 
-    override fun updateBookThumbnailList() {
-        var spanCount = previewAdapter.itemCount / NUM_OF_ROWS
-        if (previewAdapter.itemCount % NUM_OF_ROWS != 0) {
-            spanCount++
+            setItemViewCacheSize(PREVIEW_CACHE_SIZE)
         }
-        previewLayoutManager.spanCount = spanCount
-        previewAdapter.notifyDataSetChanged()
     }
 
     override fun showRecommendBook(bookList: List<Book>) {

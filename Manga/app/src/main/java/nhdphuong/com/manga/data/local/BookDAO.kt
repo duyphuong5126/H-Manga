@@ -3,7 +3,6 @@ package nhdphuong.com.manga.data.local
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
-import androidx.room.Update
 import androidx.room.Query
 import io.reactivex.Single
 import nhdphuong.com.manga.Constants.Companion.TABLE_DOWNLOADED_BOOK as DOWNLOADED_BOOK
@@ -69,12 +68,6 @@ interface BookDAO {
     @Query("delete from $DOWNLOADED_BOOK where $ID = :bookId")
     fun deleteBook(bookId: String): Int
 
-    @Insert
-    fun insertRecentBooks(recentBookEntities: List<RecentBook>)
-
-    @Update
-    fun updateRecentBook(recentBookEntity: RecentBook)
-
     @Query("delete from $RECENT_BOOK_TABLE where $BOOK_ID = :bookId")
     fun deleteRecentBook(bookId: String): Int
 
@@ -95,7 +88,4 @@ interface BookDAO {
 
     @Query("select count(*) from $RECENT_BOOK_TABLE where $IS_FAVORITE = 1")
     fun getFavoriteBookCount(): Int
-
-    @Query("select * from $RECENT_BOOK_TABLE")
-    fun getRecentBooks(): List<RecentBook>
 }

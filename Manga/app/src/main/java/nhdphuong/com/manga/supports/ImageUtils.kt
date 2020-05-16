@@ -19,15 +19,6 @@ class ImageUtils {
     companion object {
         private const val TAG = "ImageUtils"
         private const val TIME_OUT = 10000
-        @SuppressLint("CheckResult")
-        fun <IV : ImageView> loadOriginalImage(url: String, defaultResource: Int, imageView: IV) {
-            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .error(defaultResource)
-                .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                .timeout(TIME_OUT)
-                .skipMemoryCache(true)
-            Glide.with(imageView).load(url).apply(requestOptions).into(imageView)
-        }
 
         @SuppressLint("CheckResult")
         fun <IV : ImageView> loadFitImage(url: String, defaultResource: Int, imageView: IV) {

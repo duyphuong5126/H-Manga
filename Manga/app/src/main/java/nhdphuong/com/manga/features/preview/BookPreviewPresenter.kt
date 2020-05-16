@@ -20,7 +20,6 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import kotlin.math.min
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
@@ -50,8 +49,6 @@ class BookPreviewPresenter @Inject constructor(
     companion object {
         private const val TAG = "BookPreviewPresenter"
         private const val MILLISECOND: Long = 1000
-
-        private const val THUMBNAILS_LIMIT = 30
     }
 
     private var isTagListInitialized = false
@@ -63,7 +60,7 @@ class BookPreviewPresenter @Inject constructor(
     private var isGroupListInitialized = false
     private var isInfoLoaded = false
     private var isBookCoverReloaded = false
-    private lateinit var cacheCoverUrl: String
+    private var cacheCoverUrl: String = ""
 
     private lateinit var tagList: LinkedList<Tag>
     private lateinit var artistList: LinkedList<Tag>
@@ -74,8 +71,6 @@ class BookPreviewPresenter @Inject constructor(
     private lateinit var groupList: LinkedList<Tag>
 
     private val bookThumbnailList = ArrayList<String>()
-
-    private var currentThumbnailPosition = 0
 
     private val uploadedTimeStamp: String = SupportUtils.getTimeElapsed(
         System.currentTimeMillis() - book.updateAt * MILLISECOND
@@ -97,8 +92,7 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun start() {
         bookThumbnailList.clear()
-        currentThumbnailPosition = 0
-        if (!this::cacheCoverUrl.isInitialized) {
+        if (cacheCoverUrl.isBlank()) {
             if (viewDownloadedData) {
                 getDownloadedBookCoverUseCase.execute(book.bookId)
                     .subscribeOn(Schedulers.io())
@@ -367,15 +361,6 @@ class BookPreviewPresenter @Inject constructor(
         compositeDisposable.clear()
     }
 
-    override fun loadMoreThumbnails() {
-        if (bookThumbnailList.size < book.numOfPages) {
-            loadBookThumbnails()
-            view.updateBookThumbnailList()
-        } else {
-            Logger.d(TAG, "End of thumbnails list")
-        }
-    }
-
     private fun getReachableBookCover(): String {
         val mediaId = book.mediaId
         val coverUrl = ApiConstants.getBookCover(mediaId)
@@ -411,8 +396,7 @@ class BookPreviewPresenter @Inject constructor(
         if (bookPages.isEmpty()) {
             return
         }
-        val maxPosition = min(bookPages.size, currentThumbnailPosition + THUMBNAILS_LIMIT)
-        for (pageId in currentThumbnailPosition until maxPosition) {
+        for (pageId in bookPages.indices) {
             val page = bookPages[pageId]
             val url = ApiConstants.getThumbnailByPage(
                 mediaId,
@@ -421,7 +405,6 @@ class BookPreviewPresenter @Inject constructor(
             )
             bookThumbnailList.add(url)
         }
-        currentThumbnailPosition += THUMBNAILS_LIMIT
         isInfoLoaded = true
     }
 

@@ -21,6 +21,7 @@ class PreviewAdapter(
     previewList: List<String>,
     private val callback: ThumbnailClickCallback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val actualItemCount: Int = previewList.size
     private val isMaximumItemExceeded: Boolean = previewList.size > MAX_ITEM_COUNT
     private val previewUrlList = mutableListOf<String>()
 
@@ -53,7 +54,7 @@ class PreviewAdapter(
     override fun getItemCount(): Int = previewUrlList.size
 
     override fun getItemViewType(position: Int): Int = when {
-        isMaximumItemExceeded && position == MAX_ITEM_COUNT - 1 -> ITEM_SHOW_MORE
+        isMaximumItemExceeded && position == itemCount - 1 -> ITEM_SHOW_MORE
         else -> ITEM_PREVIEW
     }
 
@@ -65,7 +66,7 @@ class PreviewAdapter(
                     .setData(previewUrlList[zigzagPosition], zigzagPosition)
             }
             else -> {
-                val pagesLeft = previewUrlList.size - MAX_ITEM_COUNT
+                val pagesLeft = actualItemCount - MAX_ITEM_COUNT + 1
                 (holder as PreviewShowMoreViewHolder)
                     .setData(previewUrlList[zigzagPosition], zigzagPosition, pagesLeft)
             }
@@ -169,7 +170,7 @@ class PreviewAdapter(
 
     companion object {
         private const val TAG = "PreviewAdapter"
-        private const val MAX_ITEM_COUNT = 60
+        private const val MAX_ITEM_COUNT = 30
 
         private const val ITEM_PREVIEW = 1
         private const val ITEM_SHOW_MORE = 2
