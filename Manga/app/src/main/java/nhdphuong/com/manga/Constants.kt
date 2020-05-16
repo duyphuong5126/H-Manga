@@ -85,6 +85,7 @@ class Constants {
 
         const val BOOK_PREVIEW_REQUEST = 10073
         const val DOWNLOADED_DATA_PREVIEW_REQUEST = 10074
+        const val READING_REQUEST = 10075
 
         const val RECENT_DATA_UPDATED_ACTION = "RECENT_DATA_UPDATED"
         const val TAG_SELECTED_ACTION = "TAG_SELECTED"

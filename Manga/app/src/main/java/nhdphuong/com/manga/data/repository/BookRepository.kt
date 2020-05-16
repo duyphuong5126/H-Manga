@@ -110,4 +110,8 @@ class BookRepository @Inject constructor(
     override fun deleteBook(bookId: String): Completable {
         return bookLocalDataSource.deleteBook(bookId)
     }
+
+    override suspend fun unSeenBook(bookId: String): Boolean {
+        return bookLocalDataSource.unSeenBook(bookId)
+    }
 }

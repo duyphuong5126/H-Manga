@@ -29,6 +29,7 @@ interface BookDataSource {
         suspend fun isFavoriteBook(bookId: String): Boolean
         fun checkIfFavoriteBook(bookId: String): Single<Boolean>
         suspend fun isRecentBook(bookId: String): Boolean
+        suspend fun unSeenBook(bookId: String): Boolean
         suspend fun getRecentCount(): Int
         suspend fun getFavoriteCount(): Int
         fun getDownloadedBookList(): Single<List<Book>>

@@ -220,6 +220,12 @@ class BookLocalDataSource @Inject constructor(
         }
     }
 
+    override suspend fun unSeenBook(bookId: String): Boolean {
+        val deletingResult = bookDAO.deleteRecentBook(bookId)
+        Logger.d(TAG, "Deleting result of $bookId: $deletingResult")
+        return deletingResult > 0
+    }
+
     private fun extractAndSaveTagList(book: Book): Completable {
         return Completable.fromCallable {
             tagDAO.insertTags(book.tags)

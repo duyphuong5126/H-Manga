@@ -126,6 +126,18 @@ class DialogHelper {
             showOkDismissDialog(activity, title, message, okString, dismissString, onOk, onDismiss)
         }
 
+        fun showUnSeenBookConfirmationDialog(
+            activity: Activity,
+            onOk: () -> Unit,
+            onDismiss: () -> Unit
+        ) {
+            val title = activity.getString(R.string.un_seen_book_title)
+            val message = activity.getString(R.string.un_seen_book_description)
+            val okString = activity.getString(R.string.confirm)
+            val dismissString = activity.getString(R.string.cancel)
+            showOkDismissDialog(activity, title, message, okString, dismissString, onOk, onDismiss)
+        }
+
         fun showThisBookDownloadingDialog(activity: Activity, onOk: () -> Unit) {
             val message = activity.getString(R.string.is_downloading_this_book)
             showOkDialog(

@@ -117,6 +117,13 @@ class BookPreviewPresenter @Inject constructor(
             view.showBookCoverImage(cacheCoverUrl)
         }
         refreshBookFavorite()
+        io.launch {
+            if (bookRepository.isRecentBook(book.bookId)) {
+                main.launch { view.showUnSeenButton() }
+            } else {
+                main.launch { view.hideUnSeenButton() }
+            }
+        }
         view.showFavoriteBookSaved(isFavoriteBook)
         view.show1stTitle(book.title.englishName)
         view.show2ndTitle(book.title.japaneseName)
@@ -328,6 +335,31 @@ class BookPreviewPresenter @Inject constructor(
     override fun finishDeleting(bookId: String, deletingFailedCount: Int) {
         if (view.isActive() && book.bookId == bookId) {
             view.finishDeleting(bookId, deletingFailedCount)
+        }
+    }
+
+    override fun refreshRecentStatus() {
+        io.launch {
+            if (bookRepository.isRecentBook(book.bookId)) {
+                main.launch { view.showUnSeenButton() }
+            } else {
+                main.launch { view.hideUnSeenButton() }
+            }
+        }
+    }
+
+    override fun unSeenBook() {
+        io.launch {
+            val unSubscribingSuccess = bookRepository.unSeenBook(book.bookId)
+            if (unSubscribingSuccess) {
+                main.launch {
+                    view.hideUnSeenButton()
+                }
+            } else {
+                main.launch {
+                    view.showUnSeenButton()
+                }
+            }
         }
     }
 

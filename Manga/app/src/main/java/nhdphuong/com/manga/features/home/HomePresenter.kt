@@ -205,12 +205,8 @@ class HomePresenter @Inject constructor(
             }
 
             main.launch {
-                if (!recentList.isEmpty()) {
-                    view.showRecentBooks(recentList)
-                }
-                if (!favoriteList.isEmpty()) {
-                    view.showFavoriteBooks(favoriteList)
-                }
+                view.showRecentBooks(recentList)
+                view.showFavoriteBooks(favoriteList)
             }
         }
     }

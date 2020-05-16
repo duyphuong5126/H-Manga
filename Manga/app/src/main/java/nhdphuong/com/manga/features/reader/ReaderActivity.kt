@@ -1,12 +1,14 @@
 package nhdphuong.com.manga.features.reader
 
 import android.annotation.TargetApi
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -16,16 +18,18 @@ import javax.inject.Inject
 class ReaderActivity : AppCompatActivity() {
     companion object {
         fun start(
-            context: Context,
+            fragment: Fragment,
             startReadingPage: Int,
             book: Book,
             viewDownloadedData: Boolean
         ) {
-            val intent = Intent(context, ReaderActivity::class.java)
-            intent.putExtra(Constants.BOOK, book)
-            intent.putExtra(Constants.START_PAGE, startReadingPage)
-            intent.putExtra(Constants.VIEW_DOWNLOADED_DATA, viewDownloadedData)
-            context.startActivity(intent)
+            fragment.context?.let { context ->
+                val intent = Intent(context, ReaderActivity::class.java)
+                intent.putExtra(Constants.BOOK, book)
+                intent.putExtra(Constants.START_PAGE, startReadingPage)
+                intent.putExtra(Constants.VIEW_DOWNLOADED_DATA, viewDownloadedData)
+                fragment.startActivityForResult(intent, Constants.READING_REQUEST)
+            }
         }
     }
 
@@ -66,6 +70,7 @@ class ReaderActivity : AppCompatActivity() {
     }
 
     override fun finish() {
+        setResult(Activity.RESULT_OK)
         super.finish()
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }

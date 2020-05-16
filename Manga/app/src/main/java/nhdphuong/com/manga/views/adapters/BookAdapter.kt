@@ -71,11 +71,9 @@ class BookAdapter(
         val isFavorite = favoriteList.contains(bookId)
         if (isFavorite || isRecent) {
             if (isRecent) {
-                recentList.remove(bookId)
                 mainLisViewHolder.showRecentLabel()
             }
             if (isFavorite) {
-                favoriteList.remove(bookId)
                 mainLisViewHolder.showFavoriteLabel()
             }
         } else {
@@ -84,9 +82,13 @@ class BookAdapter(
     }
 
     fun setRecentList(recentList: List<String>) {
+        val totalList = mutableListOf<String>().apply {
+            addAll(this@BookAdapter.recentList)
+            addAll(recentList)
+        }
         this.recentList.clear()
         this.recentList.addAll(recentList)
-        this.recentList.forEach { bookId ->
+        totalList.forEach { bookId ->
             itemList.indexOfFirst { it.bookId == bookId }.takeIf { it >= 0 }?.let { index ->
                 notifyItemChanged(index)
             }
@@ -94,9 +96,13 @@ class BookAdapter(
     }
 
     fun setFavoriteList(favoriteList: List<String>) {
+        val totalList = mutableListOf<String>().apply {
+            addAll(this@BookAdapter.favoriteList)
+            addAll(favoriteList)
+        }
         this.favoriteList.clear()
         this.favoriteList.addAll(favoriteList)
-        this.favoriteList.forEach { bookId ->
+        totalList.forEach { bookId ->
             itemList.indexOfFirst { it.bookId == bookId }.takeIf { it >= 0 }?.let { index ->
                 notifyItemChanged(index)
             }

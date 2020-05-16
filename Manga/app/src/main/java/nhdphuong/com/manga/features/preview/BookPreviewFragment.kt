@@ -55,6 +55,7 @@ import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_2
 import kotlinx.android.synthetic.main.fragment_book_preview.tvUpdatedAt
 import kotlinx.android.synthetic.main.fragment_book_preview.ibBack
 import kotlinx.android.synthetic.main.fragment_book_preview.buttonClearDownloadedData
+import kotlinx.android.synthetic.main.fragment_book_preview.buttonUnSeen
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
@@ -275,6 +276,16 @@ class BookPreviewFragment :
             activity?.onBackPressed()
         }
 
+        buttonUnSeen.setOnClickListener {
+            activity?.let {
+                DialogHelper.showUnSeenBookConfirmationDialog(it, onOk = {
+                    presenter.unSeenBook()
+                }, onDismiss = {
+                    Logger.d(TAG, "UnSeen canceled")
+                })
+            }
+        }
+
         view.viewTreeObserver.addOnGlobalLayoutListener {
             if (!isPresenterStarted) {
                 isPresenterStarted = true
@@ -292,6 +303,13 @@ class BookPreviewFragment :
         Logger.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
         presenter.start()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == Constants.READING_REQUEST) {
+            presenter.refreshRecentStatus()
+        }
     }
 
     override fun onStart() {
@@ -683,10 +701,16 @@ class BookPreviewFragment :
     }
 
     override fun startReadingFromPage(page: Int, book: Book) {
-        context?.run {
-            ReaderActivity.start(this, page, book, viewDownloadedData)
-            activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-        }
+        ReaderActivity.start(this, page, book, viewDownloadedData)
+        activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+    }
+
+    override fun showUnSeenButton() {
+        buttonUnSeen.becomeVisible()
+    }
+
+    override fun hideUnSeenButton() {
+        buttonUnSeen.gone()
     }
 
     override fun showLoading() {

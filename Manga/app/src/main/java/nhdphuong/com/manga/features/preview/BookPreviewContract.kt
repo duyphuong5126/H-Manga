@@ -49,6 +49,8 @@ interface BookPreviewContract {
         fun showFavoriteBooks(favoriteList: List<String>)
         fun showOpenFolderView()
         fun startReadingFromPage(page: Int, book: Book)
+        fun showUnSeenButton()
+        fun hideUnSeenButton()
     }
 
     interface Presenter : Base.Presenter {
@@ -70,5 +72,7 @@ interface BookPreviewContract {
         fun updateDeletingProgress(bookId: String, progress: Int, total: Int)
         fun finishDeleting(bookId: String)
         fun finishDeleting(bookId: String, deletingFailedCount: Int)
+        fun refreshRecentStatus()
+        fun unSeenBook()
     }
 }

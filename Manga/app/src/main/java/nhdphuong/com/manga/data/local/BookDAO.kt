@@ -75,6 +75,9 @@ interface BookDAO {
     @Update
     fun updateRecentBook(recentBookEntity: RecentBook)
 
+    @Query("delete from $RECENT_BOOK_TABLE where $BOOK_ID = :bookId")
+    fun deleteRecentBook(bookId: String): Int
+
     @Query("select * from $RECENT_BOOK_TABLE order by $CREATED_AT desc limit :limit offset :offset")
     fun getRecentBooks(limit: Int, offset: Int): List<RecentBook>
 
