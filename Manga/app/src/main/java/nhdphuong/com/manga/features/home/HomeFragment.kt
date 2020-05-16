@@ -172,7 +172,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         if (resultCode != Activity.RESULT_OK) {
             return
         }
-        if (requestCode == Constants.BOOK_PREVIEW_RESULT &&
+        if (requestCode == Constants.BOOK_PREVIEW_REQUEST &&
             data?.action == Constants.RECENT_DATA_UPDATED_ACTION
         ) {
             homePresenter.reloadRecentBooks()

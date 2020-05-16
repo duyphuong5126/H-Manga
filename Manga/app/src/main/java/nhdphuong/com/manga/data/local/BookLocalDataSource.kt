@@ -213,6 +213,13 @@ class BookLocalDataSource @Inject constructor(
         }
     }
 
+    override fun deleteBook(bookId: String): Completable {
+        return Completable.fromCallable {
+            val deletedRecords = bookDAO.deleteBook(bookId)
+            Logger.d(TAG, "Deleted $deletedRecords book(s) by id $bookId")
+        }
+    }
+
     private fun extractAndSaveTagList(book: Book): Completable {
         return Completable.fromCallable {
             tagDAO.insertTags(book.tags)

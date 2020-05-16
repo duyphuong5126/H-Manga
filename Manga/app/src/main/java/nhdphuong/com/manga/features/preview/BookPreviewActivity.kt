@@ -2,7 +2,6 @@ package nhdphuong.com.manga.features.preview
 
 import android.annotation.TargetApi
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
@@ -60,10 +59,11 @@ class BookPreviewActivity : AppCompatActivity() {
     }
 
     override fun finish() {
-        if (intent.action != Constants.TAG_SELECTED_ACTION) {
+        val action = intent.action
+        if (action != Constants.TAG_SELECTED_ACTION && action != Constants.REFRESH_DOWNLOADED_BOOK_LIST) {
             intent.action = Constants.RECENT_DATA_UPDATED_ACTION
+            setResult(Activity.RESULT_OK, intent)
         }
-        setResult(Activity.RESULT_OK, intent)
         super.finish()
     }
 
@@ -71,14 +71,14 @@ class BookPreviewActivity : AppCompatActivity() {
         fun start(fragment: Fragment, book: Book) {
             val intent = Intent(fragment.activity, BookPreviewActivity::class.java)
             intent.putExtra(Constants.BOOK, book)
-            fragment.startActivityForResult(intent, Constants.BOOK_PREVIEW_RESULT)
+            fragment.startActivityForResult(intent, Constants.BOOK_PREVIEW_REQUEST)
         }
 
-        fun startViewDownloadedData(context: Context, book: Book) {
-            val intent = Intent(context, BookPreviewActivity::class.java)
+        fun startViewDownloadedData(activity: AppCompatActivity, book: Book) {
+            val intent = Intent(activity, BookPreviewActivity::class.java)
             intent.putExtra(Constants.BOOK, book)
             intent.putExtra(Constants.VIEW_DOWNLOADED_DATA, true)
-            context.startActivity(intent)
+            activity.startActivityForResult(intent, Constants.DOWNLOADED_DATA_PREVIEW_REQUEST)
         }
 
         private var instance: BookPreviewActivity? = null

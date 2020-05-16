@@ -13,6 +13,7 @@
     <string name="search">Search</string>
     <string name="search_result">Result for: %s</string>
     <string name="loading">Loading, please wait</string>
+    <string name="refreshing_gallery">Refreshing you gallery</string>
     <string name="previous">\f054</string>
     <string name="next">Next</string>
 
@@ -35,7 +36,7 @@
 
     <string name="no_recent_book">You\'ve not read any book recently!</string>
     <string name="no_favorite_book">You have no favorite book!</string>
-    <string name="no_downloaded_book">You\'ve not downloaded any book recently!</string>
+    <string name="no_downloaded_book">Nothing was downloaded!</string>
 
     <string name="years_elapsed">%s years ago</string>
     <string name="year_elapsed">1 year ago</string>
@@ -60,6 +61,7 @@
     <string name="NotoSansBoldItalic" translatable="false">fonts/NotoSans-BoldItalic.ttf</string>
     <string name="favorite">Favorite</string>
     <string name="download">Download</string>
+    <string name="clear_downloaded_data">Clear All Data</string>
     <string name="preview">Preview</string>
     <string name="page_thumbnail">Page thumbnail</string>
     <string name="recommend_for_you">More like this</string>
@@ -79,7 +81,10 @@
     <string name="storage_permission_require">We need some permissions to store the downloaded data.</string>
     <string name="toast_storage_permission_require">Please allow us to store data in your device!</string>
     <string name="preview_download_progress">Downloaded %s of %s</string>
+    <string name="preview_deleting_progress">Deleted %d of %d</string>
+    <string name="cleared">Clear</string>
     <string name="fail_to_download">Downloading %s items failed</string>
+    <string name="fail_to_delete">Deleting %d items failed</string>
     <string name="is_book_being_downloaded">Book downloading</string>
     <string name="is_downloading_this_book">This book is being downloaded.\nPlease wait until it completes.</string>
     <string name="is_downloading_another_book">The book number %s being downloaded, please try again later.</string>
@@ -117,13 +122,19 @@
     <string name="downloaded">Downloaded</string>
     <string name="downloaded_books">Downloaded Books</string>
 
-    <string name="downloading_book">Downloading Book</string>
+    <string name="downloading_book">Downloading a book</string>
+    <string name="deleting_book">Deleting a book</string>
     <string name="downloading_in_progress">Downloading in progress</string>
+    <string name="deleting_in_progress">Deleting in progress</string>
     <string name="downloading_failure">Downloading failure</string>
+    <string name="deleting_failure">Deleting failure</string>
     <string name="downloading_completed">Downloading completed</string>
+    <string name="deleting_completed">Deleting completed</string>
     <string name="downloading_completed_template">The book %s was downloaded</string>
+    <string name="deleting_completed_template">The book %s was deleted</string>
     <string name="downloading_failed_template">Failed to download %d/%d pages of the book %s</string>
-    <string name="downloading_book_template">Book ID: %s, progress: %d/%d</string>
+    <string name="deleting_failed_template">Failed to delete the book %s</string>
+    <string name="book_progress_template">Book ID: %s, progress: %d/%d</string>
 
     <string name="notification_channel_name">NHentai App</string>
     <string name="notification_channel_description">Hentai manga</string>

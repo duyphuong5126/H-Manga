@@ -21,10 +21,7 @@ class NotificationHelper {
 
         @Suppress("unused")
         fun sendNotification(
-            title: String,
-            priority: Int,
-            content: String,
-            usedAppIcon: Boolean
+            title: String, priority: Int, content: String, usedAppIcon: Boolean
         ): Int {
             val context = NHentaiApp.instance.applicationContext
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
@@ -66,11 +63,7 @@ class NotificationHelper {
 
         @Suppress("unused")
         fun sendNotification(
-            title: String,
-            priority: Int,
-            content: String,
-            usedAppIcon: Boolean,
-            allowTap: Boolean
+            title: String, priority: Int, content: String, usedAppIcon: Boolean, allowTap: Boolean
         ): Int {
             val context = NHentaiApp.instance.applicationContext
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
@@ -100,11 +93,7 @@ class NotificationHelper {
 
         @Suppress("unused")
         fun updateNotification(
-            notificationId: Int,
-            title: String,
-            priority: Int,
-            content: String,
-            usedAppIcon: Boolean
+            notificationId: Int, title: String, priority: Int, content: String, usedAppIcon: Boolean
         ) {
             val context = NHentaiApp.instance.applicationContext
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)

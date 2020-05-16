@@ -17,11 +17,13 @@ import nhdphuong.com.manga.data.entity.book.tags.Tag
     foreignKeys = [ForeignKey(
         entity = DownloadedBookModel::class,
         parentColumns = [ID],
-        childColumns = [BOOK_ID]
+        childColumns = [BOOK_ID],
+        onDelete = ForeignKey.CASCADE
     ), ForeignKey(
         entity = Tag::class,
         parentColumns = [ID],
-        childColumns = [TAG_ID]
+        childColumns = [TAG_ID],
+        onDelete = ForeignKey.CASCADE
     )]
 )
 class BookTagModel(

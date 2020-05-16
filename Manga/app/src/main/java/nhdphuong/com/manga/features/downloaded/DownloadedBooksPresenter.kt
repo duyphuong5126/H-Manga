@@ -130,16 +130,24 @@ class DownloadedBooksPresenter @Inject constructor(
         updateCurrentPage()
     }
 
+    override fun notifyBookRemoved(bookId: String) {
+        totalBookList.removeAll { it.bookId == bookId }
+        updateCurrentPage()
+    }
+
     override fun stop() {
         compositeDisposable.clear()
     }
 
     private fun updateCurrentPage() {
         io.launch {
+            currentBookList.clear()
             if (totalBookList.isEmpty()) {
+                main.launch {
+                    view.refreshBookList()
+                }
                 return@launch
             }
-            currentBookList.clear()
             val fromIndex = currentPage * MAX_PER_PAGE
             val toIndex = if ((currentPage + 1) * MAX_PER_PAGE < totalBookList.size) {
                 (currentPage + 1) * MAX_PER_PAGE

@@ -17,7 +17,7 @@ class RecentActivity : AppCompatActivity() {
         fun start(fragment: Fragment, @RecentType recentType: String) {
             val intent = Intent(fragment.context, RecentActivity::class.java)
             intent.putExtra(Constants.RECENT_TYPE, recentType)
-            fragment.startActivityForResult(intent, Constants.BOOK_PREVIEW_RESULT)
+            fragment.startActivityForResult(intent, Constants.BOOK_PREVIEW_REQUEST)
         }
 
         fun restart(@RecentType recentType: String) {

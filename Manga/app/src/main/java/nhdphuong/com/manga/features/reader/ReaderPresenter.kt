@@ -174,7 +174,7 @@ class ReaderPresenter @Inject constructor(
                     }
                     Logger.d(TAG, "Download page ${downloadPage + 1} completed")
                 }
-                fileUtils.refreshGallery(*resultList.toTypedArray())
+                fileUtils.refreshGallery(false, *resultList.toTypedArray())
                 isDownloading = false
                 main.launch {
                     view.hideLoading()

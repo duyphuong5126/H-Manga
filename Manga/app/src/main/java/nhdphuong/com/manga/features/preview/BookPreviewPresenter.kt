@@ -28,6 +28,7 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.disposables.CompositeDisposable
 import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
 import nhdphuong.com.manga.usecase.GetDownloadedBookCoverUseCase
+import nhdphuong.com.manga.usecase.StartBookDeletingUseCase
 import nhdphuong.com.manga.usecase.StartBookDownloadingUseCase
 
 /*
@@ -38,6 +39,7 @@ class BookPreviewPresenter @Inject constructor(
     private val book: Book,
     private val getDownloadedBookCoverUseCase: GetDownloadedBookCoverUseCase,
     private val startBookDownloadingUseCase: StartBookDownloadingUseCase,
+    private val startBookDeletingUseCase: StartBookDeletingUseCase,
     private val bookRepository: BookRepository,
     private val networkUtils: INetworkUtils,
     private val fileUtils: IFileUtils,
@@ -255,6 +257,10 @@ class BookPreviewPresenter @Inject constructor(
         }
     }
 
+    override fun deleteBook() {
+        startBookDeletingUseCase.execute(book.bookId)
+    }
+
     override fun restartBookPreview(bookId: String) {
         io.launch {
             val bookDetails = bookRepository.getBookDetails(bookId)
@@ -295,9 +301,33 @@ class BookPreviewPresenter @Inject constructor(
         }
     }
 
-    override fun finishDownloading(bookId: String, downloadFailedCount: Int, total: Int) {
+    override fun finishDownloading(bookId: String, downloadingFailedCount: Int, total: Int) {
         if (view.isActive() && book.bookId == bookId) {
-            view.finishDownloading(downloadFailedCount, total)
+            view.finishDownloading(downloadingFailedCount, total)
+        }
+    }
+
+    override fun initDeleting(bookId: String) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.initDeleting()
+        }
+    }
+
+    override fun updateDeletingProgress(bookId: String, progress: Int, total: Int) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.updateDeletingProgress(progress, total)
+        }
+    }
+
+    override fun finishDeleting(bookId: String) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.finishDeleting(bookId)
+        }
+    }
+
+    override fun finishDeleting(bookId: String, deletingFailedCount: Int) {
+        if (view.isActive() && book.bookId == bookId) {
+            view.finishDeleting(bookId, deletingFailedCount)
         }
     }
 

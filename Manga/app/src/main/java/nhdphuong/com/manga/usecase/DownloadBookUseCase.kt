@@ -64,7 +64,7 @@ class DownloadBookUseCaseImpl @Inject constructor(
                 Single.error(it)
             }
         }.flatMapCompletable { coverPath ->
-            fileUtils.refreshGallery(coverPath)
+            fileUtils.refreshGallery(false, coverPath)
             bookRepository.saveImageOfBook(
                 book.bookId,
                 book.bookImages.cover,
@@ -90,7 +90,7 @@ class DownloadBookUseCaseImpl @Inject constructor(
                 Single.error(it)
             }
         }.flatMapCompletable { thumbnailPath ->
-            fileUtils.refreshGallery(thumbnailPath)
+            fileUtils.refreshGallery(false, thumbnailPath)
             bookRepository.saveImageOfBook(
                 book.bookId,
                 book.bookImages.cover,
@@ -145,7 +145,7 @@ class DownloadBookUseCaseImpl @Inject constructor(
                 ).andThen(Observable.just(downloadingResult))
             }
             .doOnComplete {
-                fileUtils.refreshGallery(*resultList.toTypedArray())
+                fileUtils.refreshGallery(true, *resultList.toTypedArray())
             }
     }
 

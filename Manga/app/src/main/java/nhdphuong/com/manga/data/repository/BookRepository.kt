@@ -106,4 +106,8 @@ class BookRepository @Inject constructor(
     override fun clearDownloadedImagesOfBook(bookId: String): Completable {
         return bookLocalDataSource.clearDownloadedImagesOfBook(bookId)
     }
+
+    override fun deleteBook(bookId: String): Completable {
+        return bookLocalDataSource.deleteBook(bookId)
+    }
 }

@@ -20,7 +20,8 @@ import nhdphuong.com.manga.Constants.Companion.TYPE
     foreignKeys = [ForeignKey(
         entity = DownloadedBookModel::class,
         parentColumns = [ID],
-        childColumns = [BOOK_ID]
+        childColumns = [BOOK_ID],
+        onDelete = ForeignKey.CASCADE
     )]
 )
 class BookImageModel(

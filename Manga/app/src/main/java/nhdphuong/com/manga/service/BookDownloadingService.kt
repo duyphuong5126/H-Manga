@@ -37,7 +37,7 @@ import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.features.NavigationRedirectActivity
 
 
-class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDownloadCallback {
+class BookDownloadingService : IntentService("BookDownloadingService"), BookDownloadCallback {
 
     @Inject
     lateinit var downloadBookUseCase: DownloadBookUseCase
@@ -155,7 +155,7 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
     private fun sendDownloadingProgressNotification(bookId: String, progress: Int, total: Int) {
         val progressTitle = getString(R.string.downloading_in_progress)
         val notificationDescription = getString(
-            R.string.downloading_book_template, bookId, progress, total
+            R.string.book_progress_template, bookId, progress, total
         )
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
@@ -215,12 +215,12 @@ class BookDownloadingServices : IntentService("BookDownloadingServices"), BookDo
     }
 
     companion object {
-        private const val TAG = "BookDownloadingServices"
+        private const val TAG = "BookDownloadingService"
         private const val BOOK = "book"
 
         @JvmStatic
         fun start(fromContext: Context, book: Book) {
-            val intent = Intent(fromContext, BookDownloadingServices::class.java)
+            val intent = Intent(fromContext, BookDownloadingService::class.java)
             intent.putExtras(Bundle().apply {
                 putParcelable(BOOK, book)
             })

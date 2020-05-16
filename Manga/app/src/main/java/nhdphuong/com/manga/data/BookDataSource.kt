@@ -48,5 +48,7 @@ interface BookDataSource {
         fun getDownloadedBookThumbnailPaths(bookIds: List<String>): Single<List<Pair<String, String>>>
 
         fun clearDownloadedImagesOfBook(bookId: String): Completable
+
+        fun deleteBook(bookId: String): Completable
     }
 }

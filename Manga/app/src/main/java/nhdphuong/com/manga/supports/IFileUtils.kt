@@ -6,16 +6,23 @@ import android.os.Build
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
+import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
+import java.io.File
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicInteger
 
 interface IFileUtils {
     fun isStoragePermissionAccepted(): Boolean
 
     fun getImageDirectory(bookName: String): String
 
-    fun refreshGallery(vararg galleryPaths: String)
+    fun refreshGallery(needToShowRefreshDialog: Boolean, vararg galleryPaths: String)
 
     fun getTagDirectory(): String
+
+    fun deleteFile(path: String): Boolean
+
+    fun deleteParentDirectory(childPath: String)
 }
 
 class FileUtils : IFileUtils {
@@ -33,15 +40,24 @@ class FileUtils : IFileUtils {
         return NHentaiApp.instance.getImageDirectory(bookName)
     }
 
-    override fun refreshGallery(vararg galleryPaths: String) {
+    override fun refreshGallery(needToShowRefreshDialog: Boolean, vararg galleryPaths: String) {
+        if (galleryPaths.isEmpty()) {
+            return
+        }
         val context = NHentaiApp.instance.applicationContext
-        MediaScannerConnection.scanFile(context, galleryPaths, null) { _, _ ->
-            galleryPaths.size.let { pathCount ->
-                if (pathCount > 1) {
-                    Logger.d(TAG, "$pathCount paths of galleries are refreshed")
-                } else {
-                    Logger.d(TAG, "$pathCount path of gallery is refreshed")
-                }
+        if (needToShowRefreshDialog) {
+            BroadCastReceiverHelper.sendBroadCast(
+                context, Constants.ACTION_SHOW_GALLERY_REFRESHING_DIALOG
+            )
+        }
+        val total = galleryPaths.size
+        val refreshedCount = AtomicInteger(0)
+        MediaScannerConnection.scanFile(context, galleryPaths, null) { path, _ ->
+            Logger.d(TAG, "$path was refreshed")
+            if (needToShowRefreshDialog && refreshedCount.incrementAndGet() < total) {
+                BroadCastReceiverHelper.sendBroadCast(
+                    context, Constants.ACTION_DISMISS_GALLERY_REFRESHING_DIALOG
+                )
             }
         }
     }
@@ -49,6 +65,19 @@ class FileUtils : IFileUtils {
 
     override fun getTagDirectory(): String =
         "${NHentaiApp.instance.getTagDirectory()}/${Constants.TAGS.toLowerCase(Locale.US)}"
+
+    override fun deleteFile(path: String): Boolean = File(path).delete()
+
+    override fun deleteParentDirectory(childPath: String) {
+        File(childPath).parentFile?.let { parentFile ->
+            if (parentFile.isDirectory) {
+                for (file in parentFile.listFiles().orEmpty()) {
+                    file.delete()
+                }
+            }
+            parentFile.delete()
+        }
+    }
 
     companion object {
         private const val TAG = "FileUtils"

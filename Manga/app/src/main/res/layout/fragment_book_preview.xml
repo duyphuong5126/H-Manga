@@ -348,6 +348,28 @@
                     android:text="@string/download"
                     android:textColor="@android:color/white"
                     android:textSize="17sp"
+                    android:visibility="visible"
+                    app:layout_constraintStart_toEndOf="@id/mtvFavorite"
+                    app:layout_constraintTop_toBottomOf="@+id/tvUpdatedAt"
+                    app:myFont="@string/NotoSansBold" />
+
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/buttonClearDownloadedData"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp10"
+                    android:background="@drawable/button_grey_big_rounded_all_corners"
+                    android:drawableStart="@drawable/ic_clear_all_black_24dp"
+                    android:drawablePadding="@dimen/dp10"
+                    android:gravity="center_vertical"
+                    android:paddingStart="15dp"
+                    android:paddingTop="@dimen/dp10"
+                    android:paddingEnd="15dp"
+                    android:paddingBottom="@dimen/dp10"
+                    android:text="@string/clear_downloaded_data"
+                    android:textColor="@android:color/white"
+                    android:textSize="17sp"
+                    android:visibility="gone"
                     app:layout_constraintStart_toEndOf="@id/mtvFavorite"
                     app:layout_constraintTop_toBottomOf="@+id/tvUpdatedAt"
                     app:myFont="@string/NotoSansBold" />

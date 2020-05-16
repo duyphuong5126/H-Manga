@@ -22,5 +22,6 @@ interface DownloadedBooksContract {
         fun jumpToPage(pageNumber: Int)
         fun jumToFirstPage()
         fun jumToLastPage()
+        fun notifyBookRemoved(bookId: String)
     }
 }

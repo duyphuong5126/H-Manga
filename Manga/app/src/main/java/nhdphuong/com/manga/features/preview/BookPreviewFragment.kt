@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.app.Activity
+import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -53,11 +54,23 @@ import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_1
 import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_2
 import kotlinx.android.synthetic.main.fragment_book_preview.tvUpdatedAt
 import kotlinx.android.synthetic.main.fragment_book_preview.ibBack
+import kotlinx.android.synthetic.main.fragment_book_preview.buttonClearDownloadedData
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
 import nhdphuong.com.manga.Constants.Companion.PROGRESS
 import nhdphuong.com.manga.Constants.Companion.TOTAL
+import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_STARTED
+import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_PROGRESS
+import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_COMPLETED
+import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_FAILED
+import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_STARTED
+import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_PROGRESS
+import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_COMPLETED
+import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_FAILED
+import nhdphuong.com.manga.Constants.Companion.ACTION_DISMISS_GALLERY_REFRESHING_DIALOG
+import nhdphuong.com.manga.Constants.Companion.ACTION_SHOW_GALLERY_REFRESHING_DIALOG
+import nhdphuong.com.manga.Constants.Companion.DELETING_FAILED_COUNT
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -93,6 +106,9 @@ class BookPreviewFragment :
         private const val COVER_IMAGE_ANIMATION_UP_OFFSET = -1000
         private const val COVER_IMAGE_ANIMATION_DOWN_OFFSET = 1000
         private const val DOWNLOADING_BAR_HIDING_DELAY = 2000L
+        private const val DELETING_BAR_HIDING_DELAY = 3000L
+        private const val CLOSE_AFTER_REMOVED_TIME = 4000L
+        private const val SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY = 3000L
         private const val PREVIEW_CACHE_SIZE = 10
     }
 
@@ -100,7 +116,9 @@ class BookPreviewFragment :
     private lateinit var previewAdapter: PreviewAdapter
     private lateinit var recommendBookAdapter: BookAdapter
     private lateinit var animatorSet: AnimatorSet
-    private var isDownloadRequested = false
+    private lateinit var refreshGalleryDialog: Dialog
+    private var isDownloadingRequested = false
+    private var isDeletingRequested = false
 
     @Volatile
     private var isPresenterStarted: Boolean = false
@@ -112,27 +130,59 @@ class BookPreviewFragment :
     private val bookDownloadingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
-                Constants.ACTION_DOWNLOADING_STARTED -> {
+                ACTION_DOWNLOADING_STARTED -> {
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
                     val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
                     presenter.initDownloading(bookId, totalBookPages)
+                    isDownloadingRequested = false
                 }
-                Constants.ACTION_DOWNLOADING_PROGRESS -> {
+                ACTION_DOWNLOADING_PROGRESS -> {
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
                     val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
                     val progress = intent.extras?.getInt(PROGRESS) ?: 0
                     presenter.updateDownloadingProgress(bookId, progress, totalBookPages)
+                    isDownloadingRequested = false
                 }
-                Constants.ACTION_DOWNLOADING_COMPLETED -> {
+                ACTION_DOWNLOADING_COMPLETED -> {
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
                     presenter.finishDownloading(bookId)
+                    isDownloadingRequested = false
                 }
-                Constants.ACTION_DOWNLOADING_FAILED -> {
+                ACTION_DOWNLOADING_FAILED -> {
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
                     val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
                     val downloadingFailedCount =
                         intent.extras?.getInt(DOWNLOADING_FAILED_COUNT) ?: 0
                     presenter.finishDownloading(bookId, downloadingFailedCount, totalBookPages)
+                    isDownloadingRequested = false
+                }
+                ACTION_DELETING_STARTED -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    presenter.initDeleting(bookId)
+                    isDeletingRequested = false
+                }
+                ACTION_DELETING_PROGRESS -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
+                    val progress = intent.extras?.getInt(PROGRESS) ?: 0
+                    presenter.updateDeletingProgress(bookId, progress, totalBookPages)
+                }
+                ACTION_DELETING_FAILED -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    val deletingFailedCount = intent.extras?.getInt(DELETING_FAILED_COUNT) ?: 0
+                    presenter.finishDeleting(bookId, deletingFailedCount)
+                    isDeletingRequested = false
+                }
+                ACTION_DELETING_COMPLETED -> {
+                    val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
+                    presenter.finishDeleting(bookId)
+                    isDeletingRequested = false
+                }
+                ACTION_SHOW_GALLERY_REFRESHING_DIALOG -> {
+                    refreshGalleryDialog.show()
+                }
+                ACTION_DISMISS_GALLERY_REFRESHING_DIALOG -> {
+                    refreshGalleryDialog.dismiss()
                 }
                 else -> Unit
             }
@@ -186,8 +236,14 @@ class BookPreviewFragment :
 
         mtvDownload.becomeVisibleIf(!viewDownloadedData)
         mtvDownload.setOnClickListener {
-            isDownloadRequested = true
+            isDownloadingRequested = true
             presenter.downloadBook()
+        }
+
+        buttonClearDownloadedData.becomeVisibleIf(viewDownloadedData)
+        buttonClearDownloadedData.setOnClickListener {
+            isDeletingRequested = true
+            presenter.deleteBook()
         }
 
         val changeFavoriteListener = View.OnClickListener { presenter.changeBookFavorite() }
@@ -225,6 +281,11 @@ class BookPreviewFragment :
                 presenter.loadInfoLists()
             }
         }
+
+        activity?.let { activity ->
+            val loadingTitle = activity.getString(R.string.refreshing_gallery)
+            refreshGalleryDialog = DialogHelper.createLoadingDialog(activity, loadingTitle)
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -238,10 +299,16 @@ class BookPreviewFragment :
         BroadCastReceiverHelper.registerBroadcastReceiver(
             context,
             bookDownloadingReceiver,
-            Constants.ACTION_DOWNLOADING_STARTED,
-            Constants.ACTION_DOWNLOADING_PROGRESS,
-            Constants.ACTION_DOWNLOADING_FAILED,
-            Constants.ACTION_DOWNLOADING_COMPLETED
+            ACTION_DOWNLOADING_STARTED,
+            ACTION_DELETING_STARTED,
+            ACTION_DOWNLOADING_PROGRESS,
+            ACTION_DELETING_PROGRESS,
+            ACTION_DOWNLOADING_FAILED,
+            ACTION_DELETING_FAILED,
+            ACTION_DOWNLOADING_COMPLETED,
+            ACTION_DELETING_COMPLETED,
+            ACTION_SHOW_GALLERY_REFRESHING_DIALOG,
+            ACTION_DISMISS_GALLERY_REFRESHING_DIALOG
         )
     }
 
@@ -253,12 +320,10 @@ class BookPreviewFragment :
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
             val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
-            if (!permissionGranted) {
-                showRequestStoragePermission()
-            } else {
-                if (isDownloadRequested) {
-                    presenter.downloadBook()
-                }
+            when {
+                !permissionGranted -> showRequestStoragePermission()
+                isDownloadingRequested -> presenter.downloadBook()
+                isDeletingRequested -> presenter.deleteBook()
             }
             val result = if (permissionGranted) "granted" else "denied"
             Logger.d(TAG, "Storage permission is $result")
@@ -484,7 +549,8 @@ class BookPreviewFragment :
                 getString(R.string.toast_storage_permission_require),
                 Toast.LENGTH_SHORT
             ).show()
-            isDownloadRequested = false
+            isDownloadingRequested = false
+            isDeletingRequested = false
         })
     }
 
@@ -528,17 +594,56 @@ class BookPreviewFragment :
         }, DOWNLOADING_BAR_HIDING_DELAY)
     }
 
+    override fun initDeleting() {
+        mtvDownloaded.text = ""
+    }
+
+    override fun updateDeletingProgress(progress: Int, total: Int) {
+        clDownloadProgress.becomeVisible()
+        pbDownloading.max = total
+        pbDownloading.progressDrawable = getProgressDrawableId(progress, total)
+        pbDownloading.progress = progress
+        mtvDownloaded.text = getString(R.string.preview_deleting_progress, progress, total)
+    }
+
+    override fun finishDeleting(bookId: String) {
+        pbDownloading.max = 1
+        pbDownloading.progress = 1
+        pbDownloading.progressDrawable = getProgressDrawableId(1, 1)
+        mtvDownloaded.text = getString(R.string.cleared)
+
+        Handler().postDelayed({
+            pbDownloading.progressDrawable = getProgressDrawableId(0, 1)
+            clDownloadProgress.gone()
+        }, DELETING_BAR_HIDING_DELAY)
+
+        closePreviewAfterRemovedBook(bookId)
+    }
+
+    override fun finishDeleting(bookId: String, deletingFailedCount: Int) {
+        mtvDownloaded.text = getString(R.string.fail_to_delete, deletingFailedCount)
+        pbDownloading.progressDrawable = getProgressDrawableId(0, pbDownloading.max)
+
+        Handler().postDelayed({
+            pbDownloading.max = 0
+            pbDownloading.progress = 0
+            clDownloadProgress.gone()
+        }, DELETING_BAR_HIDING_DELAY)
+
+        closePreviewAfterRemovedBook(bookId)
+    }
+
     override fun showBookBeingDownloaded(bookId: String) {
         DialogHelper.showBookDownloadingDialog(activity!!, bookId, onOk = {
             presenter.restartBookPreview(bookId)
         }, onDismiss = {
-
+            Logger.d(TAG, "Downloading book $bookId is aware")
         })
     }
 
     override fun showThisBookBeingDownloaded() {
         DialogHelper.showThisBookDownloadingDialog(activity!!, onOk = {
-
+            Logger.d(TAG, "Downloading this book is aware")
         })
     }
 
@@ -562,19 +667,18 @@ class BookPreviewFragment :
 
     override fun showOpenFolderView() {
         activity?.run {
-            DialogHelper.showDownloadingFinishedDialog(this, onOk = {
-                val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
-                viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                viewGalleryIntent.type = "image/*"
-                startActivity(
-                    Intent.createChooser(
-                        viewGalleryIntent,
-                        getString(R.string.open_with)
+            Handler().postDelayed({
+                DialogHelper.showDownloadingFinishedDialog(this, onOk = {
+                    val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
+                    viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    viewGalleryIntent.type = "image/*"
+                    startActivity(
+                        Intent.createChooser(viewGalleryIntent, getString(R.string.open_with))
                     )
-                )
-            }, onDismiss = {
+                }, onDismiss = {
 
-            })
+                })
+            }, if (refreshGalleryDialog.isShowing) SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY else 0)
         }
     }
 
@@ -649,5 +753,16 @@ class BookPreviewFragment :
                 else -> R.drawable.bg_download_red
             }
         )!!
+    }
+
+    private fun closePreviewAfterRemovedBook(bookId: String) {
+        Handler().postDelayed({
+            activity?.run {
+                intent.action = Constants.REFRESH_DOWNLOADED_BOOK_LIST
+                intent.putExtra(BOOK_ID, bookId)
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            }
+        }, CLOSE_AFTER_REMOVED_TIME)
     }
 }

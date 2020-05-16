@@ -12,6 +12,8 @@ import nhdphuong.com.manga.Constants.Companion.TABLE_DOWNLOADED_IMAGE as DOWNLOA
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.IS_FAVORITE
 import nhdphuong.com.manga.Constants.Companion.CREATED_AT
+import nhdphuong.com.manga.Constants.Companion.ID
+import nhdphuong.com.manga.Constants.Companion.UPLOAD_DATE
 import nhdphuong.com.manga.Constants.Companion.TYPE
 import nhdphuong.com.manga.Constants.Companion.LOCAL_PATH
 import nhdphuong.com.manga.data.entity.RecentBook
@@ -35,7 +37,7 @@ interface BookDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addDownloadedBook(downloadedBooks: List<DownloadedBookModel>): List<Long>
 
-    @Query("select * from $DOWNLOADED_BOOK")
+    @Query("select * from $DOWNLOADED_BOOK order by $UPLOAD_DATE")
     fun getAllDownloadedBooks(): Single<List<DownloadedBookModel>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -51,7 +53,9 @@ interface BookDAO {
     fun getFirstImagePathOfBook(bookId: String, @ImageUsageType usageType: String): Single<String>
 
     @Query("select $LOCAL_PATH from $DOWNLOADED_IMAGE where $BOOK_ID = :bookId and $TYPE = :usageType and $LOCAL_PATH != '' limit 1")
-    fun getFirstNotBlankImagePathOfBook(bookId: String, @ImageUsageType usageType: String): Single<String>
+    fun getFirstNotBlankImagePathOfBook(
+        bookId: String, @ImageUsageType usageType: String
+    ): Single<String>
 
     @Query("select $LOCAL_PATH from $DOWNLOADED_IMAGE where $BOOK_ID = :bookId and $TYPE = :usageType")
     fun getImagePathsOfBook(bookId: String, @ImageUsageType usageType: String): Single<List<String>>
@@ -61,6 +65,9 @@ interface BookDAO {
 
     @Query("delete from $DOWNLOADED_IMAGE where $BOOK_ID = :bookId")
     fun clearDownloadedImages(bookId: String): Int
+
+    @Query("delete from $DOWNLOADED_BOOK where $ID = :bookId")
+    fun deleteBook(bookId: String): Int
 
     @Insert
     fun insertRecentBooks(recentBookEntities: List<RecentBook>)

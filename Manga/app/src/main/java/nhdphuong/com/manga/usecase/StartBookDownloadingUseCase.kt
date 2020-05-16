@@ -3,7 +3,7 @@ package nhdphuong.com.manga.usecase
 import android.content.Context
 import io.reactivex.Completable
 import nhdphuong.com.manga.data.entity.book.Book
-import nhdphuong.com.manga.service.BookDownloadingServices
+import nhdphuong.com.manga.service.BookDownloadingService
 import javax.inject.Inject
 
 interface StartBookDownloadingUseCase {
@@ -15,7 +15,7 @@ class StartBookDownloadingUseCaseImpl @Inject constructor(
 ) : StartBookDownloadingUseCase {
     override fun execute(book: Book): Completable {
         return Completable.fromCallable {
-            BookDownloadingServices.start(context, book)
+            BookDownloadingService.start(context, book)
         }
     }
 }

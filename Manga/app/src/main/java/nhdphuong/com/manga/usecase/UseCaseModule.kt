@@ -12,6 +12,12 @@ interface UseCaseModule {
     fun downloadBookUseCase(downloadBookUseCaseImpl: DownloadBookUseCaseImpl): DownloadBookUseCase
 
     @Binds
+    fun startBookDeletingUseCase(startBookDeletingUseCaseImpl: StartBookDeletingUseCaseImpl): StartBookDeletingUseCase
+
+    @Binds
+    fun deleteBookUseCase(deleteBookUseCaseImpl: DeleteBookUseCaseImpl): DeleteBookUseCase
+
+    @Binds
     fun getAllDownloadedBooksUseCase(getAllDownloadedBooksUseCase: GetAllDownloadedBooksUseCaseImpl): GetAllDownloadedBooksUseCase
 
     @Binds

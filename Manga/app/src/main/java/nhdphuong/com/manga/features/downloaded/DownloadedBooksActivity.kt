@@ -6,6 +6,7 @@ import `in`.srain.cube.views.ptr.PtrHandler
 import `in`.srain.cube.views.ptr.PtrUIHandler
 import `in`.srain.cube.views.ptr.indicator.PtrIndicator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -33,6 +34,7 @@ import kotlinx.android.synthetic.main.layout_special_book_list.refreshHeader
 import kotlinx.android.synthetic.main.layout_special_book_list.clNothing
 import kotlinx.android.synthetic.main.layout_special_book_list.clReload
 import kotlinx.android.synthetic.main.layout_special_book_list.tvNothing
+import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -110,6 +112,17 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == Constants.DOWNLOADED_DATA_PREVIEW_REQUEST) {
+            if (data?.action == Constants.REFRESH_DOWNLOADED_BOOK_LIST) {
+                data.getStringExtra(Constants.BOOK_ID)?.takeIf { it.isNotBlank() }?.let { bookId ->
+                    downloadedBooksPresenter.notifyBookRemoved(bookId)
+                }
+            }
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         downloadedBooksPresenter.stop()
@@ -143,10 +156,13 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
     }
 
     override fun refreshBookList() {
-        clNothing.gone()
         bookListAdapter.notifyDataSetChanged()
-        downloadedBooksPresenter.reloadBookMarkers()
-        downloadedBooksPresenter.reloadBookThumbnails()
+        val listNotEmpty = bookListAdapter.itemCount > 0
+        if (listNotEmpty) {
+            downloadedBooksPresenter.reloadBookMarkers()
+            downloadedBooksPresenter.reloadBookThumbnails()
+        }
+        clNothing.becomeVisibleIf(!listNotEmpty)
     }
 
     override fun refreshThumbnailList(thumbnailList: List<Pair<String, String>>) {

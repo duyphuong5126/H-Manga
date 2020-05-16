@@ -3,9 +3,11 @@ package nhdphuong.com.manga.views
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -21,12 +23,14 @@ class DialogHelper {
         private const val DEFAULT_LOADING_INTERVAL = 700L
 
         @SuppressLint("InflateParams", "SetTextI18n")
-        fun createLoadingDialog(activity: Activity): Dialog {
+        fun createLoadingDialog(
+            activity: Activity,
+            loadingString: String = activity.getString(R.string.loading)
+        ): Dialog {
             val dotsArray = activity.resources.getStringArray(R.array.dots)
             var currentPos = 0
-            val loadingString = activity.getString(R.string.loading)
             val dialog = Dialog(activity)
-            val layoutInflater = activity.layoutInflater
+            val layoutInflater = LayoutInflater.from(activity)
             val contentView = layoutInflater.inflate(
                 R.layout.layout_loading_dialog,
                 null,
