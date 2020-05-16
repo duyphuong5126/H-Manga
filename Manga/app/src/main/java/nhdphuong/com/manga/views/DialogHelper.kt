@@ -133,8 +133,8 @@ class DialogHelper {
         ) {
             val title = activity.getString(R.string.un_seen_book_title)
             val message = activity.getString(R.string.un_seen_book_description)
-            val okString = activity.getString(R.string.confirm)
-            val dismissString = activity.getString(R.string.cancel)
+            val okString = activity.getString(R.string.yes)
+            val dismissString = activity.getString(R.string.no)
             showOkDismissDialog(activity, title, message, okString, dismissString, onOk, onDismiss)
         }
 

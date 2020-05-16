@@ -161,11 +161,11 @@
     <string name="number_of_tags">Tags: %d</string>
     <string name="number_of_unknown">Unknown: %d</string>
 
-    <string name="un_seen_book_title">Stop Following Book</string>
-    <string name="un_seen_book_description">You\'re going to remove this book from your recent list. \nAre you sure</string>
+    <string name="un_seen_book_title">Forget This Book</string>
+    <string name="un_seen_book_description">This book is on your reading list. \nAre you sure you want to remove it?</string>
 
-    <string name="confirm">Confirm</string>
-    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
     <string name="book_downloading_finished">Book downloading finished</string>
     <string name="is_want_to_open_folder">Do you want to open downloaded folder?</string>
