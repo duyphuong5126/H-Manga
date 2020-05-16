@@ -1,12 +1,9 @@
 package nhdphuong.com.manga.features.reader
 
-import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.NHentaiApp
@@ -60,12 +57,6 @@ class ReaderActivity : AppCompatActivity() {
         NHentaiApp.instance.applicationComponent.plus(
             ReaderModule(readerFragment, book, startReadingPage)
         ).inject(this)
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    override fun onResume() {
-        super.onResume()
-        window?.statusBarColor = ContextCompat.getColor(this@ReaderActivity, R.color.grey_1)
     }
 
     override fun finish() {

@@ -8,6 +8,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="AppTheme.GreyStatusBar" parent="AppTheme">
+        <item name="colorPrimaryDark">@color/grey_1</item>
+    </style>
+
     <style name="PageNotSelected">
         <item name="android:textStyle">normal</item>
     </style>
