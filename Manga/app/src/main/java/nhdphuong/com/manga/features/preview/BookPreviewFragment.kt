@@ -107,7 +107,7 @@ class BookPreviewFragment :
         private const val COVER_IMAGE_ANIMATION_DOWN_OFFSET = 1000
         private const val DOWNLOADING_BAR_HIDING_DELAY = 2000L
         private const val DELETING_BAR_HIDING_DELAY = 3000L
-        private const val CLOSE_AFTER_REMOVED_TIME = 4000L
+        private const val CLOSE_AFTER_REMOVED_TIME = 3500L
         private const val SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY = 3000L
         private const val PREVIEW_CACHE_SIZE = 10
     }

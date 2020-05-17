@@ -32,7 +32,7 @@ import nhdphuong.com.manga.data.local.model.DownloadedBookModel
         DownloadedBookModel::class,
         BookImageModel::class,
         BookTagModel::class],
-    version = 2
+    version = 3
 )
 abstract class NHentaiDB : RoomDatabase() {
     abstract fun getRecentBookDAO(): BookDAO
