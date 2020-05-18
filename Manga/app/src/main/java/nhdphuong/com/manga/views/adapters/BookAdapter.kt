@@ -82,13 +82,13 @@ class BookAdapter(
     }
 
     fun setRecentList(recentList: List<String>) {
-        val totalList = mutableListOf<String>().apply {
-            addAll(this@BookAdapter.recentList)
-            addAll(recentList)
+        val toNotifyList = mutableListOf<String>().apply {
+            addAll(this@BookAdapter.recentList.filterNot { recentList.contains(it) })
+            addAll(recentList.filterNot { this@BookAdapter.recentList.contains(it) })
         }
         this.recentList.clear()
         this.recentList.addAll(recentList)
-        totalList.forEach { bookId ->
+        toNotifyList.forEach { bookId ->
             itemList.indexOfFirst { it.bookId == bookId }.takeIf { it >= 0 }?.let { index ->
                 notifyItemChanged(index)
             }
@@ -96,13 +96,13 @@ class BookAdapter(
     }
 
     fun setFavoriteList(favoriteList: List<String>) {
-        val totalList = mutableListOf<String>().apply {
-            addAll(this@BookAdapter.favoriteList)
-            addAll(favoriteList)
+        val toNotifyList = mutableListOf<String>().apply {
+            addAll(this@BookAdapter.favoriteList.filterNot { favoriteList.contains(it) })
+            addAll(favoriteList.filterNot { this@BookAdapter.favoriteList.contains(it) })
         }
         this.favoriteList.clear()
         this.favoriteList.addAll(favoriteList)
-        totalList.forEach { bookId ->
+        toNotifyList.forEach { bookId ->
             itemList.indexOfFirst { it.bookId == bookId }.takeIf { it >= 0 }?.let { index ->
                 notifyItemChanged(index)
             }
