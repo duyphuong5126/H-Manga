@@ -219,7 +219,9 @@ class BookPreviewPresenter @Inject constructor(
                 val coverUrl: String = getReachableBookCover()
 
                 main.launch {
-                    view.showBookCoverImage(coverUrl)
+                    if (view.isActive()) {
+                        view.showBookCoverImage(coverUrl)
+                    }
                 }
             }
         }
