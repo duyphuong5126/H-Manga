@@ -38,10 +38,8 @@ class BookReaderAdapter(
         )
         mPageMap[position] = readerViewHolder
         container.addView(readerViewHolder.view)
-        readerViewHolder.ivPage.let { ivPage ->
-            ivPage.setOnClickListener {
-                mOnTapListener.onClick(ivPage)
-            }
+        readerViewHolder.ivPage.setOnClickListener {
+            mOnTapListener.onClick(it)
         }
         return readerViewHolder.view
     }

@@ -429,16 +429,18 @@ class BookPreviewPresenter @Inject constructor(
                             " ${bookList.size}"
                 )
                 main.launch {
-                    if (!bookList.isEmpty()) {
-                        view.showRecommendBook(bookList)
-                        if (!recentList.isEmpty()) {
-                            view.showRecentBooks(recentList)
+                    if (view.isActive()) {
+                        if (!bookList.isEmpty()) {
+                            view.showRecommendBook(bookList)
+                            if (!recentList.isEmpty()) {
+                                view.showRecentBooks(recentList)
+                            }
+                            if (!favoriteList.isEmpty()) {
+                                view.showFavoriteBooks(favoriteList)
+                            }
+                        } else {
+                            view.showNoRecommendBook()
                         }
-                        if (!favoriteList.isEmpty()) {
-                            view.showFavoriteBooks(favoriteList)
-                        }
-                    } else {
-                        view.showNoRecommendBook()
                     }
                 }
             }

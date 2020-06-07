@@ -13,9 +13,6 @@ import nhdphuong.com.manga.usecase.GetDownloadedBookPagesUseCase
 import java.util.LinkedList
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
-import kotlin.collections.HashSet
-import kotlin.math.max
-import kotlin.math.min
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -40,16 +37,11 @@ class ReaderPresenter @Inject constructor(
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : ReaderContract.Presenter {
-    companion object {
-        private const val TAG = "ReaderPresenter"
-        private const val PREFETCH_RADIUS = 5
-    }
 
     private lateinit var bookPages: ArrayList<String>
     private var currentPage: Int = -1
     private val downloadQueue = LinkedBlockingQueue<Int>()
     private var isDownloading = false
-    private val preFetchedPages = HashSet<Int>()
     private var notificationId: Int = -1
 
     private val prefixNumber: Int
@@ -92,14 +84,10 @@ class ReaderPresenter @Inject constructor(
                 }).addTo(compositeDisposable)
         } else {
             saveRecentBook()
-            preFetchedPages.clear()
-            downloadQueue.clear()
             for (pageId in book.bookImages.pages.indices) {
                 val page = book.bookImages.pages[pageId]
                 bookPages.add(
-                    ApiConstants.getPictureUrl(
-                        book.mediaId, pageId + 1, page.imageType
-                    )
+                    ApiConstants.getPictureUrl(book.mediaId, pageId + 1, page.imageType)
                 )
             }
             setUpReader()
@@ -115,10 +103,6 @@ class ReaderPresenter @Inject constructor(
             } else {
                 view.showPageIndicator(page + 1, pageCount)
             }
-        }
-
-        if (!viewDownloadedData) {
-            preloadPagesAround(page)
         }
     }
 
@@ -177,9 +161,11 @@ class ReaderPresenter @Inject constructor(
                 fileUtils.refreshGallery(false, *resultList.toTypedArray())
                 isDownloading = false
                 main.launch {
-                    view.hideLoading()
-                    delay(3000)
-                    view.hideDownloadPopup()
+                    if (view.isActive()) {
+                        view.hideLoading()
+                        delay(3000)
+                        view.hideDownloadPopup()
+                    }
                 }
                 Logger.d(TAG, "All pages downloaded")
             }
@@ -216,8 +202,6 @@ class ReaderPresenter @Inject constructor(
             view.jumpToPage(startReadingPage)
         }
 
-        preloadPagesAround(startReadingPage)
-
         view.pushNowReadingNotification(
             book.previewTitle,
             startReadingPage + 1,
@@ -233,21 +217,7 @@ class ReaderPresenter @Inject constructor(
         }
     }
 
-    private fun preloadPagesAround(page: Int) {
-        val startPrefetch = max(0, page - PREFETCH_RADIUS)
-        val endPrefetch = min(bookPages.size - 1, page + PREFETCH_RADIUS)
-        Logger.d(TAG, "Prefetch from $startPrefetch to $endPrefetch")
-        for (i in startPrefetch..endPrefetch) {
-            if (!preFetchedPages.contains(i)) {
-                Logger.d(TAG, "Pre-load page $i")
-                book.bookImages.pages[i].run {
-                    ImageUtils.downloadImage(bookPages[i]) { bitmap ->
-                        Logger.d(TAG, "Pre-fetched bitmap $i will be recycled")
-                        bitmap?.recycle()
-                        preFetchedPages.add(i)
-                    }
-                }
-            }
-        }
+    companion object {
+        private const val TAG = "ReaderPresenter"
     }
 }

@@ -17,8 +17,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SupportUtils
-import java.util.*
-
+import nhdphuong.com.manga.views.doOnGlobalLayout
 
 /*
  * Created by nhdphuong on 3/18/18.
@@ -187,7 +186,7 @@ class BookAdapter(
             }
 
             tv1stTitle.text = item.previewTitle
-            tv1stTitle.viewTreeObserver.addOnGlobalLayoutListener {
+            tv1stTitle.doOnGlobalLayout {
                 if (isTitleModifiable) {
                     val fullText = item.previewTitle
                     val ellipsizedText = SupportUtils.getEllipsizedText(tv1stTitle)

@@ -80,13 +80,7 @@ import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.ImageUtils
-import nhdphuong.com.manga.views.InformationCardAdapter
-import nhdphuong.com.manga.views.MyGridLayoutManager
-import nhdphuong.com.manga.views.becomeVisible
-import nhdphuong.com.manga.views.becomeVisibleIf
-import nhdphuong.com.manga.views.becomeInvisible
-import nhdphuong.com.manga.views.gone
-import nhdphuong.com.manga.views.DialogHelper
+import nhdphuong.com.manga.views.*
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PreviewAdapter
 
@@ -283,7 +277,7 @@ class BookPreviewFragment :
             }
         }
 
-        view.viewTreeObserver.addOnGlobalLayoutListener {
+        view.doOnGlobalLayout {
             if (!isPresenterStarted) {
                 isPresenterStarted = true
                 presenter.loadInfoLists()

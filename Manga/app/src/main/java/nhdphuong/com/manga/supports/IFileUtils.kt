@@ -54,7 +54,8 @@ class FileUtils : IFileUtils {
         val refreshedCount = AtomicInteger(0)
         MediaScannerConnection.scanFile(context, galleryPaths, null) { path, _ ->
             Logger.d(TAG, "$path was refreshed")
-            if (needToShowRefreshDialog && refreshedCount.incrementAndGet() < total) {
+            val refreshedItems = refreshedCount.incrementAndGet()
+            if (needToShowRefreshDialog && refreshedItems == total) {
                 BroadCastReceiverHelper.sendBroadCast(
                     context, Constants.ACTION_DISMISS_GALLERY_REFRESHING_DIALOG
                 )

@@ -12,17 +12,15 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.DrawableImageViewTarget
 import com.bumptech.glide.request.target.Target
-import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 
 class ImageUtils {
     companion object {
-        private const val TAG = "ImageUtils"
         private const val TIME_OUT = 10000
 
         @SuppressLint("CheckResult")
         fun <IV : ImageView> loadFitImage(url: String, defaultResource: Int, imageView: IV) {
-            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.DATA)
+            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(defaultResource)
                 .override(imageView.measuredWidth, imageView.measuredHeight)
                 .timeout(TIME_OUT)
@@ -32,7 +30,7 @@ class ImageUtils {
 
         @SuppressLint("CheckResult")
         fun <IV : ImageView> loadImage(url: String, defaultResource: Int, imageView: IV) {
-            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(defaultResource)
                 .timeout(TIME_OUT)
                 .skipMemoryCache(true)
@@ -46,7 +44,7 @@ class ImageUtils {
             onLoadSuccess: () -> Unit,
             onLoadFailed: () -> Unit
         ) {
-            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(defaultResource)
                 .timeout(TIME_OUT)
                 .skipMemoryCache(true)
@@ -84,45 +82,9 @@ class ImageUtils {
             Glide.with(imageView.context).clear(imageView)
         }
 
-        @SuppressLint("CheckResult")
-        fun downloadImage(url: String, onBitmapReady: (bitmap: Bitmap?) -> Unit) {
-            val context = NHentaiApp.instance.applicationContext
-            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .timeout(TIME_OUT)
-                .skipMemoryCache(true)
-            Glide.with(context)
-                .asBitmap()
-                .load(url)
-                .apply(requestOptions)
-                .listener(object : RequestListener<Bitmap> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Bitmap>?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        Logger.d(TAG, "Downloading image: $url failed")
-                        onBitmapReady(null)
-                        return true
-                    }
-
-                    override fun onResourceReady(
-                        resource: Bitmap?,
-                        model: Any?,
-                        target: Target<Bitmap>?,
-                        dataSource: DataSource?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        Logger.d(TAG, "Downloading image: $url succeeded")
-                        onBitmapReady(resource)
-                        return false
-                    }
-                }).submit()
-        }
-
         fun downloadImage(url: String, width: Int, height: Int): Bitmap {
             val context = NHentaiApp.instance.applicationContext
-            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
                 .timeout(TIME_OUT)
                 .skipMemoryCache(true)
             val future = Glide.with(context)

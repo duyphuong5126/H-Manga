@@ -141,13 +141,12 @@ class SupportUtils : AppSupportUtils {
             return resultPath
         }
 
-        fun downloadImageBitmap(urlString: String, simulateDownloadFail: Boolean): Bitmap {
+        fun downloadImageBitmap(urlString: String): Bitmap {
             val bitmap: Bitmap
-            val downloadingUrl = if (simulateDownloadFail) urlString + "idghfhidu" else urlString
-            val connectTimeOut = if (simulateDownloadFail) 5000 else 10000
-            val readTimeOut = if (simulateDownloadFail) 10000 else 20000
+            val connectTimeOut = 10000
+            val readTimeOut = 20000
             try {
-                val url = URL(downloadingUrl)
+                val url = URL(urlString)
                 val conn = url.openConnection()
                 conn.connectTimeout = connectTimeOut
                 conn.readTimeout = readTimeOut
@@ -253,7 +252,7 @@ class SupportUtils : AppSupportUtils {
         fileName: String,
         format: String
     ): String {
-        val result = downloadImageBitmap(fromUrl, false)
+        val result = downloadImageBitmap(fromUrl)
         return saveImage(result, directory, fileName, format)
     }
 }

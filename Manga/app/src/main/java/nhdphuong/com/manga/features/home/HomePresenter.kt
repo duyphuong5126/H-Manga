@@ -18,7 +18,6 @@ import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.Locale
-import java.util.LinkedList
 import java.util.Random
 import java.util.Collections
 import java.util.Stack
@@ -47,13 +46,13 @@ class HomePresenter @Inject constructor(
         private const val BOOKS_PER_PAGE = MAX_PER_PAGE
     }
 
-    private var mainList = LinkedList<Book>()
+    private var mainList = ArrayList<Book>()
     private var currentNumOfPages = 0L
     private var currentLimitPerPage = 0
     private var currentPage = 1L
 
     @SuppressLint("UseSparseArrays")
-    private var preventiveData = HashMap<Long, LinkedList<Book>>()
+    private var preventiveData = HashMap<Long, ArrayList<Book>>()
 
     private var isLoadingPreventiveData = false
     private val jobStack = Stack<Job>()
@@ -192,8 +191,8 @@ class HomePresenter @Inject constructor(
 
     override fun reloadRecentBooks() {
         io.launch {
-            val recentList = LinkedList<String>()
-            val favoriteList = LinkedList<String>()
+            val recentList = ArrayList<String>()
+            val favoriteList = ArrayList<String>()
             mainList.forEach {
                 val bookId = it.bookId
                 when {
@@ -269,7 +268,7 @@ class HomePresenter @Inject constructor(
                 currentNumOfPages = remoteBook?.numOfPages ?: 0L
                 currentLimitPerPage = remoteBook?.numOfBooksPerPage ?: 0
                 Logger.d(TAG, "Remote books: $currentNumOfPages")
-                val bookList = remoteBook?.bookList ?: LinkedList()
+                val bookList = remoteBook?.bookList ?: ArrayList()
                 mainList.addAll(bookList)
                 preventiveData[currentPage] = bookList
                 for (book in bookList) {
@@ -298,14 +297,14 @@ class HomePresenter @Inject constructor(
         io.launch {
             mainList.clear()
             var newPage = false
-            val currentList: LinkedList<Book> = if (preventiveData.containsKey(currentPage)) {
-                preventiveData[currentPage] as LinkedList<Book>
+            val currentList: ArrayList<Book> = if (preventiveData.containsKey(currentPage)) {
+                preventiveData[currentPage] as ArrayList<Book>
             } else {
                 newPage = true
                 main.launch {
                     view.showLoading()
                 }
-                val bookList = getBooksListByPage(currentPage)?.bookList ?: LinkedList()
+                val bookList = getBooksListByPage(currentPage)?.bookList ?: ArrayList()
                 preventiveData[currentPage] = bookList
                 bookList
             }
@@ -320,7 +319,7 @@ class HomePresenter @Inject constructor(
 
             for (page in toLoadList.iterator()) {
                 if (!preventiveData.containsKey(page)) {
-                    preventiveData[page] = LinkedList()
+                    preventiveData[page] = ArrayList()
                     launch {
                         getBooksListByPage(page)?.bookList?.let { bookList ->
                             preventiveData[page]?.addAll(bookList)
@@ -331,17 +330,17 @@ class HomePresenter @Inject constructor(
             }
 
             if (preventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
-                val pageList = sortListPage(currentPage, LinkedList(preventiveData.keys))
+                val pageList = sortListPage(currentPage, ArrayList(preventiveData.keys))
                 var pageId = 0
                 logListLong("Before deleted page list: ", pageList)
                 while (preventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
                     Logger.d(TAG, "Remove page: $pageId")
                     val page = pageList[pageId++]
-                    (preventiveData[page] as LinkedList).clear()
+                    (preventiveData[page] as ArrayList).clear()
                     preventiveData.remove(page)
                 }
             }
-            logListLong("Final page list: ", LinkedList(preventiveData.keys))
+            logListLong("Final page list: ", ArrayList(preventiveData.keys))
 
             main.launch {
                 view.refreshHomeBookList()
@@ -352,7 +351,7 @@ class HomePresenter @Inject constructor(
         }
     }
 
-    private fun sortListPage(anchor: Long, pageList: LinkedList<Long>): LinkedList<Long> {
+    private fun sortListPage(anchor: Long, pageList: ArrayList<Long>): ArrayList<Long> {
         if (pageList.isEmpty()) {
             return pageList
         }
@@ -387,7 +386,7 @@ class HomePresenter @Inject constructor(
                         val remoteBook = getBooksListByPage(page)
                         Logger.d(TAG, "Done loading page $page")
                         remoteBook?.bookList?.let { bookList ->
-                            if (!bookList.isEmpty()) {
+                            if (bookList.isNotEmpty()) {
                                 preventiveData[page] = bookList
                             }
                         }
@@ -423,7 +422,7 @@ class HomePresenter @Inject constructor(
                 remoteBook
             } else if (searchData.toLongOrNull() != null) {
                 val bookData = bookRepository.getBookDetails(searchData)
-                val bookList = LinkedList<Book>().apply {
+                val bookList = ArrayList<Book>().apply {
                     if (bookData != null) {
                         add(bookData)
                     }

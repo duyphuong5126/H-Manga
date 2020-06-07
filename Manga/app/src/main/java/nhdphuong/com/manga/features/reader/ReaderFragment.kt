@@ -36,10 +36,6 @@ import nhdphuong.com.manga.views.becomeVisibleIf
  * Created by nhdphuong on 5/5/18.
  */
 class ReaderFragment : Fragment(), ReaderContract.View {
-    companion object {
-        private const val TAG = "ReaderFragment"
-        private const val REQUEST_STORAGE_PERMISSION = 2364
-    }
 
     private lateinit var presenter: ReaderContract.Presenter
     private lateinit var rotationAnimation: Animation
@@ -69,10 +65,6 @@ class ReaderFragment : Fragment(), ReaderContract.View {
             navigateToGallery()
         }
 
-        ibDownload.setOnClickListener {
-
-        }
-
         mtvCurrentPage.setOnClickListener {
             presenter.backToGallery()
         }
@@ -85,8 +77,8 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         ibDownloadPopupClose.setOnClickListener {
             hideDownloadPopup()
         }
-        rotationAnimation = AnimationHelper.getRotationAnimation(context!!)
-        ibRefresh.let { ibRefresh ->
+        context?.let { context ->
+            rotationAnimation = AnimationHelper.getRotationAnimation(context)
             ibRefresh.setOnClickListener {
                 ibRefresh.startAnimation(rotationAnimation)
                 presenter.reloadCurrentPage { currentPage: Int ->
@@ -98,6 +90,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
                 }
             }
         }
+
         view.isFocusableInTouchMode = true
         view.requestFocus()
         view.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
@@ -142,48 +135,50 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun showBookPages(pageList: List<String>) {
-        val activity = activity!!
-        bookReaderAdapter = BookReaderAdapter(context!!, pageList, View.OnClickListener {
-            if (clReaderBottom.visibility == View.VISIBLE) {
-                AnimationHelper.startSlideOutTop(activity, clReaderTop) {
-                    clReaderTop.visibility = View.GONE
+        activity?.let { activity ->
+            bookReaderAdapter = BookReaderAdapter(activity, pageList, View.OnClickListener {
+                if (clReaderBottom.visibility == View.VISIBLE) {
+                    AnimationHelper.startSlideOutTop(activity, clReaderTop) {
+                        clReaderTop.visibility = View.GONE
+                    }
+                    AnimationHelper.startSlideOutBottom(activity, clReaderBottom) {
+                        clReaderBottom.visibility = View.GONE
+                    }
+                } else {
+                    AnimationHelper.startSlideInTop(activity, clReaderTop) {
+                        clReaderTop.visibility = View.VISIBLE
+                    }
+                    AnimationHelper.startSlideInBottom(activity, clReaderBottom) {
+                        clReaderBottom.visibility = View.VISIBLE
+                    }
                 }
-                AnimationHelper.startSlideOutBottom(activity, clReaderBottom) {
-                    clReaderBottom.visibility = View.GONE
-                }
-            } else {
-                AnimationHelper.startSlideInTop(activity, clReaderTop) {
-                    clReaderTop.visibility = View.VISIBLE
-                }
-                AnimationHelper.startSlideInBottom(activity, clReaderBottom) {
-                    clReaderBottom.visibility = View.VISIBLE
-                }
-            }
-        })
-        vpPages.adapter = bookReaderAdapter
-        vpPages.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrollStateChanged(state: Int) {
+            })
+            vpPages.adapter = bookReaderAdapter
+            vpPages.offscreenPageLimit = OFFSCREEN_LIMIT
+            vpPages.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+                override fun onPageScrollStateChanged(state: Int) {
 
-            }
-
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
-
-            }
-
-            override fun onPageSelected(position: Int) {
-                presenter.updatePageIndicator(position)
-                if (position - 1 >= 0) {
-                    bookReaderAdapter.resetPageToNormal(position - 1)
                 }
-                if (position + 1 < bookReaderAdapter.count) {
-                    bookReaderAdapter.resetPageToNormal(position + 1)
+
+                override fun onPageScrolled(
+                    position: Int,
+                    positionOffset: Float,
+                    positionOffsetPixels: Int
+                ) {
+
                 }
-            }
-        })
+
+                override fun onPageSelected(position: Int) {
+                    presenter.updatePageIndicator(position)
+                    if (position - 1 >= 0) {
+                        bookReaderAdapter.resetPageToNormal(position - 1)
+                    }
+                    if (position + 1 < bookReaderAdapter.count) {
+                        bookReaderAdapter.resetPageToNormal(position + 1)
+                    }
+                }
+            })
+        }
     }
 
     override fun showPageIndicator(currentPage: Int, total: Int) {
@@ -204,15 +199,17 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun showRequestStoragePermission() {
-        DialogHelper.showStoragePermissionDialog(activity!!, onOk = {
-            requestStoragePermission()
-        }, onDismiss = {
-            Toast.makeText(
-                context,
-                getString(R.string.toast_storage_permission_require),
-                Toast.LENGTH_SHORT
-            ).show()
-        })
+        activity?.let { activity ->
+            DialogHelper.showStoragePermissionDialog(activity, onOk = {
+                requestStoragePermission()
+            }, onDismiss = {
+                Toast.makeText(
+                    activity,
+                    getString(R.string.toast_storage_permission_require),
+                    Toast.LENGTH_SHORT
+                ).show()
+            })
+        }
     }
 
     override fun showDownloadPopup() {
@@ -259,5 +256,11 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     private fun requestStoragePermission() {
         val storagePermission = arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
         requestPermissions(storagePermission, REQUEST_STORAGE_PERMISSION)
+    }
+
+    companion object {
+        private const val TAG = "ReaderFragment"
+        private const val REQUEST_STORAGE_PERMISSION = 2364
+        private const val OFFSCREEN_LIMIT = 5
     }
 }
