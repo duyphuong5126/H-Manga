@@ -350,6 +350,11 @@ class BookPreviewPresenter @Inject constructor(
         io.launch {
             val unSubscribingSuccess = bookRepository.unSeenBook(book.bookId)
             if (unSubscribingSuccess) {
+                val deleteLastVisitedPageResult = bookRepository.deleteLastVisitedPage(book.bookId)
+                Logger.d(
+                    TAG,
+                    "Result of deleting last visited page of ${book.bookId}: $deleteLastVisitedPageResult"
+                )
                 main.launch {
                     view.hideUnSeenButton()
                 }

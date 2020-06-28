@@ -98,4 +98,7 @@ interface BookDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addLastVisitedPage(vararg lastVisitedPage: LastVisitedPage): List<Long>
+
+    @Query("delete from $TABLE_LAST_VISITED_PAGE where $BOOK_ID = :bookId")
+    fun deleteLastVisitedPage(bookId: String): Int
 }

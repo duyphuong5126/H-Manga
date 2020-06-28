@@ -223,6 +223,10 @@ class BookLocalDataSource @Inject constructor(
         return deletingResult > 0
     }
 
+    override suspend fun deleteLastVisitedPage(bookId: String): Boolean {
+        return bookDAO.deleteLastVisitedPage(bookId) > 0
+    }
+
     override fun saveLastVisitedPage(bookId: String, lastVisitedPage: Int): Completable {
         return Completable.fromCallable {
             val insertResult = bookDAO.addLastVisitedPage(LastVisitedPage(bookId, lastVisitedPage))
