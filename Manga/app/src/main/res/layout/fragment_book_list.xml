@@ -1,270 +1,267 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:cube_ptr="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:ignore="RtlCompat"
     tools:targetApi="lollipop">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <in.srain.cube.views.ptr.PtrFrameLayout
+        android:id="@+id/srlPullToReload"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/greyDDD"
+        cube_ptr:ptr_duration_to_close="300"
+        cube_ptr:ptr_duration_to_close_header="2000"
+        cube_ptr:ptr_keep_header_when_refresh="true"
+        cube_ptr:ptr_pull_to_fresh="false"
+        cube_ptr:ptr_ratio_of_header_height_to_refresh="1.2"
+        cube_ptr:ptr_resistance="1.7">
 
-        <in.srain.cube.views.ptr.PtrFrameLayout
-            android:id="@+id/srlPullToReload"
+        <in.srain.cube.views.ptr.PtrClassicDefaultHeader
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/greyDDD">
+
+            <include
+                android:id="@+id/refreshHeader"
+                layout="@layout/layout_refresh_header" />
+
+        </in.srain.cube.views.ptr.PtrClassicDefaultHeader>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nsvMainList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/greyDDD"
-            cube_ptr:ptr_duration_to_close="300"
-            cube_ptr:ptr_duration_to_close_header="2000"
-            cube_ptr:ptr_keep_header_when_refresh="true"
-            cube_ptr:ptr_pull_to_fresh="false"
-            cube_ptr:ptr_ratio_of_header_height_to_refresh="1.2"
-            cube_ptr:ptr_resistance="1.7">
+            android:background="@android:color/black">
 
-            <in.srain.cube.views.ptr.PtrClassicDefaultHeader
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/greyDDD">
-
-                <include
-                    android:id="@+id/refreshHeader"
-                    layout="@layout/layout_refresh_header" />
-
-            </in.srain.cube.views.ptr.PtrClassicDefaultHeader>
-
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/nsvMainList"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/black">
+                android:orientation="vertical">
 
-                <LinearLayout
+                <View
+                    android:id="@+id/upgradePopupPlaceHolder"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:layout_height="@dimen/header_size"
+                    android:visibility="gone" />
 
-                    <View
-                        android:id="@+id/upgradePopupPlaceHolder"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/header_size"
-                        android:visibility="gone" />
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/mtv_search_result"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"
+                    android:text="@string/title_1"
+                    android:textColor="@android:color/white"
+                    android:textSize="21sp"
+                    android:visibility="gone"
+                    app:myFont="@string/NotoSansBold"
+                    tools:visibility="visible" />
 
-                    <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/mtv_search_result"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginEnd="5dp"
-                        android:layout_marginBottom="10dp"
-                        android:gravity="center"
-                        android:text="@string/title_1"
-                        android:textColor="@android:color/white"
-                        android:textSize="21sp"
-                        android:visibility="gone"
-                        app:myFont="@string/NotoSansBold"
-                        tools:visibility="visible" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvMainList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvMainList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clNavigation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/space_medium"
+                    android:visibility="visible">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/clNavigation"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/space_medium"
-                        android:visibility="visible">
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/normal_box_size"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btnLast"
+                        app:layout_constraintStart_toEndOf="@id/btnFirst"
+                        app:layout_constraintTop_toTopOf="parent">
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/normal_box_size"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/btnLast"
-                            app:layout_constraintStart_toEndOf="@id/btnFirst"
-                            app:layout_constraintTop_toTopOf="parent">
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/rvPagination"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/space_small"
-                                android:layout_marginEnd="@dimen/space_small"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-                        <ImageView
-                            android:id="@+id/btnFirst"
-                            android:layout_width="@dimen/normal_button_size"
-                            android:layout_height="@dimen/normal_button_size"
-                            android:background="@drawable/button_transparent_rect_rounded_all_corners"
-                            android:clickable="true"
-                            android:contentDescription="@string/previous"
-                            android:focusable="true"
-                            android:paddingStart="@dimen/space_small"
-                            android:paddingTop="@dimen/space_small"
-                            android:paddingEnd="@dimen/space_small"
-                            android:paddingBottom="@dimen/space_small"
-                            android:src="@drawable/ic_previous_white"
-                            app:layout_constraintBottom_toBottomOf="parent"
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvPagination"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_small"
+                            android:layout_marginEnd="@dimen/space_small"
+                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
-
-                        <ImageView
-                            android:id="@+id/btnLast"
-                            android:layout_width="@dimen/normal_button_size"
-                            android:layout_height="@dimen/normal_button_size"
-                            android:background="@drawable/button_transparent_rect_rounded_all_corners"
-                            android:clickable="true"
-                            android:contentDescription="@string/next"
-                            android:focusable="true"
-                            android:paddingStart="@dimen/space_small"
-                            android:paddingTop="@dimen/space_small"
-                            android:paddingEnd="@dimen/space_small"
-                            android:paddingBottom="@dimen/space_small"
-                            android:rotation="180"
-                            android:src="@drawable/ic_previous_white"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
-                </LinearLayout>
-            </androidx.core.widget.NestedScrollView>
-        </in.srain.cube.views.ptr.PtrFrameLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/clUpgradePopup"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/header_size"
-            android:background="@color/greyCCC"
-            android:visibility="gone"
+                    <ImageView
+                        android:id="@+id/btnFirst"
+                        android:layout_width="@dimen/normal_button_size"
+                        android:layout_height="@dimen/normal_button_size"
+                        android:background="@drawable/button_transparent_rect_rounded_all_corners"
+                        android:clickable="true"
+                        android:contentDescription="@string/previous"
+                        android:focusable="true"
+                        android:paddingStart="@dimen/space_small"
+                        android:paddingTop="@dimen/space_small"
+                        android:paddingEnd="@dimen/space_small"
+                        android:paddingBottom="@dimen/space_small"
+                        android:src="@drawable/ic_previous_white"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/btnLast"
+                        android:layout_width="@dimen/normal_button_size"
+                        android:layout_height="@dimen/normal_button_size"
+                        android:background="@drawable/button_transparent_rect_rounded_all_corners"
+                        android:clickable="true"
+                        android:contentDescription="@string/next"
+                        android:focusable="true"
+                        android:paddingStart="@dimen/space_small"
+                        android:paddingTop="@dimen/space_small"
+                        android:paddingEnd="@dimen/space_small"
+                        android:paddingBottom="@dimen/space_small"
+                        android:rotation="180"
+                        android:src="@drawable/ic_previous_white"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </in.srain.cube.views.ptr.PtrFrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clUpgradePopup"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/header_size"
+        android:background="@color/greyCCC"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/ibUpgradePopupClose"
+            android:layout_width="@dimen/small_icon_size"
+            android:layout_height="@dimen/small_icon_size"
+            android:layout_marginEnd="@dimen/dp20"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/close"
+            android:src="@drawable/ic_close"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageButton
-                android:id="@+id/ibUpgradePopupClose"
-                android:layout_width="@dimen/small_icon_size"
-                android:layout_height="@dimen/small_icon_size"
-                android:layout_marginEnd="@dimen/dp20"
-                android:background="@android:color/transparent"
-                android:contentDescription="@string/close"
-                android:src="@drawable/ic_close"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <nhdphuong.com.manga.views.customs.MyTextView
-                android:id="@+id/mtvUpgradeTitle"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="@dimen/dp10"
-                android:layout_marginEnd="@dimen/dp10"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical|start"
-                android:text="@string/app_upgrade_notification"
-                android:textColor="@color/grey_1"
-                android:textSize="@dimen/small_text_size"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/ibUpgradePopupClose"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:myFont="@string/NotoSansItalic" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/clNothing"
+        <nhdphuong.com.manga.views.customs.MyTextView
+            android:id="@+id/mtvUpgradeTitle"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@color/grey_4"
-            android:visibility="gone"
+            android:layout_marginStart="@dimen/dp10"
+            android:layout_marginEnd="@dimen/dp10"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical|start"
+            android:text="@string/app_upgrade_notification"
+            android:textColor="@color/grey_1"
+            android:textSize="@dimen/small_text_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ibUpgradePopupClose"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:myFont="@string/NotoSansItalic" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clNothing"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/grey_4"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
+            <ImageView
+                android:id="@+id/ivNothing"
+                android:layout_width="350dp"
+                android:layout_height="350dp"
+                android:contentDescription="@string/nothing_to_show"
+                android:src="@drawable/ic_nothing_here_grey"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
-                    android:id="@+id/ivNothing"
-                    android:layout_width="350dp"
-                    android:layout_height="350dp"
-                    android:contentDescription="@string/nothing_to_show"
-                    android:src="@drawable/ic_nothing_here_grey"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/tvNothing"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/internet_error"
+                android:textColor="@color/grey_3"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ivNothing"
+                app:myFont="@string/NotoSansBold" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clReload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/button_transparent_rect_rounded_all_corners"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvNothing">
 
                 <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvNothing"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/internet_error"
-                    android:textColor="@color/grey_3"
-                    android:textSize="20sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/ivNothing"
-                    app:myFont="@string/NotoSansBold" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/clReload"
+                    android:id="@+id/mtvReload"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:background="@drawable/button_transparent_rect_rounded_all_corners"
-                    android:clickable="true"
-                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingStart="@dimen/space_medium"
+                    android:paddingTop="@dimen/space_small"
+                    android:paddingEnd="@dimen/space_medium"
+                    android:paddingBottom="@dimen/space_small"
+                    android:text="@string/reload_library"
+                    android:textColor="@color/grey_3"
+                    android:textSize="15sp"
+                    app:layout_constraintBottom_toTopOf="@id/vLine"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvNothing">
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:myFont="@string/NotoSansItalic" />
 
-                    <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/mtvReload"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:paddingStart="@dimen/space_medium"
-                        android:paddingTop="@dimen/space_small"
-                        android:paddingEnd="@dimen/space_medium"
-                        android:paddingBottom="@dimen/space_small"
-                        android:text="@string/reload_library"
-                        android:textColor="@color/grey_3"
-                        android:textSize="15sp"
-                        app:layout_constraintBottom_toTopOf="@id/vLine"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:myFont="@string/NotoSansItalic" />
-
-                    <View
-                        android:id="@+id/vLine"
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_marginStart="@dimen/space_medium"
-                        android:layout_marginEnd="@dimen/space_medium"
-                        android:background="@color/grey_3"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/mtvReload" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                <View
+                    android:id="@+id/vLine"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="@dimen/space_medium"
+                    android:layout_marginEnd="@dimen/space_medium"
+                    android:background="@color/grey_3"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/mtvReload" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+</androidx.constraintlayout.widget.ConstraintLayout>

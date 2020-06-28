@@ -1,514 +1,511 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:ignore="RtlCompat"
     tools:targetApi="jelly_bean">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <ScrollView
+        android:id="@+id/svPreview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/grey_1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <ScrollView
-            android:id="@+id/svPreview"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@color/grey_1"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/dp10"
+            android:paddingTop="@dimen/dp10"
+            android:paddingEnd="@dimen/dp10"
+            android:paddingBottom="@dimen/dp10">
+
+            <!-- Book cover-->
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/svBookCover"
+                android:layout_width="0dp"
+                android:layout_height="300dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/ivBookCover"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/book_cover"
+                        android:scaleType="fitCenter"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+
+            <ImageButton
+                android:id="@+id/ibBack"
+                android:layout_width="@dimen/large_button_size"
+                android:layout_height="@dimen/large_button_size"
+                android:background="@drawable/white_transparent_rect_rounded_all_corners"
+                android:contentDescription="@string/back"
+                android:scaleType="center"
+                android:scaleX="0.8"
+                android:scaleY="0.8"
+                android:src="@drawable/ic_back_white"
+                app:layout_constraintStart_toStartOf="@id/svBookCover"
+                app:layout_constraintTop_toTopOf="@id/svBookCover" />
+
+            <!-- Book info-->
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/tvTitle_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/title_1"
+                android:textColor="@android:color/white"
+                android:textSize="21sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/svBookCover"
+                app:myFont="@string/NotoSansBold" />
+
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/tvTitle_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp10"
+                android:text="@string/title_1"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle_1"
+                app:myFont="@string/NotoSansBold" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+                android:id="@+id/layoutTagsArea"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:paddingStart="@dimen/dp10"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvTitle_2">
+
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/tvTagsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp30"
+                    android:layout_marginTop="@dimen/dp10"
+                    android:gravity="center_vertical"
+                    android:text="@string/tags_label"
+                    android:textColor="@color/greyD9D9D9"
+                    android:textSize="15sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:myFont="@string/NotoSansBold"
+                    tools:targetApi="jelly_bean" />
+
+                <LinearLayout
+                    android:id="@+id/layoutTags"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tvTagsLabel"
+                    app:layout_constraintTop_toTopOf="@+id/tvTagsLabel" />
+
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/tvArtistsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp30"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/artists_label"
+                    android:textColor="@color/greyD9D9D9"
+                    android:textSize="15sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutTags"
+                    app:myFont="@string/NotoSansBold"
+                    tools:targetApi="jelly_bean" />
+
+                <LinearLayout
+                    android:id="@+id/layoutArtists"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tvArtistsLabel"
+                    app:layout_constraintTop_toTopOf="@+id/tvArtistsLabel" />
+
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/tvLanguagesLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp30"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/languages_label"
+                    android:textColor="@color/greyD9D9D9"
+                    android:textSize="15sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutArtists"
+                    app:myFont="@string/NotoSansBold"
+                    tools:targetApi="jelly_bean" />
+
+                <LinearLayout
+                    android:id="@+id/layoutLanguages"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tvLanguagesLabel"
+                    app:layout_constraintTop_toTopOf="@+id/tvLanguagesLabel" />
+
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/tvCategoriesLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp30"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/categories_label"
+                    android:textColor="@color/greyD9D9D9"
+                    android:textSize="15sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutLanguages"
+                    app:myFont="@string/NotoSansBold"
+                    tools:targetApi="jelly_bean" />
+
+                <LinearLayout
+                    android:id="@+id/layoutCategories"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tvCategoriesLabel"
+                    app:layout_constraintTop_toTopOf="@+id/tvCategoriesLabel" />
+
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/tvCharactersLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp30"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/characters_label"
+                    android:textColor="@color/greyD9D9D9"
+                    android:textSize="15sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutCategories"
+                    app:myFont="@string/NotoSansBold"
+                    tools:targetApi="jelly_bean" />
+
+                <LinearLayout
+                    android:id="@+id/layoutCharacters"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tvCharactersLabel"
+                    app:layout_constraintTop_toTopOf="@+id/tvCharactersLabel" />
+
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/tvParodiesLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp30"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/parodies_label"
+                    android:textColor="@color/greyD9D9D9"
+                    android:textSize="15sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutCharacters"
+                    app:myFont="@string/NotoSansBold"
+                    tools:targetApi="jelly_bean" />
+
+                <LinearLayout
+                    android:id="@+id/layoutParodies"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tvParodiesLabel"
+                    app:layout_constraintTop_toTopOf="@+id/tvParodiesLabel" />
+
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/tvGroupsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp30"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/groups_label"
+                    android:textColor="@color/greyD9D9D9"
+                    android:textSize="15sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutParodies"
+                    app:myFont="@string/NotoSansBold"
+                    tools:targetApi="jelly_bean" />
+
+                <LinearLayout
+                    android:id="@+id/layoutGroups"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tvGroupsLabel"
+                    app:layout_constraintTop_toTopOf="@+id/tvGroupsLabel" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/tvPageCount"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dp30"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical"
+                android:text="@string/page_count"
+                android:textColor="@color/greyD9D9D9"
+                android:textSize="17sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutTagsArea"
+                app:myFont="@string/NotoSansRegular"
+                tools:targetApi="jelly_bean" />
+
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/tvUpdatedAt"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dp30"
+                android:layout_marginTop="@dimen/space_small"
+                android:gravity="center_vertical"
+                android:text="@string/uploaded"
+                android:textColor="@color/greyD9D9D9"
+                android:textSize="17sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvPageCount"
+                app:myFont="@string/NotoSansRegular"
+                tools:targetApi="jelly_bean" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/buttonUnSeen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_medium"
+                android:background="@drawable/ripple_rounded_transparent"
+                android:paddingStart="@dimen/space_medium"
+                android:paddingTop="@dimen/space_small"
+                android:paddingEnd="@dimen/space_medium"
+                android:paddingBottom="@dimen/space_small"
+                android:src="@drawable/ic_un_seen_red_24dp"
+                app:layout_constraintBottom_toBottomOf="@id/tvUpdatedAt"
+                app:layout_constraintStart_toEndOf="@id/tvUpdatedAt"
+                app:layout_constraintTop_toTopOf="@id/tvUpdatedAt" />
+
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtvFavorite"
+                style="@style/Favorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_medium"
+                android:drawablePadding="@dimen/dp10"
+                android:gravity="center_vertical"
+                android:paddingStart="15dp"
                 android:paddingTop="@dimen/dp10"
-                android:paddingEnd="@dimen/dp10"
-                android:paddingBottom="@dimen/dp10">
+                android:paddingEnd="15dp"
+                android:paddingBottom="@dimen/dp10"
+                android:text="@string/favorite"
+                android:textSize="17sp"
+                android:visibility="invisible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvUpdatedAt"
+                app:myFont="@string/NotoSansBold" />
 
-                <!-- Book cover-->
-                <androidx.core.widget.NestedScrollView
-                    android:id="@+id/svBookCover"
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtvNotFavorite"
+                style="@style/NotFavorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_medium"
+                android:drawablePadding="@dimen/dp10"
+                android:gravity="center_vertical"
+                android:paddingStart="15dp"
+                android:paddingTop="@dimen/dp10"
+                android:paddingEnd="15dp"
+                android:paddingBottom="@dimen/dp10"
+                android:text="@string/favorite"
+                android:textSize="17sp"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvUpdatedAt"
+                app:myFont="@string/NotoSansBold" />
+
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtvDownload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp10"
+                android:layout_marginTop="@dimen/space_medium"
+                android:background="@drawable/button_grey_big_rounded_all_corners"
+                android:drawableStart="@drawable/ic_download_grey"
+                android:drawablePadding="@dimen/dp10"
+                android:gravity="center_vertical"
+                android:paddingStart="15dp"
+                android:paddingTop="@dimen/dp10"
+                android:paddingEnd="15dp"
+                android:paddingBottom="@dimen/dp10"
+                android:text="@string/download"
+                android:textColor="@android:color/white"
+                android:textSize="17sp"
+                android:visibility="visible"
+                app:layout_constraintStart_toEndOf="@id/mtvFavorite"
+                app:layout_constraintTop_toBottomOf="@+id/tvUpdatedAt"
+                app:myFont="@string/NotoSansBold" />
+
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/buttonClearDownloadedData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp10"
+                android:layout_marginTop="@dimen/space_medium"
+                android:background="@drawable/button_grey_big_rounded_all_corners"
+                android:drawableStart="@drawable/ic_clear_all_black_24dp"
+                android:drawablePadding="@dimen/dp10"
+                android:gravity="center_vertical"
+                android:paddingStart="15dp"
+                android:paddingTop="@dimen/dp10"
+                android:paddingEnd="15dp"
+                android:paddingBottom="@dimen/dp10"
+                android:text="@string/clear_downloaded_data"
+                android:textColor="@android:color/white"
+                android:textSize="17sp"
+                android:visibility="gone"
+                app:layout_constraintStart_toEndOf="@id/mtvFavorite"
+                app:layout_constraintTop_toBottomOf="@+id/tvUpdatedAt"
+                app:myFont="@string/NotoSansBold" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clDownloadProgress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@+id/mtvPreview"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/mtvFavorite">
+
+                <ProgressBar
+                    android:id="@+id/pbDownloading"
+                    style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="0dp"
-                    android:layout_height="300dp"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_height="10dp"
+                    android:layout_marginEnd="5dp"
+                    android:indeterminateTint="@color/redED2553"
+                    android:progressDrawable="@drawable/bg_download_red"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/mtvDownloaded"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <ImageView
-                            android:id="@+id/ivBookCover"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:contentDescription="@string/book_cover"
-                            android:scaleType="fitCenter"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-                    </LinearLayout>
-                </androidx.core.widget.NestedScrollView>
-
-                <ImageButton
-                    android:id="@+id/ibBack"
-                    android:layout_width="@dimen/large_button_size"
-                    android:layout_height="@dimen/large_button_size"
-                    android:background="@drawable/white_transparent_rect_rounded_all_corners"
-                    android:contentDescription="@string/back"
-                    android:scaleType="center"
-                    android:scaleX="0.8"
-                    android:scaleY="0.8"
-                    android:src="@drawable/ic_back_white"
-                    app:layout_constraintStart_toStartOf="@id/svBookCover"
-                    app:layout_constraintTop_toTopOf="@id/svBookCover" />
-
-                <!-- Book info-->
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvTitle_1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/title_1"
-                    android:textColor="@android:color/white"
-                    android:textSize="21sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/svBookCover"
-                    app:myFont="@string/NotoSansBold" />
-
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvTitle_2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/dp10"
-                    android:text="@string/title_1"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvTitle_1"
-                    app:myFont="@string/NotoSansBold" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/layoutTagsArea"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvTitle_2">
-
-                    <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/tvTagsLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/dp30"
-                        android:layout_marginTop="@dimen/dp10"
-                        android:gravity="center_vertical"
-                        android:text="@string/tags_label"
-                        android:textColor="@color/greyD9D9D9"
-                        android:textSize="15sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:myFont="@string/NotoSansBold"
-                        tools:targetApi="jelly_bean" />
-
-                    <LinearLayout
-                        android:id="@+id/layoutTags"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:orientation="vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/tvTagsLabel"
-                        app:layout_constraintTop_toTopOf="@+id/tvTagsLabel" />
-
-                    <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/tvArtistsLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/dp30"
-                        android:layout_marginTop="5dp"
-                        android:gravity="center_vertical"
-                        android:text="@string/artists_label"
-                        android:textColor="@color/greyD9D9D9"
-                        android:textSize="15sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/layoutTags"
-                        app:myFont="@string/NotoSansBold"
-                        tools:targetApi="jelly_bean" />
-
-                    <LinearLayout
-                        android:id="@+id/layoutArtists"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:orientation="vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/tvArtistsLabel"
-                        app:layout_constraintTop_toTopOf="@+id/tvArtistsLabel" />
-
-                    <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/tvLanguagesLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/dp30"
-                        android:layout_marginTop="5dp"
-                        android:gravity="center_vertical"
-                        android:text="@string/languages_label"
-                        android:textColor="@color/greyD9D9D9"
-                        android:textSize="15sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/layoutArtists"
-                        app:myFont="@string/NotoSansBold"
-                        tools:targetApi="jelly_bean" />
-
-                    <LinearLayout
-                        android:id="@+id/layoutLanguages"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:orientation="vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/tvLanguagesLabel"
-                        app:layout_constraintTop_toTopOf="@+id/tvLanguagesLabel" />
-
-                    <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/tvCategoriesLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/dp30"
-                        android:layout_marginTop="5dp"
-                        android:gravity="center_vertical"
-                        android:text="@string/categories_label"
-                        android:textColor="@color/greyD9D9D9"
-                        android:textSize="15sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/layoutLanguages"
-                        app:myFont="@string/NotoSansBold"
-                        tools:targetApi="jelly_bean" />
-
-                    <LinearLayout
-                        android:id="@+id/layoutCategories"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:orientation="vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/tvCategoriesLabel"
-                        app:layout_constraintTop_toTopOf="@+id/tvCategoriesLabel" />
-
-                    <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/tvCharactersLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/dp30"
-                        android:layout_marginTop="5dp"
-                        android:gravity="center_vertical"
-                        android:text="@string/characters_label"
-                        android:textColor="@color/greyD9D9D9"
-                        android:textSize="15sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/layoutCategories"
-                        app:myFont="@string/NotoSansBold"
-                        tools:targetApi="jelly_bean" />
-
-                    <LinearLayout
-                        android:id="@+id/layoutCharacters"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:orientation="vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/tvCharactersLabel"
-                        app:layout_constraintTop_toTopOf="@+id/tvCharactersLabel" />
-
-                    <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/tvParodiesLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/dp30"
-                        android:layout_marginTop="5dp"
-                        android:gravity="center_vertical"
-                        android:text="@string/parodies_label"
-                        android:textColor="@color/greyD9D9D9"
-                        android:textSize="15sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/layoutCharacters"
-                        app:myFont="@string/NotoSansBold"
-                        tools:targetApi="jelly_bean" />
-
-                    <LinearLayout
-                        android:id="@+id/layoutParodies"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:orientation="vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/tvParodiesLabel"
-                        app:layout_constraintTop_toTopOf="@+id/tvParodiesLabel" />
-
-                    <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/tvGroupsLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/dp30"
-                        android:layout_marginTop="5dp"
-                        android:gravity="center_vertical"
-                        android:text="@string/groups_label"
-                        android:textColor="@color/greyD9D9D9"
-                        android:textSize="15sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/layoutParodies"
-                        app:myFont="@string/NotoSansBold"
-                        tools:targetApi="jelly_bean" />
-
-                    <LinearLayout
-                        android:id="@+id/layoutGroups"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:orientation="vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/tvGroupsLabel"
-                        app:layout_constraintTop_toTopOf="@+id/tvGroupsLabel" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:targetApi="lollipop" />
 
                 <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvPageCount"
+                    android:id="@+id/mtvDownloaded"
                     android:layout_width="wrap_content"
-                    android:layout_height="@dimen/dp30"
-                    android:layout_marginTop="5dp"
+                    android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:text="@string/page_count"
-                    android:textColor="@color/greyD9D9D9"
-                    android:textSize="17sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/layoutTagsArea"
-                    app:myFont="@string/NotoSansRegular"
-                    tools:targetApi="jelly_bean" />
-
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvUpdatedAt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/dp30"
-                    android:layout_marginTop="@dimen/space_small"
-                    android:gravity="center_vertical"
-                    android:text="@string/uploaded"
-                    android:textColor="@color/greyD9D9D9"
-                    android:textSize="17sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvPageCount"
-                    app:myFont="@string/NotoSansRegular"
-                    tools:targetApi="jelly_bean" />
-
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/buttonUnSeen"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_medium"
-                    android:background="@drawable/ripple_rounded_transparent"
-                    android:paddingStart="@dimen/space_medium"
-                    android:paddingTop="@dimen/space_small"
-                    android:paddingEnd="@dimen/space_medium"
-                    android:paddingBottom="@dimen/space_small"
-                    android:src="@drawable/ic_un_seen_red_24dp"
-                    app:layout_constraintBottom_toBottomOf="@id/tvUpdatedAt"
-                    app:layout_constraintStart_toEndOf="@id/tvUpdatedAt"
-                    app:layout_constraintTop_toTopOf="@id/tvUpdatedAt" />
-
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/mtvFavorite"
-                    style="@style/Favorite"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_medium"
-                    android:drawablePadding="@dimen/dp10"
-                    android:gravity="center_vertical"
-                    android:paddingStart="15dp"
-                    android:paddingTop="@dimen/dp10"
-                    android:paddingEnd="15dp"
-                    android:paddingBottom="@dimen/dp10"
-                    android:text="@string/favorite"
-                    android:textSize="17sp"
-                    android:visibility="invisible"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvUpdatedAt"
-                    app:myFont="@string/NotoSansBold" />
-
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/mtvNotFavorite"
-                    style="@style/NotFavorite"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_medium"
-                    android:drawablePadding="@dimen/dp10"
-                    android:gravity="center_vertical"
-                    android:paddingStart="15dp"
-                    android:paddingTop="@dimen/dp10"
-                    android:paddingEnd="15dp"
-                    android:paddingBottom="@dimen/dp10"
-                    android:text="@string/favorite"
-                    android:textSize="17sp"
-                    android:visibility="visible"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvUpdatedAt"
-                    app:myFont="@string/NotoSansBold" />
-
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/mtvDownload"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp10"
-                    android:layout_marginTop="@dimen/space_medium"
-                    android:background="@drawable/button_grey_big_rounded_all_corners"
-                    android:drawableStart="@drawable/ic_download_grey"
-                    android:drawablePadding="@dimen/dp10"
-                    android:gravity="center_vertical"
-                    android:paddingStart="15dp"
-                    android:paddingTop="@dimen/dp10"
-                    android:paddingEnd="15dp"
-                    android:paddingBottom="@dimen/dp10"
-                    android:text="@string/download"
+                    android:text="@string/preview_download_progress"
                     android:textColor="@android:color/white"
-                    android:textSize="17sp"
-                    android:visibility="visible"
-                    app:layout_constraintStart_toEndOf="@id/mtvFavorite"
-                    app:layout_constraintTop_toBottomOf="@+id/tvUpdatedAt"
-                    app:myFont="@string/NotoSansBold" />
-
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/buttonClearDownloadedData"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp10"
-                    android:layout_marginTop="@dimen/space_medium"
-                    android:background="@drawable/button_grey_big_rounded_all_corners"
-                    android:drawableStart="@drawable/ic_clear_all_black_24dp"
-                    android:drawablePadding="@dimen/dp10"
-                    android:gravity="center_vertical"
-                    android:paddingStart="15dp"
-                    android:paddingTop="@dimen/dp10"
-                    android:paddingEnd="15dp"
-                    android:paddingBottom="@dimen/dp10"
-                    android:text="@string/clear_downloaded_data"
-                    android:textColor="@android:color/white"
-                    android:textSize="17sp"
-                    android:visibility="gone"
-                    app:layout_constraintStart_toEndOf="@id/mtvFavorite"
-                    app:layout_constraintTop_toBottomOf="@+id/tvUpdatedAt"
-                    app:myFont="@string/NotoSansBold" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/clDownloadProgress"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toTopOf="@+id/mtvPreview"
+                    android:textSize="15sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/mtvFavorite">
-
-                    <ProgressBar
-                        android:id="@+id/pbDownloading"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="0dp"
-                        android:layout_height="10dp"
-                        android:layout_marginEnd="5dp"
-                        android:indeterminateTint="@color/redED2553"
-                        android:progressDrawable="@drawable/bg_download_red"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/mtvDownloaded"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:targetApi="lollipop" />
-
-                    <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/mtvDownloaded"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:text="@string/preview_download_progress"
-                        android:textColor="@android:color/white"
-                        android:textSize="15sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/pbDownloading"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:myFont="@string/NotoSansRegular" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <!-- Book preview thumbnails-->
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/mtvPreview"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/dp10"
-                    android:text="@string/preview"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    app:layout_constraintStart_toStartOf="@+id/mtvFavorite"
-                    app:layout_constraintTop_toBottomOf="@+id/clDownloadProgress"
-                    app:myFont="@string/NotoSansBold" />
-
-                <HorizontalScrollView
-                    android:id="@+id/hsvPreviewThumbNail"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:overScrollMode="never"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@id/mtvPreview"
-                    app:layout_constraintTop_toBottomOf="@+id/mtvPreview">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/rvPreviewList"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </HorizontalScrollView>
-
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/mtvRecommendBook"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/dp10"
-                    android:text="@string/recommend_for_you"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    app:layout_constraintStart_toStartOf="@+id/hsvPreviewThumbNail"
-                    app:layout_constraintTop_toBottomOf="@+id/hsvPreviewThumbNail"
-                    app:layout_goneMarginTop="@dimen/dp10"
-                    app:myFont="@string/NotoSansBold" />
-
-                <HorizontalScrollView
-                    android:id="@+id/hsvRecommendList"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:overScrollMode="never"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@id/mtvRecommendBook"
-                    app:layout_constraintTop_toBottomOf="@id/mtvRecommendBook">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/rvRecommendList"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                </HorizontalScrollView>
+                    app:layout_constraintStart_toEndOf="@id/pbDownloading"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:myFont="@string/NotoSansRegular" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </ScrollView>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+
+            <!-- Book preview thumbnails-->
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtvPreview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp10"
+                android:text="@string/preview"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="@+id/mtvFavorite"
+                app:layout_constraintTop_toBottomOf="@+id/clDownloadProgress"
+                app:myFont="@string/NotoSansBold" />
+
+            <HorizontalScrollView
+                android:id="@+id/hsvPreviewThumbNail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/mtvPreview"
+                app:layout_constraintTop_toBottomOf="@+id/mtvPreview">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvPreviewList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </HorizontalScrollView>
+
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtvRecommendBook"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp10"
+                android:text="@string/recommend_for_you"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="@+id/hsvPreviewThumbNail"
+                app:layout_constraintTop_toBottomOf="@+id/hsvPreviewThumbNail"
+                app:layout_goneMarginTop="@dimen/dp10"
+                app:myFont="@string/NotoSansBold" />
+
+            <HorizontalScrollView
+                android:id="@+id/hsvRecommendList"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:overScrollMode="never"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/mtvRecommendBook"
+                app:layout_constraintTop_toBottomOf="@id/mtvRecommendBook">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvRecommendList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </HorizontalScrollView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
