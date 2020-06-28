@@ -40,11 +40,22 @@ class DialogHelper {
             dialog.setContentView(contentView)
             dialog.setCancelable(false)
             ImageUtils.loadGifImage(R.raw.ic_loading_cat_transparent, ivLoading)
-            val taskHandler = runScheduledTaskOnMainThread({
+            val taskHandler = Handler(Looper.getMainLooper())
+            val dotsUpdatingTask = Runnable {
                 Logger.d(TAG, "Current pos: $currentPos")
                 tvLoading.text = loadingString + dotsArray[currentPos]
                 if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
-            })
+            }
+            val updateTask = object : Runnable {
+                override fun run() {
+                    dotsUpdatingTask.run()
+                    taskHandler.postDelayed(this, DEFAULT_LOADING_INTERVAL)
+                }
+            }
+
+            dialog.setOnShowListener {
+                taskHandler.post(updateTask)
+            }
 
             dialog.setOnDismissListener {
                 taskHandler.removeCallbacksAndMessages(null)
@@ -256,23 +267,6 @@ class DialogHelper {
                 window.setGravity(Gravity.CENTER)
                 window.decorView.setBackgroundResource(android.R.color.transparent)
             }
-        }
-
-        private fun runScheduledTaskOnMainThread(
-            task: () -> Unit,
-            timeInterval: Long = DEFAULT_LOADING_INTERVAL
-        ): Handler {
-            val handler = Handler(Looper.getMainLooper())
-            val updateTask = object : Runnable {
-                override fun run() {
-                    task()
-                    handler.postDelayed(this, timeInterval)
-                }
-            }
-            handler.post {
-                updateTask.run()
-            }
-            return handler
         }
     }
 }

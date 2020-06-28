@@ -13,7 +13,7 @@ interface ReaderContract {
         fun jumpToPage(pageNumber: Int)
         fun showPageIndicator(currentPage: Int, total: Int)
         fun showBackToGallery()
-        fun navigateToGallery()
+        fun navigateToGallery(lastVisitedPage: Int)
         fun showRequestStoragePermission()
         fun showDownloadPopup()
         fun hideDownloadPopup()
@@ -25,6 +25,7 @@ interface ReaderContract {
     interface Presenter : Base.Presenter {
         fun enableViewDownloadedDataMode()
         fun updatePageIndicator(page: Int)
+        fun forceBackToGallery()
         fun backToGallery()
         fun downloadCurrentPage()
         fun reloadCurrentPage(onForceReload: (Int) -> Unit)

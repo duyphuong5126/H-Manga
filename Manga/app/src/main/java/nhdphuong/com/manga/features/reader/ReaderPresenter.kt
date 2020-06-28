@@ -62,6 +62,11 @@ class ReaderPresenter @Inject constructor(
 
     private val lastVisitedPageQueue = CircularFifoQueue<Int>(LAST_VISITED_PAGE_LIMIT)
 
+    private val lastVisitedPage: Int
+        get() = if (lastVisitedPageQueue.isNotEmpty()) {
+            lastVisitedPageQueue.get(lastVisitedPageQueue.size - 1)
+        } else throw RuntimeException("Last visited page is not available")
+
     private val unBoundCompositeDisposable = CompositeDisposable()
 
     private val compositeDisposable = CompositeDisposable()
@@ -115,9 +120,13 @@ class ReaderPresenter @Inject constructor(
         Logger.d(TAG, "Last $LAST_VISITED_PAGE_LIMIT visited pages: $lastVisitedPageQueue")
     }
 
+    override fun forceBackToGallery() {
+        view.navigateToGallery(lastVisitedPage)
+    }
+
     override fun backToGallery() {
         if (currentPage == bookPages.size - 1) {
-            view.navigateToGallery()
+            view.navigateToGallery(lastVisitedPage)
         }
     }
 
@@ -201,7 +210,7 @@ class ReaderPresenter @Inject constructor(
         isDownloading = false
         compositeDisposable.clear()
         if (lastVisitedPageQueue.isNotEmpty()) {
-            val lastVisitedPage = lastVisitedPageQueue.get(lastVisitedPageQueue.size - 1)
+            val lastVisitedPage = lastVisitedPage
             Logger.d(TAG, "Saving last visited page $lastVisitedPage")
             saveLastVisitedPageUseCase.execute(book.bookId, lastVisitedPage)
                 .subscribeOn(Schedulers.io())

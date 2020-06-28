@@ -75,5 +75,6 @@ interface BookPreviewContract {
         fun refreshRecentStatus()
         fun unSeenBook()
         fun loadLastVisitedPage()
+        fun refreshLastVisitedPage(lastVisitedPage: Int)
     }
 }

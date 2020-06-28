@@ -91,6 +91,7 @@ class Constants {
         const val TAG_SELECTED_ACTION = "TAG_SELECTED"
         const val SELECTED_TAG = "SELECTED_TAG"
         const val REFRESH_DOWNLOADED_BOOK_LIST = "REFRESH_DOWNLOADED_BOOK_LIST"
+        const val LAST_VISITED_PAGE_RESULT = "LAST_VISITED_PAGE_RESULT"
 
         // App DB
         const val NHENTAI_DB = "nHentai"

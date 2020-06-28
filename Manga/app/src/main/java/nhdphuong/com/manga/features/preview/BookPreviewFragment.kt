@@ -58,7 +58,9 @@ import kotlinx.android.synthetic.main.fragment_book_preview.buttonClearDownloade
 import kotlinx.android.synthetic.main.fragment_book_preview.buttonUnSeen
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvLastVisitedPage
 import kotlinx.android.synthetic.main.fragment_book_preview.lastVisitedPage
-import kotlinx.android.synthetic.main.item_preview.*
+import kotlinx.android.synthetic.main.item_preview.ivPageThumbnail
+import kotlinx.android.synthetic.main.item_preview.mtvPageNumber
+import kotlinx.android.synthetic.main.item_preview.vNavigation
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
@@ -84,7 +86,14 @@ import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.ImageUtils
-import nhdphuong.com.manga.views.*
+import nhdphuong.com.manga.views.InformationCardAdapter
+import nhdphuong.com.manga.views.MyGridLayoutManager
+import nhdphuong.com.manga.views.DialogHelper
+import nhdphuong.com.manga.views.becomeVisible
+import nhdphuong.com.manga.views.becomeInvisible
+import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PreviewAdapter
 
@@ -301,15 +310,13 @@ class BookPreviewFragment :
         presenter.start()
     }
 
-    override fun onResume() {
-        super.onResume()
-        presenter.loadLastVisitedPage()
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == Constants.READING_REQUEST) {
             presenter.refreshRecentStatus()
+            data?.getIntExtra(Constants.LAST_VISITED_PAGE_RESULT, -1)
+                ?.takeIf { it >= 0 }
+                ?.let(presenter::refreshLastVisitedPage)
         }
     }
 
@@ -511,6 +518,7 @@ class BookPreviewFragment :
 
             setItemViewCacheSize(PREVIEW_CACHE_SIZE)
         }
+        presenter.loadLastVisitedPage()
     }
 
     override fun showRecommendBook(bookList: List<Book>) {

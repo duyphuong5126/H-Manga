@@ -66,7 +66,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     private val searchResultTitle: String = NHentaiApp.instance.getString(R.string.search_result)
 
-    private lateinit var updateDotsHandler: Handler
+    private val updateDotsHandler: Handler = Handler()
 
     override fun setPresenter(presenter: HomeContract.Presenter) {
         homePresenter = presenter
@@ -315,7 +315,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshComplete")
-        endUpdateDotsTask()
         refreshHeader.mtvRefresh.text = getString(R.string.updated)
         homePresenter.saveLastBookListRefreshTime()
         homePresenter.reloadLastBookListRefreshTime()
@@ -370,7 +369,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
 
     @SuppressLint("SetTextI18n")
     private fun runUpdateDotsTask() {
-        updateDotsHandler = Handler()
         var currentPos = 0
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
@@ -386,13 +384,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                 updateDotsHandler.postDelayed(this, DOTS_UPDATE_INTERVAL)
             }
         }
-        runnable.run()
-    }
-
-    private fun endUpdateDotsTask() {
-        if (this::updateDotsHandler.isInitialized) {
-            updateDotsHandler.removeCallbacksAndMessages(null)
-        }
+        updateDotsHandler.post(runnable)
     }
 
     private fun toggleSearchResult(data: String) {

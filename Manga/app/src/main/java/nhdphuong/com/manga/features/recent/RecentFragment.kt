@@ -68,7 +68,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     private lateinit var paginationAdapter: PaginationAdapter
     private lateinit var loadingDialog: Dialog
 
-    private lateinit var updateDotsHandler: Handler
+    private val updateDotsHandler: Handler = Handler()
 
     override fun setPresenter(presenter: RecentContract.Presenter) {
         this.presenter = presenter
@@ -329,7 +329,6 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
     @SuppressLint("SetTextI18n")
     private fun runUpdateDotsTask() {
-        updateDotsHandler = Handler()
         var currentPos = 0
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
@@ -345,13 +344,11 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
                 updateDotsHandler.postDelayed(this, DOT_TASK_DELAY)
             }
         }
-        runnable.run()
+        updateDotsHandler.post(runnable)
     }
 
     private fun endUpdateDotsTask() {
-        if (this::updateDotsHandler.isInitialized) {
-            updateDotsHandler.removeCallbacksAndMessages(null)
-        }
+        updateDotsHandler.removeCallbacksAndMessages(null)
     }
 
     private fun jumpTo(pageNumber: Int) {

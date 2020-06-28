@@ -382,6 +382,16 @@ class BookPreviewPresenter @Inject constructor(
             .addTo(compositeDisposable)
     }
 
+    override fun refreshLastVisitedPage(lastVisitedPage: Int) {
+        Logger.d(TAG, "refreshLastVisitedPage $lastVisitedPage")
+        if (lastVisitedPage < book.bookImages.pages.size) {
+            Logger.d(TAG, "showLastVisitedPage $lastVisitedPage")
+            view.showLastVisitedPage(lastVisitedPage + 1, bookThumbnailList[lastVisitedPage])
+        } else {
+            view.hideLastVisitedPage()
+        }
+    }
+
     override fun stop() {
         compositeDisposable.clear()
     }
