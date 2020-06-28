@@ -7,6 +7,7 @@ import nhdphuong.com.manga.Constants.Companion.NHENTAI_DB
 import nhdphuong.com.manga.Constants.Companion.TABLE_DOWNLOADED_BOOK as DOWNLOADED_BOOK
 import nhdphuong.com.manga.Constants.Companion.TABLE_DOWNLOADED_IMAGE as DOWNLOADED_IMAGE
 import nhdphuong.com.manga.Constants.Companion.TABLE_BOOK_TAG as BOOK_TAG
+import nhdphuong.com.manga.Constants.Companion.TABLE_LAST_VISITED_PAGE
 import nhdphuong.com.manga.Constants.Companion.TABLE_TAG
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.TAG_ID
@@ -16,6 +17,7 @@ import nhdphuong.com.manga.Constants.Companion.TYPE
 import nhdphuong.com.manga.Constants.Companion.IMAGE_TYPE
 import nhdphuong.com.manga.Constants.Companion.IMAGE_WIDTH
 import nhdphuong.com.manga.Constants.Companion.IMAGE_HEIGHT
+import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 
@@ -31,11 +33,26 @@ class Database {
                 if (mInstance == null) {
                     mInstance = Room.databaseBuilder(
                         NHentaiApp.instance.applicationContext, NHentaiDB::class.java, NHENTAI_DB
-                    ).addMigrations(MIGRATE_FROM_2_TO_3)
+                    ).addMigrations(MIGRATE_FROM_2_TO_3, MIGRATE_FROM_3_TO_4)
                         .build()
                 }
                 return mInstance!!
             }
+
+        private val MIGRATE_FROM_3_TO_4: Migration = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Create table LastVisitedPage
+                database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `$TABLE_LAST_VISITED_PAGE`(" +
+                            "`$BOOK_ID` TEXT PRIMARY KEY NOT NULL, " +
+                            "`$LAST_VISITED_PAGE` INTEGER NOT NULL)"
+                )
+
+                // Create indices
+                val bookIdIndex = "index_${TABLE_LAST_VISITED_PAGE}_$BOOK_ID"
+                database.execSQL("CREATE INDEX IF NOT EXISTS $bookIdIndex ON $TABLE_LAST_VISITED_PAGE($BOOK_ID)")
+            }
+        }
 
         private val MIGRATE_FROM_2_TO_3: Migration = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
