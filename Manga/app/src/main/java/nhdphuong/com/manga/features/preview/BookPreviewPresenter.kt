@@ -27,6 +27,7 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.disposables.CompositeDisposable
 import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
 import nhdphuong.com.manga.usecase.GetDownloadedBookCoverUseCase
+import nhdphuong.com.manga.usecase.GetLastVisitedPageUseCase
 import nhdphuong.com.manga.usecase.StartBookDeletingUseCase
 import nhdphuong.com.manga.usecase.StartBookDownloadingUseCase
 
@@ -39,6 +40,7 @@ class BookPreviewPresenter @Inject constructor(
     private val getDownloadedBookCoverUseCase: GetDownloadedBookCoverUseCase,
     private val startBookDownloadingUseCase: StartBookDownloadingUseCase,
     private val startBookDeletingUseCase: StartBookDeletingUseCase,
+    private val getLastVisitedPageUseCase: GetLastVisitedPageUseCase,
     private val bookRepository: BookRepository,
     private val networkUtils: INetworkUtils,
     private val fileUtils: IFileUtils,
@@ -357,6 +359,27 @@ class BookPreviewPresenter @Inject constructor(
                 }
             }
         }
+    }
+
+    override fun loadLastVisitedPage() {
+        getLastVisitedPageUseCase.execute(book.bookId)
+            .map {
+                if (it < book.bookImages.pages.size) {
+                    it
+                } else {
+                    throw RuntimeException("Last visited page is not available")
+                }
+            }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ lastVisitedPage ->
+                Logger.d(TAG, "Last visited page of book ${book.bookId}: $lastVisitedPage")
+                view.showLastVisitedPage(lastVisitedPage + 1, bookThumbnailList[lastVisitedPage])
+            }, {
+                Logger.e(TAG, "Failed to get last visited page of book ${book.bookId}: $it")
+                view.hideLastVisitedPage()
+            })
+            .addTo(compositeDisposable)
     }
 
     override fun stop() {

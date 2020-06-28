@@ -114,4 +114,12 @@ class BookRepository @Inject constructor(
     override suspend fun unSeenBook(bookId: String): Boolean {
         return bookLocalDataSource.unSeenBook(bookId)
     }
+
+    override fun saveLastVisitedPage(bookId: String, lastVisitedPage: Int): Completable {
+        return bookLocalDataSource.saveLastVisitedPage(bookId, lastVisitedPage)
+    }
+
+    override fun getLastVisitedPage(bookId: String): Single<Int> {
+        return bookLocalDataSource.getLastVisitedPage(bookId)
+    }
 }

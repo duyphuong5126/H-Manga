@@ -3,6 +3,7 @@ package nhdphuong.com.manga.features.preview
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.BroadcastReceiver
@@ -55,6 +56,9 @@ import kotlinx.android.synthetic.main.fragment_book_preview.tvUpdatedAt
 import kotlinx.android.synthetic.main.fragment_book_preview.ibBack
 import kotlinx.android.synthetic.main.fragment_book_preview.buttonClearDownloadedData
 import kotlinx.android.synthetic.main.fragment_book_preview.buttonUnSeen
+import kotlinx.android.synthetic.main.fragment_book_preview.mtvLastVisitedPage
+import kotlinx.android.synthetic.main.fragment_book_preview.lastVisitedPage
+import kotlinx.android.synthetic.main.item_preview.*
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
@@ -201,6 +205,7 @@ class BookPreviewFragment :
         return inflater.inflate(R.layout.fragment_book_preview, container, false)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Logger.d(TAG, "onViewCreated")
@@ -294,6 +299,11 @@ class BookPreviewFragment :
         Logger.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
         presenter.start()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        presenter.loadLastVisitedPage()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -681,6 +691,23 @@ class BookPreviewFragment :
 
     override fun hideUnSeenButton() {
         buttonUnSeen.gone()
+    }
+
+    override fun showLastVisitedPage(page: Int, pageUrl: String) {
+        ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPageThumbnail)
+        mtvPageNumber.text = "$page"
+        vNavigation.setOnClickListener {
+            presenter.startReadingFrom(page - 1)
+        }
+        mtvLastVisitedPage.becomeVisible()
+        lastVisitedPage.becomeVisible()
+    }
+
+    override fun hideLastVisitedPage() {
+        ImageUtils.clear(ivPageThumbnail)
+        mtvPageNumber.text = ""
+        mtvLastVisitedPage.gone()
+        lastVisitedPage.gone()
     }
 
     override fun showLoading() {

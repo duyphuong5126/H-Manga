@@ -12,15 +12,15 @@ import nhdphuong.com.manga.data.entity.book.tags.Tag
  * Created by nhdphuong on 3/24/18.
  */
 data class Book(
-        @field:SerializedName(Constants.ID) val bookId: String,
-        @field:SerializedName(Constants.MEDIA_ID) val mediaId: String,
-        @field:SerializedName(Constants.TITLE) val title: BookTitle,
-        @field:SerializedName(Constants.IMAGES) val bookImages: BookImages,
-        @field:SerializedName(Constants.SCANLATOR) val scanlator: String,
-        @field:SerializedName(Constants.UPLOAD_DATE) val updateAt: Long,
-        @field:SerializedName(Constants.TAGS_LIST) val tags: List<Tag>,
-        @field:SerializedName(Constants.NUM_PAGES) val numOfPages: Int,
-        @field:SerializedName(Constants.NUM_FAVORITES) val numOfFavorites: Int
+    @field:SerializedName(Constants.ID) val bookId: String,
+    @field:SerializedName(Constants.MEDIA_ID) val mediaId: String,
+    @field:SerializedName(Constants.TITLE) val title: BookTitle,
+    @field:SerializedName(Constants.IMAGES) val bookImages: BookImages,
+    @field:SerializedName(Constants.SCANLATOR) val scanlator: String,
+    @field:SerializedName(Constants.UPLOAD_DATE) val updateAt: Long,
+    @field:SerializedName(Constants.TAGS_LIST) val tags: List<Tag>,
+    @field:SerializedName(Constants.NUM_PAGES) val numOfPages: Int,
+    @field:SerializedName(Constants.NUM_FAVORITES) val numOfFavorites: Int
 ) : Parcelable {
 
     val thumbnail: String
@@ -32,13 +32,16 @@ data class Book(
     val previewTitle: String
         get() {
             return if (!TextUtils.isEmpty(title.englishName) &&
-                    !NULL.equals(title.englishName, ignoreCase = true)) {
+                !NULL.equals(title.englishName, ignoreCase = true)
+            ) {
                 title.englishName + "\n"
             } else if (!TextUtils.isEmpty(title.japaneseName) &&
-                    !NULL.equals(title.japaneseName, ignoreCase = true)) {
+                !NULL.equals(title.japaneseName, ignoreCase = true)
+            ) {
                 title.japaneseName + "\n"
             } else if (!TextUtils.isEmpty(title.pretty) &&
-                    !NULL.equals(title.pretty, ignoreCase = true)) {
+                !NULL.equals(title.pretty, ignoreCase = true)
+            ) {
                 title.pretty
             } else ""
         }
@@ -70,19 +73,19 @@ data class Book(
         }
 
     constructor(parcel: Parcel) : this(
-            parcel.readString() ?: "",
-            parcel.readString() ?: "",
-            parcel.readParcelable(
-                    BookTitle::class.java.classLoader
-            ) ?: BookTitle.defaultInstance,
-            parcel.readParcelable(
-                    BookImages::class.java.classLoader
-            ) ?: BookImages.defaultInstance,
-            parcel.readString() ?: "",
-            parcel.readLong(),
-            parcel.createTypedArrayList(Tag) ?: emptyList(),
-            parcel.readInt(),
-            parcel.readInt()
+        parcel.readString().orEmpty(),
+        parcel.readString().orEmpty(),
+        parcel.readParcelable(
+            BookTitle::class.java.classLoader
+        ) ?: BookTitle.defaultInstance,
+        parcel.readParcelable(
+            BookImages::class.java.classLoader
+        ) ?: BookImages.defaultInstance,
+        parcel.readString().orEmpty(),
+        parcel.readLong(),
+        parcel.createTypedArrayList(Tag) ?: emptyList(),
+        parcel.readInt(),
+        parcel.readInt()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

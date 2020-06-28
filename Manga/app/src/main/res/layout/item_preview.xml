@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/ivPageThumbnail"
-        android:layout_width="150dp"
-        android:layout_height="200dp"
+        android:layout_width="@dimen/preview_thumbnail_width"
+        android:layout_height="@dimen/preview_thumbnail_height"
         android:background="@android:color/transparent"
         android:contentDescription="@string/page_thumbnail"
         android:scaleType="fitXY"

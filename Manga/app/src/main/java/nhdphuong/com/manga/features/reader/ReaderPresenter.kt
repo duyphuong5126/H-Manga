@@ -22,6 +22,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import nhdphuong.com.manga.supports.doInIOContext
+import nhdphuong.com.manga.usecase.SaveLastVisitedPageUseCase
+import org.apache.commons.collections4.queue.CircularFifoQueue
 import java.io.File
 
 /*
@@ -32,6 +34,7 @@ class ReaderPresenter @Inject constructor(
     private val book: Book,
     private val startReadingPage: Int,
     private val getDownloadedBookPagesUseCase: GetDownloadedBookPagesUseCase,
+    private val saveLastVisitedPageUseCase: SaveLastVisitedPageUseCase,
     private val bookRepository: BookRepository,
     private val fileUtils: IFileUtils,
     @IO private val io: CoroutineScope,
@@ -56,6 +59,10 @@ class ReaderPresenter @Inject constructor(
         }
 
     private var viewDownloadedData: Boolean = false
+
+    private val lastVisitedPageQueue = CircularFifoQueue<Int>(LAST_VISITED_PAGE_LIMIT)
+
+    private val unBoundCompositeDisposable = CompositeDisposable()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -104,6 +111,8 @@ class ReaderPresenter @Inject constructor(
                 view.showPageIndicator(page + 1, pageCount)
             }
         }
+        lastVisitedPageQueue.add(page)
+        Logger.d(TAG, "Last $LAST_VISITED_PAGE_LIMIT visited pages: $lastVisitedPageQueue")
     }
 
     override fun backToGallery() {
@@ -190,9 +199,22 @@ class ReaderPresenter @Inject constructor(
     override fun stop() {
         Logger.d(TAG, "End reading: ${book.previewTitle}")
         isDownloading = false
+        compositeDisposable.clear()
+        if (lastVisitedPageQueue.isNotEmpty()) {
+            val lastVisitedPage = lastVisitedPageQueue.get(lastVisitedPageQueue.size - 1)
+            Logger.d(TAG, "Saving last visited page $lastVisitedPage")
+            saveLastVisitedPageUseCase.execute(book.bookId, lastVisitedPage)
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    Logger.d(TAG, "Done saving last page $lastVisitedPage")
+                }, {
+                    Logger.d(TAG, "Failed to save last page $lastVisitedPage with error: $it")
+                }).addTo(unBoundCompositeDisposable)
+        }
     }
 
     private fun setUpReader() {
+        lastVisitedPageQueue.add(0)
         if (bookPages.isNotEmpty()) {
             currentPage = 0
             view.showBookPages(bookPages)
@@ -219,5 +241,6 @@ class ReaderPresenter @Inject constructor(
 
     companion object {
         private const val TAG = "ReaderPresenter"
+        private const val LAST_VISITED_PAGE_LIMIT = 5
     }
 }

@@ -13,10 +13,7 @@ import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.BookImages
 import nhdphuong.com.manga.data.entity.book.BookTitle
 import nhdphuong.com.manga.data.entity.book.ImageMeasurements
-import nhdphuong.com.manga.data.local.model.BookImageModel
-import nhdphuong.com.manga.data.local.model.BookTagModel
-import nhdphuong.com.manga.data.local.model.DownloadedBookModel
-import nhdphuong.com.manga.data.local.model.ImageUsageType
+import nhdphuong.com.manga.data.local.model.*
 import java.util.LinkedList
 import javax.inject.Inject
 
@@ -224,6 +221,17 @@ class BookLocalDataSource @Inject constructor(
         val deletingResult = bookDAO.deleteRecentBook(bookId)
         Logger.d(TAG, "Deleting result of $bookId: $deletingResult")
         return deletingResult > 0
+    }
+
+    override fun saveLastVisitedPage(bookId: String, lastVisitedPage: Int): Completable {
+        return Completable.fromCallable {
+            val insertResult = bookDAO.addLastVisitedPage(LastVisitedPage(bookId, lastVisitedPage))
+            Logger.d(TAG, "Inserted ${insertResult.size} row(s)")
+        }
+    }
+
+    override fun getLastVisitedPage(bookId: String): Single<Int> {
+        return bookDAO.getLastVisitedPage(bookId)
     }
 
     private fun extractAndSaveTagList(book: Book): Completable {

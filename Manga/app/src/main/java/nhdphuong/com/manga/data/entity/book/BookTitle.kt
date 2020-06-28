@@ -9,23 +9,23 @@ import nhdphuong.com.manga.Constants
  * Created by nhdphuong on 3/24/18.
  */
 data class BookTitle(
-        @field:SerializedName(Constants.TITLE_ENG) private val mEnglishName: String?,
-        @field:SerializedName(Constants.TITLE_JAPANESE) private val mJapaneseName: String?,
-        @field:SerializedName(Constants.TITLE_PRETTY) private val mPretty: String?
+    @field:SerializedName(Constants.TITLE_ENG) private val mEnglishName: String?,
+    @field:SerializedName(Constants.TITLE_JAPANESE) private val mJapaneseName: String?,
+    @field:SerializedName(Constants.TITLE_PRETTY) private val mPretty: String?
 ) : Parcelable {
     val japaneseName: String
-        get() = mJapaneseName ?: ""
+        get() = mJapaneseName.orEmpty()
 
     val englishName: String
-        get() = mEnglishName ?: ""
+        get() = mEnglishName.orEmpty()
 
     val pretty: String
-        get() = mPretty ?: ""
+        get() = mPretty.orEmpty()
 
     constructor(parcel: Parcel) : this(
-            parcel.readString(),
-            parcel.readString(),
-            parcel.readString()
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

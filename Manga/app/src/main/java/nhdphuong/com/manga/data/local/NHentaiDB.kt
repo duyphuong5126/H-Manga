@@ -14,6 +14,7 @@ import nhdphuong.com.manga.data.entity.book.tags.UnknownTag
 import nhdphuong.com.manga.data.local.model.BookImageModel
 import nhdphuong.com.manga.data.local.model.BookTagModel
 import nhdphuong.com.manga.data.local.model.DownloadedBookModel
+import nhdphuong.com.manga.data.local.model.LastVisitedPage
 
 /*
  * Created by nhdphuong on 6/9/18.
@@ -31,8 +32,10 @@ import nhdphuong.com.manga.data.local.model.DownloadedBookModel
         UnknownTag::class,
         DownloadedBookModel::class,
         BookImageModel::class,
-        BookTagModel::class],
-    version = 3
+        BookTagModel::class,
+        LastVisitedPage::class
+    ],
+    version = 4
 )
 abstract class NHentaiDB : RoomDatabase() {
     abstract fun getRecentBookDAO(): BookDAO
