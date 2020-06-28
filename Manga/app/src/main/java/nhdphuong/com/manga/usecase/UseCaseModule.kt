@@ -31,4 +31,10 @@ interface UseCaseModule {
 
     @Binds
     fun getVersionCodeUseCase(getVersionCodeUseCaseImpl: GetVersionCodeUseCaseImpl): GetVersionCodeUseCase
+
+    @Binds
+    fun saveLastVisitedPageUseCase(saveLastVisitedPageUseCaseImpl: SaveLastVisitedPageUseCaseImpl): SaveLastVisitedPageUseCase
+
+    @Binds
+    fun getLastVisitedPageUseCase(getLastVisitedPageUseCaseImpl: GetLastVisitedPageUseCaseImpl): GetLastVisitedPageUseCase
 }

@@ -51,5 +51,11 @@ interface BookDataSource {
         fun clearDownloadedImagesOfBook(bookId: String): Completable
 
         fun deleteBook(bookId: String): Completable
+
+        suspend fun deleteLastVisitedPage(bookId: String): Boolean
+
+        fun saveLastVisitedPage(bookId: String, lastVisitedPage: Int): Completable
+
+        fun getLastVisitedPage(bookId: String): Single<Int>
     }
 }

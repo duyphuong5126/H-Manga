@@ -58,7 +58,7 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
     private lateinit var bookListAdapter: BookAdapter
     private lateinit var paginationAdapter: PaginationAdapter
 
-    private lateinit var updateDotsHandler: Handler
+    private val updateDotsHandler: Handler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -267,7 +267,6 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
 
     @SuppressLint("SetTextI18n")
     private fun runUpdateDotsTask() {
-        updateDotsHandler = Handler()
         var currentPos = 0
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
@@ -283,13 +282,11 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
                 updateDotsHandler.postDelayed(this, 500)
             }
         }
-        runnable.run()
+        updateDotsHandler.post(runnable)
     }
 
     private fun endUpdateDotsTask() {
-        if (this::updateDotsHandler.isInitialized) {
-            updateDotsHandler.removeCallbacksAndMessages(null)
-        }
+        updateDotsHandler.removeCallbacksAndMessages(null)
     }
 
     private fun jumpTo(pageNumber: Int) {

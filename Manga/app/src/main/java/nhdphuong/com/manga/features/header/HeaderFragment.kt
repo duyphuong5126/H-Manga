@@ -178,7 +178,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         super.onResume()
         tabAdapter.reset()
         arguments?.let { data ->
-            val tabName = data.getString(Constants.TAG_TYPE) ?: ""
+            val tabName = data.getString(Constants.TAG_TYPE).orEmpty()
             if (!TextUtils.isEmpty(tabName)) {
                 data.remove(Constants.TAG_TYPE)
                 val tab = Tab.fromString(tabName)
@@ -192,7 +192,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         super.onActivityResult(requestCode, resultCode, data)
         resetTabBar()
         if (resultCode == Activity.RESULT_OK && requestCode == TAG_REQUEST_CODE) {
-            val searchData = data?.getStringExtra(Constants.TAG_RESULT) ?: ""
+            val searchData = data?.getStringExtra(Constants.TAG_RESULT).orEmpty()
             searchContract?.onSearchInputted(searchData)
             edtSearch.setText(searchData)
         }

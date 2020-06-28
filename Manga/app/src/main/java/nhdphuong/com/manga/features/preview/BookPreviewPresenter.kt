@@ -27,6 +27,7 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.disposables.CompositeDisposable
 import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
 import nhdphuong.com.manga.usecase.GetDownloadedBookCoverUseCase
+import nhdphuong.com.manga.usecase.GetLastVisitedPageUseCase
 import nhdphuong.com.manga.usecase.StartBookDeletingUseCase
 import nhdphuong.com.manga.usecase.StartBookDownloadingUseCase
 
@@ -39,6 +40,7 @@ class BookPreviewPresenter @Inject constructor(
     private val getDownloadedBookCoverUseCase: GetDownloadedBookCoverUseCase,
     private val startBookDownloadingUseCase: StartBookDownloadingUseCase,
     private val startBookDeletingUseCase: StartBookDeletingUseCase,
+    private val getLastVisitedPageUseCase: GetLastVisitedPageUseCase,
     private val bookRepository: BookRepository,
     private val networkUtils: INetworkUtils,
     private val fileUtils: IFileUtils,
@@ -348,6 +350,11 @@ class BookPreviewPresenter @Inject constructor(
         io.launch {
             val unSubscribingSuccess = bookRepository.unSeenBook(book.bookId)
             if (unSubscribingSuccess) {
+                val deleteLastVisitedPageResult = bookRepository.deleteLastVisitedPage(book.bookId)
+                Logger.d(
+                    TAG,
+                    "Result of deleting last visited page of ${book.bookId}: $deleteLastVisitedPageResult"
+                )
                 main.launch {
                     view.hideUnSeenButton()
                 }
@@ -356,6 +363,37 @@ class BookPreviewPresenter @Inject constructor(
                     view.showUnSeenButton()
                 }
             }
+        }
+    }
+
+    override fun loadLastVisitedPage() {
+        getLastVisitedPageUseCase.execute(book.bookId)
+            .map {
+                if (it < book.bookImages.pages.size) {
+                    it
+                } else {
+                    throw RuntimeException("Last visited page is not available")
+                }
+            }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ lastVisitedPage ->
+                Logger.d(TAG, "Last visited page of book ${book.bookId}: $lastVisitedPage")
+                view.showLastVisitedPage(lastVisitedPage + 1, bookThumbnailList[lastVisitedPage])
+            }, {
+                Logger.e(TAG, "Failed to get last visited page of book ${book.bookId}: $it")
+                view.hideLastVisitedPage()
+            })
+            .addTo(compositeDisposable)
+    }
+
+    override fun refreshLastVisitedPage(lastVisitedPage: Int) {
+        Logger.d(TAG, "refreshLastVisitedPage $lastVisitedPage")
+        if (lastVisitedPage < book.bookImages.pages.size) {
+            Logger.d(TAG, "showLastVisitedPage $lastVisitedPage")
+            view.showLastVisitedPage(lastVisitedPage + 1, bookThumbnailList[lastVisitedPage])
+        } else {
+            view.hideLastVisitedPage()
         }
     }
 

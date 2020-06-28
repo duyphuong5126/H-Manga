@@ -1,5 +1,7 @@
 package nhdphuong.com.manga.features.reader
 
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
@@ -9,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
@@ -62,7 +65,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
             presenter.enableViewDownloadedDataMode()
         }
         ibBack.setOnClickListener {
-            navigateToGallery()
+            presenter.forceBackToGallery()
         }
 
         mtvCurrentPage.setOnClickListener {
@@ -104,6 +107,11 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         presenter.start()
+        activity?.onBackPressedDispatcher?.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                presenter.forceBackToGallery()
+            }
+        })
     }
 
     override fun onRequestPermissionsResult(
@@ -193,9 +201,15 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         vpPages.setCurrentItem(pageNumber, true)
     }
 
-    override fun navigateToGallery() {
+    override fun navigateToGallery(lastVisitedPage: Int) {
         presenter.endReading()
-        activity?.onBackPressed()
+        activity?.apply {
+            val result = Intent().apply {
+                putExtra(Constants.LAST_VISITED_PAGE_RESULT, lastVisitedPage)
+            }
+            setResult(Activity.RESULT_OK, result)
+            finish()
+        }
     }
 
     override fun showRequestStoragePermission() {

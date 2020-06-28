@@ -91,6 +91,7 @@ class Constants {
         const val TAG_SELECTED_ACTION = "TAG_SELECTED"
         const val SELECTED_TAG = "SELECTED_TAG"
         const val REFRESH_DOWNLOADED_BOOK_LIST = "REFRESH_DOWNLOADED_BOOK_LIST"
+        const val LAST_VISITED_PAGE_RESULT = "LAST_VISITED_PAGE_RESULT"
 
         // App DB
         const val NHENTAI_DB = "nHentai"
@@ -105,11 +106,13 @@ class Constants {
         const val TABLE_DOWNLOADED_BOOK = "DownLoadedBook"
         const val TABLE_DOWNLOADED_IMAGE = "DownLoadedImage"
         const val TABLE_BOOK_TAG = "BookTag"
+        const val TABLE_LAST_VISITED_PAGE = "LastVisitedPage"
         const val BOOK_ID = "bookId"
         const val TAG_ID = "tagId"
         const val IS_FAVORITE = "isFavorite"
         const val CREATED_AT = "createdAt"
         const val LOCAL_PATH = "localPath"
+        const val LAST_VISITED_PAGE = "lastVisitedPage"
 
         // Notifications
         const val NOTIFICATION_CHANNEL_ID = "nHentaiApp"

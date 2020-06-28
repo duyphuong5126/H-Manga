@@ -3,6 +3,7 @@ package nhdphuong.com.manga.features.preview
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.BroadcastReceiver
@@ -55,6 +56,11 @@ import kotlinx.android.synthetic.main.fragment_book_preview.tvUpdatedAt
 import kotlinx.android.synthetic.main.fragment_book_preview.ibBack
 import kotlinx.android.synthetic.main.fragment_book_preview.buttonClearDownloadedData
 import kotlinx.android.synthetic.main.fragment_book_preview.buttonUnSeen
+import kotlinx.android.synthetic.main.fragment_book_preview.mtvLastVisitedPage
+import kotlinx.android.synthetic.main.fragment_book_preview.lastVisitedPage
+import kotlinx.android.synthetic.main.item_preview.ivPageThumbnail
+import kotlinx.android.synthetic.main.item_preview.mtvPageNumber
+import kotlinx.android.synthetic.main.item_preview.vNavigation
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
@@ -80,7 +86,14 @@ import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.ImageUtils
-import nhdphuong.com.manga.views.*
+import nhdphuong.com.manga.views.InformationCardAdapter
+import nhdphuong.com.manga.views.MyGridLayoutManager
+import nhdphuong.com.manga.views.DialogHelper
+import nhdphuong.com.manga.views.becomeVisible
+import nhdphuong.com.manga.views.becomeInvisible
+import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PreviewAdapter
 
@@ -201,6 +214,7 @@ class BookPreviewFragment :
         return inflater.inflate(R.layout.fragment_book_preview, container, false)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Logger.d(TAG, "onViewCreated")
@@ -300,6 +314,9 @@ class BookPreviewFragment :
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == Constants.READING_REQUEST) {
             presenter.refreshRecentStatus()
+            data?.getIntExtra(Constants.LAST_VISITED_PAGE_RESULT, -1)
+                ?.takeIf { it >= 0 }
+                ?.let(presenter::refreshLastVisitedPage)
         }
     }
 
@@ -501,6 +518,7 @@ class BookPreviewFragment :
 
             setItemViewCacheSize(PREVIEW_CACHE_SIZE)
         }
+        presenter.loadLastVisitedPage()
     }
 
     override fun showRecommendBook(bookList: List<Book>) {
@@ -681,6 +699,23 @@ class BookPreviewFragment :
 
     override fun hideUnSeenButton() {
         buttonUnSeen.gone()
+    }
+
+    override fun showLastVisitedPage(page: Int, pageUrl: String) {
+        ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPageThumbnail)
+        mtvPageNumber.text = "$page"
+        vNavigation.setOnClickListener {
+            presenter.startReadingFrom(page - 1)
+        }
+        mtvLastVisitedPage.becomeVisible()
+        lastVisitedPage.becomeVisible()
+    }
+
+    override fun hideLastVisitedPage() {
+        ImageUtils.clear(ivPageThumbnail)
+        mtvPageNumber.text = ""
+        mtvLastVisitedPage.gone()
+        lastVisitedPage.gone()
     }
 
     override fun showLoading() {

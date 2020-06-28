@@ -15,10 +15,13 @@ import nhdphuong.com.manga.Constants.Companion.ID
 import nhdphuong.com.manga.Constants.Companion.UPLOAD_DATE
 import nhdphuong.com.manga.Constants.Companion.TYPE
 import nhdphuong.com.manga.Constants.Companion.LOCAL_PATH
+import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE
+import nhdphuong.com.manga.Constants.Companion.TABLE_LAST_VISITED_PAGE
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.local.model.BookImageModel
 import nhdphuong.com.manga.data.local.model.BookTagModel
 import nhdphuong.com.manga.data.local.model.DownloadedBookModel
+import nhdphuong.com.manga.data.local.model.LastVisitedPage
 import nhdphuong.com.manga.data.local.model.ImageUsageType
 
 /*
@@ -88,4 +91,14 @@ interface BookDAO {
 
     @Query("select count(*) from $RECENT_BOOK_TABLE where $IS_FAVORITE = 1")
     fun getFavoriteBookCount(): Int
+
+    // Last visited page
+    @Query("select $LAST_VISITED_PAGE from $TABLE_LAST_VISITED_PAGE where $BOOK_ID = :bookId")
+    fun getLastVisitedPage(bookId: String): Single<Int>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addLastVisitedPage(vararg lastVisitedPage: LastVisitedPage): List<Long>
+
+    @Query("delete from $TABLE_LAST_VISITED_PAGE where $BOOK_ID = :bookId")
+    fun deleteLastVisitedPage(bookId: String): Int
 }

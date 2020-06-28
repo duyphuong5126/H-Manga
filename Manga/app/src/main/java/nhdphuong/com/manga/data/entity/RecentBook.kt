@@ -14,7 +14,7 @@ import nhdphuong.com.manga.Constants.Companion.CREATED_AT
 @Entity
 open class RecentBook(
     @PrimaryKey @ColumnInfo(name = BOOK_ID) var bookId: String,
-    @ColumnInfo(name = IS_FAVORITE) var mIsFavorite: Int,
+    @ColumnInfo(name = IS_FAVORITE) var favorite: Int,
     @ColumnInfo(name = CREATED_AT) var createdAt: Long
 ) {
 
@@ -25,10 +25,10 @@ open class RecentBook(
     )
 
     @Ignore
-    var favorite: Boolean = false
+    var isFavorite: Boolean = false
         set(value) {
             field = value
-            mIsFavorite = if (value) 1 else 0
+            favorite = if (value) 1 else 0
         }
-        get() = mIsFavorite == 1
+        get() = favorite == 1
 }

@@ -399,7 +399,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:visibility="gone"
-                app:layout_constraintBottom_toTopOf="@+id/mtvPreview"
+                app:layout_constraintBottom_toTopOf="@+id/mtvLastVisitedPage"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/mtvFavorite">
@@ -436,6 +436,32 @@
 
             <!-- Book preview thumbnails-->
             <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtvLastVisitedPage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp10"
+                android:layout_marginBottom="4dp"
+                android:text="@string/last_visited_page"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/lastVisitedPage"
+                app:layout_constraintStart_toStartOf="@+id/mtvFavorite"
+                app:layout_constraintTop_toBottomOf="@+id/clDownloadProgress"
+                app:myFont="@string/NotoSansBold" />
+
+            <include
+                android:id="@+id/lastVisitedPage"
+                layout="@layout/item_preview"
+                android:layout_width="@dimen/preview_thumbnail_width"
+                android:layout_height="@dimen/preview_thumbnail_height"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/mtvPreview"
+                app:layout_constraintStart_toStartOf="@+id/mtvFavorite"
+                app:layout_constraintTop_toBottomOf="@+id/mtvLastVisitedPage" />
+
+            <!-- Book preview thumbnails-->
+            <nhdphuong.com.manga.views.customs.MyTextView
                 android:id="@+id/mtvPreview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -444,7 +470,8 @@
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="@+id/mtvFavorite"
-                app:layout_constraintTop_toBottomOf="@+id/clDownloadProgress"
+                app:layout_constraintTop_toBottomOf="@+id/lastVisitedPage"
+                app:layout_goneMarginTop="@dimen/dp10"
                 app:myFont="@string/NotoSansBold" />
 
             <HorizontalScrollView

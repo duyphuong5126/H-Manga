@@ -50,6 +50,8 @@ interface BookPreviewContract {
         fun startReadingFromPage(page: Int, book: Book)
         fun showUnSeenButton()
         fun hideUnSeenButton()
+        fun showLastVisitedPage(page: Int, pageUrl: String)
+        fun hideLastVisitedPage()
     }
 
     interface Presenter : Base.Presenter {
@@ -72,5 +74,7 @@ interface BookPreviewContract {
         fun finishDeleting(bookId: String, deletingFailedCount: Int)
         fun refreshRecentStatus()
         fun unSeenBook()
+        fun loadLastVisitedPage()
+        fun refreshLastVisitedPage(lastVisitedPage: Int)
     }
 }

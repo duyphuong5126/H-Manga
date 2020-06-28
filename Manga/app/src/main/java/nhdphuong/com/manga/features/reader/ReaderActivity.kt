@@ -1,6 +1,5 @@
 package nhdphuong.com.manga.features.reader
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -60,7 +59,6 @@ class ReaderActivity : AppCompatActivity() {
     }
 
     override fun finish() {
-        setResult(Activity.RESULT_OK)
         super.finish()
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
