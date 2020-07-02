@@ -228,7 +228,11 @@ class HomePresenter @Inject constructor(
         view.showLoading()
         io.launch {
             val random = Random()
-            val randomPage = random.nextInt(currentNumOfPages.toInt()) + 1
+            var bound = currentNumOfPages.toInt()
+            if (bound <= 0) {
+                bound = 1
+            }
+            val randomPage = random.nextInt(bound) + 1
             getBooksListByPage(randomPage.toLong())?.bookList.let { randomBooks ->
                 Logger.d(
                     TAG, "Randomized paged $randomPage," +
