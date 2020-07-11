@@ -20,7 +20,6 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 import nhdphuong.com.manga.supports.doInIOContext
 import nhdphuong.com.manga.usecase.SaveLastVisitedPageUseCase
 import org.apache.commons.collections4.queue.CircularFifoQueue
@@ -181,7 +180,6 @@ class ReaderPresenter @Inject constructor(
                 main.launch {
                     if (view.isActive()) {
                         view.hideLoading()
-                        delay(3000)
                         view.hideDownloadPopup()
                     }
                 }

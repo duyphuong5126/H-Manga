@@ -36,6 +36,7 @@
 -dontwarn org.antlr.runtime.**
 -dontwarn retrofit2.**
 -dontwarn Type_mirror_extKt
--dontwarn Type_mirror_extKt$WhenMappings
 -keepattributes SourceFile,LineNumberTable
--keepnames class kotlinx.** { *; }
+-keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
+-dontwarn Type_mirror_extKt$WhenMappings
+-keepnames class kotlinx.* { *; }

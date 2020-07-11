@@ -45,8 +45,8 @@
         <activity
             android:name=".features.reader.ReaderActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:theme="@style/AppTheme.GreyStatusBar"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.GreyStatusBar" />
         <activity
             android:name=".features.tags.TagsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -54,8 +54,8 @@
         <activity
             android:name=".features.recent.RecentActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:theme="@style/AppTheme.GreyStatusBar"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.GreyStatusBar" />
         <activity android:name=".features.admin.AdminActivity" />
 
         <service

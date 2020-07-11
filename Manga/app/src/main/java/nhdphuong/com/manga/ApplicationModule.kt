@@ -1,9 +1,12 @@
 package nhdphuong.com.manga
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import nhdphuong.com.manga.analytics.AnalyticsPusher
+import nhdphuong.com.manga.analytics.FirebaseAnalyticsPusherImpl
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.api.MasterDataApiService
@@ -20,6 +23,7 @@ import nhdphuong.com.manga.supports.IFileUtils
 import nhdphuong.com.manga.supports.FileUtils
 import nhdphuong.com.manga.supports.AppSupportUtils
 import nhdphuong.com.manga.supports.SupportUtils
+import javax.inject.Named
 import javax.inject.Singleton
 
 /*
@@ -28,24 +32,31 @@ import javax.inject.Singleton
 @Module
 class ApplicationModule(private val mApplication: NHentaiApp) {
     @Provides
-    fun provideContext() = mApplication.applicationContext!!
+    fun provideContext(): Context = mApplication.applicationContext!!
 
     @Provides
     fun provideApplication() = mApplication
 
+    @Provides
+    @Named("nHentaiServiceGenerator")
+    fun nHentaiServiceGenerator(): ServiceGenerator = ServiceGenerator(ApiConstants.NHENTAI_HOME)
+
     @Singleton
     @Provides
-    fun provideBookApiService(): BookApiService {
-        ServiceGenerator.setBaseUrl(ApiConstants.NHENTAI_HOME)
-        ServiceGenerator.setInterceptor(null)
-        return ServiceGenerator.createService(BookApiService::class.java)
+    fun provideBookApiService(
+        @Named("nHentaiServiceGenerator") serviceGenerator: ServiceGenerator
+    ): BookApiService {
+        serviceGenerator.setInterceptor(null)
+        return serviceGenerator.createService(BookApiService::class.java)
     }
 
     @Singleton
     @Provides
-    fun provideMasterDataApiService(): MasterDataApiService {
-        ServiceGenerator.setInterceptor(null)
-        return ServiceGenerator.createService(MasterDataApiService::class.java)
+    fun provideMasterDataApiService(
+        @Named("nHentaiServiceGenerator") serviceGenerator: ServiceGenerator
+    ): MasterDataApiService {
+        serviceGenerator.setInterceptor(null)
+        return serviceGenerator.createService(MasterDataApiService::class.java)
     }
 
     @Singleton
@@ -82,4 +93,9 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
 
     @Provides
     fun providesAppSupportUtils(): AppSupportUtils = SupportUtils()
+
+    @Provides
+    fun providesAnalyticsPusher(context: Context): AnalyticsPusher {
+        return FirebaseAnalyticsPusherImpl(context)
+    }
 }

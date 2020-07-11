@@ -1,6 +1,10 @@
 package nhdphuong.com.manga.features.recent
 
 import android.annotation.SuppressLint
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -13,10 +17,12 @@ import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
+import nhdphuong.com.manga.usecase.AnalyticsErrorLogUseCase
 import java.util.LinkedList
 import java.util.Collections
 import java.util.Stack
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.collections.HashMap
 import kotlin.coroutines.resume
@@ -30,6 +36,7 @@ class RecentPresenter @Inject constructor(
     private val view: RecentContract.View,
     private val bookRepository: BookRepository,
     private val sharedPreferencesManager: SharedPreferencesManager,
+    private val analyticsErrorLogUseCase: AnalyticsErrorLogUseCase,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : RecentContract.Presenter {
@@ -54,8 +61,10 @@ class RecentPresenter @Inject constructor(
 
     @SuppressLint("UseSparseArrays")
     private var preventiveData = HashMap<Int, LinkedList<Book>>()
-    private var isLoadingPreventiveData = false
+    private var isLoadingPreventiveData = AtomicBoolean(false)
     private val jobStack = Stack<Job>()
+
+    private val compositeDisposable = CompositeDisposable()
 
     override fun start() {
         recentBookList.clear()
@@ -176,9 +185,10 @@ class RecentPresenter @Inject constructor(
                 job.cancel()
             }
         }
+        compositeDisposable.clear()
         preventiveData.clear()
         recentBookList.clear()
-        isLoadingPreventiveData = false
+        isLoadingPreventiveData.compareAndSet(isLoadingPreventiveData.get(), false)
         currentPage = 1
         currentPageCount = 0
     }
@@ -222,7 +232,7 @@ class RecentPresenter @Inject constructor(
     }
 
     private suspend fun loadPreventiveData() {
-        isLoadingPreventiveData = true
+        isLoadingPreventiveData.compareAndSet(false, true)
         suspendCoroutine<Boolean> { continuation ->
             runBlocking {
                 for (page in currentPage + 1..NUMBER_OF_PREVENTIVE_PAGES) {
@@ -233,18 +243,27 @@ class RecentPresenter @Inject constructor(
             continuation.resume(true)
         }
         Logger.d(TAG, "Load preventive data successfully")
-        isLoadingPreventiveData = false
+        isLoadingPreventiveData.compareAndSet(true, false)
     }
 
     private suspend fun getRecentBook(pageNumber: Int): LinkedList<Book> {
-        val recentList = if (type == Constants.RECENT) {
-            bookRepository.getRecentBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
-        } else {
-            bookRepository.getFavoriteBook(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
-        }
         val bookList = LinkedList<Book>()
-        for (recent in recentList) {
-            bookList.add(bookRepository.getBookDetails(recent.bookId)!!)
+        // Todo: Remove this try/catch
+        try {
+            val recentList = if (type == Constants.RECENT) {
+                bookRepository.getRecentBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
+            } else {
+                bookRepository.getFavoriteBook(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
+            }
+            for (recent in recentList) {
+                bookRepository.getBookDetails(recent.bookId)?.let(bookList::add)
+            }
+        } catch (throwable: Throwable) {
+            analyticsErrorLogUseCase.execute(throwable)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+                .addTo(compositeDisposable)
         }
         return bookList
     }

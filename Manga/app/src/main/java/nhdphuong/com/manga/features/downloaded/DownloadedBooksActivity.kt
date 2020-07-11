@@ -73,8 +73,8 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
         srlPullToReload.addPtrUIHandler(this)
         srlPullToReload.setPtrHandler(object : PtrHandler {
             override fun onRefreshBegin(frame: PtrFrameLayout?) {
-                frame?.postDelayed({
-                    srlPullToReload.refreshComplete()
+                srlPullToReload?.postDelayed({
+                    srlPullToReload?.refreshComplete()
                 }, 1000)
             }
 
@@ -272,7 +272,7 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
             Logger.d("Dialog", "Current pos: $currentPos")
-            refreshHeader.mtvRefresh.text =
+            refreshHeader?.mtvRefresh?.text =
                 String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }

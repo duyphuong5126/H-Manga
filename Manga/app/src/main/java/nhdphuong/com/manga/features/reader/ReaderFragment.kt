@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Handler
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -34,6 +33,7 @@ import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.BookReaderAdapter
 import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.gone
 
 /*
  * Created by nhdphuong on 5/5/18.
@@ -86,9 +86,8 @@ class ReaderFragment : Fragment(), ReaderContract.View {
                 ibRefresh.startAnimation(rotationAnimation)
                 presenter.reloadCurrentPage { currentPage: Int ->
                     bookReaderAdapter.resetPage(currentPage)
-                    val handler = Handler()
-                    handler.postDelayed({
-                        ibRefresh.clearAnimation()
+                    ibRefresh?.postDelayed({
+                        ibRefresh?.clearAnimation()
                     }, 3000)
                 }
             }
@@ -231,7 +230,9 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     }
 
     override fun hideDownloadPopup() {
-        clDownloadedPopup.visibility = View.GONE
+        clDownloadedPopup?.postDelayed({
+            clDownloadedPopup?.gone()
+        }, 3000)
     }
 
     override fun updateDownloadPopupTitle(downloadPage: Int) {

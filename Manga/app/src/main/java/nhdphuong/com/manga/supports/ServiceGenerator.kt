@@ -1,6 +1,5 @@
 package nhdphuong.com.manga.supports
 
-import android.text.TextUtils
 import com.google.gson.GsonBuilder
 import nhdphuong.com.manga.gson.GsonUTCDateAdapter
 import nhdphuong.com.manga.gson.SerializationExclusionStrategy
@@ -15,7 +14,7 @@ import java.util.concurrent.TimeUnit
 /*
  * Created by nhdphuong on 3/24/18.
  */
-object ServiceGenerator {
+class ServiceGenerator(baseUrl: String) {
     private val mRetrofitBuilder = Retrofit.Builder().addConverterFactory(
         GsonConverterFactory.create(
             GsonBuilder()
@@ -33,14 +32,10 @@ object ServiceGenerator {
         .connectTimeout(30000, TimeUnit.MILLISECONDS)
         .readTimeout(30000, TimeUnit.MILLISECONDS)
         .writeTimeout(30000, TimeUnit.MILLISECONDS)
-    private var mBaseUrl: String? = null
 
-    fun setBaseUrl(baseUrl: String) {
-        if (!TextUtils.equals(mBaseUrl, baseUrl)) {
-            mBaseUrl = baseUrl
-            mRetrofitBuilder.baseUrl(mBaseUrl!!)
-            mRetrofit = mRetrofitBuilder.build()
-        }
+    init {
+        mRetrofitBuilder.baseUrl(baseUrl)
+        mRetrofit = mRetrofitBuilder.build()
     }
 
     fun setInterceptor(interceptor: Interceptor?) {

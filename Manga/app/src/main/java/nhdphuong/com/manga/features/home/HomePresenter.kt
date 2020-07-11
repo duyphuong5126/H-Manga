@@ -136,7 +136,9 @@ class HomePresenter @Inject constructor(
                 val versionAcknowledged = newerVersionAcknowledged.get()
                 if (!isLatestVersion && !versionAcknowledged && upgradeNotificationAllowed) {
                     main.launch {
-                        view.showUpgradeNotification()
+                        if (view.isActive()) {
+                            view.showUpgradeNotification()
+                        }
                     }
                 }
             }, onError = { error ->
@@ -166,12 +168,14 @@ class HomePresenter @Inject constructor(
                 isRefreshing.compareAndSet(true, false)
 
                 main.launch {
-                    if (!isCurrentPageEmpty) {
-                        view.refreshHomePagination(currentNumOfPages)
-                        view.refreshHomeBookList()
+                    if (view.isActive()) {
+                        if (!isCurrentPageEmpty) {
+                            view.refreshHomePagination(currentNumOfPages)
+                            view.refreshHomeBookList()
+                        }
+                        onRefreshed()
+                        view.showNothingView(isCurrentPageEmpty)
                     }
-                    onRefreshed()
-                    view.showNothingView(isCurrentPageEmpty)
                 }
             }
         } else {
@@ -282,14 +286,16 @@ class HomePresenter @Inject constructor(
                 loadPreventiveData()
 
                 main.launch {
-                    view.refreshHomeBookList()
-                    if (currentNumOfPages > 0) {
-                        view.refreshHomePagination(currentNumOfPages)
-                        view.showNothingView(false)
-                    } else {
-                        view.showNothingView(true)
+                    if (view.isActive()) {
+                        view.refreshHomeBookList()
+                        if (currentNumOfPages > 0) {
+                            view.refreshHomePagination(currentNumOfPages)
+                            view.showNothingView(false)
+                        } else {
+                            view.showNothingView(true)
+                        }
+                        view.hideLoading()
                     }
-                    view.hideLoading()
                 }
             }
         }
@@ -347,9 +353,11 @@ class HomePresenter @Inject constructor(
             logListLong("Final page list: ", ArrayList(preventiveData.keys))
 
             main.launch {
-                view.refreshHomeBookList()
-                if (newPage) {
-                    view.hideLoading()
+                if (view.isActive()) {
+                    view.refreshHomeBookList()
+                    if (newPage) {
+                        view.hideLoading()
+                    }
                 }
             }
         }

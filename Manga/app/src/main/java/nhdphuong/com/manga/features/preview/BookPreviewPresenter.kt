@@ -389,7 +389,7 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun refreshLastVisitedPage(lastVisitedPage: Int) {
         Logger.d(TAG, "refreshLastVisitedPage $lastVisitedPage")
-        if (lastVisitedPage < book.bookImages.pages.size) {
+        if (lastVisitedPage in bookThumbnailList.indices) {
             Logger.d(TAG, "showLastVisitedPage $lastVisitedPage")
             view.showLastVisitedPage(lastVisitedPage + 1, bookThumbnailList[lastVisitedPage])
         } else {
@@ -404,7 +404,7 @@ class BookPreviewPresenter @Inject constructor(
     private fun getReachableBookCover(): String {
         val mediaId = book.mediaId
         val coverUrl = ApiConstants.getBookCover(mediaId)
-        if (networkUtils.isNetworkConnected()) {
+        if (networkUtils.isNetworkConnected() && book.bookImages.pages.isNotEmpty()) {
             var isReachable = false
             val bookPages = book.bookImages.pages
             var currentPage = 0

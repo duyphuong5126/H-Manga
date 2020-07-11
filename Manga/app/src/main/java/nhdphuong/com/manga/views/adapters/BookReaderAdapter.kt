@@ -7,10 +7,11 @@ import android.view.ViewGroup
 import androidx.viewpager.widget.PagerAdapter
 import com.ortiz.touchview.TouchImageView
 import nhdphuong.com.manga.Logger
-import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.ImageUtils
+import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.customs.MyTextView
+import nhdphuong.com.manga.views.gone
 
 /*
  * Created by nhdphuong on 5/5/18.
@@ -76,22 +77,17 @@ class BookReaderAdapter(
 
         init {
             mtvPageTitle.text = page.toString()
-            mtvPageTitle.visibility = View.VISIBLE
+            mtvPageTitle.becomeVisible()
             reloadImage()
         }
 
         fun reloadImage() {
-            if (!NHentaiApp.instance.isCensored) {
-                ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, onLoadSuccess = {
-                    mtvPageTitle.visibility = View.GONE
-                    Logger.d(TAG, "$pageUrl is loaded successfully")
-                }, onLoadFailed = {
-                    Logger.d(TAG, "$pageUrl loading failed")
-                })
-            } else {
-                ivPage.setImageResource(R.drawable.ic_nothing_here_grey)
-                mtvPageTitle.visibility = View.GONE
-            }
+            ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, onLoadSuccess = {
+                mtvPageTitle.gone()
+                Logger.d(TAG, "$pageUrl is loaded successfully")
+            }, onLoadFailed = {
+                Logger.d(TAG, "$pageUrl loading failed")
+            })
         }
     }
 }

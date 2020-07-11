@@ -102,7 +102,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             override fun onRefreshBegin(frame: PtrFrameLayout?) {
                 homePresenter.reloadCurrentPage {
                     frame?.postDelayed({
-                        srlPullToReload.refreshComplete()
+                        srlPullToReload?.refreshComplete()
                     }, REFRESH_COMPLETE_DURATION)
                 }
             }
@@ -208,8 +208,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun refreshHomeBookList() {
         homeListAdapter.notifyDataSetChanged()
         homePresenter.saveLastBookListRefreshTime()
-        rvMainList.post {
-            rvMainList.smoothScrollBy(0, 0)
+        rvMainList?.post {
+            rvMainList?.smoothScrollBy(0, 0)
         }
         homePresenter.reloadRecentBooks()
     }
@@ -251,7 +251,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     }
 
     override fun showNothingView(isEmpty: Boolean) {
-        clNothing.becomeVisibleIf(isEmpty)
+        clNothing?.becomeVisibleIf(isEmpty)
     }
 
     override fun showRefreshingDialog() {
@@ -283,9 +283,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     override fun showUpgradeNotification() {
         clUpgradePopup.becomeVisible()
         upgradePopupPlaceHolder.becomeVisible()
-        clUpgradePopup.postDelayed({
-            clUpgradePopup.gone()
-            upgradePopupPlaceHolder.gone()
+        clUpgradePopup?.postDelayed({
+            clUpgradePopup?.gone()
+            upgradePopupPlaceHolder?.gone()
         }, APP_UPGRADE_TIME_OUT)
     }
 
@@ -374,7 +374,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
             Logger.d(TAG, "Current pos: $currentPos")
-            refreshHeader.mtvRefresh.text =
+            refreshHeader?.mtvRefresh?.text =
                 String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }

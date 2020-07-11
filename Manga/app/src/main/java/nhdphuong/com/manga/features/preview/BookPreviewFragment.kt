@@ -569,7 +569,7 @@ class BookPreviewFragment :
     override fun updateDownloadProgress(progress: Int, total: Int) {
         clDownloadProgress.becomeVisible()
         pbDownloading.max = total
-        pbDownloading.progressDrawable = getProgressDrawableId(progress, total)
+        updateProgressDrawable(progress, total)
         pbDownloading.progress = progress
         mtvDownloaded.text =
             String.format(getString(R.string.preview_download_progress), progress, total)
@@ -577,26 +577,22 @@ class BookPreviewFragment :
 
     override fun finishDownloading() {
         mtvDownloaded.text = getString(R.string.done)
-        val handler = Handler()
-        handler.postDelayed({
-            pbDownloading.progressDrawable =
-                getProgressDrawableId(0, pbDownloading.max)
-            pbDownloading.max = 0
-            clDownloadProgress.gone()
-            mtvDownloaded.text = getString(R.string.preview_download_progress)
+        pbDownloading?.postDelayed({
+            updateProgressDrawable(0, pbDownloading.max)
+            pbDownloading?.max = 0
+            clDownloadProgress?.gone()
+            mtvDownloaded?.text = getString(R.string.preview_download_progress)
         }, DOWNLOADING_BAR_HIDING_DELAY)
     }
 
     override fun finishDownloading(downloadFailedCount: Int, total: Int) {
         mtvDownloaded.text =
             String.format(getString(R.string.fail_to_download), downloadFailedCount)
-        val handler = Handler()
-        handler.postDelayed({
-            pbDownloading.progressDrawable =
-                getProgressDrawableId(0, pbDownloading.max)
-            pbDownloading.max = 0
-            clDownloadProgress.gone()
-            mtvDownloaded.text = getString(R.string.preview_download_progress)
+        pbDownloading?.postDelayed({
+            updateProgressDrawable(0, pbDownloading.max)
+            pbDownloading?.max = 0
+            clDownloadProgress?.gone()
+            mtvDownloaded?.text = getString(R.string.preview_download_progress)
         }, DOWNLOADING_BAR_HIDING_DELAY)
     }
 
@@ -607,7 +603,7 @@ class BookPreviewFragment :
     override fun updateDeletingProgress(progress: Int, total: Int) {
         clDownloadProgress.becomeVisible()
         pbDownloading.max = total
-        pbDownloading.progressDrawable = getProgressDrawableId(progress, total)
+        updateProgressDrawable(progress, total)
         pbDownloading.progress = progress
         mtvDownloaded.text = getString(R.string.preview_deleting_progress, progress, total)
     }
@@ -615,12 +611,12 @@ class BookPreviewFragment :
     override fun finishDeleting(bookId: String) {
         pbDownloading.max = 1
         pbDownloading.progress = 1
-        pbDownloading.progressDrawable = getProgressDrawableId(1, 1)
+        updateProgressDrawable(1, 1)
         mtvDownloaded.text = getString(R.string.cleared)
 
-        Handler().postDelayed({
-            pbDownloading.progressDrawable = getProgressDrawableId(0, 1)
-            clDownloadProgress.gone()
+        pbDownloading?.postDelayed({
+            updateProgressDrawable(0, 1)
+            clDownloadProgress?.gone()
         }, DELETING_BAR_HIDING_DELAY)
 
         closePreviewAfterRemovedBook(bookId)
@@ -628,12 +624,12 @@ class BookPreviewFragment :
 
     override fun finishDeleting(bookId: String, deletingFailedCount: Int) {
         mtvDownloaded.text = getString(R.string.fail_to_delete, deletingFailedCount)
-        pbDownloading.progressDrawable = getProgressDrawableId(0, pbDownloading.max)
+        updateProgressDrawable(0, pbDownloading.max)
 
-        Handler().postDelayed({
-            pbDownloading.max = 0
-            pbDownloading.progress = 0
-            clDownloadProgress.gone()
+        pbDownloading?.postDelayed({
+            pbDownloading?.max = 0
+            pbDownloading?.progress = 0
+            clDownloadProgress?.gone()
         }, DELETING_BAR_HIDING_DELAY)
 
         closePreviewAfterRemovedBook(bookId)
@@ -774,15 +770,21 @@ class BookPreviewFragment :
         requestPermissions(storagePermission, REQUEST_STORAGE_PERMISSION)
     }
 
-    private fun getProgressDrawableId(progress: Int, max: Int): Drawable {
+    private fun updateProgressDrawable(progress: Int, max: Int) {
+        context?.let {
+            pbDownloading?.progressDrawable = getProgressDrawableId(it, progress, max)
+        }
+    }
+
+    private fun getProgressDrawableId(context: Context, progress: Int, max: Int): Drawable? {
         val percentage = (progress * 1f) / (max * 1f)
         return ActivityCompat.getDrawable(
-            context!!, when {
+            context, when {
                 percentage >= Constants.DOWNLOAD_GREEN_LEVEL -> R.drawable.bg_download_green
                 percentage >= Constants.DOWNLOAD_YELLOW_LEVEL -> R.drawable.bg_download_yellow
                 else -> R.drawable.bg_download_red
             }
-        )!!
+        )
     }
 
     private fun closePreviewAfterRemovedBook(bookId: String) {
