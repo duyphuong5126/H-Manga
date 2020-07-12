@@ -10,8 +10,10 @@ import nhdphuong.com.manga.Constants.Companion.MAX_PER_PAGE
 import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
+import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RemoteBook
+import nhdphuong.com.manga.data.entity.book.SortOption
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.data.repository.MasterDataRepository
 import nhdphuong.com.manga.scope.corountine.IO
@@ -64,6 +66,15 @@ class HomePresenter @Inject constructor(
     private val newerVersionAcknowledged = AtomicBoolean(false)
 
     private val tagsDownloadManager = DownloadManager.Companion.TagsDownloadManager
+
+    private var sortOption = SortOption.Recent
+        set(value) {
+            val lastValue = field
+            field = value
+            if (lastValue != value) {
+                reload()
+            }
+        }
 
     init {
         view.setPresenter(this)
@@ -175,6 +186,12 @@ class HomePresenter @Inject constructor(
                         }
                         onRefreshed()
                         view.showNothingView(isCurrentPageEmpty)
+                        if (isCurrentPageEmpty || searchData.isBlank()) {
+                            view.hideSortOptionList()
+                        } else {
+                            view.enableSortOption(sortOption)
+                            view.showSortOptionList()
+                        }
                     }
                 }
             }
@@ -253,6 +270,14 @@ class HomePresenter @Inject constructor(
         }
     }
 
+    override fun updateSortOption(sortOption: SortOption) {
+        Logger.d(TAG, "sortOption $sortOption")
+        this.sortOption = sortOption
+        if (view.isActive()) {
+            view.enableSortOption(sortOption)
+        }
+    }
+
     override fun stop() {
         Logger.d(TAG, "stop")
         io.launch {
@@ -291,8 +316,13 @@ class HomePresenter @Inject constructor(
                         if (currentNumOfPages > 0) {
                             view.refreshHomePagination(currentNumOfPages)
                             view.showNothingView(false)
+                            view.enableSortOption(sortOption)
+                            if (searchData.isNotBlank()) {
+                                view.showSortOptionList()
+                            }
                         } else {
                             view.showNothingView(true)
+                            view.hideSortOptionList()
                         }
                         view.hideLoading()
                     }
@@ -428,21 +458,19 @@ class HomePresenter @Inject constructor(
     }
 
     private suspend fun getBooksListByPage(pageNumber: Long): RemoteBook? {
-        return if (isSearching) {
-            val remoteBook = bookRepository.getBookByPage(searchData, pageNumber)
-            if (remoteBook != null && remoteBook.bookList.isNotEmpty()) {
-                remoteBook
-            } else if (searchData.toLongOrNull() != null) {
-                val bookData = bookRepository.getBookDetails(searchData)
-                val bookList = ArrayList<Book>().apply {
-                    if (bookData != null) {
-                        add(bookData)
-                    }
-                }
-                RemoteBook(bookList, 1, BOOKS_PER_PAGE)
-            } else null
+        val remoteBookResponse = if (isSearching) {
+            bookRepository.getBookByPage(searchData, pageNumber, sortOption)
         } else {
-            bookRepository.getBookByPage(pageNumber)
+            bookRepository.getBookByPage(pageNumber, sortOption)
+        }
+        return when {
+            remoteBookResponse is RemoteBookResponse.Success -> remoteBookResponse.remoteBook
+            searchData.toLongOrNull() != null -> {
+                val bookList = ArrayList<Book>()
+                bookRepository.getBookDetails(searchData)?.let(bookList::add)
+                RemoteBook(bookList, 1, BOOKS_PER_PAGE)
+            }
+            else -> null
         }
     }
 }

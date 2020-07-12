@@ -4,9 +4,11 @@ import com.google.gson.Gson
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.data.BookDataSource
+import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.data.entity.book.RemoteBook
+import nhdphuong.com.manga.data.entity.book.SortOption
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.coroutines.resume
@@ -19,23 +21,27 @@ import java.io.InputStreamReader
  */
 // Todo: research EOFException when using retrofit
 class BookRemoteDataSource(
-        @Suppress("unused")
-        private val mBookApiService: BookApiService
+    @Suppress("unused")
+    private val mBookApiService: BookApiService
 ) : BookDataSource.Remote {
     companion object {
         private const val TAG = "BookRemoteDataSource"
     }
 
-    override suspend fun getBookByPage(page: Long): RemoteBook? {
+    override suspend fun getBookByPage(page: Long, sortOption: SortOption): RemoteBookResponse {
         return suspendCoroutine { continuation ->
-            val remoteBook = getBookByPage(page, "")
+            val remoteBook = getBookByPage(page, "", sortOption)
             continuation.resume(remoteBook)
         }
     }
 
-    override suspend fun getBookByPage(searchContent: String, page: Long): RemoteBook? {
+    override suspend fun getBookByPage(
+        searchContent: String,
+        page: Long,
+        sortOption: SortOption
+    ): RemoteBookResponse {
         return suspendCoroutine { continuation ->
-            val remoteBook = getBookByPage(page, searchContent.replace(" ", "+"))
+            val remoteBook = getBookByPage(page, searchContent.replace(" ", "+"), sortOption)
             continuation.resume(remoteBook)
         }
     }
@@ -68,18 +74,27 @@ class BookRemoteDataSource(
         }
     }
 
-    private fun getBookByPage(page: Long, searchContent: String): RemoteBook? {
+    private fun getBookByPage(
+        page: Long,
+        searchContent: String,
+        sortOption: SortOption
+    ): RemoteBookResponse {
         return try {
-            val url = if (searchContent.isNotBlank()) {
+            var url = if (searchContent.isNotBlank()) {
                 "https://nhentai.net/api/galleries/search?query=$searchContent&page=$page"
             } else {
                 "https://nhentai.net/api/galleries/all?page=$page"
             }
+            if (sortOption != SortOption.Recent) {
+                url += getSortString(sortOption)
+            }
+            Logger.d("BookRemoteDataSource", "url $url")
             val responseData = performGetRequest(url)
-            Gson().fromJson(responseData, RemoteBook::class.java)
+            val remoteBook = Gson().fromJson(responseData, RemoteBook::class.java)
+            RemoteBookResponse.Success(remoteBook)
         } catch (exception: Exception) {
             Logger.d(TAG, "get all remote books of page $page failed=$exception")
-            null
+            RemoteBookResponse.Failure(exception)
         }
     }
 
@@ -107,5 +122,14 @@ class BookRemoteDataSource(
         }
         connection.disconnect()
         return null
+    }
+
+    private fun getSortString(sortOption: SortOption): String {
+        return when (sortOption) {
+            SortOption.Recent -> ""
+            SortOption.PopularAllTime -> "&sort=popular"
+            SortOption.PopularToday -> "&sort=popular-today"
+            SortOption.PopularWeek -> "&sort=popular-week"
+        }
     }
 }

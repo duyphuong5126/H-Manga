@@ -2,6 +2,7 @@ package nhdphuong.com.manga.features.home
 
 import nhdphuong.com.manga.Base
 import nhdphuong.com.manga.data.entity.book.Book
+import nhdphuong.com.manga.data.entity.book.SortOption
 
 /*
  * Created by nhdphuong on 3/18/18.
@@ -13,6 +14,9 @@ interface HomeContract {
         fun refreshHomeBookList()
         fun refreshHomePagination(pageCount: Long)
         fun showNothingView(isEmpty: Boolean)
+        fun enableSortOption(sortOption: SortOption)
+        fun showSortOptionList()
+        fun hideSortOptionList()
         fun showLastBookListRefreshTime(lastRefreshTimeStamp: String)
         fun showRefreshingDialog()
         fun showRecentBooks(recentList: List<String>)
@@ -35,5 +39,6 @@ interface HomeContract {
         fun saveLastBookListRefreshTime()
         fun updateSearchData(data: String)
         fun pickBookRandomly()
+        fun updateSortOption(sortOption: SortOption)
     }
 }

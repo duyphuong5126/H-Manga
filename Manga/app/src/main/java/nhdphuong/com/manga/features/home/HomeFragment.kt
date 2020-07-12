@@ -16,6 +16,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.HorizontalScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,6 +34,11 @@ import kotlinx.android.synthetic.main.fragment_book_list.rvPagination
 import kotlinx.android.synthetic.main.fragment_book_list.srlPullToReload
 import kotlinx.android.synthetic.main.fragment_book_list.clUpgradePopup
 import kotlinx.android.synthetic.main.fragment_book_list.ibUpgradePopupClose
+import kotlinx.android.synthetic.main.fragment_book_list.layoutSortOptions
+import kotlinx.android.synthetic.main.fragment_book_list.mtvPopularAllTime
+import kotlinx.android.synthetic.main.fragment_book_list.mtvPopularToday
+import kotlinx.android.synthetic.main.fragment_book_list.mtvPopularWeek
+import kotlinx.android.synthetic.main.fragment_book_list.mtvRecentOption
 import kotlinx.android.synthetic.main.fragment_book_list.mtvUpgradeTitle
 import kotlinx.android.synthetic.main.fragment_book_list.upgradePopupPlaceHolder
 import kotlinx.android.synthetic.main.layout_refresh_header.view.ivRefresh
@@ -45,6 +51,7 @@ import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.data.entity.book.Book
+import nhdphuong.com.manga.data.entity.book.SortOption
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
 import nhdphuong.com.manga.supports.openUrl
 import nhdphuong.com.manga.views.becomeVisible
@@ -119,6 +126,24 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             homePresenter.reloadCurrentPage {
 
             }
+        }
+
+        mtvRecentOption.setOnClickListener {
+            layoutSortOptions.fullScroll(HorizontalScrollView.FOCUS_LEFT)
+            homePresenter.updateSortOption(SortOption.Recent)
+        }
+
+        mtvPopularToday.setOnClickListener {
+            homePresenter.updateSortOption(SortOption.PopularToday)
+        }
+
+        mtvPopularWeek.setOnClickListener {
+            homePresenter.updateSortOption(SortOption.PopularWeek)
+        }
+
+        mtvPopularAllTime.setOnClickListener {
+            layoutSortOptions.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+            homePresenter.updateSortOption(SortOption.PopularAllTime)
         }
     }
 
@@ -254,6 +279,21 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         clNothing?.becomeVisibleIf(isEmpty)
     }
 
+    override fun enableSortOption(sortOption: SortOption) {
+        mtvRecentOption?.isActivated = sortOption == SortOption.Recent
+        mtvPopularToday?.isActivated = sortOption == SortOption.PopularToday
+        mtvPopularWeek?.isActivated = sortOption == SortOption.PopularWeek
+        mtvPopularAllTime?.isActivated = sortOption == SortOption.PopularAllTime
+    }
+
+    override fun showSortOptionList() {
+        layoutSortOptions?.becomeVisible()
+    }
+
+    override fun hideSortOptionList() {
+        layoutSortOptions?.gone()
+    }
+
     override fun showRefreshingDialog() {
         DialogHelper.showBookListRefreshingDialog(activity!!) {
 
@@ -290,7 +330,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     }
 
     fun changeSearchInputted(data: String) {
+        homePresenter.updateSortOption(SortOption.Recent)
         homePresenter.updateSearchData(data)
+        hideSortOptionList()
     }
 
     fun randomizeBook() {

@@ -178,6 +178,13 @@
     <string name="popular">Popular</string>
     <string name="enable_censored">Enable censored</string>
 
+    <string name="sort_recent">Recent</string>
+    <string name="sort_popular_all_time">All Time</string>
+    <string name="sort_popular_today">Today</string>
+    <string name="sort_popular_week">Week</string>
+
+    <string name="sort_popular_label">Popular: </string>
+
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>
         <item>..</item>

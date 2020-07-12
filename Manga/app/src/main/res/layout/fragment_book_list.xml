@@ -40,6 +40,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <View
@@ -55,7 +56,6 @@
                     android:layout_marginStart="5dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="5dp"
-                    android:layout_marginBottom="10dp"
                     android:gravity="center"
                     android:text="@string/title_1"
                     android:textColor="@android:color/white"
@@ -63,6 +63,104 @@
                     android:visibility="gone"
                     app:myFont="@string/NotoSansBold"
                     tools:visibility="visible" />
+
+                <HorizontalScrollView
+                    android:id="@+id/layoutSortOptions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="true"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingLeft="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingRight="8dp">
+
+                        <nhdphuong.com.manga.views.customs.MyTextView
+                            android:id="@+id/mtvRecentOption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_sort_option_rounded_all_corners"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:text="@string/sort_recent"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp"
+                            app:myFont="@string/NotoSansBold" />
+
+                        <nhdphuong.com.manga.views.customs.MyTextView
+                            android:id="@+id/mtvPopularLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginLeft="12dp"
+                            android:background="@drawable/bg_sort_option_rounded_left"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:text="@string/sort_popular_label"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp"
+                            app:myFont="@string/NotoSansBold" />
+
+                        <nhdphuong.com.manga.views.customs.MyTextView
+                            android:id="@+id/mtvPopularToday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="1dp"
+                            android:layout_marginLeft="1dp"
+                            android:background="@drawable/bg_sort_option"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:text="@string/sort_popular_today"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp"
+                            app:myFont="@string/NotoSansBold" />
+
+                        <nhdphuong.com.manga.views.customs.MyTextView
+                            android:id="@+id/mtvPopularWeek"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="1dp"
+                            android:layout_marginLeft="1dp"
+                            android:background="@drawable/bg_sort_option"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:text="@string/sort_popular_week"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp"
+                            app:myFont="@string/NotoSansBold" />
+
+                        <nhdphuong.com.manga.views.customs.MyTextView
+                            android:id="@+id/mtvPopularAllTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="1dp"
+                            android:layout_marginLeft="1dp"
+                            android:background="@drawable/bg_sort_option_rounded_right"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:text="@string/sort_popular_all_time"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp"
+                            app:myFont="@string/NotoSansBold" />
+
+                    </LinearLayout>
+                </HorizontalScrollView>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvMainList"

@@ -3,10 +3,12 @@ package nhdphuong.com.manga.data
 import io.reactivex.Completable
 import io.reactivex.Single
 import nhdphuong.com.manga.data.entity.RecentBook
+import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.ImageMeasurements
 import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.data.entity.book.RemoteBook
+import nhdphuong.com.manga.data.entity.book.SortOption
 import nhdphuong.com.manga.data.local.model.ImageUsageType
 import java.util.LinkedList
 
@@ -15,8 +17,13 @@ import java.util.LinkedList
  */
 interface BookDataSource {
     interface Remote {
-        suspend fun getBookByPage(page: Long): RemoteBook?
-        suspend fun getBookByPage(searchContent: String, page: Long): RemoteBook?
+        suspend fun getBookByPage(page: Long, sortOption: SortOption): RemoteBookResponse
+        suspend fun getBookByPage(
+            searchContent: String,
+            page: Long,
+            sortOption: SortOption
+        ): RemoteBookResponse
+
         suspend fun getBookDetails(bookId: String): Book?
         suspend fun getRecommendBook(bookId: String): RecommendBook?
     }

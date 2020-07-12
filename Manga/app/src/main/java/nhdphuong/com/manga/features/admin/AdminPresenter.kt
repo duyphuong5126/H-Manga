@@ -6,7 +6,9 @@ import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
+import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.RemoteBook
+import nhdphuong.com.manga.data.entity.book.SortOption
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
@@ -49,7 +51,11 @@ class AdminPresenter @Inject constructor(
     override fun start() {
         clearData()
         io.launch {
-            numberOfPage = bookRepository.getBookByPage(currentPage)?.numOfPages ?: 0L
+            bookRepository.getBookByPage(currentPage, SortOption.Recent).let {
+                if (it is RemoteBookResponse.Success) {
+                    numberOfPage = it.remoteBook.numOfPages
+                }
+            }
             Logger.d(TAG, "Number Of pages=$numberOfPage")
         }
     }
@@ -78,11 +84,13 @@ class AdminPresenter @Inject constructor(
 
         if (page <= numberOfPage) {
             io.launch {
-                val remoteBook = bookRepository.getBookByPage(page)
-                if (remoteBook != null) {
-                    handleResponse(remoteBook)
-                } else {
-                    handleError()
+                bookRepository.getBookByPage(page, SortOption.Recent).let {
+                    if (it is RemoteBookResponse.Success) {
+                        val remoteBook = it.remoteBook
+                        handleResponse(remoteBook)
+                    } else {
+                        handleError()
+                    }
                 }
             }
         } else {

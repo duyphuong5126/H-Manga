@@ -4,11 +4,12 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.entity.RecentBook
+import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.ImageMeasurements
 import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.scope.Remote
-import nhdphuong.com.manga.data.entity.book.RemoteBook
+import nhdphuong.com.manga.data.entity.book.SortOption
 import nhdphuong.com.manga.scope.Local
 import java.util.LinkedList
 import javax.inject.Inject
@@ -22,12 +23,16 @@ class BookRepository @Inject constructor(
     @Remote private val bookRemoteDataSource: BookDataSource.Remote,
     @Local private val bookLocalDataSource: BookDataSource.Local
 ) : BookDataSource.Remote, BookDataSource.Local {
-    override suspend fun getBookByPage(page: Long): RemoteBook? {
-        return bookRemoteDataSource.getBookByPage(page)
+    override suspend fun getBookByPage(page: Long, sortOption: SortOption): RemoteBookResponse {
+        return bookRemoteDataSource.getBookByPage(page, sortOption)
     }
 
-    override suspend fun getBookByPage(searchContent: String, page: Long): RemoteBook? {
-        return bookRemoteDataSource.getBookByPage(searchContent, page)
+    override suspend fun getBookByPage(
+        searchContent: String,
+        page: Long,
+        sortOption: SortOption
+    ): RemoteBookResponse {
+        return bookRemoteDataSource.getBookByPage(searchContent, page, sortOption)
     }
 
     override suspend fun getRecommendBook(bookId: String): RecommendBook? {
