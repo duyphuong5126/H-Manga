@@ -3,11 +3,12 @@ package nhdphuong.com.manga.data.repository
 import io.reactivex.Completable
 import io.reactivex.Single
 import nhdphuong.com.manga.data.BookDataSource
+import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.RecentBook
+import nhdphuong.com.manga.data.entity.RecommendBookResponse
 import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.ImageMeasurements
-import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.scope.Remote
 import nhdphuong.com.manga.data.entity.book.SortOption
 import nhdphuong.com.manga.scope.Local
@@ -35,11 +36,11 @@ class BookRepository @Inject constructor(
         return bookRemoteDataSource.getBookByPage(searchContent, page, sortOption)
     }
 
-    override suspend fun getRecommendBook(bookId: String): RecommendBook? {
+    override suspend fun getRecommendBook(bookId: String): RecommendBookResponse {
         return bookRemoteDataSource.getRecommendBook(bookId)
     }
 
-    override suspend fun getBookDetails(bookId: String): Book? {
+    override suspend fun getBookDetails(bookId: String): BookResponse {
         return bookRemoteDataSource.getBookDetails(bookId)
     }
 

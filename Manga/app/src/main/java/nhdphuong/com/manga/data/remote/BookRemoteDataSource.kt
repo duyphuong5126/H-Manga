@@ -4,6 +4,8 @@ import com.google.gson.Gson
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.data.BookDataSource
+import nhdphuong.com.manga.data.entity.BookResponse
+import nhdphuong.com.manga.data.entity.RecommendBookResponse
 import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RecommendBook
@@ -46,30 +48,32 @@ class BookRemoteDataSource(
         }
     }
 
-    override suspend fun getRecommendBook(bookId: String): RecommendBook? {
+    override suspend fun getRecommendBook(bookId: String): RecommendBookResponse {
         return suspendCoroutine { continuation ->
             try {
                 val url = "https://nhentai.net/api/gallery/$bookId/related"
                 val responseData = performGetRequest(url)
                 val recommendBook = Gson().fromJson(responseData, RecommendBook::class.java)
-                continuation.resume(recommendBook)
-            } catch (exception: Exception) {
-                Logger.d(TAG, "get all recommend book of $bookId failed=$exception")
-                continuation.resume(null)
+                val recommendBookResult = RecommendBookResponse.Success(recommendBook)
+                continuation.resume(recommendBookResult)
+            } catch (throwable: Throwable) {
+                Logger.d(TAG, "get all recommend book of $bookId failed=$throwable")
+                continuation.resume(RecommendBookResponse.Failure(throwable))
             }
         }
     }
 
-    override suspend fun getBookDetails(bookId: String): Book? {
+    override suspend fun getBookDetails(bookId: String): BookResponse {
         return suspendCoroutine { continuation ->
             try {
                 val url = "https://nhentai.net/api/gallery/$bookId"
                 val responseData = performGetRequest(url)
                 val book = Gson().fromJson(responseData, Book::class.java)
-                continuation.resume(book)
-            } catch (exception: Exception) {
-                Logger.d(TAG, "get book details of $bookId failed=$exception")
-                continuation.resume(null)
+                val bookResult = BookResponse.Success(book)
+                continuation.resume(bookResult)
+            } catch (throwable: Throwable) {
+                Logger.d(TAG, "get book details of $bookId failed=$throwable")
+                continuation.resume(BookResponse.Failure(throwable))
             }
         }
     }
@@ -92,9 +96,9 @@ class BookRemoteDataSource(
             val responseData = performGetRequest(url)
             val remoteBook = Gson().fromJson(responseData, RemoteBook::class.java)
             RemoteBookResponse.Success(remoteBook)
-        } catch (exception: Exception) {
-            Logger.d(TAG, "get all remote books of page $page failed=$exception")
-            RemoteBookResponse.Failure(exception)
+        } catch (throwable: Throwable) {
+            Logger.d(TAG, "get all remote books of page $page failed=$throwable")
+            RemoteBookResponse.Failure(throwable)
         }
     }
 

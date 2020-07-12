@@ -2,12 +2,12 @@ package nhdphuong.com.manga.data
 
 import io.reactivex.Completable
 import io.reactivex.Single
+import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.RecentBook
+import nhdphuong.com.manga.data.entity.RecommendBookResponse
 import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.ImageMeasurements
-import nhdphuong.com.manga.data.entity.book.RecommendBook
-import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.entity.book.SortOption
 import nhdphuong.com.manga.data.local.model.ImageUsageType
 import java.util.LinkedList
@@ -24,8 +24,8 @@ interface BookDataSource {
             sortOption: SortOption
         ): RemoteBookResponse
 
-        suspend fun getBookDetails(bookId: String): Book?
-        suspend fun getRecommendBook(bookId: String): RecommendBook?
+        suspend fun getBookDetails(bookId: String): BookResponse
+        suspend fun getRecommendBook(bookId: String): RecommendBookResponse
     }
 
     interface Local {

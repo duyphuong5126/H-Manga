@@ -25,6 +25,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.disposables.CompositeDisposable
+import nhdphuong.com.manga.data.entity.BookResponse
+import nhdphuong.com.manga.data.entity.RecommendBookResponse
 import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
 import nhdphuong.com.manga.usecase.GetDownloadedBookCoverUseCase
 import nhdphuong.com.manga.usecase.GetLastVisitedPageUseCase
@@ -268,10 +270,10 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun restartBookPreview(bookId: String) {
         io.launch {
-            val bookDetails = bookRepository.getBookDetails(bookId)
-            bookDetails?.let {
+            val bookResponse = bookRepository.getBookDetails(bookId)
+            if (bookResponse is BookResponse.Success) {
                 main.launch {
-                    BookPreviewActivity.restart(bookDetails)
+                    BookPreviewActivity.restart(bookResponse.book)
                 }
             }
         }
@@ -450,34 +452,35 @@ class BookPreviewPresenter @Inject constructor(
 
     private fun loadRecommendBook() {
         io.launch {
-            bookRepository.getRecommendBook(book.bookId)?.bookList?.let { bookList ->
-                val recentList = LinkedList<String>()
-                val favoriteList = LinkedList<String>()
-                bookList.forEach {
-                    val bookId = it.bookId
-                    when {
-                        bookRepository.isFavoriteBook(bookId) -> favoriteList.add(bookId)
-                        bookRepository.isRecentBook(bookId) -> recentList.add(bookId)
-                        else -> {
+            val recommendBookResponse = bookRepository.getRecommendBook(book.bookId)
+            if (recommendBookResponse is RecommendBookResponse.Success) {
+                recommendBookResponse.recommendBook.bookList.let { bookList ->
+                    val recentList = LinkedList<String>()
+                    val favoriteList = LinkedList<String>()
+                    bookList.forEach {
+                        val bookId = it.bookId
+                        when {
+                            bookRepository.isFavoriteBook(bookId) -> favoriteList.add(bookId)
+                            bookRepository.isRecentBook(bookId) -> recentList.add(bookId)
                         }
                     }
-                }
-                Logger.d(
-                    TAG, "Number of recommend book of book ${book.bookId}:" +
-                            " ${bookList.size}"
-                )
-                main.launch {
-                    if (view.isActive()) {
-                        if (!bookList.isEmpty()) {
-                            view.showRecommendBook(bookList)
-                            if (!recentList.isEmpty()) {
-                                view.showRecentBooks(recentList)
+                    Logger.d(
+                        TAG, "Number of recommend book of book ${book.bookId}:" +
+                                " ${bookList.size}"
+                    )
+                    main.launch {
+                        if (view.isActive()) {
+                            if (!bookList.isEmpty()) {
+                                view.showRecommendBook(bookList)
+                                if (!recentList.isEmpty()) {
+                                    view.showRecentBooks(recentList)
+                                }
+                                if (!favoriteList.isEmpty()) {
+                                    view.showFavoriteBooks(favoriteList)
+                                }
+                            } else {
+                                view.showNoRecommendBook()
                             }
-                            if (!favoriteList.isEmpty()) {
-                                view.showFavoriteBooks(favoriteList)
-                            }
-                        } else {
-                            view.showNoRecommendBook()
                         }
                     }
                 }

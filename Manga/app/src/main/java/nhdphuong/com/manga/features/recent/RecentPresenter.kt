@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
+import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
@@ -256,7 +257,10 @@ class RecentPresenter @Inject constructor(
                 bookRepository.getFavoriteBook(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
             }
             for (recent in recentList) {
-                bookRepository.getBookDetails(recent.bookId)?.let(bookList::add)
+                val bookResponse = bookRepository.getBookDetails(recent.bookId)
+                if (bookResponse is BookResponse.Success) {
+                    bookList.add(bookResponse.book)
+                }
             }
         } catch (throwable: Throwable) {
             analyticsErrorLogUseCase.execute(throwable)

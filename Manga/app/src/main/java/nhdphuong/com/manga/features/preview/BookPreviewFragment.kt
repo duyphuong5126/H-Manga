@@ -547,17 +547,19 @@ class BookPreviewFragment :
     }
 
     override fun showRequestStoragePermission() {
-        DialogHelper.showStoragePermissionDialog(activity!!, onOk = {
-            requestStoragePermission()
-        }, onDismiss = {
-            Toast.makeText(
-                context,
-                getString(R.string.toast_storage_permission_require),
-                Toast.LENGTH_SHORT
-            ).show()
-            isDownloadingRequested = false
-            isDeletingRequested = false
-        })
+        activity?.run {
+            DialogHelper.showStoragePermissionDialog(this, onOk = {
+                requestStoragePermission()
+            }, onDismiss = {
+                Toast.makeText(
+                    context,
+                    getString(R.string.toast_storage_permission_require),
+                    Toast.LENGTH_SHORT
+                ).show()
+                isDownloadingRequested = false
+                isDeletingRequested = false
+            })
+        }
     }
 
     override fun initDownloading(total: Int) {
@@ -636,17 +638,21 @@ class BookPreviewFragment :
     }
 
     override fun showBookBeingDownloaded(bookId: String) {
-        DialogHelper.showBookDownloadingDialog(activity!!, bookId, onOk = {
-            presenter.restartBookPreview(bookId)
-        }, onDismiss = {
-            Logger.d(TAG, "Downloading book $bookId is aware")
-        })
+        activity?.run {
+            DialogHelper.showBookDownloadingDialog(this, bookId, onOk = {
+                presenter.restartBookPreview(bookId)
+            }, onDismiss = {
+                Logger.d(TAG, "Downloading book $bookId is aware")
+            })
+        }
     }
 
     override fun showThisBookBeingDownloaded() {
-        DialogHelper.showThisBookDownloadingDialog(activity!!, onOk = {
-            Logger.d(TAG, "Downloading this book is aware")
-        })
+        activity?.run {
+            DialogHelper.showThisBookDownloadingDialog(this, onOk = {
+                Logger.d(TAG, "Downloading this book is aware")
+            })
+        }
     }
 
     override fun showFavoriteBookSaved(isFavorite: Boolean) {

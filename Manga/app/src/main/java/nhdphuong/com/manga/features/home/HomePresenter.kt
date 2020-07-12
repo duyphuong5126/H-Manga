@@ -10,6 +10,7 @@ import nhdphuong.com.manga.Constants.Companion.MAX_PER_PAGE
 import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
+import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RemoteBook
@@ -464,10 +465,16 @@ class HomePresenter @Inject constructor(
             bookRepository.getBookByPage(pageNumber, sortOption)
         }
         return when {
-            remoteBookResponse is RemoteBookResponse.Success -> remoteBookResponse.remoteBook
+            remoteBookResponse is RemoteBookResponse.Success &&
+                    remoteBookResponse.remoteBook.bookList.isNotEmpty() -> {
+                remoteBookResponse.remoteBook
+            }
             searchData.toLongOrNull() != null -> {
                 val bookList = ArrayList<Book>()
-                bookRepository.getBookDetails(searchData)?.let(bookList::add)
+                val bookResponse = bookRepository.getBookDetails(searchData)
+                if (bookResponse is BookResponse.Success) {
+                    bookList.add(bookResponse.book)
+                }
                 RemoteBook(bookList, 1, BOOKS_PER_PAGE)
             }
             else -> null
