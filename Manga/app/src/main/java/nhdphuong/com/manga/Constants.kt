@@ -132,12 +132,20 @@ class Constants {
             "ACTION_DISMISS_GALLERY_REFRESHING_DIALOG"
 
         // Analytics
+        const val APP_VERSION_NAME = "App.VersionName"
+        const val APP_VERSION_CODE = "App.VersionCode"
         const val EVENT_EXCEPTION = "Event.Exception"
+        const val EVENT_SEARCH = "Event.Search"
+        const val EVENT_OPEN_BOOK = "Event.OpenBook"
         const val EXCEPTION_CANONICAL_CLASS_NAME = "Exception.CanonicalClassName"
         const val EXCEPTION_CAUSE = "Exception.Cause"
         const val EXCEPTION_MESSAGE = "Exception.Message"
         const val EXCEPTION_LOCALIZED_MESSAGE = "Exception.LocalizedMessage"
         const val EXCEPTION_STACK_TRACE = "Exception.StackTrace"
+        const val SEARCH_DATA = "Search.Data"
+        const val ANALYTICS_BOOK_ID = "Book.ID"
+        const val ANALYTICS_BOOK_NAME = "Book.Name"
+        const val ANALYTICS_BOOK_LANGUAGE = "Book.Language"
 
         const val TOTAL = "total"
         const val PROGRESS = "progress"

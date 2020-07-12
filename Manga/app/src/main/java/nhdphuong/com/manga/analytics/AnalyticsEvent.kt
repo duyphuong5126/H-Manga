@@ -30,6 +30,13 @@ class AnalyticsEvent(
                 return this
             }
 
+            fun putParam(vararg analyticsParams: AnalyticsParam): Builder {
+                analyticsParams.forEach {
+                    paramMap[it.paramName] = it.paramValue
+                }
+                return this
+            }
+
             fun build(): AnalyticsEvent {
                 val params = Bundle()
                 paramMap.entries.forEach {

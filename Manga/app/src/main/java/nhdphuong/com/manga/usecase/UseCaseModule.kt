@@ -39,5 +39,8 @@ interface UseCaseModule {
     fun getLastVisitedPageUseCase(getLastVisitedPageUseCaseImpl: GetLastVisitedPageUseCaseImpl): GetLastVisitedPageUseCase
 
     @Binds
-    fun analyticsErrorLogUseCase(analyticsErrorLogUseCaseImpl: AnalyticsErrorLogUseCaseImpl): AnalyticsErrorLogUseCase
+    fun logAnalyticsErrorUseCase(analyticsErrorLogUseCaseImpl: LogAnalyticsErrorUseCaseImpl): LogAnalyticsErrorUseCase
+
+    @Binds
+    fun logAnalyticsEventUseCase(analyticsEventUseCaseImpl: LogAnalyticsEventUseCaseImpl): LogAnalyticsEventUseCase
 }

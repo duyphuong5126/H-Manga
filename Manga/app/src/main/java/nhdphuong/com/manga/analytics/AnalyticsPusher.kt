@@ -3,6 +3,9 @@ package nhdphuong.com.manga.analytics
 import android.content.Context
 import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
+import nhdphuong.com.manga.BuildConfig
+import nhdphuong.com.manga.Constants.Companion.APP_VERSION_CODE
+import nhdphuong.com.manga.Constants.Companion.APP_VERSION_NAME
 import nhdphuong.com.manga.Logger
 import javax.inject.Inject
 
@@ -17,8 +20,8 @@ class FirebaseAnalyticsPusherImpl @Inject constructor(context: Context) : Analyt
     private val firebaseAnalytics: FirebaseAnalytics = FirebaseAnalytics.getInstance(context)
 
     override fun logEvent(eventName: String) {
-        Logger.d(TAG, "logEvent $eventName")
-        firebaseAnalytics.logEvent(eventName, null)
+        Logger.d(TAG, "[${BuildConfig.VERSION_NAME}] logEvent $eventName")
+        firebaseAnalytics.logEvent(eventName, createOrUpdateParamBundle(null))
     }
 
     override fun logEvent(eventName: String, param: Bundle) {
@@ -26,8 +29,15 @@ class FirebaseAnalyticsPusherImpl @Inject constructor(context: Context) : Analyt
         param.keySet().forEach {
             paramString += "Param $it - value: ${param.getString(it)}\n"
         }
-        Logger.d(TAG, "logEvent $eventName - params: $paramString")
-        firebaseAnalytics.logEvent(eventName, param)
+        Logger.d(TAG, "[${BuildConfig.VERSION_NAME}] logEvent $eventName\n$paramString")
+        firebaseAnalytics.logEvent(eventName, createOrUpdateParamBundle(param))
+    }
+
+    private fun createOrUpdateParamBundle(param: Bundle?): Bundle {
+        return (param ?: Bundle()).apply {
+            putString(APP_VERSION_NAME, BuildConfig.VERSION_NAME)
+            putString(APP_VERSION_CODE, BuildConfig.VERSION_CODE.toString())
+        }
     }
 
     companion object {

@@ -11,13 +11,13 @@ import nhdphuong.com.manga.analytics.AnalyticsEvent
 import nhdphuong.com.manga.analytics.AnalyticsPusher
 import javax.inject.Inject
 
-interface AnalyticsErrorLogUseCase {
+interface LogAnalyticsErrorUseCase {
     fun execute(throwable: Throwable): Completable
 }
 
-class AnalyticsErrorLogUseCaseImpl @Inject constructor(
+class LogAnalyticsErrorUseCaseImpl @Inject constructor(
     private val analyticsPusher: AnalyticsPusher
-) : AnalyticsErrorLogUseCase {
+) : LogAnalyticsErrorUseCase {
     override fun execute(throwable: Throwable): Completable {
         return Completable.fromCallable {
             var stackTraceString = ""

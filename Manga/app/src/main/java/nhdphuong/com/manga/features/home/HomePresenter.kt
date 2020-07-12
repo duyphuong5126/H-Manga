@@ -12,10 +12,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.BuildConfig
+import nhdphuong.com.manga.Constants.Companion.EVENT_SEARCH
 import nhdphuong.com.manga.Constants.Companion.MAX_PER_PAGE
+import nhdphuong.com.manga.Constants.Companion.SEARCH_DATA
 import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
+import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.Book
@@ -28,6 +31,7 @@ import nhdphuong.com.manga.extension.isNetworkError
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
+import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 import java.net.SocketTimeoutException
 import java.util.Locale
 import java.util.Random
@@ -49,6 +53,7 @@ class HomePresenter @Inject constructor(
     private val bookRepository: BookRepository,
     private val masterDataRepository: MasterDataRepository,
     private val sharedPreferencesManager: SharedPreferencesManager,
+    private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : HomeContract.Presenter {
@@ -268,6 +273,11 @@ class HomePresenter @Inject constructor(
         if (!searchData.equals(data, ignoreCase = true)) {
             searchData = data
             view.changeSearchResult(data)
+            logAnalyticsEventUseCase.execute(EVENT_SEARCH, AnalyticsParam(SEARCH_DATA, data))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+                .addTo(compositeDisposable)
             reload()
         } else {
             Logger.d(TAG, "Search data is not changed")

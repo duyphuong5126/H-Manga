@@ -22,7 +22,7 @@ import nhdphuong.com.manga.extension.isNetworkError
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
-import nhdphuong.com.manga.usecase.AnalyticsErrorLogUseCase
+import nhdphuong.com.manga.usecase.LogAnalyticsErrorUseCase
 import java.net.SocketTimeoutException
 import java.util.LinkedList
 import java.util.Collections
@@ -42,7 +42,7 @@ class RecentPresenter @Inject constructor(
     private val view: RecentContract.View,
     private val bookRepository: BookRepository,
     private val sharedPreferencesManager: SharedPreferencesManager,
-    private val analyticsErrorLogUseCase: AnalyticsErrorLogUseCase,
+    private val logAnalyticsErrorUseCase: LogAnalyticsErrorUseCase,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : RecentContract.Presenter {
@@ -289,7 +289,7 @@ class RecentPresenter @Inject constructor(
             }
         } catch (throwable: Throwable) {
             remoteBookErrorSubject.onNext(throwable)
-            analyticsErrorLogUseCase.execute(throwable)
+            logAnalyticsErrorUseCase.execute(throwable)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe()

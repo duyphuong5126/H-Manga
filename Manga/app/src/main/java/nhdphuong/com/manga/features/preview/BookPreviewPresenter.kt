@@ -25,11 +25,17 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.disposables.CompositeDisposable
+import nhdphuong.com.manga.Constants.Companion.ANALYTICS_BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.ANALYTICS_BOOK_LANGUAGE
+import nhdphuong.com.manga.Constants.Companion.ANALYTICS_BOOK_NAME
+import nhdphuong.com.manga.Constants.Companion.EVENT_OPEN_BOOK
+import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.RecommendBookResponse
 import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
 import nhdphuong.com.manga.usecase.GetDownloadedBookCoverUseCase
 import nhdphuong.com.manga.usecase.GetLastVisitedPageUseCase
+import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 import nhdphuong.com.manga.usecase.StartBookDeletingUseCase
 import nhdphuong.com.manga.usecase.StartBookDownloadingUseCase
 
@@ -43,6 +49,7 @@ class BookPreviewPresenter @Inject constructor(
     private val startBookDownloadingUseCase: StartBookDownloadingUseCase,
     private val startBookDeletingUseCase: StartBookDeletingUseCase,
     private val getLastVisitedPageUseCase: GetLastVisitedPageUseCase,
+    private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
     private val bookRepository: BookRepository,
     private val networkUtils: INetworkUtils,
     private val fileUtils: IFileUtils,
@@ -95,6 +102,7 @@ class BookPreviewPresenter @Inject constructor(
     }
 
     override fun start() {
+        logBookInfo()
         bookThumbnailList.clear()
         if (cacheCoverUrl.isBlank()) {
             if (viewDownloadedData) {
@@ -497,5 +505,18 @@ class BookPreviewPresenter @Inject constructor(
             }
             Logger.d(TAG, "isFavoriteBook: $isFavoriteBook")
         }
+    }
+
+    private fun logBookInfo() {
+        logAnalyticsEventUseCase.execute(
+            EVENT_OPEN_BOOK,
+            AnalyticsParam(ANALYTICS_BOOK_ID, book.bookId),
+            AnalyticsParam(ANALYTICS_BOOK_NAME, book.usefulName),
+            AnalyticsParam(ANALYTICS_BOOK_LANGUAGE, book.language)
+        )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe()
+            .addTo(compositeDisposable)
     }
 }
