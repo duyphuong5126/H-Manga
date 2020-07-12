@@ -104,7 +104,7 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View {
     companion object {
         private const val TWITTER_LABEL = "Nonoka (@Nonoka5126)"
         private const val TWITTER_URL = "https://twitter.com/Nonoka5126"
-        private const val REPOSITORY_LABEL = "duyphuong5126"
+        private const val REPOSITORY_LABEL = "My Github"
         private const val REPOSITORY_URL = "https://github.com/duyphuong5126/H-Manga/releases"
         private const val EMAIL = "kanade5126@gmail.com"
 
