@@ -2,6 +2,12 @@ package nhdphuong.com.manga.features.home
 
 import android.annotation.SuppressLint
 import android.text.TextUtils
+import com.google.gson.JsonParseException
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -17,9 +23,12 @@ import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.entity.book.SortOption
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.data.repository.MasterDataRepository
+import nhdphuong.com.manga.enum.ErrorEnum
+import nhdphuong.com.manga.extension.isNetworkError
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
+import java.net.SocketTimeoutException
 import java.util.Locale
 import java.util.Random
 import java.util.Collections
@@ -77,8 +86,27 @@ class HomePresenter @Inject constructor(
             }
         }
 
+    private val remoteBookErrorSubject = PublishSubject.create<Throwable>()
+
+    private val compositeDisposable = CompositeDisposable()
+
     init {
         view.setPresenter(this)
+        remoteBookErrorSubject
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                val errorEnum = when {
+                    it.isNetworkError() -> ErrorEnum.NetworkError
+                    it is SocketTimeoutException -> ErrorEnum.TimeOutError
+                    it is JsonParseException -> ErrorEnum.DataParsingError
+                    else -> ErrorEnum.UnknownError
+                }
+                if (view.isActive()) {
+                    view.updateErrorMessage(errorEnum)
+                }
+            }.addTo(compositeDisposable)
+
     }
 
     override fun start() {
@@ -162,7 +190,7 @@ class HomePresenter @Inject constructor(
     override fun reloadCurrentPage(onRefreshed: () -> Unit) {
         if (isRefreshing.compareAndSet(false, true)) {
             io.launch {
-                val remoteBooks = getBooksListByPage(currentPage)
+                val remoteBooks = getBooksListByPage(currentPage, true)
                 currentNumOfPages = remoteBooks?.numOfPages ?: 0L
                 val isCurrentPageEmpty = if (remoteBooks != null) {
                     remoteBooks.bookList.let { bookList ->
@@ -255,7 +283,7 @@ class HomePresenter @Inject constructor(
                 bound = 1
             }
             val randomPage = random.nextInt(bound) + 1
-            getBooksListByPage(randomPage.toLong())?.bookList.let { randomBooks ->
+            getBooksListByPage(randomPage.toLong(), false)?.bookList.let { randomBooks ->
                 Logger.d(
                     TAG, "Randomized paged $randomPage," +
                             " books count=${randomBooks?.size ?: 0}"
@@ -288,6 +316,7 @@ class HomePresenter @Inject constructor(
             }
         }
         clearData()
+        compositeDisposable.clear()
     }
 
     private fun reload() {
@@ -297,7 +326,7 @@ class HomePresenter @Inject constructor(
         view.setUpHomeBookList(mainList)
         val downloadingJob = io.launch {
             val startTime = System.currentTimeMillis()
-            getBooksListByPage(currentPage).let { remoteBook ->
+            getBooksListByPage(currentPage, true).let { remoteBook ->
                 Logger.d(TAG, "Time spent=${System.currentTimeMillis() - startTime}")
                 currentNumOfPages = remoteBook?.numOfPages ?: 0L
                 currentLimitPerPage = remoteBook?.numOfBooksPerPage ?: 0
@@ -345,7 +374,7 @@ class HomePresenter @Inject constructor(
                 main.launch {
                     view.showLoading()
                 }
-                val bookList = getBooksListByPage(currentPage)?.bookList ?: ArrayList()
+                val bookList = getBooksListByPage(currentPage, false)?.bookList ?: ArrayList()
                 preventiveData[currentPage] = bookList
                 bookList
             }
@@ -362,7 +391,7 @@ class HomePresenter @Inject constructor(
                 if (!preventiveData.containsKey(page)) {
                     preventiveData[page] = ArrayList()
                     launch {
-                        getBooksListByPage(page)?.bookList?.let { bookList ->
+                        getBooksListByPage(page, false)?.bookList?.let { bookList ->
                             preventiveData[page]?.addAll(bookList)
                         }
                     }
@@ -426,7 +455,7 @@ class HomePresenter @Inject constructor(
                 for (page in currentPage + 1L..NUMBER_OF_PREVENTIVE_PAGES.toLong()) {
                     Logger.d(TAG, "Start loading page $page")
                     io.launch {
-                        val remoteBook = getBooksListByPage(page)
+                        val remoteBook = getBooksListByPage(page, false)
                         Logger.d(TAG, "Done loading page $page")
                         remoteBook?.bookList?.let { bookList ->
                             if (bookList.isNotEmpty()) {
@@ -458,7 +487,10 @@ class HomePresenter @Inject constructor(
         isRefreshing.compareAndSet(true, false)
     }
 
-    private suspend fun getBooksListByPage(pageNumber: Long): RemoteBook? {
+    private suspend fun getBooksListByPage(
+        pageNumber: Long,
+        needToUpdateErrorMessage: Boolean
+    ): RemoteBook? {
         val remoteBookResponse = if (isSearching) {
             bookRepository.getBookByPage(searchData, pageNumber, sortOption)
         } else {
@@ -472,10 +504,17 @@ class HomePresenter @Inject constructor(
             searchData.toLongOrNull() != null -> {
                 val bookList = ArrayList<Book>()
                 val bookResponse = bookRepository.getBookDetails(searchData)
-                if (bookResponse is BookResponse.Success) {
-                    bookList.add(bookResponse.book)
+                when {
+                    bookResponse is BookResponse.Success -> bookList.add(bookResponse.book)
+                    bookResponse is BookResponse.Failure && needToUpdateErrorMessage -> {
+                        remoteBookErrorSubject.onNext(bookResponse.error)
+                    }
                 }
                 RemoteBook(bookList, 1, BOOKS_PER_PAGE)
+            }
+            remoteBookResponse is RemoteBookResponse.Failure && needToUpdateErrorMessage -> {
+                remoteBookErrorSubject.onNext(remoteBookResponse.error)
+                null
             }
             else -> null
         }

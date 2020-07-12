@@ -1,10 +1,12 @@
 package nhdphuong.com.manga.features.recent
 
 import android.annotation.SuppressLint
+import com.google.gson.JsonParseException
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -15,10 +17,13 @@ import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.repository.BookRepository
+import nhdphuong.com.manga.enum.ErrorEnum
+import nhdphuong.com.manga.extension.isNetworkError
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.usecase.AnalyticsErrorLogUseCase
+import java.net.SocketTimeoutException
 import java.util.LinkedList
 import java.util.Collections
 import java.util.Stack
@@ -65,7 +70,27 @@ class RecentPresenter @Inject constructor(
     private var isLoadingPreventiveData = AtomicBoolean(false)
     private val jobStack = Stack<Job>()
 
+
+    private val remoteBookErrorSubject = PublishSubject.create<Throwable>()
+
     private val compositeDisposable = CompositeDisposable()
+
+    init {
+        remoteBookErrorSubject
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                val errorEnum = when {
+                    it.isNetworkError() -> ErrorEnum.NetworkError
+                    it is SocketTimeoutException -> ErrorEnum.TimeOutError
+                    it is JsonParseException -> ErrorEnum.DataParsingError
+                    else -> ErrorEnum.UnknownError
+                }
+                if (view.isActive()) {
+                    view.updateErrorMessage(errorEnum)
+                }
+            }.addTo(compositeDisposable)
+    }
 
     override fun start() {
         recentBookList.clear()
@@ -96,7 +121,7 @@ class RecentPresenter @Inject constructor(
                 }
                 main.launch {
                     if (view.isActive()) {
-                        if (currentPageCount == 0) {
+                        if (currentPageCount == 0 || recentBookList.isEmpty()) {
                             view.showNothingView(type)
                         } else {
                             view.refreshRecentPagination(currentPageCount)
@@ -257,12 +282,13 @@ class RecentPresenter @Inject constructor(
                 bookRepository.getFavoriteBook(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
             }
             for (recent in recentList) {
-                val bookResponse = bookRepository.getBookDetails(recent.bookId)
-                if (bookResponse is BookResponse.Success) {
-                    bookList.add(bookResponse.book)
+                when (val bookResponse = bookRepository.getBookDetails(recent.bookId)) {
+                    is BookResponse.Success -> bookList.add(bookResponse.book)
+                    is BookResponse.Failure -> remoteBookErrorSubject.onNext(bookResponse.error)
                 }
             }
         } catch (throwable: Throwable) {
+            remoteBookErrorSubject.onNext(throwable)
             analyticsErrorLogUseCase.execute(throwable)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

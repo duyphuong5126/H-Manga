@@ -40,6 +40,7 @@ import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
+import nhdphuong.com.manga.enum.ErrorEnum
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.becomeVisible
@@ -151,6 +152,11 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
         val recentType = activity?.intent?.extras?.getString(
             Constants.RECENT_TYPE, Constants.RECENT
         ) ?: Constants.RECENT
+        tvNothing.text = if (recentType == Constants.RECENT) {
+            getString(R.string.no_recent_book)
+        } else {
+            getString(R.string.no_favorite_book)
+        }
         presenter.setType(recentType)
         presenter.start()
     }
@@ -257,12 +263,17 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     }
 
     override fun showNothingView(@RecentType recentType: String) {
-        tvNothing.text = if (recentType == Constants.RECENT) {
-            getString(R.string.no_recent_book)
-        } else {
-            getString(R.string.no_favorite_book)
-        }
         clNothing.becomeVisible()
+    }
+
+    override fun updateErrorMessage(errorEnum: ErrorEnum) {
+        val stringResId = when (errorEnum) {
+            ErrorEnum.NetworkError -> R.string.internet_error
+            ErrorEnum.DataParsingError -> R.string.library_error_data_parsing_label
+            ErrorEnum.TimeOutError -> R.string.library_error_time_out_label
+            ErrorEnum.UnknownError -> R.string.library_error_unknown_label
+        }
+        tvNothing?.text = getString(stringResId)
     }
 
     override fun showLoading() {

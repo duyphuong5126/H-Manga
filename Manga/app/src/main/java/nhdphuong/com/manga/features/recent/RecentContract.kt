@@ -2,6 +2,7 @@ package nhdphuong.com.manga.features.recent
 
 import nhdphuong.com.manga.Base
 import nhdphuong.com.manga.data.entity.book.Book
+import nhdphuong.com.manga.enum.ErrorEnum
 
 /*
  * Created by nhdphuong on 6/10/18.
@@ -16,6 +17,7 @@ interface RecentContract {
         fun showFavoriteBooks(favoriteList: List<String>)
         fun showLastBookListRefreshTime(lastRefreshTimeStamp: String)
         fun showNothingView(@RecentType recentType: String)
+        fun updateErrorMessage(errorEnum: ErrorEnum)
     }
 
     interface Presenter : Base.Presenter {

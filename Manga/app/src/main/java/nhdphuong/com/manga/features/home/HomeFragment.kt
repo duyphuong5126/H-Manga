@@ -40,6 +40,7 @@ import kotlinx.android.synthetic.main.fragment_book_list.mtvPopularToday
 import kotlinx.android.synthetic.main.fragment_book_list.mtvPopularWeek
 import kotlinx.android.synthetic.main.fragment_book_list.mtvRecentOption
 import kotlinx.android.synthetic.main.fragment_book_list.mtvUpgradeTitle
+import kotlinx.android.synthetic.main.fragment_book_list.tvNothing
 import kotlinx.android.synthetic.main.fragment_book_list.upgradePopupPlaceHolder
 import kotlinx.android.synthetic.main.layout_refresh_header.view.ivRefresh
 import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvLastUpdate
@@ -52,6 +53,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.SortOption
+import nhdphuong.com.manga.enum.ErrorEnum
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
 import nhdphuong.com.manga.supports.openUrl
 import nhdphuong.com.manga.views.becomeVisible
@@ -327,6 +329,16 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             clUpgradePopup?.gone()
             upgradePopupPlaceHolder?.gone()
         }, APP_UPGRADE_TIME_OUT)
+    }
+
+    override fun updateErrorMessage(errorEnum: ErrorEnum) {
+        val stringResId = when (errorEnum) {
+            ErrorEnum.NetworkError -> R.string.internet_error
+            ErrorEnum.DataParsingError -> R.string.library_error_data_parsing_label
+            ErrorEnum.TimeOutError -> R.string.library_error_time_out_label
+            ErrorEnum.UnknownError -> R.string.library_error_unknown_label
+        }
+        tvNothing?.text = getString(stringResId)
     }
 
     fun changeSearchInputted(data: String) {

@@ -3,6 +3,7 @@ package nhdphuong.com.manga.features.home
 import nhdphuong.com.manga.Base
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.SortOption
+import nhdphuong.com.manga.enum.ErrorEnum
 
 /*
  * Created by nhdphuong on 3/18/18.
@@ -25,6 +26,7 @@ interface HomeContract {
         fun showBookPreview(book: Book)
         fun startUpdateTagsService()
         fun showUpgradeNotification()
+        fun updateErrorMessage(errorEnum: ErrorEnum)
     }
 
     interface Presenter : Base.Presenter {

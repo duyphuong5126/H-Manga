@@ -185,6 +185,10 @@
 
     <string name="sort_popular_label">Popular: </string>
 
+    <string name="library_error_data_parsing_label">Cannot load data from server!</string>
+    <string name="library_error_time_out_label">Connection timeout!\nPlease try again later</string>
+    <string name="library_error_unknown_label">Unable to load book library!</string>
+
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>
         <item>..</item>
