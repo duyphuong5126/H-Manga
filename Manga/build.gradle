@@ -7,7 +7,6 @@ buildscript {
         room = '1.1.1'
         dagger = '2.15'
         work_version = '2.4.0'
-        app_center_sdk_version = '3.3.0'
     }
     repositories {
         google()

@@ -73,13 +73,13 @@ class BookPreviewPresenter @Inject constructor(
     private var isBookCoverReloaded = false
     private var cacheCoverUrl: String = ""
 
-    private lateinit var tagList: LinkedList<Tag>
-    private lateinit var artistList: LinkedList<Tag>
-    private lateinit var categoryList: LinkedList<Tag>
-    private lateinit var languageList: LinkedList<Tag>
-    private lateinit var parodyList: LinkedList<Tag>
-    private lateinit var characterList: LinkedList<Tag>
-    private lateinit var groupList: LinkedList<Tag>
+    private lateinit var tagList: ArrayList<Tag>
+    private lateinit var artistList: ArrayList<Tag>
+    private lateinit var categoryList: ArrayList<Tag>
+    private lateinit var languageList: ArrayList<Tag>
+    private lateinit var parodyList: ArrayList<Tag>
+    private lateinit var characterList: ArrayList<Tag>
+    private lateinit var groupList: ArrayList<Tag>
 
     private val bookThumbnailList = ArrayList<String>()
 
@@ -135,13 +135,13 @@ class BookPreviewPresenter @Inject constructor(
         view.show2ndTitle(book.title.japaneseName)
         view.showUploadedTime(uploadedTimeStamp)
         view.showPageCount(book.numOfPages)
-        tagList = LinkedList()
-        categoryList = LinkedList()
-        artistList = LinkedList()
-        characterList = LinkedList()
-        languageList = LinkedList()
-        parodyList = LinkedList()
-        groupList = LinkedList()
+        tagList = ArrayList()
+        categoryList = ArrayList()
+        artistList = ArrayList()
+        characterList = ArrayList()
+        languageList = ArrayList()
+        parodyList = ArrayList()
+        groupList = ArrayList()
     }
 
     override fun loadInfoLists() {

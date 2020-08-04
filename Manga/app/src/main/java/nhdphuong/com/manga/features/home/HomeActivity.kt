@@ -10,9 +10,6 @@ import android.text.TextUtils
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
-import com.microsoft.appcenter.crashes.Crashes
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -51,12 +48,6 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
         super.onCreate(savedInstanceState)
         Logger.e(TAG, "onCreate")
         setContentView(R.layout.activity_home)
-        AppCenter.start(
-            application,
-            "e832e3c1-a9fa-4a9d-b3f3-7b7be8bb9014",
-            Analytics::class.java,
-            Crashes::class.java
-        )
         showFragments()
     }
 

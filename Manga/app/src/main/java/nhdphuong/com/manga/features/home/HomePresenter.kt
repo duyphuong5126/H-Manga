@@ -60,6 +60,7 @@ class HomePresenter @Inject constructor(
     companion object {
         private const val TAG = "HomePresenter"
         private const val NUMBER_OF_PREVENTIVE_PAGES = 10
+        private const val MAX_TRYING_PAGES = 100
         private const val BOOKS_PER_PAGE = MAX_PER_PAGE
     }
 
@@ -215,11 +216,15 @@ class HomePresenter @Inject constructor(
                 main.launch {
                     if (view.isActive()) {
                         if (!isCurrentPageEmpty) {
-                            view.refreshHomePagination(currentNumOfPages)
+                            view.refreshHomePagination(currentNumOfPages, currentPage.toInt() - 1)
                             view.refreshHomeBookList()
                         }
                         onRefreshed()
-                        view.showNothingView(isCurrentPageEmpty)
+                        if (isCurrentPageEmpty) {
+                            view.showNothingView()
+                        } else {
+                            view.hideNothingView()
+                        }
                         if (isCurrentPageEmpty || searchData.isBlank()) {
                             view.hideSortOptionList()
                         } else {
@@ -336,36 +341,42 @@ class HomePresenter @Inject constructor(
         view.setUpHomeBookList(mainList)
         val downloadingJob = io.launch {
             val startTime = System.currentTimeMillis()
-            getBooksListByPage(currentPage, true).let { remoteBook ->
-                Logger.d(TAG, "Time spent=${System.currentTimeMillis() - startTime}")
-                currentNumOfPages = remoteBook?.numOfPages ?: 0L
-                currentLimitPerPage = remoteBook?.numOfBooksPerPage ?: 0
-                Logger.d(TAG, "Remote books: $currentNumOfPages")
-                val bookList = remoteBook?.bookList ?: ArrayList()
-                mainList.addAll(bookList)
-                preventiveData[currentPage] = bookList
-                for (book in bookList) {
-                    Logger.d(TAG, book.logString)
-                }
+            var remoteBook = getBooksListByPage(currentPage, true)
+            var triedPages = 1
+            while (remoteBook == null && triedPages < MAX_TRYING_PAGES) {
+                Logger.d(TAG, "Page $currentPage is empty, trying page ${currentPage + 1}")
+                currentPage++
+                triedPages++
+                remoteBook = getBooksListByPage(currentPage, true)
+            }
+            Logger.d(TAG, "Time spent=${System.currentTimeMillis() - startTime}")
+            currentNumOfPages = remoteBook?.numOfPages ?: 0
+            currentLimitPerPage = remoteBook?.numOfBooksPerPage ?: 0
+            Logger.d(TAG, "Remote books: $currentNumOfPages")
+            val bookList = remoteBook?.bookList ?: ArrayList()
+            mainList.addAll(bookList)
+            preventiveData[currentPage] = bookList
+            for (book in bookList) {
+                Logger.d(TAG, book.logString)
+            }
 
-                loadPreventiveData()
+            loadPreventiveData()
 
-                main.launch {
-                    if (view.isActive()) {
-                        view.refreshHomeBookList()
-                        if (currentNumOfPages > 0) {
-                            view.refreshHomePagination(currentNumOfPages)
-                            view.showNothingView(false)
-                            view.enableSortOption(sortOption)
-                            if (searchData.isNotBlank()) {
-                                view.showSortOptionList()
-                            }
-                        } else {
-                            view.showNothingView(true)
-                            view.hideSortOptionList()
+            main.launch {
+                if (view.isActive()) {
+                    view.refreshHomeBookList()
+                    if (currentNumOfPages > 0) {
+                        view.refreshHomePagination(currentNumOfPages, currentPage.toInt() - 1)
+                        view.hideNothingView()
+                        view.enableSortOption(sortOption)
+                        if (searchData.isNotBlank()) {
+                            view.showSortOptionList()
                         }
-                        view.hideLoading()
+                    } else {
+                        view.showNothingView()
+                        view.hideSortOptionList()
                     }
+                    view.hideLoading()
                 }
             }
         }

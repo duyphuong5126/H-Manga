@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 
 class PaginationAdapter(
@@ -182,6 +183,17 @@ class PaginationAdapter(
         if (paginationMode == PaginationMode.NUMBER) {
             if (mPageList.isNotEmpty()) {
                 moveToItem(mPageList[mPageList.size - 1])
+            }
+        } else {
+            moveToItem(itemCount - 1)
+        }
+    }
+
+    fun jumpToIndex(index: Int) {
+        Logger.d("", "Move to index: $index")
+        if (paginationMode == PaginationMode.NUMBER) {
+            if (mPageList.isNotEmpty()) {
+                moveToItem(mPageList[index])
             }
         } else {
             moveToItem(itemCount - 1)

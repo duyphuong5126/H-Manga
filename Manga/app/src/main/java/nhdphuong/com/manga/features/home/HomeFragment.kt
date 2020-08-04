@@ -241,7 +241,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         homePresenter.reloadRecentBooks()
     }
 
-    override fun refreshHomePagination(pageCount: Long) {
+    override fun refreshHomePagination(pageCount: Long, currentFocusedIndex: Int) {
         val mainPagination = rvPagination
         if (pageCount == 0L) {
             btnFirst.gone()
@@ -269,6 +269,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             val lastVisiblePageItem = layoutManager.findLastVisibleItemPosition()
             btnFirst.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
             btnLast.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
+            homePaginationAdapter.jumpToIndex(currentFocusedIndex)
         }
     }
 
@@ -277,8 +278,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         refreshHeader.mtvLastUpdate.text = lastRefresh
     }
 
-    override fun showNothingView(isEmpty: Boolean) {
-        clNothing?.becomeVisibleIf(isEmpty)
+    override fun showNothingView() {
+        clNothing?.becomeVisible()
+    }
+
+    override fun hideNothingView() {
+        clNothing?.gone()
     }
 
     override fun enableSortOption(sortOption: SortOption) {

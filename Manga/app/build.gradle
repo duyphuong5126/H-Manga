@@ -88,9 +88,6 @@ dependencies {
 
     implementation "org.apache.commons:commons-collections4:4.4"
 
-    implementation "com.microsoft.appcenter:appcenter-analytics:$app_center_sdk_version"
-    implementation "com.microsoft.appcenter:appcenter-crashes:$app_center_sdk_version"
-
     testImplementation "junit:junit:4.13"
     androidTestImplementation "com.android.support.test:runner:1.0.2"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:3.0.2"
