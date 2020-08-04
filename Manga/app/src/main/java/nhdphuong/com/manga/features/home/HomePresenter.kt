@@ -30,6 +30,7 @@ import nhdphuong.com.manga.enum.ErrorEnum
 import nhdphuong.com.manga.extension.isNetworkError
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
+import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 import java.net.SocketTimeoutException
@@ -54,13 +55,14 @@ class HomePresenter @Inject constructor(
     private val masterDataRepository: MasterDataRepository,
     private val sharedPreferencesManager: SharedPreferencesManager,
     private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
+    private val networkUtils: INetworkUtils,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : HomeContract.Presenter {
     companion object {
         private const val TAG = "HomePresenter"
         private const val NUMBER_OF_PREVENTIVE_PAGES = 10
-        private const val MAX_TRYING_PAGES = 100
+        private const val MAX_TRYING_PAGES = 10
         private const val BOOKS_PER_PAGE = MAX_PER_PAGE
     }
 
@@ -343,7 +345,7 @@ class HomePresenter @Inject constructor(
             val startTime = System.currentTimeMillis()
             var remoteBook = getBooksListByPage(currentPage, true)
             var triedPages = 1
-            while (remoteBook == null && triedPages < MAX_TRYING_PAGES) {
+            while (remoteBook == null && triedPages < MAX_TRYING_PAGES && networkUtils.isNetworkConnected()) {
                 Logger.d(TAG, "Page $currentPage is empty, trying page ${currentPage + 1}")
                 currentPage++
                 triedPages++
@@ -360,7 +362,9 @@ class HomePresenter @Inject constructor(
                 Logger.d(TAG, book.logString)
             }
 
-            loadPreventiveData()
+            if (networkUtils.isNetworkConnected()) {
+                loadPreventiveData()
+            }
 
             main.launch {
                 if (view.isActive()) {
@@ -473,7 +477,9 @@ class HomePresenter @Inject constructor(
 
         suspendCoroutine<Boolean> { continuation ->
             NUMBER_OF_PREVENTIVE_PAGES.toLong().let {
-                for (page in currentPage + 1L..NUMBER_OF_PREVENTIVE_PAGES.toLong()) {
+                val startPage = currentPage + 1L
+                val endPage = startPage + NUMBER_OF_PREVENTIVE_PAGES.toLong()
+                for (page in startPage..endPage) {
                     Logger.d(TAG, "Start loading page $page")
                     io.launch {
                         val remoteBook = getBooksListByPage(page, false)
@@ -483,7 +489,7 @@ class HomePresenter @Inject constructor(
                                 preventiveData[page] = bookList
                             }
                         }
-                        if (page == NUMBER_OF_PREVENTIVE_PAGES.toLong()) {
+                        if (page == endPage) {
                             continuation.resume(true)
                         }
                     }
