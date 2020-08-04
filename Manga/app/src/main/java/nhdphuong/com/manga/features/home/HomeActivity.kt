@@ -3,23 +3,26 @@ package nhdphuong.com.manga.features.home
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
-import android.os.Bundle
-import nhdphuong.com.manga.NHentaiApp
-import nhdphuong.com.manga.R
-import javax.inject.Inject
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.text.TextUtils
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.microsoft.appcenter.AppCenter
+import com.microsoft.appcenter.analytics.Analytics
+import com.microsoft.appcenter.crashes.Crashes
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.NHentaiApp
+import nhdphuong.com.manga.R
 import nhdphuong.com.manga.features.RandomContract
 import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.features.header.HeaderFragment
 import nhdphuong.com.manga.features.header.HeaderModule
 import nhdphuong.com.manga.features.header.HeaderPresenter
+import javax.inject.Inject
 
 
 class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
@@ -48,6 +51,12 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
         super.onCreate(savedInstanceState)
         Logger.e(TAG, "onCreate")
         setContentView(R.layout.activity_home)
+        AppCenter.start(
+            application,
+            "e832e3c1-a9fa-4a9d-b3f3-7b7be8bb9014",
+            Analytics::class.java,
+            Crashes::class.java
+        )
         showFragments()
     }
 
