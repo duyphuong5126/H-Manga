@@ -47,6 +47,7 @@ class NotificationHelper {
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContentTitle(title)
                 .setPriority(priority)
+                .setOnlyAlertOnce(true)
             if (content.isNotBlank()) {
                 val bigTextStyle = NotificationCompat.BigTextStyle()
                     .bigText(content)

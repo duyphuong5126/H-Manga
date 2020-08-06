@@ -28,6 +28,7 @@ class BookRemoteDataSource(
 ) : BookDataSource.Remote {
     companion object {
         private const val TAG = "BookRemoteDataSource"
+        private const val REQUEST_TIME_OUT = 20000
     }
 
     override suspend fun getBookByPage(page: Long, sortOption: SortOption): RemoteBookResponse {
@@ -108,6 +109,8 @@ class BookRemoteDataSource(
         connection.requestMethod = "GET"
         connection.setRequestProperty("Content-length", "0")
         connection.useCaches = false
+        connection.readTimeout = REQUEST_TIME_OUT
+        connection.connectTimeout = REQUEST_TIME_OUT
         connection.connect()
         when (connection.responseCode) {
             HttpURLConnection.HTTP_OK -> {

@@ -123,8 +123,8 @@
     <string name="downloaded">Downloaded</string>
     <string name="downloaded_books">Downloaded Books</string>
 
-    <string name="downloading_book">Downloading a book</string>
-    <string name="deleting_book">Deleting a book</string>
+    <string name="downloading_book">Downloading your book</string>
+    <string name="deleting_book">Deleting your book</string>
     <string name="downloading_in_progress">Downloading in progress</string>
     <string name="deleting_in_progress">Deleting in progress</string>
     <string name="downloading_failure">Downloading failure</string>

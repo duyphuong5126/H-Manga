@@ -265,12 +265,22 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         )
         mainPagination.layoutManager = layoutManager
         mainPagination.adapter = homePaginationAdapter
-        mainPagination.doOnGlobalLayout {
+        val updateNavigationButtons = {
+            val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
             val lastVisiblePageItem = layoutManager.findLastVisibleItemPosition()
-            btnFirst.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
-            btnLast.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
+            btnFirst?.becomeVisibleIf(firstVisibleItemPosition > 0)
+            btnLast?.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
+        }
+        mainPagination.doOnGlobalLayout {
+            updateNavigationButtons.invoke()
             homePaginationAdapter.jumpToIndex(currentFocusedIndex)
         }
+        mainPagination.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                updateNavigationButtons.invoke()
+            }
+        })
     }
 
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {
