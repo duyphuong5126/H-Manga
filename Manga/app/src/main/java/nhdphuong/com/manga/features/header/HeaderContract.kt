@@ -22,10 +22,13 @@ interface HeaderContract {
         fun goToRandomBook()
         fun showNoNetworkPopup()
         fun showTagsDownloadingPopup()
+        fun setUpSuggestionList(suggestionList: List<String>)
+        fun updateSuggestionList()
     }
 
     interface Presenter : Base.Presenter {
         fun goToTagsList(tab: Tab)
         fun processSelectedTab(tab: Tab)
+        fun saveSearchInfo(searchContent: String)
     }
 }

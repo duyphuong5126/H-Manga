@@ -12,6 +12,7 @@ import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.api.MasterDataApiService
 import nhdphuong.com.manga.data.local.Database
 import nhdphuong.com.manga.data.local.BookDAO
+import nhdphuong.com.manga.data.local.SearchDAO
 import nhdphuong.com.manga.data.local.TagDAO
 import nhdphuong.com.manga.scope.corountine.Default
 import nhdphuong.com.manga.scope.corountine.IO
@@ -72,6 +73,9 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
     @Singleton
     @Provides
     fun providesTagDAO(): TagDAO = Database.instance.getTagDAO()
+
+    @Provides
+    fun providesSearchDAO(): SearchDAO = Database.instance.getSearchDAO()
 
     @Provides
     fun providesNetworkUtils(): INetworkUtils = NetworkUtils()

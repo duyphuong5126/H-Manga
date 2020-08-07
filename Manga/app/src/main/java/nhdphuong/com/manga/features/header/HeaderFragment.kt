@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,6 +49,8 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     private var tagChangeListener: TagsContract? = null
     private var searchContract: SearchContract? = null
     private var randomContract: RandomContract? = null
+
+    private var suggestionAdapter: ArrayAdapter<String>? = null
 
     override fun setPresenter(presenter: HeaderContract.Presenter) {
         this.presenter = presenter
@@ -134,7 +137,9 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         }
 
         ibSearch.setOnClickListener {
-            searchContract?.onSearchInputted(edtSearch.text.toString())
+            val searchContent = edtSearch.text.toString()
+            presenter.saveSearchInfo(searchContent)
+            searchContract?.onSearchInputted(searchContent)
         }
 
         edtSearch.setOnEditorActionListener { _, actionId, _ ->
@@ -212,6 +217,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
 
     override fun updateSearchBar(searchContent: String) {
         edtSearch.setText(searchContent)
+        presenter.saveSearchInfo(searchContent)
     }
 
     override fun showTagsDownloadingPopup() {
@@ -246,6 +252,18 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         activity?.let { activity ->
             DialogHelper.showInternetRequiredDialog(activity, onOk = {})
         }
+    }
+
+    override fun setUpSuggestionList(suggestionList: List<String>) {
+        context?.let {
+            suggestionAdapter =
+                ArrayAdapter(it, android.R.layout.simple_dropdown_item_1line, suggestionList)
+            edtSearch.setAdapter(suggestionAdapter)
+        }
+    }
+
+    override fun updateSuggestionList() {
+        suggestionAdapter?.notifyDataSetChanged()
     }
 
     override fun showLoading() {

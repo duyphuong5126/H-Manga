@@ -8,6 +8,7 @@ import nhdphuong.com.manga.Constants.Companion.TABLE_DOWNLOADED_BOOK as DOWNLOAD
 import nhdphuong.com.manga.Constants.Companion.TABLE_DOWNLOADED_IMAGE as DOWNLOADED_IMAGE
 import nhdphuong.com.manga.Constants.Companion.TABLE_BOOK_TAG as BOOK_TAG
 import nhdphuong.com.manga.Constants.Companion.TABLE_LAST_VISITED_PAGE
+import nhdphuong.com.manga.Constants.Companion.TABLE_SEARCH
 import nhdphuong.com.manga.Constants.Companion.TABLE_TAG
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.TAG_ID
@@ -18,6 +19,7 @@ import nhdphuong.com.manga.Constants.Companion.IMAGE_TYPE
 import nhdphuong.com.manga.Constants.Companion.IMAGE_WIDTH
 import nhdphuong.com.manga.Constants.Companion.IMAGE_HEIGHT
 import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE
+import nhdphuong.com.manga.Constants.Companion.SEARCH_INFO
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 
@@ -33,11 +35,23 @@ class Database {
                 if (mInstance == null) {
                     mInstance = Room.databaseBuilder(
                         NHentaiApp.instance.applicationContext, NHentaiDB::class.java, NHENTAI_DB
-                    ).addMigrations(MIGRATE_FROM_2_TO_3, MIGRATE_FROM_3_TO_4)
+                    ).addMigrations(MIGRATE_FROM_2_TO_3, MIGRATE_FROM_3_TO_4, MIGRATE_FROM_4_TO_5)
                         .build()
                 }
                 return mInstance!!
             }
+
+        private val MIGRATE_FROM_4_TO_5: Migration = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `$TABLE_SEARCH`(" +
+                            "`$ID` INTEGER PRIMARY KEY NOT NULL, " +
+                            "`$SEARCH_INFO` TEXT NOT NULL)"
+                )
+                val searchIdIndex = "index_${TABLE_SEARCH}_$ID"
+                database.execSQL("CREATE INDEX IF NOT EXISTS $searchIdIndex ON $TABLE_SEARCH($ID)")
+            }
+        }
 
         private val MIGRATE_FROM_3_TO_4: Migration = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {

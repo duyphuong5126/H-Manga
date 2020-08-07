@@ -43,4 +43,10 @@ interface UseCaseModule {
 
     @Binds
     fun logAnalyticsEventUseCase(analyticsEventUseCaseImpl: LogAnalyticsEventUseCaseImpl): LogAnalyticsEventUseCase
+
+    @Binds
+    fun getAllSearchEntriesUseCase(getLatestSearchEntriesUseCaseImpl: GetLatestSearchEntriesUseCaseImpl): GetLatestSearchEntriesUseCase
+
+    @Binds
+    fun saveSearchInfoUseCase(saveSearchInfoUseCaseImpl: SaveSearchInfoUseCaseImpl): SaveSearchInfoUseCase
 }

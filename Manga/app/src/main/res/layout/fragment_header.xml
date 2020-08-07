@@ -34,7 +34,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/edtSearch"
             android:layout_width="0dp"
             android:layout_height="@dimen/normal_box_size"

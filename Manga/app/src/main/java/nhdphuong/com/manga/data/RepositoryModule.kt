@@ -11,8 +11,12 @@ import nhdphuong.com.manga.data.local.BookLocalDataSource
 import nhdphuong.com.manga.data.local.BookDAO
 import nhdphuong.com.manga.data.local.TagDAO
 import nhdphuong.com.manga.data.local.MasterDataLocalDataSource
+import nhdphuong.com.manga.data.local.SearchLocalDataSource
+import nhdphuong.com.manga.data.local.SearchLocalDataSourceImpl
 import nhdphuong.com.manga.data.remote.BookRemoteDataSource
 import nhdphuong.com.manga.data.remote.MasterDataRemoteDataSource
+import nhdphuong.com.manga.data.repository.SearchRepository
+import nhdphuong.com.manga.data.repository.SearchRepositoryImpl
 import nhdphuong.com.manga.scope.Local
 import nhdphuong.com.manga.scope.Remote
 import javax.inject.Singleton
@@ -53,4 +57,15 @@ class RepositoryModule {
     fun providesMasterDataLocalDataSource(tagDAO: TagDAO): MasterDataSource.Local {
         return MasterDataLocalDataSource(tagDAO, CoroutineScope(Dispatchers.IO))
     }
+
+    @Provides
+    fun providesSearchLocalDataSource(dataSourceImpl: SearchLocalDataSourceImpl): SearchLocalDataSource {
+        return dataSourceImpl
+    }
+
+    @Provides
+    fun providesSearchRepository(repositoryImpl: SearchRepositoryImpl): SearchRepository {
+        return repositoryImpl
+    }
+
 }

@@ -1,25 +1,38 @@
 package nhdphuong.com.manga.features.header
 
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.schedulers.Schedulers
 import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.Tab
 import nhdphuong.com.manga.supports.INetworkUtils
+import nhdphuong.com.manga.usecase.GetLatestSearchEntriesUseCase
+import nhdphuong.com.manga.usecase.SaveSearchInfoUseCase
 import javax.inject.Inject
 
 /*
  * Created by nhdphuong on 4/10/18.
  */
 class HeaderPresenter @Inject constructor(
+    private val getLatestSearchEntriesUseCase: GetLatestSearchEntriesUseCase,
+    private val saveSearchInfoUseCase: SaveSearchInfoUseCase,
     private val view: HeaderContract.View,
     private val networkUtils: INetworkUtils
 ) : HeaderContract.Presenter {
     companion object {
         private const val TAG = "HeaderPresenter"
+        private const val MAXIMUM_SUGGESTION_ENTRIES = 1000
     }
+
+    private val compositeDisposable = CompositeDisposable()
 
     private val isNetworkAvailable: Boolean get() = networkUtils.isNetworkConnected()
 
     private val tagDownloadManager = DownloadManager.Companion.TagsDownloadManager
+
+    private val searchEntries = ArrayList<String>()
 
     init {
         view.setPresenter(this)
@@ -27,6 +40,19 @@ class HeaderPresenter @Inject constructor(
 
     override fun start() {
         Logger.d(TAG, "This is ${hashCode()}")
+        view.setUpSuggestionList(searchEntries)
+        getLatestSearchEntriesUseCase.execute(MAXIMUM_SUGGESTION_ENTRIES)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Logger.d(TAG, "${it.size} search entries were found")
+                searchEntries.clear()
+                searchEntries.addAll(it)
+                view.updateSuggestionList()
+            }, {
+                Logger.e(TAG, "Failed to get search entries with error: $it")
+            })
+            .addTo(compositeDisposable)
     }
 
     override fun goToTagsList(tab: Tab) {
@@ -58,6 +84,20 @@ class HeaderPresenter @Inject constructor(
         }
     }
 
+    override fun saveSearchInfo(searchContent: String) {
+        saveSearchInfoUseCase.execute(searchContent)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Logger.d(TAG, "Saved entry $searchContent successfully")
+                searchEntries.add(searchContent)
+                view.updateSuggestionList()
+            }, {
+                Logger.e(TAG, "Failed to save search info $searchContent with error: $it")
+            })
+            .addTo(compositeDisposable)
+    }
+
     private fun doIfNetworkIsAvailable(task: () -> Unit) {
         if (isNetworkAvailable) {
             task.invoke()
@@ -67,6 +107,6 @@ class HeaderPresenter @Inject constructor(
     }
 
     override fun stop() {
-
+        compositeDisposable.clear()
     }
 }
