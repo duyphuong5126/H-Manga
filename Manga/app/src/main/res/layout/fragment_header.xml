@@ -40,7 +40,6 @@
             android:layout_height="@dimen/normal_box_size"
             android:background="@drawable/bg_white_left_corners_radius"
             android:completionThreshold="1"
-            android:dropDownHeight="@dimen/suggestion_dropdown_height"
             android:hint="@string/search"
             android:inputType="text"
             android:outlineProvider="none"
