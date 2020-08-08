@@ -41,18 +41,6 @@ class HeaderPresenter @Inject constructor(
     override fun start() {
         Logger.d(TAG, "This is ${hashCode()}")
         view.setUpSuggestionList(searchEntries)
-        getLatestSearchEntriesUseCase.execute(MAXIMUM_SUGGESTION_ENTRIES)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                Logger.d(TAG, "${it.size} search entries were found")
-                searchEntries.clear()
-                searchEntries.addAll(it)
-                view.updateSuggestionList()
-            }, {
-                Logger.e(TAG, "Failed to get search entries with error: $it")
-            })
-            .addTo(compositeDisposable)
     }
 
     override fun goToTagsList(tab: Tab) {
@@ -98,6 +86,27 @@ class HeaderPresenter @Inject constructor(
             .addTo(compositeDisposable)
     }
 
+    override fun refreshTagData() {
+        refreshTagList()
+    }
+
+    private fun refreshTagList() {
+        getLatestSearchEntriesUseCase.execute(MAXIMUM_SUGGESTION_ENTRIES)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Logger.d(TAG, "${it.size} search entries were found")
+                updateSearchList(it)
+            }, {
+                Logger.e(TAG, "Failed to get search entries with error: $it")
+            })
+            .addTo(compositeDisposable)
+    }
+
+    override fun stop() {
+        compositeDisposable.clear()
+    }
+
     private fun doIfNetworkIsAvailable(task: () -> Unit) {
         if (isNetworkAvailable) {
             task.invoke()
@@ -106,7 +115,9 @@ class HeaderPresenter @Inject constructor(
         }
     }
 
-    override fun stop() {
-        compositeDisposable.clear()
+    private fun updateSearchList(newSearchList: List<String>) {
+        searchEntries.clear()
+        searchEntries.addAll(newSearchList)
+        view.updateSuggestionList()
     }
 }

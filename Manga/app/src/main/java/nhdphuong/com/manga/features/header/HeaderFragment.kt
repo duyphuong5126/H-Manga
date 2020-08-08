@@ -191,6 +191,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                 rvMainTabs.scrollToPosition(tab.ordinal)
             }
         }
+        presenter.refreshTagData()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -199,7 +200,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         if (resultCode == Activity.RESULT_OK && requestCode == TAG_REQUEST_CODE) {
             val searchData = data?.getStringExtra(Constants.TAG_RESULT).orEmpty()
             searchContract?.onSearchInputted(searchData)
-            edtSearch.setText(searchData)
+            updateSearchBar(searchData)
         }
     }
 

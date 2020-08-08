@@ -30,5 +30,6 @@ interface HeaderContract {
         fun goToTagsList(tab: Tab)
         fun processSelectedTab(tab: Tab)
         fun saveSearchInfo(searchContent: String)
+        fun refreshTagData()
     }
 }

@@ -13,5 +13,8 @@ class GetLatestSearchEntriesUseCaseImpl @Inject constructor(
 ) : GetLatestSearchEntriesUseCase {
     override fun execute(maximumEntries: Int): Single<List<String>> {
         return searchRepository.getLatestSearchEntries(maximumEntries)
+            .map {
+                it.distinct()
+            }
     }
 }
