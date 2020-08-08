@@ -266,10 +266,16 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         mainPagination.layoutManager = layoutManager
         mainPagination.adapter = homePaginationAdapter
         val updateNavigationButtons = {
-            val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-            val lastVisiblePageItem = layoutManager.findLastVisibleItemPosition()
-            btnFirst?.becomeVisibleIf(firstVisibleItemPosition > 0)
-            btnLast?.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
+            mainPagination?.post {
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+                if (firstVisibleItemPosition >= 0) {
+                    btnFirst?.becomeVisibleIf(firstVisibleItemPosition > 0)
+                }
+                if (lastVisibleItemPosition >= 0) {
+                    btnLast?.becomeVisibleIf(lastVisibleItemPosition < pageCount - 1)
+                }
+            }
         }
         mainPagination.doOnGlobalLayout {
             updateNavigationButtons.invoke()
