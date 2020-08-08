@@ -36,4 +36,6 @@
 
     <dimen name="preview_thumbnail_width">150dp</dimen>
     <dimen name="preview_thumbnail_height">200dp</dimen>
+
+    <dimen name="suggestion_dropdown_height">480dp</dimen>
 </resources>
