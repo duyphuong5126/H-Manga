@@ -4,8 +4,16 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.NAME as COLUMN_NAME
+import nhdphuong.com.manga.Constants.Companion.COUNT as COLUMN_COUNT
 import nhdphuong.com.manga.Constants.Companion.ID
+import nhdphuong.com.manga.Constants.Companion.TABLE_ARTIST
+import nhdphuong.com.manga.Constants.Companion.TABLE_CHARACTER
+import nhdphuong.com.manga.Constants.Companion.TABLE_GROUP
+import nhdphuong.com.manga.Constants.Companion.TABLE_PARODY
+import nhdphuong.com.manga.Constants.Companion.TABLE_TAG
+import nhdphuong.com.manga.Constants.Companion.TABLE_CATEGORY
+import nhdphuong.com.manga.Constants.Companion.TABLE_LANGUAGE
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Category
 import nhdphuong.com.manga.data.entity.book.tags.Tag
@@ -17,23 +25,28 @@ import nhdphuong.com.manga.data.entity.book.tags.UnknownTag
 
 @Dao
 interface TagDAO {
-    companion object {
-        private const val TABLE_TAG = Constants.TABLE_TAG
-        private const val TABLE_ARTIST = Constants.TABLE_ARTIST
-        private const val TABLE_CHARACTER = Constants.TABLE_CHARACTER
-        private const val TABLE_PARODY = Constants.TABLE_PARODY
-        private const val TABLE_GROUP = Constants.TABLE_GROUP
 
-        private const val COLUMN_NAME = Constants.NAME
-        private const val COLUMN_COUNT = Constants.COUNT
-    }
-
+    /**
+     * Fot Category table
+     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCategories(categories: List<Category>)
 
+    @Query("SELECT * FROM $TABLE_CATEGORY where $ID in (:categoryIds)")
+    fun getCategoriesByIds(categoryIds: List<Long>): List<Category>
+
+    /**
+     * Fot Language table
+     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertLanguages(languages: List<Language>)
 
+    @Query("SELECT * FROM $TABLE_LANGUAGE where $ID in (:languageIds)")
+    fun getLanguagesByIds(languageIds: List<Long>): List<Language>
+
+    /**
+     * Fot UnknownTag table
+     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertUnknownTags(unknownTags: List<UnknownTag>)
 
@@ -46,8 +59,8 @@ interface TagDAO {
     @Query("SELECT count(*) FROM $TABLE_TAG")
     fun getTagCount(): Int
 
-    @Query("SELECT * FROM $TABLE_TAG where $ID = :tagId")
-    fun getTagById(tagId: Long): Tag
+    @Query("SELECT * FROM $TABLE_TAG where $ID in (:tagIds)")
+    fun getTagsByIds(tagIds: List<Long>): List<Tag>
 
     // From A-Z only
     @Query("SELECT count(*) FROM $TABLE_TAG WHERE $COLUMN_NAME LIKE :prefixString")
@@ -84,6 +97,9 @@ interface TagDAO {
     @Query("SELECT count(*) FROM $TABLE_ARTIST")
     fun getArtistsCount(): Int
 
+    @Query("SELECT * FROM $TABLE_ARTIST where $ID in (:artistIds)")
+    fun getArtistsByIds(artistIds: List<Long>): List<Artist>
+
     // From A-Z only
     @Query("SELECT count(*) FROM $TABLE_ARTIST WHERE $COLUMN_NAME LIKE :prefixString")
     fun getArtistsCountByPrefix(prefixString: String): Int
@@ -118,6 +134,9 @@ interface TagDAO {
 
     @Query("SELECT count(*) FROM $TABLE_CHARACTER")
     fun getCharactersCount(): Int
+
+    @Query("SELECT * FROM $TABLE_CHARACTER where $ID in (:characterIds)")
+    fun getCharactersByIds(characterIds: List<Long>): List<Character>
 
     // From A-Z only
     @Query("SELECT count(*) FROM $TABLE_CHARACTER WHERE $COLUMN_NAME LIKE :prefixString")
@@ -162,6 +181,9 @@ interface TagDAO {
     @Query("SELECT count(*) FROM $TABLE_PARODY")
     fun getParodiesCount(): Int
 
+    @Query("SELECT * FROM $TABLE_PARODY where $ID in (:parodyIds)")
+    fun getParodiesByIds(parodyIds: List<Long>): List<Parody>
+
     // From A-Z only
     @Query("SELECT count(*) FROM $TABLE_PARODY WHERE $COLUMN_NAME LIKE :prefixString")
     fun getParodiesCountByPrefix(prefixString: String): Int
@@ -196,6 +218,9 @@ interface TagDAO {
 
     @Query("SELECT count(*) FROM $TABLE_GROUP")
     fun getGroupsCount(): Int
+
+    @Query("SELECT * FROM $TABLE_GROUP where $ID in (:groupIds)")
+    fun getGroupsByIds(groupIds: List<Long>): List<Group>
 
     // From A-Z only
     @Query("SELECT count(*) FROM $TABLE_GROUP WHERE $COLUMN_NAME LIKE :prefixString")

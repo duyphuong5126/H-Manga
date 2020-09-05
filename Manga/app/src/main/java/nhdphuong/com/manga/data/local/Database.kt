@@ -35,11 +35,43 @@ class Database {
                 if (mInstance == null) {
                     mInstance = Room.databaseBuilder(
                         NHentaiApp.instance.applicationContext, NHentaiDB::class.java, NHENTAI_DB
-                    ).addMigrations(MIGRATE_FROM_2_TO_3, MIGRATE_FROM_3_TO_4, MIGRATE_FROM_4_TO_5)
-                        .build()
+                    ).addMigrations(
+                        MIGRATE_FROM_2_TO_3, MIGRATE_FROM_3_TO_4, MIGRATE_FROM_4_TO_5,
+                        MIGRATE_FROM_5_TO_6
+                    ).build()
                 }
                 return mInstance!!
             }
+
+        // Foreign key constraint of tagId is dropped
+        private val MIGRATE_FROM_5_TO_6: Migration = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Create temp table
+                val newBookTag = "${BOOK_TAG}_new"
+                database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `$newBookTag` (" +
+                            "`$TAG_ID` INTEGER NOT NULL, " +
+                            "`$BOOK_ID` TEXT NOT NULL, " +
+                            "PRIMARY KEY ($BOOK_ID, $TAG_ID), " +
+                            "FOREIGN KEY(`$BOOK_ID`) REFERENCES `$DOWNLOADED_BOOK`(`$ID`) ON UPDATE NO ACTION ON DELETE CASCADE)"
+                )
+
+                // Migrate BookTag data
+                database.execSQL("INSERT INTO $newBookTag ($TAG_ID, $BOOK_ID) SELECT $TAG_ID, $BOOK_ID FROM $BOOK_TAG")
+
+                // Drop old BookTag table
+                database.execSQL("DROP TABLE $BOOK_TAG")
+
+                // Rename temp table to BookTag
+                database.execSQL("ALTER TABLE $newBookTag RENAME TO $BOOK_TAG")
+
+                // Create indices of BookTag
+                val tagIdIndex = "index_${BOOK_TAG}_$TAG_ID"
+                val tagBookIdIndex = "index_${BOOK_TAG}_$BOOK_ID"
+                database.execSQL("CREATE INDEX IF NOT EXISTS $tagIdIndex ON $BOOK_TAG($TAG_ID)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS $tagBookIdIndex ON $BOOK_TAG($BOOK_ID)")
+            }
+        }
 
         private val MIGRATE_FROM_4_TO_5: Migration = object : Migration(4, 5) {
             override fun migrate(database: SupportSQLiteDatabase) {

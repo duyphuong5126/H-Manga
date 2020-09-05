@@ -13,7 +13,19 @@ import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.BookImages
 import nhdphuong.com.manga.data.entity.book.BookTitle
 import nhdphuong.com.manga.data.entity.book.ImageMeasurements
-import nhdphuong.com.manga.data.local.model.*
+import nhdphuong.com.manga.data.entity.book.tags.Tag
+import nhdphuong.com.manga.data.local.model.DownloadedBookModel
+import nhdphuong.com.manga.data.local.model.ImageUsageType
+import nhdphuong.com.manga.data.local.model.BookImageModel
+import nhdphuong.com.manga.data.local.model.BookTagModel
+import nhdphuong.com.manga.data.local.model.LastVisitedPage
+import nhdphuong.com.manga.data.toArtist
+import nhdphuong.com.manga.data.toCategory
+import nhdphuong.com.manga.data.toCharacter
+import nhdphuong.com.manga.data.toGroup
+import nhdphuong.com.manga.data.toLanguage
+import nhdphuong.com.manga.data.toParody
+import nhdphuong.com.manga.data.toTag
 import java.util.LinkedList
 import javax.inject.Inject
 
@@ -98,9 +110,15 @@ class BookLocalDataSource @Inject constructor(
                     }
                 val bookImages = BookImages(bookPages, cover, thumbnail)
 
-                val bookTags = tagList.map {
-                    tagDAO.getTagById(it.tagId)
-                }
+                val tagIds = tagList.map { it.tagId }
+                val bookTags = ArrayList<Tag>(tagDAO.getTagsByIds(tagIds))
+                bookTags.addAll(tagDAO.getArtistsByIds(tagIds).map { it.toTag() })
+                bookTags.addAll(tagDAO.getParodiesByIds(tagIds).map { it.toTag() })
+                bookTags.addAll(tagDAO.getCategoriesByIds(tagIds).map { it.toTag() })
+                bookTags.addAll(tagDAO.getLanguagesByIds(tagIds).map { it.toTag() })
+                bookTags.addAll(tagDAO.getCharactersByIds(tagIds).map { it.toTag() })
+                bookTags.addAll(tagDAO.getGroupsByIds(tagIds).map { it.toTag() })
+
                 val book = Book(
                     bookId = downloadedBookModel.bookId,
                     mediaId = downloadedBookModel.mediaId,
@@ -108,7 +126,7 @@ class BookLocalDataSource @Inject constructor(
                     bookImages = bookImages,
                     scanlator = downloadedBookModel.scanlator,
                     updateAt = downloadedBookModel.uploadDate,
-                    tags = bookTags,
+                    tags = bookTags.distinctBy { it.name },
                     numOfFavorites = downloadedBookModel.numOfFavorites,
                     numOfPages = downloadedBookModel.numOfPages
                 )
@@ -240,7 +258,19 @@ class BookLocalDataSource @Inject constructor(
 
     private fun extractAndSaveTagList(book: Book): Completable {
         return Completable.fromCallable {
-            tagDAO.insertTags(book.tags)
+            tagDAO.insertTags(book.tags.filter { it.type == Constants.TAG })
+            book.tags.filter { it.type == Constants.ARTIST }.map { it.toArtist() }
+                .let(tagDAO::insertArtist)
+            book.tags.filter { it.type == Constants.CHARACTER }.map { it.toCharacter() }
+                .let(tagDAO::insertCharacters)
+            book.tags.filter { it.type == Constants.GROUP }.map { it.toGroup() }
+                .let(tagDAO::insertGroups)
+            book.tags.filter { it.type == Constants.CATEGORY }.map { it.toCategory() }
+                .let(tagDAO::insertCategories)
+            book.tags.filter { it.type == Constants.LANGUAGE }.map { it.toLanguage() }
+                .let(tagDAO::insertLanguages)
+            book.tags.filter { it.type == Constants.PARODY }.map { it.toParody() }
+                .let(tagDAO::insertParodies)
         }.doOnComplete {
             val savingResult = bookDAO.addTagListOfBook(book.tags.map { tag ->
                 BookTagModel(bookId = book.bookId, tagId = tag.tagId)

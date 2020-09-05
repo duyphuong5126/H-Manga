@@ -80,7 +80,7 @@
     <string name="view">View</string>
     <string name="done">Done</string>
     <string name="permission_require">Permission Required</string>
-    <string name="storage_permission_require">We need some permissions to store the downloaded data</string>
+    <string name="storage_permission_require">We need storage permission to store the downloaded data</string>
     <string name="toast_storage_permission_require">Please allow us to store data in your device!</string>
     <string name="preview_download_progress">Downloaded %s of %s</string>
     <string name="preview_deleting_progress">Deleted %d of %d</string>

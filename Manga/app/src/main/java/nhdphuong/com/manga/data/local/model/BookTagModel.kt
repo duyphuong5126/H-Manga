@@ -8,7 +8,6 @@ import nhdphuong.com.manga.Constants.Companion.TABLE_BOOK_TAG as BOOK_TAG
 import nhdphuong.com.manga.Constants.Companion.ID
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.TAG_ID
-import nhdphuong.com.manga.data.entity.book.tags.Tag
 
 @Entity(
     tableName = BOOK_TAG,
@@ -18,11 +17,6 @@ import nhdphuong.com.manga.data.entity.book.tags.Tag
         entity = DownloadedBookModel::class,
         parentColumns = [ID],
         childColumns = [BOOK_ID],
-        onDelete = ForeignKey.CASCADE
-    ), ForeignKey(
-        entity = Tag::class,
-        parentColumns = [ID],
-        childColumns = [TAG_ID],
         onDelete = ForeignKey.CASCADE
     )]
 )
