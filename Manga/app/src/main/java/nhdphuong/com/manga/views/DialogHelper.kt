@@ -8,6 +8,7 @@ import android.os.Looper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import nhdphuong.com.manga.Logger
@@ -190,6 +191,30 @@ class DialogHelper {
             )
         }
 
+        fun showJumToPageDialog(
+            activity: Activity,
+            minimum: Int,
+            maximum: Int,
+            onOk: (number: Int) -> Unit,
+            onDismiss: () -> Unit
+        ) {
+            val title = activity.getString(R.string.jump_to_page)
+            val errorMessage = activity.getString(R.string.invalid_page)
+            val okString = activity.getString(R.string.ok)
+            val dismissString = activity.getString(R.string.dismiss)
+            showOkDismissInputNumberDialog(
+                activity,
+                title,
+                errorMessage,
+                minimum,
+                maximum,
+                okString,
+                dismissString,
+                onOk,
+                onDismiss
+            )
+        }
+
         @SuppressLint("InflateParams")
         private fun showOkDialog(
             activity: Activity,
@@ -251,6 +276,66 @@ class DialogHelper {
             contentView.findViewById<MyButton>(R.id.mbOkButton).setOnClickListener {
                 dialog.dismiss()
                 onOk()
+            }
+            contentView.findViewById<MyButton>(R.id.mbDismissButton).setOnClickListener {
+                dialog.dismiss()
+                onDismiss()
+            }
+            dialog.setCanceledOnTouchOutside(false)
+            dialog.setContentView(contentView)
+            dialog.show()
+            dialog.window?.let { window ->
+                window.setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                window.setGravity(Gravity.CENTER)
+                window.decorView.setBackgroundResource(android.R.color.transparent)
+            }
+        }
+
+        @SuppressLint("InflateParams")
+        private fun showOkDismissInputNumberDialog(
+            activity: Activity,
+            title: String,
+            errorMessage: String,
+            minimum: Int,
+            maximum: Int,
+            ok: String,
+            dismiss: String,
+            onOk: (number: Int) -> Unit,
+            onDismiss: () -> Unit
+        ) {
+            val contentView = activity.layoutInflater.inflate(
+                R.layout.dialog_ok_dismiss_input_number,
+                null,
+                false
+            )
+            val dialog = Dialog(activity)
+            val mtvTitle: MyTextView = contentView.findViewById(R.id.mtvDialogTitle)
+            val mtvError: MyTextView = contentView.findViewById(R.id.mtvError)
+            val edtInputNumber: EditText = contentView.findViewById(R.id.edtInputNumber)
+            val mbOk: MyButton = contentView.findViewById(R.id.mbOkButton)
+            val mbDismiss: MyButton = contentView.findViewById(R.id.mbDismissButton)
+            mbOk.text = ok
+            mbDismiss.text = dismiss
+            mtvTitle.text = title
+            mtvError.text = errorMessage
+            edtInputNumber.hint =
+                activity.getString(R.string.page_number_hint) + " ($minimum - $maximum)"
+            contentView.findViewById<MyButton>(R.id.mbOkButton).setOnClickListener {
+                try {
+                    val number = edtInputNumber.text.toString().toInt()
+                    if (number in minimum..maximum) {
+                        mtvError.gone()
+                        dialog.dismiss()
+                        onOk.invoke(number)
+                    } else {
+                        mtvError.becomeVisible()
+                    }
+                } catch (error: Throwable) {
+                    mtvError.becomeVisible()
+                }
             }
             contentView.findViewById<MyButton>(R.id.mbDismissButton).setOnClickListener {
                 dialog.dismiss()

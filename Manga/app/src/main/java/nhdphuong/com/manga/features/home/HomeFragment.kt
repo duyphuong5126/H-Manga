@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import kotlinx.android.synthetic.main.fragment_book_list.btnFirst
+import kotlinx.android.synthetic.main.fragment_book_list.btnJumpToPage
 import kotlinx.android.synthetic.main.fragment_book_list.btnLast
 import kotlinx.android.synthetic.main.fragment_book_list.clNavigation
 import kotlinx.android.synthetic.main.fragment_book_list.clNothing
@@ -149,6 +150,21 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             layoutSortOptions.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
             homePresenter.updateSortOption(SortOption.PopularAllTime)
         }
+        btnJumpToPage.setOnClickListener {
+            activity?.run {
+                val maxPages = homePaginationAdapter.itemCount
+                if (maxPages > 1) {
+                    DialogHelper.showJumToPageDialog(this, 1, maxPages, { page ->
+                        val toJumpPage = page - 1
+                        jumpTo(toJumpPage)
+                        homePresenter.jumpToPage(toJumpPage.toLong())
+                        homePaginationAdapter.jumpToIndex(toJumpPage)
+                    }, {
+
+                    })
+                }
+            }
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -271,12 +287,15 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             mainPagination?.post {
                 val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
                 val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+                val showJumpToFirstButton = firstVisibleItemPosition > 0
+                val showJumpToLastButton = lastVisibleItemPosition < pageCount - 1
                 if (firstVisibleItemPosition >= 0) {
-                    btnFirst?.becomeVisibleIf(firstVisibleItemPosition > 0)
+                    btnFirst?.becomeVisibleIf(showJumpToFirstButton)
                 }
                 if (lastVisibleItemPosition >= 0) {
-                    btnLast?.becomeVisibleIf(lastVisibleItemPosition < pageCount - 1)
+                    btnLast?.becomeVisibleIf(showJumpToLastButton)
                 }
+                btnJumpToPage?.becomeVisibleIf(showJumpToFirstButton || showJumpToLastButton)
             }
         }
         mainPagination.doOnGlobalLayout {
