@@ -206,6 +206,8 @@
                         android:paddingTop="@dimen/space_small"
                         android:paddingEnd="@dimen/space_small"
                         android:paddingBottom="@dimen/space_small"
+                        android:scaleX="0.8"
+                        android:scaleY="0.8"
                         android:src="@drawable/ic_previous_white"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -224,17 +226,19 @@
                         android:paddingEnd="@dimen/space_small"
                         android:paddingBottom="@dimen/space_small"
                         android:rotation="180"
+                        android:scaleX="0.8"
+                        android:scaleY="0.8"
                         android:src="@drawable/ic_previous_white"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/btnJumpToPage"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <androidx.appcompat.widget.AppCompatButton
+                    <androidx.appcompat.widget.AppCompatImageButton
                         android:id="@+id/btnJumpToPage"
                         android:layout_width="@dimen/large_button_size"
                         android:layout_height="@dimen/normal_button_size"
                         android:background="@drawable/ripple_rounded_transparent"
-                        android:text="@string/jump_to_page_button"
+                        android:src="@drawable/ic_jump_to_page"
                         android:textColor="@color/white"
                         android:textSize="@dimen/normal_text_size"
                         app:layout_constraintEnd_toEndOf="parent"

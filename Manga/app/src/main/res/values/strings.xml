@@ -191,10 +191,9 @@
     <string name="library_error_data_parsing_label">Cannot load data from server!</string>
     <string name="library_error_time_out_label">Connection timeout!\nPlease try again later</string>
     <string name="library_error_unknown_label">Unable to load book library!</string>
-    <string name="jump_to_page_button" tools:ignore="TypographyEllipsis">...</string>
 
     <string name="jump_to_page">Jump To Page</string>
-    <string name="page_number_hint">Enter your number</string>
+    <string name="page_number_hint">Enter page number</string>
     <string name="invalid_page">Invalid page number</string>
 
     <string-array name="dots" tools:ignore="TypographyEllipsis">

@@ -202,6 +202,7 @@ class DialogHelper {
             val errorMessage = activity.getString(R.string.invalid_page)
             val okString = activity.getString(R.string.ok)
             val dismissString = activity.getString(R.string.dismiss)
+            val inputHint = activity.getString(R.string.page_number_hint) + " ($minimum - $maximum)"
             showOkDismissInputNumberDialog(
                 activity,
                 title,
@@ -210,6 +211,7 @@ class DialogHelper {
                 maximum,
                 okString,
                 dismissString,
+                inputHint,
                 onOk,
                 onDismiss
             )
@@ -303,6 +305,7 @@ class DialogHelper {
             maximum: Int,
             ok: String,
             dismiss: String,
+            inputHint: String,
             onOk: (number: Int) -> Unit,
             onDismiss: () -> Unit
         ) {
@@ -321,8 +324,7 @@ class DialogHelper {
             mbDismiss.text = dismiss
             mtvTitle.text = title
             mtvError.text = errorMessage
-            edtInputNumber.hint =
-                activity.getString(R.string.page_number_hint) + " ($minimum - $maximum)"
+            edtInputNumber.hint = inputHint
             contentView.findViewById<MyButton>(R.id.mbOkButton).setOnClickListener {
                 try {
                     val number = edtInputNumber.text.toString().toInt()
