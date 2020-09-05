@@ -103,6 +103,7 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun start() {
         logBookInfo()
+        view.showBookId(book.bookId)
         bookThumbnailList.clear()
         if (cacheCoverUrl.isBlank()) {
             if (viewDownloadedData) {

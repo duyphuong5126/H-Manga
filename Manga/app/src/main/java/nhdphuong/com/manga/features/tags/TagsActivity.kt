@@ -11,6 +11,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tag
 import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.features.header.HeaderFragment
+import nhdphuong.com.manga.features.header.HeaderIconType
 import nhdphuong.com.manga.features.header.HeaderModule
 import nhdphuong.com.manga.features.header.HeaderPresenter
 import javax.inject.Inject
@@ -90,6 +91,7 @@ class TagsActivity : AppCompatActivity(), SearchContract {
     private fun getTagBundle(@Tag tag: String): Bundle {
         val bundle = Bundle()
         bundle.putString(Constants.TAG_TYPE, tag)
+        bundle.putInt(HeaderFragment.ICON_TYPE_CODE, HeaderIconType.Back.typeCode)
         return bundle
     }
 }

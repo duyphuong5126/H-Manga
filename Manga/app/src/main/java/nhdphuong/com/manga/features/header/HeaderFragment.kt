@@ -19,7 +19,7 @@ import kotlinx.android.synthetic.main.fragment_header.edtSearch
 import kotlinx.android.synthetic.main.fragment_header.ibHamburger
 import kotlinx.android.synthetic.main.fragment_header.ibSearch
 import kotlinx.android.synthetic.main.fragment_header.ib_clear_search
-import kotlinx.android.synthetic.main.fragment_header.ivMainLogo
+import kotlinx.android.synthetic.main.fragment_header.ibMainLogo
 import kotlinx.android.synthetic.main.fragment_header.rvMainTabs
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.R
@@ -42,6 +42,7 @@ import nhdphuong.com.manga.views.adapters.TabAdapter
 class HeaderFragment : Fragment(), HeaderContract.View {
     companion object {
         private const val TAG_REQUEST_CODE = 10007
+        const val ICON_TYPE_CODE = "IconTypeCode"
     }
 
     private lateinit var presenter: HeaderContract.Presenter
@@ -49,6 +50,8 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     private var tagChangeListener: TagsContract? = null
     private var searchContract: SearchContract? = null
     private var randomContract: RandomContract? = null
+
+    private var iconType: HeaderIconType = HeaderIconType.Logo
 
     private var suggestionAdapter: ArrayAdapter<String>? = null
 
@@ -73,6 +76,16 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         super.onViewCreated(view, savedInstanceState)
         val context: Context = context!!
         val activity = activity!!
+        iconType = arguments?.run {
+            HeaderIconType.fromTypeCode(getInt(ICON_TYPE_CODE, HeaderIconType.Logo.typeCode))
+        } ?: HeaderIconType.Logo
+
+        val iconResId = when (iconType) {
+            HeaderIconType.Back -> R.drawable.ic_back_white
+            HeaderIconType.Logo -> R.drawable.ic_nhentai_logo_main
+        }
+        ibMainLogo.setImageResource(iconResId)
+
         tabAdapter = TabAdapter(context, object : TabAdapter.OnMainTabClick {
             override fun onTabClick(tab: Tab) {
                 when (tab) {
@@ -127,7 +140,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
             false
         )
 
-        ivMainLogo.setOnClickListener {
+        ibMainLogo.setOnClickListener {
             edtSearch.setText("")
             searchContract?.onSearchInputted("")
         }

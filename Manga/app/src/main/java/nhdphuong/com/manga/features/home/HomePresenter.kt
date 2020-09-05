@@ -180,12 +180,12 @@ class HomePresenter @Inject constructor(
             val upgradeNotificationAllowed = sharedPreferencesManager.isUpgradeNotificationAllowed
             masterDataRepository.getAppVersion(onSuccess = { latestVersion ->
                 Logger.d(TAG, "Latest version: $latestVersion")
-                val isLatestVersion = BuildConfig.VERSION_CODE == latestVersion
+                val isLatestVersion = BuildConfig.VERSION_CODE == latestVersion.versionNumber
                 val versionAcknowledged = newerVersionAcknowledged.get()
                 if (!isLatestVersion && !versionAcknowledged && upgradeNotificationAllowed) {
                     main.launch {
                         if (view.isActive()) {
-                            view.showUpgradeNotification()
+                            view.showUpgradeNotification(latestVersion.versionCode)
                         }
                     }
                 }

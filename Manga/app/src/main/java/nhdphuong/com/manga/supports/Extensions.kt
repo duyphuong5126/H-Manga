@@ -1,5 +1,7 @@
 package nhdphuong.com.manga.supports
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -33,6 +35,13 @@ fun Context.openEmailApp(
     intent.putExtra(Intent.EXTRA_SUBJECT, subject)
     intent.putExtra(Intent.EXTRA_TEXT, body)
     startActivity(Intent.createChooser(intent, "Choose an email app"))
+}
+
+fun Context.copyToClipBoard(label: String, text: String) {
+    (getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)?.let {
+        val clip: ClipData = ClipData.newPlainText(label, text)
+        it.setPrimaryClip(clip)
+    }
 }
 
 fun MyTextView.addClickAbleText(url: String, alias: String, onClick: (url: String) -> Unit) {

@@ -119,6 +119,7 @@ class Constants {
         // Notifications
         const val NOTIFICATION_CHANNEL_ID = "nHentaiApp"
         const val NOTIFICATION_ID = 22545
+        const val APP_UPGRADE_NOTIFICATION_ID = 22546
 
         // Broadcast receiver
         const val ACTION_DOWNLOADING_STARTED = "ACTION_DOWNLOADING_STARTED"
@@ -157,5 +158,8 @@ class Constants {
         const val TAG_PREFIXES = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
         const val TAG_RESULT = "TAG_RESULT"
+
+        const val LATEST_APP_VERSION_NUMBER = "app_version_number"
+        const val LATEST_APP_VERSION_CODE = "app_version_code"
     }
 }

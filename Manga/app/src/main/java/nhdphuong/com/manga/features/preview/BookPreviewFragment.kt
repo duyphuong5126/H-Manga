@@ -22,19 +22,25 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import kotlinx.android.synthetic.main.fragment_book_preview.buttonClearDownloadedData
+import kotlinx.android.synthetic.main.fragment_book_preview.buttonUnSeen
+import kotlinx.android.synthetic.main.fragment_book_preview.clBookIdClickableArea
+import kotlinx.android.synthetic.main.fragment_book_preview.clDownloadProgress
+import kotlinx.android.synthetic.main.fragment_book_preview.hsvRecommendList
+import kotlinx.android.synthetic.main.fragment_book_preview.ibBack
+import kotlinx.android.synthetic.main.fragment_book_preview.ivBookCover
+import kotlinx.android.synthetic.main.fragment_book_preview.lastVisitedPage
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutArtists
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutCategories
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutCharacters
-import kotlinx.android.synthetic.main.fragment_book_preview.clDownloadProgress
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutGroups
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutLanguages
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutParodies
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutTags
-import kotlinx.android.synthetic.main.fragment_book_preview.hsvRecommendList
-import kotlinx.android.synthetic.main.fragment_book_preview.ivBookCover
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvDownload
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvDownloaded
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvFavorite
+import kotlinx.android.synthetic.main.fragment_book_preview.mtvLastVisitedPage
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvNotFavorite
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvRecommendBook
 import kotlinx.android.synthetic.main.fragment_book_preview.pbDownloading
@@ -43,6 +49,7 @@ import kotlinx.android.synthetic.main.fragment_book_preview.rvRecommendList
 import kotlinx.android.synthetic.main.fragment_book_preview.svBookCover
 import kotlinx.android.synthetic.main.fragment_book_preview.svPreview
 import kotlinx.android.synthetic.main.fragment_book_preview.tvArtistsLabel
+import kotlinx.android.synthetic.main.fragment_book_preview.tvBookId
 import kotlinx.android.synthetic.main.fragment_book_preview.tvCategoriesLabel
 import kotlinx.android.synthetic.main.fragment_book_preview.tvCharactersLabel
 import kotlinx.android.synthetic.main.fragment_book_preview.tvGroupsLabel
@@ -53,30 +60,25 @@ import kotlinx.android.synthetic.main.fragment_book_preview.tvTagsLabel
 import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_1
 import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_2
 import kotlinx.android.synthetic.main.fragment_book_preview.tvUpdatedAt
-import kotlinx.android.synthetic.main.fragment_book_preview.ibBack
-import kotlinx.android.synthetic.main.fragment_book_preview.buttonClearDownloadedData
-import kotlinx.android.synthetic.main.fragment_book_preview.buttonUnSeen
-import kotlinx.android.synthetic.main.fragment_book_preview.mtvLastVisitedPage
-import kotlinx.android.synthetic.main.fragment_book_preview.lastVisitedPage
 import kotlinx.android.synthetic.main.item_preview.ivPageThumbnail
 import kotlinx.android.synthetic.main.item_preview.mtvPageNumber
 import kotlinx.android.synthetic.main.item_preview.vNavigation
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_COMPLETED
+import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_FAILED
+import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_PROGRESS
+import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_STARTED
+import nhdphuong.com.manga.Constants.Companion.ACTION_DISMISS_GALLERY_REFRESHING_DIALOG
+import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_COMPLETED
+import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_FAILED
+import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_PROGRESS
+import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_STARTED
+import nhdphuong.com.manga.Constants.Companion.ACTION_SHOW_GALLERY_REFRESHING_DIALOG
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.DELETING_FAILED_COUNT
 import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
 import nhdphuong.com.manga.Constants.Companion.PROGRESS
 import nhdphuong.com.manga.Constants.Companion.TOTAL
-import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_STARTED
-import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_PROGRESS
-import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_COMPLETED
-import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_FAILED
-import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_STARTED
-import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_PROGRESS
-import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_COMPLETED
-import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_FAILED
-import nhdphuong.com.manga.Constants.Companion.ACTION_DISMISS_GALLERY_REFRESHING_DIALOG
-import nhdphuong.com.manga.Constants.Companion.ACTION_SHOW_GALLERY_REFRESHING_DIALOG
-import nhdphuong.com.manga.Constants.Companion.DELETING_FAILED_COUNT
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -86,16 +88,17 @@ import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.ImageUtils
+import nhdphuong.com.manga.supports.copyToClipBoard
+import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
-import nhdphuong.com.manga.views.DialogHelper
-import nhdphuong.com.manga.views.becomeVisible
-import nhdphuong.com.manga.views.becomeInvisible
-import nhdphuong.com.manga.views.gone
-import nhdphuong.com.manga.views.becomeVisibleIf
-import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PreviewAdapter
+import nhdphuong.com.manga.views.becomeInvisible
+import nhdphuong.com.manga.views.becomeVisible
+import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.doOnGlobalLayout
+import nhdphuong.com.manga.views.gone
 
 /*
  * Created by nhdphuong on 4/14/18.
@@ -402,6 +405,15 @@ class BookPreviewFragment :
             tvTitle_2.text = secondTitle
         } else {
             tvTitle_2.gone()
+        }
+    }
+
+    override fun showBookId(bookId: String) {
+        tvBookId.text = bookId
+        clBookIdClickableArea.setOnClickListener {
+            Toast.makeText(context, "Copied Book ID $bookId to clipboard", Toast.LENGTH_SHORT)
+                .show()
+            context?.copyToClipBoard(bookId, bookId)
         }
     }
 

@@ -98,16 +98,80 @@
                 app:layout_constraintTop_toBottomOf="@+id/tvTitle_2">
 
                 <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvTagsLabel"
+                    android:id="@+id/tvIdLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/dp30"
                     android:layout_marginTop="@dimen/dp10"
+                    android:gravity="center_vertical"
+                    android:text="@string/book_id_label"
+                    android:textColor="@color/greyD9D9D9"
+                    android:textSize="15sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:myFont="@string/NotoSansBold"
+                    tools:targetApi="jelly_bean" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:layout_marginEnd="3dp"
+                    android:background="@drawable/bg_grey_medium_rounded_all_corners"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    app:layout_constraintStart_toEndOf="@id/tvIdLabel"
+                    app:layout_constraintTop_toTopOf="@id/tvIdLabel">
+
+                    <nhdphuong.com.manga.views.customs.MyTextView
+                        android:id="@+id/tvBookId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_weight="3"
+                        android:clickable="false"
+                        android:gravity="center_vertical"
+                        android:maxLines="3"
+                        android:paddingStart="3dp"
+                        android:paddingEnd="3dp"
+                        android:text="@string/tags"
+                        android:textColor="@color/greyD9D9D9"
+                        android:textSize="15sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:myFont="@string/NotoSansBold"
+                        tools:targetApi="jelly_bean" />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/clBookIdClickableArea"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:background="@drawable/ripple_transparent_medium_rounded_all_corners"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/tvTagsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp30"
+                    android:layout_marginTop="7dp"
                     android:gravity="center_vertical"
                     android:text="@string/tags_label"
                     android:textColor="@color/greyD9D9D9"
                     android:textSize="15sp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/layoutId"
                     app:myFont="@string/NotoSansBold"
                     tools:targetApi="jelly_bean" />
 

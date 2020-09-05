@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.data
 
+import nhdphuong.com.manga.data.entity.LatestAppVersion
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Category
 import nhdphuong.com.manga.data.entity.book.tags.Tag
@@ -25,7 +26,10 @@ interface MasterDataSource {
 
         suspend fun fetchTagDataVersion(onSuccess: (Long) -> Unit, onError: () -> Unit)
 
-        suspend fun fetchAppVersion(onSuccess: (Int) -> Unit, onError: (error: Throwable) -> Unit)
+        suspend fun fetchAppVersion(
+            onSuccess: (LatestAppVersion) -> Unit,
+            onError: (error: Throwable) -> Unit
+        )
     }
 
     interface Local {

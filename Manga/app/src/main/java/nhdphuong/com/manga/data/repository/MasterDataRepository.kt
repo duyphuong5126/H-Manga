@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.MasterDataSource
+import nhdphuong.com.manga.data.entity.LatestAppVersion
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.entity.book.tags.Character
@@ -336,7 +337,7 @@ class MasterDataRepository @Inject constructor(
         }
     }
 
-    fun getAppVersion(onSuccess: (Int) -> Unit, onError: (error: Throwable) -> Unit) {
+    fun getAppVersion(onSuccess: (LatestAppVersion) -> Unit, onError: (error: Throwable) -> Unit) {
         io.launch {
             mMasterRemoteDataSource.fetchAppVersion(onSuccess, onError)
         }

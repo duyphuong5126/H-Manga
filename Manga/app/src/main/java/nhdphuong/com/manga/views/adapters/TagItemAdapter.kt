@@ -29,7 +29,7 @@ class TagItemAdapter(
         tagViewHolder.setData(mTagList[position])
     }
 
-    override fun getItemViewType(position: Int): Int = R.layout.item_tag_list
+    override fun getItemViewType(position: Int): Int = TAG_ITEM_TYPE
 
     fun submitList(tagList: List<ITag>) {
         mTagList.clear()
@@ -63,5 +63,9 @@ class TagItemAdapter(
 
     interface OnTagClickListener {
         fun onTagClick(iTag: ITag)
+    }
+
+    companion object {
+        private const val TAG_ITEM_TYPE = 1
     }
 }

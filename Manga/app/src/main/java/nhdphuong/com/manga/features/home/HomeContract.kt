@@ -26,7 +26,7 @@ interface HomeContract {
         fun changeSearchResult(data: String)
         fun showBookPreview(book: Book)
         fun startUpdateTagsService()
-        fun showUpgradeNotification()
+        fun showUpgradeNotification(latestVersionCode: String)
         fun updateErrorMessage(errorEnum: ErrorEnum)
     }
 

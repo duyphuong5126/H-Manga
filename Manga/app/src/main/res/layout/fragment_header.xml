@@ -17,15 +17,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/ivMainLogo"
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/ibMainLogo"
             android:layout_width="@dimen/big_box_size"
             android:layout_height="@dimen/normal_box_size"
             android:layout_marginStart="@dimen/space_medium"
             android:layout_marginEnd="@dimen/space_medium"
+            android:background="@drawable/ripple_rounded_grey_1"
             android:contentDescription="@string/main_logo"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
+            android:scaleType="fitCenter"
             android:scaleX="0.8"
             android:scaleY="0.8"
             android:src="@drawable/ic_nhentai_logo_main"
@@ -46,10 +46,10 @@
             android:paddingStart="@dimen/space_medium"
             android:paddingEnd="@dimen/space_large"
             android:textSize="@dimen/normal_text_size"
-            app:layout_constraintBottom_toBottomOf="@id/ivMainLogo"
+            app:layout_constraintBottom_toBottomOf="@id/ibMainLogo"
             app:layout_constraintEnd_toStartOf="@id/ibSearch"
-            app:layout_constraintStart_toEndOf="@id/ivMainLogo"
-            app:layout_constraintTop_toTopOf="@id/ivMainLogo"
+            app:layout_constraintStart_toEndOf="@id/ibMainLogo"
+            app:layout_constraintTop_toTopOf="@id/ibMainLogo"
             tools:targetApi="lollipop" />
 
         <ImageButton

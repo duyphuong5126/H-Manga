@@ -17,6 +17,7 @@
     <string name="previous">\f054</string>
     <string name="next">Next</string>
 
+    <string name="book_id_label">Book ID:</string>
     <string name="tags_label">Tags:</string>
     <string name="artists_label">Artists:</string>
     <string name="languages_label">Languages:</string>
@@ -78,17 +79,17 @@
     <string name="ok">OK</string>
     <string name="view">View</string>
     <string name="done">Done</string>
-    <string name="permission_require">Permission Requirement</string>
-    <string name="storage_permission_require">We need some permissions to store the downloaded data.</string>
+    <string name="permission_require">Permission Required</string>
+    <string name="storage_permission_require">We need some permissions to store the downloaded data</string>
     <string name="toast_storage_permission_require">Please allow us to store data in your device!</string>
     <string name="preview_download_progress">Downloaded %s of %s</string>
     <string name="preview_deleting_progress">Deleted %d of %d</string>
     <string name="cleared">Clear</string>
-    <string name="fail_to_download">Downloading %s items failed</string>
-    <string name="fail_to_delete">Deleting %d items failed</string>
+    <string name="fail_to_download">Could not download %s items</string>
+    <string name="fail_to_delete">Could not delete %d items</string>
     <string name="is_book_being_downloaded">Book downloading</string>
     <string name="is_downloading_this_book">This book is being downloaded.\nPlease wait until it completes.</string>
-    <string name="is_downloading_another_book">The book number %s being downloaded, please try again later.</string>
+    <string name="is_downloading_another_book">The book number %s is being downloaded, please try again later.</string>
     <string name="reload_library">Reload library</string>
     <string name="book_list_refreshing_title">Book list is refreshing</string>
     <string name="book_list_refreshing_description">Book list is now refreshing.\nPlease try again later.</string>
@@ -101,7 +102,9 @@
     <string name="is_downloading_tags">Tags lists are being downloaded.\nPlease wait until they complete.</string>
 
     <string name="app_upgrade_notification">We have a newer version. Please check it out.</string>
-    <string name="app_upgrade_button">Check out our new version</string>
+    <string name="app_upgrade_button">Check out new version (%s)</string>
+    <string name="app_upgrade_notification_title">Version %s is available</string>
+    <string name="app_upgrade_notification_message">You can check it out to have a better experience</string>
 
     <string name="no_network_title">No internet connection</string>
     <string name="no_network_description">Your device is not connected to the Internet. Please check your connection and try again.</string>
@@ -147,7 +150,7 @@
 
     <string name="admin">Admin</string>
     <string name="enter_admin_page_title">Admin Pages</string>
-    <string name="enter_admin_page_description">App will navigate to admin pages.</string>
+    <string name="enter_admin_page_description">App will navigate to admin pages</string>
     <string name="_continue">Continue</string>
     <string name="exit">Exit</string>
     <string name="start_download">Start download</string>

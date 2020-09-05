@@ -3,6 +3,7 @@ package nhdphuong.com.manga.data.remote
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.MasterDataApiService
 import nhdphuong.com.manga.data.MasterDataSource
+import nhdphuong.com.manga.data.entity.LatestAppVersion
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Category
 import nhdphuong.com.manga.data.entity.book.tags.Tag
@@ -174,15 +175,18 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
     }
 
     override suspend fun fetchAppVersion(
-        onSuccess: (Int) -> Unit,
+        onSuccess: (LatestAppVersion) -> Unit,
         onError: (error: Throwable) -> Unit
     ) {
-        masterDataApiService.getAppVersion().enqueue(object : Callback<Int> {
-            override fun onResponse(call: Call<Int>, response: Response<Int>) {
+        masterDataApiService.getLatestAppVersion().enqueue(object : Callback<LatestAppVersion> {
+            override fun onResponse(
+                call: Call<LatestAppVersion>,
+                response: Response<LatestAppVersion>
+            ) {
                 response.body()?.run(onSuccess)
             }
 
-            override fun onFailure(call: Call<Int>, t: Throwable) {
+            override fun onFailure(call: Call<LatestAppVersion>, t: Throwable) {
                 onError.invoke(t)
             }
         })

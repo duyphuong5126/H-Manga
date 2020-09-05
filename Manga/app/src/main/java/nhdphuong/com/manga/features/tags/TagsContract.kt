@@ -15,7 +15,7 @@ interface TagsContract {
     interface View : Base.View<Presenter> {
         fun setPresenter(presenter: Presenter)
         fun updateTag(@Tag tagType: String, tagCount: Int)
-        fun refreshPages(pagesCount: Int)
+        fun refreshPages(pageCount: Int)
         fun setUpTagsList(source: ArrayList<ITag>, tags: List<ITag>)
         fun refreshTagsList(tags: List<ITag>)
         fun setSearchInputListener(searchContract: SearchContract)

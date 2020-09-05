@@ -14,24 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageButton
-            android:id="@+id/ib_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_transparent_rect_rounded_all_corners"
-            android:contentDescription="@string/back"
-            android:paddingStart="@dimen/space_normal"
-            android:paddingTop="@dimen/space_small"
-            android:paddingEnd="@dimen/space_normal"
-            android:paddingBottom="@dimen/space_small"
-            android:scaleType="center"
-            android:scaleX="0.8"
-            android:scaleY="0.8"
-            android:src="@drawable/ic_back_white"
-            app:layout_constraintBottom_toBottomOf="@id/mtv_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/mtv_title" />
-
         <nhdphuong.com.manga.views.customs.MyTextView
             android:id="@+id/mtv_title"
             android:layout_width="wrap_content"
@@ -55,6 +37,8 @@
             android:layout_weight="2"
             android:gravity="center_vertical"
             android:maxLines="1"
+            android:paddingStart="0dp"
+            android:paddingEnd="4dp"
             android:text="@string/tags"
             android:textColor="@color/grey767676"
             android:textSize="@dimen/normal_text_size"

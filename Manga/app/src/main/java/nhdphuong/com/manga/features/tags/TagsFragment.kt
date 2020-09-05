@@ -8,20 +8,20 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.fragment_tags.btn_first
-import kotlinx.android.synthetic.main.fragment_tags.btn_first_page
-import kotlinx.android.synthetic.main.fragment_tags.btn_last
-import kotlinx.android.synthetic.main.fragment_tags.btn_last_page
-import kotlinx.android.synthetic.main.fragment_tags.cl_alphabet_navigation
-import kotlinx.android.synthetic.main.fragment_tags.ib_back
-import kotlinx.android.synthetic.main.fragment_tags.mb_alphabet
-import kotlinx.android.synthetic.main.fragment_tags.mb_popularity
-import kotlinx.android.synthetic.main.fragment_tags.mtv_count
-import kotlinx.android.synthetic.main.fragment_tags.mtv_title
-import kotlinx.android.synthetic.main.fragment_tags.nsv_container
-import kotlinx.android.synthetic.main.fragment_tags.rv_alphabet_pagination
-import kotlinx.android.synthetic.main.fragment_tags.rv_pagination
-import kotlinx.android.synthetic.main.fragment_tags.rv_tags_list
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.fragment_tags.btn_first as buttonFirstCharacter
+import kotlinx.android.synthetic.main.fragment_tags.btn_first_page as buttonFirstPage
+import kotlinx.android.synthetic.main.fragment_tags.btn_last as buttonLastCharacter
+import kotlinx.android.synthetic.main.fragment_tags.btn_last_page as buttonLastPage
+import kotlinx.android.synthetic.main.fragment_tags.cl_alphabet_navigation as layoutNavigation
+import kotlinx.android.synthetic.main.fragment_tags.mb_alphabet as buttonTabAlphabet
+import kotlinx.android.synthetic.main.fragment_tags.mb_popularity as buttonTabPopularity
+import kotlinx.android.synthetic.main.fragment_tags.mtv_count as labelCount
+import kotlinx.android.synthetic.main.fragment_tags.mtv_title as title
+import kotlinx.android.synthetic.main.fragment_tags.nsv_container as tagLayoutRoot
+import kotlinx.android.synthetic.main.fragment_tags.rv_alphabet_pagination as listAlphabet
+import kotlinx.android.synthetic.main.fragment_tags.rv_pagination as listPages
+import kotlinx.android.synthetic.main.fragment_tags.rv_tags_list as listTags
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -33,15 +33,17 @@ import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import nhdphuong.com.manga.views.adapters.TagItemAdapter
+import nhdphuong.com.manga.views.becomeVisible
+import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.customs.MyButton
+import nhdphuong.com.manga.views.doOnGlobalLayout
+import nhdphuong.com.manga.views.gone
+import kotlin.math.abs
 
 /*
  * Created by nhdphuong on 5/12/18.
  */
 class TagsFragment : Fragment(), TagsContract, TagsContract.View {
-    companion object {
-        private const val TAG = "TagsFragment"
-    }
 
     private lateinit var mPresenter: TagsContract.Presenter
 
@@ -78,52 +80,74 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
                     mPresenter.filterByCharacter(character)
                 }
             }
-        rv_alphabet_pagination.run {
+        listAlphabet.run {
             adapter = mCharacterAdapter
-            visibility = View.VISIBLE
-            layoutManager = LinearLayoutManager(
+            becomeVisible()
+            val layoutManager = LinearLayoutManager(
                 activity,
                 LinearLayoutManager.HORIZONTAL,
                 false
             )
+            this.layoutManager = layoutManager
             adapter = mCharacterAdapter
+
+            val updateNavigationButtons = {
+                listAlphabet?.post {
+                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                    val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+                    val visibilityDistance =
+                        abs(lastVisibleItemPosition - firstVisibleItemPosition) + 1
+                    if (firstVisibleItemPosition >= 0) {
+                        buttonFirstCharacter?.becomeVisibleIf(firstVisibleItemPosition > 0 && visibilityDistance < mCharacterCount)
+                    }
+                    if (lastVisibleItemPosition >= 0) {
+                        buttonLastCharacter?.becomeVisibleIf(lastVisibleItemPosition < mCharacterCount - 1 && visibilityDistance < mCharacterCount)
+                    }
+                }
+            }
+            doOnGlobalLayout {
+                updateNavigationButtons.invoke()
+            }
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    updateNavigationButtons.invoke()
+                }
+            })
         }
-        mb_alphabet.setOnClickListener {
+        buttonTabAlphabet.setOnClickListener {
             changeTagFilterType(TagFilter.ALPHABET)
-            toggleTabButton(true, mb_alphabet)
-            toggleTabButton(false, mb_popularity)
+            toggleTabButton(true, buttonTabAlphabet)
+            toggleTabButton(false, buttonTabPopularity)
         }
-        mb_popularity.setOnClickListener {
+        buttonTabPopularity.setOnClickListener {
             changeTagFilterType(TagFilter.POPULARITY)
-            toggleTabButton(false, mb_alphabet)
-            toggleTabButton(true, mb_popularity)
+            toggleTabButton(false, buttonTabAlphabet)
+            toggleTabButton(true, buttonTabPopularity)
         }
-        btn_first.setOnClickListener {
+        buttonFirstCharacter.setOnClickListener {
             mCharacterAdapter.jumpToFirst()
             if (mCharacterAdapter.itemCount > 0) {
-                rv_alphabet_pagination.scrollToPosition(0)
+                listAlphabet.scrollToPosition(0)
             }
         }
-        btn_last.setOnClickListener {
+        buttonLastCharacter.setOnClickListener {
             mCharacterAdapter.jumpToLast()
             if (mCharacterAdapter.itemCount > 0) {
-                rv_alphabet_pagination.scrollToPosition(mCharacterAdapter.itemCount - 1)
+                listAlphabet.scrollToPosition(mCharacterAdapter.itemCount - 1)
             }
         }
-        btn_first_page.setOnClickListener {
+        buttonFirstPage.setOnClickListener {
             mNumberAdapter.jumpToFirst()
             if (mNumberAdapter.itemCount > 0) {
-                rv_pagination.scrollToPosition(0)
+                listPages.scrollToPosition(0)
             }
         }
-        btn_last_page.setOnClickListener {
+        buttonLastPage.setOnClickListener {
             mNumberAdapter.jumpToLast()
             if (mNumberAdapter.itemCount > 0) {
-                rv_pagination.scrollToPosition(mNumberAdapter.itemCount - 1)
+                listPages.scrollToPosition(mNumberAdapter.itemCount - 1)
             }
-        }
-        ib_back.setOnClickListener {
-            activity?.onBackPressed()
         }
     }
 
@@ -141,34 +165,58 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     }
 
     override fun updateTag(tagType: String, tagCount: Int) {
-        mtv_title.text = tagType
-        mtv_count.text = String.format(
+        title.text = tagType
+        labelCount.text = String.format(
             mTagCountString,
             SupportUtils.formatBigNumber(tagCount.toLong())
         )
     }
 
-    override fun refreshPages(pagesCount: Int) {
-        if (pagesCount == 0) {
-            btn_first_page.visibility = View.GONE
-            btn_last_page.visibility = View.GONE
-            rv_pagination.visibility = View.GONE
+    override fun refreshPages(pageCount: Int) {
+        if (pageCount == 0) {
+            buttonFirstPage.gone()
+            buttonLastPage.gone()
+            listPages.gone()
             return
         }
-        mNumberAdapter = PaginationAdapter(pagesCount)
+        mNumberAdapter = PaginationAdapter(pageCount)
         mNumberAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
             override fun onPageSelected(page: Int) {
                 Logger.d(TAG, "Page $page is selected")
                 mPresenter.jumpToPage(page)
             }
         }
-        rv_pagination.visibility = View.VISIBLE
-        rv_pagination.layoutManager = LinearLayoutManager(
+        listPages.becomeVisible()
+        val layoutManager = LinearLayoutManager(
             activity,
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        rv_pagination.adapter = mNumberAdapter
+        listPages.layoutManager = layoutManager
+        listPages.adapter = mNumberAdapter
+
+        val updateNavigationButtons = {
+            listPages?.post {
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+                val visibilityDistance = abs(lastVisibleItemPosition - firstVisibleItemPosition) + 1
+                if (firstVisibleItemPosition >= 0) {
+                    buttonFirstPage?.becomeVisibleIf(firstVisibleItemPosition > 0 && visibilityDistance < pageCount)
+                }
+                if (lastVisibleItemPosition >= 0) {
+                    buttonLastPage?.becomeVisibleIf(lastVisibleItemPosition < pageCount - 1 && visibilityDistance < pageCount)
+                }
+            }
+        }
+        listPages.doOnGlobalLayout {
+            updateNavigationButtons.invoke()
+        }
+        listPages.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                updateNavigationButtons.invoke()
+            }
+        })
     }
 
     override fun setUpTagsList(source: ArrayList<ITag>, tags: List<ITag>) {
@@ -179,7 +227,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
                     mSearchContract?.onSearchInputted(iTag.name())
                 }
             })
-            rv_tags_list.apply {
+            listTags.apply {
                 val linearLayoutManager = object : LinearLayoutManager(context) {
                     override fun isAutoMeasureEnabled(): Boolean {
                         return true
@@ -197,7 +245,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     override fun refreshTagsList(tags: List<ITag>) {
         mTagItemAdapter.submitList(tags)
         if (mTagItemAdapter.itemCount > 0) {
-            nsv_container.scrollTo(0, 0)
+            tagLayoutRoot.scrollTo(0, 0)
         }
         toggleTagList(tags.isEmpty())
     }
@@ -214,7 +262,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
 
     private fun changeTagFilterType(tagFilter: TagFilter) {
         mPresenter.changeTagFilterType(tagFilter)
-        cl_alphabet_navigation.visibility = if (tagFilter == TagFilter.ALPHABET) {
+        layoutNavigation.visibility = if (tagFilter == TagFilter.ALPHABET) {
             View.VISIBLE
         } else {
             View.GONE
@@ -234,6 +282,10 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
     }
 
     private fun toggleTagList(isEmpty: Boolean) {
-        rv_pagination.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        listPages.visibility = if (isEmpty) View.GONE else View.VISIBLE
+    }
+
+    companion object {
+        private const val TAG = "TagsFragment"
     }
 }

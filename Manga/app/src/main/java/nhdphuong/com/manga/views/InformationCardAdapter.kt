@@ -39,7 +39,7 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
             false
         ).findViewById<LinearLayout>(R.id.lineRoot)
         viewGroup.addView(tagLine)
-        val viewList = LinkedList<View>()
+        val viewList = ArrayList<View>()
         for (tag in tagList) {
             val view = InfoCardViewHolder(
                 layoutInflater.inflate(
@@ -115,7 +115,7 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
         }
     }
 
-    private fun sortViewList(viewList: LinkedList<View>, totalWidth: Int, totalMargin: Int) {
+    private fun sortViewList(viewList: ArrayList<View>, totalWidth: Int, totalMargin: Int) {
         var anchorId = 0
         val size = viewList.size
         while (anchorId < size - 1) {

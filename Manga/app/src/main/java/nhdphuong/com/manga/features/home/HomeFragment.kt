@@ -17,6 +17,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
+import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -49,6 +50,7 @@ import kotlinx.android.synthetic.main.layout_refresh_header.view.pbRefresh
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
+import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.data.entity.book.Book
@@ -343,13 +345,22 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         NHentaiApp.instance.startUpdateTagsService()
     }
 
-    override fun showUpgradeNotification() {
+    override fun showUpgradeNotification(latestVersionCode: String) {
         clUpgradePopup.becomeVisible()
         upgradePopupPlaceHolder.becomeVisible()
         clUpgradePopup?.postDelayed({
             clUpgradePopup?.gone()
             upgradePopupPlaceHolder?.gone()
         }, APP_UPGRADE_TIME_OUT)
+        val title = getString(R.string.app_upgrade_notification_title, latestVersionCode)
+        val message = getString(R.string.app_upgrade_notification_message)
+        NotificationHelper.sendNotification(
+            title,
+            NotificationCompat.PRIORITY_DEFAULT,
+            message,
+            true,
+            Constants.NOTIFICATION_ID
+        )
     }
 
     override fun updateErrorMessage(errorEnum: ErrorEnum) {

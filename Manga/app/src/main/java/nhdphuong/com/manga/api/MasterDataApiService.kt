@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.api
 
+import nhdphuong.com.manga.data.entity.LatestAppVersion
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Category
 import nhdphuong.com.manga.data.entity.book.tags.Group
@@ -41,4 +42,7 @@ interface MasterDataApiService {
 
     @GET("${ApiConstants.NHENTAI_DB}/tags/AppVersion.txt")
     fun getAppVersion(): Call<Int>
+
+    @GET("${ApiConstants.NHENTAI_DB}/tags/CurrentAppVersion.json")
+    fun getLatestAppVersion(): Call<LatestAppVersion>
 }

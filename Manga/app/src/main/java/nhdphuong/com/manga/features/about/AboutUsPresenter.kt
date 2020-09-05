@@ -34,9 +34,9 @@ class AboutUsPresenter @Inject constructor(
             }
 
             masterDataRepository.getAppVersion(onSuccess = { latestVersion ->
-                if (BuildConfig.VERSION_CODE != latestVersion) {
+                if (BuildConfig.VERSION_CODE != latestVersion.versionNumber) {
                     main.launch {
-                        view.showAppUpgradeNotification()
+                        view.showAppUpgradeNotification(latestVersion.versionCode)
                     }
                 }
             }, onError = { error ->

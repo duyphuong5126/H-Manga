@@ -80,7 +80,8 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View {
         scNotificationAcceptor.isChecked = notificationAllowed
     }
 
-    override fun showAppUpgradeNotification() {
+    override fun showAppUpgradeNotification(latestVersionCode: String) {
+        mbUpgradeButton.text = getString(R.string.app_upgrade_button, latestVersionCode)
         mbUpgradeButton.becomeVisible()
     }
 
