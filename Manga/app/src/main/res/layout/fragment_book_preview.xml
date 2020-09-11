@@ -89,246 +89,287 @@
                 app:layout_constraintTop_toBottomOf="@id/tvTitle_1"
                 app:myFont="@string/NotoSansBold" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:id="@+id/layoutTagsArea"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvTitle_2">
 
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvIdLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/dp30"
-                    android:layout_marginTop="@dimen/dp10"
-                    android:gravity="center_vertical"
-                    android:text="@string/book_id_label"
-                    android:textColor="@color/greyD9D9D9"
-                    android:textSize="15sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:myFont="@string/NotoSansBold"
-                    tools:targetApi="jelly_bean" />
-
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/layoutId"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="3dp"
-                    android:background="@drawable/bg_grey_medium_rounded_all_corners"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    app:layout_constraintStart_toEndOf="@id/tvIdLabel"
-                    app:layout_constraintTop_toTopOf="@id/tvIdLabel">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
                     <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/tvBookId"
+                        android:id="@+id/tvIdLabel"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginTop="3dp"
-                        android:layout_marginEnd="5dp"
-                        android:layout_marginBottom="3dp"
-                        android:layout_weight="3"
-                        android:clickable="false"
+                        android:layout_height="@dimen/dp30"
+                        android:layout_marginTop="@dimen/dp10"
                         android:gravity="center_vertical"
-                        android:maxLines="3"
-                        android:paddingStart="3dp"
-                        android:paddingEnd="3dp"
-                        android:text="@string/tags"
+                        android:text="@string/book_id_label"
                         android:textColor="@color/greyD9D9D9"
                         android:textSize="15sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:myFont="@string/NotoSansBold"
                         tools:targetApi="jelly_bean" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/clBookIdClickableArea"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:background="@drawable/ripple_transparent_medium_rounded_all_corners"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:id="@+id/layoutId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="3dp"
+                        android:background="@drawable/bg_grey_medium_rounded_all_corners"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintStart_toEndOf="@id/tvIdLabel"
+                        app:layout_constraintTop_toTopOf="@id/tvIdLabel">
 
+                        <nhdphuong.com.manga.views.customs.MyTextView
+                            android:id="@+id/tvBookId"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginTop="3dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_marginBottom="3dp"
+                            android:layout_weight="3"
+                            android:clickable="false"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="3dp"
+                            android:paddingEnd="3dp"
+                            android:text="@string/tags"
+                            android:textColor="@color/greyD9D9D9"
+                            android:textSize="15sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:myFont="@string/NotoSansBold"
+                            tools:targetApi="jelly_bean" />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/clBookIdClickableArea"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:background="@drawable/ripple_transparent_medium_rounded_all_corners"
+                            android:clickable="true"
+                            android:focusable="true"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvTagsLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/dp30"
-                    android:layout_marginTop="7dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/tags_label"
-                    android:textColor="@color/greyD9D9D9"
-                    android:textSize="15sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/layoutId"
-                    app:myFont="@string/NotoSansBold"
-                    tools:targetApi="jelly_bean" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <LinearLayout
-                    android:id="@+id/layoutTags"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvTagsLabel"
-                    app:layout_constraintTop_toTopOf="@+id/tvTagsLabel" />
+                    <nhdphuong.com.manga.views.customs.MyTextView
+                        android:id="@+id/tvTagsLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/dp30"
+                        android:layout_marginTop="7dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/tags_label"
+                        android:textColor="@color/greyD9D9D9"
+                        android:textSize="15sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:myFont="@string/NotoSansBold"
+                        tools:targetApi="jelly_bean" />
 
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvArtistsLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/dp30"
-                    android:layout_marginTop="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/artists_label"
-                    android:textColor="@color/greyD9D9D9"
-                    android:textSize="15sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/layoutTags"
-                    app:myFont="@string/NotoSansBold"
-                    tools:targetApi="jelly_bean" />
+                    <LinearLayout
+                        android:id="@+id/layoutTags"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/tvTagsLabel"
+                        app:layout_constraintTop_toTopOf="@+id/tvTagsLabel" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <LinearLayout
-                    android:id="@+id/layoutArtists"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvArtistsLabel"
-                    app:layout_constraintTop_toTopOf="@+id/tvArtistsLabel" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvLanguagesLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/dp30"
-                    android:layout_marginTop="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/languages_label"
-                    android:textColor="@color/greyD9D9D9"
-                    android:textSize="15sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/layoutArtists"
-                    app:myFont="@string/NotoSansBold"
-                    tools:targetApi="jelly_bean" />
+                    <nhdphuong.com.manga.views.customs.MyTextView
+                        android:id="@+id/tvArtistsLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/dp30"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/artists_label"
+                        android:textColor="@color/greyD9D9D9"
+                        android:textSize="15sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:myFont="@string/NotoSansBold"
+                        tools:targetApi="jelly_bean" />
 
-                <LinearLayout
-                    android:id="@+id/layoutLanguages"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvLanguagesLabel"
-                    app:layout_constraintTop_toTopOf="@+id/tvLanguagesLabel" />
+                    <LinearLayout
+                        android:id="@+id/layoutArtists"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/tvArtistsLabel"
+                        app:layout_constraintTop_toTopOf="@+id/tvArtistsLabel" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvCategoriesLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/dp30"
-                    android:layout_marginTop="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/categories_label"
-                    android:textColor="@color/greyD9D9D9"
-                    android:textSize="15sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/layoutLanguages"
-                    app:myFont="@string/NotoSansBold"
-                    tools:targetApi="jelly_bean" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <LinearLayout
-                    android:id="@+id/layoutCategories"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvCategoriesLabel"
-                    app:layout_constraintTop_toTopOf="@+id/tvCategoriesLabel" />
+                    <nhdphuong.com.manga.views.customs.MyTextView
+                        android:id="@+id/tvLanguagesLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/dp30"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/languages_label"
+                        android:textColor="@color/greyD9D9D9"
+                        android:textSize="15sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:myFont="@string/NotoSansBold"
+                        tools:targetApi="jelly_bean" />
 
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvCharactersLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/dp30"
-                    android:layout_marginTop="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/characters_label"
-                    android:textColor="@color/greyD9D9D9"
-                    android:textSize="15sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/layoutCategories"
-                    app:myFont="@string/NotoSansBold"
-                    tools:targetApi="jelly_bean" />
+                    <LinearLayout
+                        android:id="@+id/layoutLanguages"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/tvLanguagesLabel"
+                        app:layout_constraintTop_toTopOf="@+id/tvLanguagesLabel" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <LinearLayout
-                    android:id="@+id/layoutCharacters"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvCharactersLabel"
-                    app:layout_constraintTop_toTopOf="@+id/tvCharactersLabel" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvParodiesLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/dp30"
-                    android:layout_marginTop="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/parodies_label"
-                    android:textColor="@color/greyD9D9D9"
-                    android:textSize="15sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/layoutCharacters"
-                    app:myFont="@string/NotoSansBold"
-                    tools:targetApi="jelly_bean" />
+                    <nhdphuong.com.manga.views.customs.MyTextView
+                        android:id="@+id/tvCategoriesLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/dp30"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/categories_label"
+                        android:textColor="@color/greyD9D9D9"
+                        android:textSize="15sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:myFont="@string/NotoSansBold"
+                        tools:targetApi="jelly_bean" />
 
-                <LinearLayout
-                    android:id="@+id/layoutParodies"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvParodiesLabel"
-                    app:layout_constraintTop_toTopOf="@+id/tvParodiesLabel" />
+                    <LinearLayout
+                        android:id="@+id/layoutCategories"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/tvCategoriesLabel"
+                        app:layout_constraintTop_toTopOf="@+id/tvCategoriesLabel" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <nhdphuong.com.manga.views.customs.MyTextView
-                    android:id="@+id/tvGroupsLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/dp30"
-                    android:layout_marginTop="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/groups_label"
-                    android:textColor="@color/greyD9D9D9"
-                    android:textSize="15sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/layoutParodies"
-                    app:myFont="@string/NotoSansBold"
-                    tools:targetApi="jelly_bean" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <LinearLayout
-                    android:id="@+id/layoutGroups"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvGroupsLabel"
-                    app:layout_constraintTop_toTopOf="@+id/tvGroupsLabel" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    <nhdphuong.com.manga.views.customs.MyTextView
+                        android:id="@+id/tvCharactersLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/dp30"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/characters_label"
+                        android:textColor="@color/greyD9D9D9"
+                        android:textSize="15sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:myFont="@string/NotoSansBold"
+                        tools:targetApi="jelly_bean" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutCharacters"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/tvCharactersLabel"
+                        app:layout_constraintTop_toTopOf="@+id/tvCharactersLabel" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <nhdphuong.com.manga.views.customs.MyTextView
+                        android:id="@+id/tvParodiesLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/dp30"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/parodies_label"
+                        android:textColor="@color/greyD9D9D9"
+                        android:textSize="15sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:myFont="@string/NotoSansBold"
+                        tools:targetApi="jelly_bean" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutParodies"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/tvParodiesLabel"
+                        app:layout_constraintTop_toTopOf="@+id/tvParodiesLabel" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <nhdphuong.com.manga.views.customs.MyTextView
+                        android:id="@+id/tvGroupsLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/dp30"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/groups_label"
+                        android:textColor="@color/greyD9D9D9"
+                        android:textSize="15sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:myFont="@string/NotoSansBold"
+                        tools:targetApi="jelly_bean" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutGroups"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/tvGroupsLabel"
+                        app:layout_constraintTop_toTopOf="@+id/tvGroupsLabel" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
 
             <nhdphuong.com.manga.views.customs.MyTextView
                 android:id="@+id/tvPageCount"
