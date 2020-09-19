@@ -40,3 +40,5 @@
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
 -dontwarn Type_mirror_extKt$WhenMappings
 -keepnames class kotlinx.* { *; }
+-keep class nhdphuong.com.manga.data.entity.comment.Comment
+-keep class nhdphuong.com.manga.data.entity.comment.Poster

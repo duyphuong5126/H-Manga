@@ -49,18 +49,20 @@ class CommentAdapter(
         private val dateTime: MyTextView = itemView.commentDate
 
         fun bindTo(comment: Comment) {
-            comment.poster.avatarUrl?.let {
+            comment.poster?.avatarUrl?.let {
                 val imageUrl = ApiConstants.getCommentPosterAvatarUrl(it)
                 ImageUtils.loadCircularImage(
                     imageUrl, R.drawable.ic_404_not_found, posterAvatar
                 )
             }
 
-            posterName.text = comment.poster.userName.orEmpty()
+            posterName.text = comment.poster?.userName.orEmpty()
             content.text = comment.body.orEmpty()
 
-            val dateTimeFormat = SimpleDateFormat("E, dd MMM yyyy HH:mm", Locale.US)
-            dateTime.text = dateTimeFormat.format(Date(comment.posDate))
+            comment.posDate?.let {
+                val dateTimeFormat = SimpleDateFormat("E, dd MMM yyyy HH:mm", Locale.US)
+                dateTime.text = dateTimeFormat.format(Date(it))
+            }
         }
     }
 }

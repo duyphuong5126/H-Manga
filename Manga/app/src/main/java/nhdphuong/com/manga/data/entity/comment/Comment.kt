@@ -10,9 +10,9 @@ import nhdphuong.com.manga.Constants.Companion.BODY
 data class Comment(
     @field:SerializedName(ID) val id: String,
     @field:SerializedName(GALLERY_ID) val galleryId: String?,
-    @field:SerializedName(POSTER) val poster: Poster,
+    @field:SerializedName(POSTER) val poster: Poster?,
     @field:SerializedName(POST_DATE) private val _posDate: Long,
     @field:SerializedName(BODY) val body: String?
 ) {
-    val posDate: Long get() = _posDate * 1000
+    val posDate: Long? get() = _posDate * 1000
 }
