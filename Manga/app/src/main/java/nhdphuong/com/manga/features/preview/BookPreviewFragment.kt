@@ -700,16 +700,18 @@ class BookPreviewFragment :
     override fun showOpenFolderView() {
         activity?.run {
             Handler().postDelayed({
-                DialogHelper.showDownloadingFinishedDialog(this, onOk = {
-                    val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
-                    viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    viewGalleryIntent.type = "image/*"
-                    startActivity(
-                        Intent.createChooser(viewGalleryIntent, getString(R.string.open_with))
-                    )
-                }, onDismiss = {
+                if (isActive()) {
+                    DialogHelper.showDownloadingFinishedDialog(this, onOk = {
+                        val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
+                        viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        viewGalleryIntent.type = "image/*"
+                        startActivity(
+                            Intent.createChooser(viewGalleryIntent, getString(R.string.open_with))
+                        )
+                    }, onDismiss = {
 
-                })
+                    })
+                }
             }, if (refreshGalleryDialog.isShowing) SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY else 0)
         }
     }

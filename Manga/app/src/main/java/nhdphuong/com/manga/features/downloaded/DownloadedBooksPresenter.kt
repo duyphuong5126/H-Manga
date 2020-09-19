@@ -151,7 +151,7 @@ class DownloadedBooksPresenter @Inject constructor(
             val fromIndex = currentPage * MAX_PER_PAGE
             val toIndex = if ((currentPage + 1) * MAX_PER_PAGE < totalBookList.size) {
                 (currentPage + 1) * MAX_PER_PAGE
-            } else totalBookList.size
+            } else totalBookList.size - 1
             if (fromIndex == toIndex) {
                 currentBookList.add(totalBookList[toIndex])
             } else {
