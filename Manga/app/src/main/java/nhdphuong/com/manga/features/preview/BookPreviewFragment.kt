@@ -90,6 +90,7 @@ import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.entity.comment.Comment
+import nhdphuong.com.manga.features.comment.CommentThreadActivity
 import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.ImageUtils
@@ -128,6 +129,7 @@ class BookPreviewFragment :
         private const val CLOSE_AFTER_REMOVED_TIME = 3500L
         private const val SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY = 3000L
         private const val PREVIEW_CACHE_SIZE = 10
+        private const val PREFETCH_COMMENTS_DISTANCE = 10
     }
 
     private lateinit var presenter: BookPreviewContract.Presenter
@@ -744,19 +746,19 @@ class BookPreviewFragment :
 
     override fun setUpCommentList(commentList: List<Comment>, pageSize: Int) {
         commentAdapter = CommentAdapter(commentList)
-        rvCommentList.adapter = commentAdapter
-        rvCommentList.isNestedScrollingEnabled = false
+        rvCommentList?.adapter = commentAdapter
+        rvCommentList?.isNestedScrollingEnabled = false
         context?.let {
-            rvCommentList.layoutManager =
-                LinearLayoutManager(it, LinearLayoutManager.VERTICAL, false)
-            rvCommentList.addItemDecoration(SpaceItemDecoration(it, R.dimen.space_medium))
-        }
-        val hasComments = commentList.isNotEmpty()
-        mtvCommentThread.becomeVisibleIf(hasComments)
-        rvCommentList.becomeVisibleIf(hasComments)
-        if (hasComments) {
-            svPreview.doOnScrollToBottom {
-                presenter.syncNextPageOfCommentList(commentAdapter?.itemCount ?: 0)
+            val linearLayoutManager = LinearLayoutManager(it, LinearLayoutManager.VERTICAL, false)
+            rvCommentList?.layoutManager = linearLayoutManager
+            rvCommentList?.addItemDecoration(SpaceItemDecoration(it, R.dimen.space_medium))
+            val hasComments = commentList.isNotEmpty()
+            mtvCommentThread.becomeVisibleIf(hasComments)
+            rvCommentList?.becomeVisibleIf(hasComments)
+            if (hasComments) {
+                svPreview?.doOnScrollToBottom(
+                    linearLayoutManager, PREFETCH_COMMENTS_DISTANCE, this::prefetchCommentList
+                )
             }
         }
     }
@@ -767,22 +769,26 @@ class BookPreviewFragment :
         }
         commentAdapter?.addNewComments(commentList)
         if (commentList.isNotEmpty()) {
-            svPreview.doOnScrollToBottom {
-                presenter.syncNextPageOfCommentList(commentAdapter?.itemCount ?: 0)
+            (rvCommentList?.layoutManager as? LinearLayoutManager)?.let {
+                svPreview?.doOnScrollToBottom(
+                    it, PREFETCH_COMMENTS_DISTANCE, this::prefetchCommentList
+                )
             }
         }
     }
 
     override fun hideCommentList() {
-        mtvCommentThread.gone()
-        rvCommentList.gone()
+        mtvCommentThread?.gone()
+        rvCommentList?.gone()
     }
 
-    override fun enableShowFullCommentListButton(notShownComments: Int) {
+    override fun enableShowFullCommentListButton(notShownComments: Int, bookId: String) {
         mbShowFullList.text = getString(R.string.show_full_comment_list, notShownComments)
         mbShowFullList.becomeVisible()
         mbShowFullList.setOnClickListener {
-            Toast.makeText(context, "Show full comment list", Toast.LENGTH_SHORT).show()
+            context?.let {
+                CommentThreadActivity.start(it, bookId)
+            }
         }
     }
 
@@ -868,5 +874,9 @@ class BookPreviewFragment :
                 finish()
             }
         }, CLOSE_AFTER_REMOVED_TIME)
+    }
+
+    private fun prefetchCommentList() {
+        presenter.syncNextPageOfCommentList(commentAdapter?.itemCount ?: 0)
     }
 }

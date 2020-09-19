@@ -57,7 +57,7 @@ interface BookPreviewContract {
         fun setUpCommentList(commentList: List<Comment>, pageSize: Int)
         fun showMoreCommentList(commentList: List<Comment>)
         fun hideCommentList()
-        fun enableShowFullCommentListButton(notShownComments: Int)
+        fun enableShowFullCommentListButton(notShownComments: Int, bookId: String)
     }
 
     interface Presenter : Base.Presenter {

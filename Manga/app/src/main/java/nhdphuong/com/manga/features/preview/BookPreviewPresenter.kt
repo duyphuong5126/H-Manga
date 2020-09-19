@@ -164,10 +164,12 @@ class BookPreviewPresenter @Inject constructor(
                     } else emptyList()
                     main.launch {
                         commentSource.addAll(commentResponse.commentList)
-                        if (firstPage.isNotEmpty()) {
-                            view.setUpCommentList(firstPage, COMMENTS_PER_PAGE)
-                        } else {
-                            view.hideCommentList()
+                        if (view.isActive()) {
+                            if (firstPage.isNotEmpty()) {
+                                view.setUpCommentList(firstPage, COMMENTS_PER_PAGE)
+                            } else {
+                                view.hideCommentList()
+                            }
                         }
                     }
                 }
@@ -449,7 +451,7 @@ class BookPreviewPresenter @Inject constructor(
         Logger.d(TAG, "currentCommentCount=$currentCommentCount")
         if (currentCommentCount >= (2 * COMMENTS_PER_PAGE)) {
             val notShownComments = commentSource.size - currentCommentCount
-            view.enableShowFullCommentListButton(notShownComments)
+            view.enableShowFullCommentListButton(notShownComments, book.bookId)
             return
         }
         val page = currentCommentCount / COMMENTS_PER_PAGE

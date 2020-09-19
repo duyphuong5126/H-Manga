@@ -645,7 +645,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_medium"
-                android:layout_marginBottom="@dimen/space_medium"
                 android:text="@string/comments"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
@@ -658,7 +657,7 @@
                 android:id="@+id/rvCommentList"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="@dimen/space_medium"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/mtvCommentThread" />

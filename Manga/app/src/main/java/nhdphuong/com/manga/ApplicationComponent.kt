@@ -6,6 +6,8 @@ import nhdphuong.com.manga.features.about.AboutUsComponent
 import nhdphuong.com.manga.features.about.AboutUsModule
 import nhdphuong.com.manga.features.admin.AdminComponent
 import nhdphuong.com.manga.features.admin.AdminModule
+import nhdphuong.com.manga.features.comment.CommentThreadComponent
+import nhdphuong.com.manga.features.comment.CommentThreadModule
 import nhdphuong.com.manga.features.downloaded.DownloadedBooksComponent
 import nhdphuong.com.manga.features.downloaded.DownloadedBooksModule
 import nhdphuong.com.manga.features.header.HeaderModule
@@ -38,6 +40,7 @@ interface ApplicationComponent {
     fun plus(recentModule: RecentModule): RecentComponent
     fun plus(adminModule: AdminModule): AdminComponent
     fun plus(downloadedBooksModule: DownloadedBooksModule): DownloadedBooksComponent
+    fun plus(commentThreadModule: CommentThreadModule): CommentThreadComponent
     fun plus(aboutUsModule: AboutUsModule): AboutUsComponent
 
     fun inject(service: TagsUpdateService)

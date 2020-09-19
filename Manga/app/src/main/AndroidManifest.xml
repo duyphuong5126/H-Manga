@@ -21,6 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:allowBackup">
+        <activity android:name=".features.comment.CommentThreadActivity" />
         <activity
             android:name=".features.about.AboutUsActivity"
             android:theme="@style/AppTheme.GreyStatusBar" />
