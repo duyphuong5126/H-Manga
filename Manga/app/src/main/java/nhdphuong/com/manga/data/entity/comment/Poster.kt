@@ -10,9 +10,9 @@ import nhdphuong.com.manga.Constants.Companion.IS_STAFF
 
 data class Poster(
     @field:SerializedName(ID) val id: String,
-    @field:SerializedName(USER_NAME) val userName: String,
-    @field:SerializedName(SLUG) val slug: String,
-    @field:SerializedName(AVATAR_URL) val avatarUrl: String,
+    @field:SerializedName(USER_NAME) val userName: String?,
+    @field:SerializedName(SLUG) val slug: String?,
+    @field:SerializedName(AVATAR_URL) val avatarUrl: String?,
     @field:SerializedName(IS_SUPER_USER) val isSuperUser: Boolean,
     @field:SerializedName(IS_STAFF) val isStaff: Boolean
 )

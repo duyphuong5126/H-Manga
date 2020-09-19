@@ -85,7 +85,7 @@ class CommentThreadActivity : AppCompatActivity(), CommentThreadContract.View {
     }
 
     override fun hideLoading() {
-        loadingDialog.hide()
+        loadingDialog.dismiss()
     }
 
     override fun isActive(): Boolean {
