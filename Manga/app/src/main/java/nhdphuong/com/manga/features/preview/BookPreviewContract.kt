@@ -3,6 +3,7 @@ package nhdphuong.com.manga.features.preview
 import nhdphuong.com.manga.Base
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.tags.Tag
+import nhdphuong.com.manga.data.entity.comment.Comment
 
 /*
  * Created by nhdphuong on 4/14/18.
@@ -53,6 +54,10 @@ interface BookPreviewContract {
         fun hideUnSeenButton()
         fun showLastVisitedPage(page: Int, pageUrl: String)
         fun hideLastVisitedPage()
+        fun setUpCommentList(commentList: List<Comment>, pageSize: Int)
+        fun showMoreCommentList(commentList: List<Comment>)
+        fun hideCommentList()
+        fun enableShowFullCommentListButton(notShownComments: Int)
     }
 
     interface Presenter : Base.Presenter {
@@ -77,5 +82,6 @@ interface BookPreviewContract {
         fun unSeenBook()
         fun loadLastVisitedPage()
         fun refreshLastVisitedPage(lastVisitedPage: Int)
+        fun syncNextPageOfCommentList(currentCommentCount: Int)
     }
 }

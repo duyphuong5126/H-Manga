@@ -12,23 +12,27 @@ object ApiConstants {
     private fun getThumbnailUrl(mediaId: String): String = "$NHENTAI_T/galleries/$mediaId"
 
     fun getBookThumbnailById(
-            mediaId: String,
-            imageType: String
+        mediaId: String,
+        imageType: String
     ): String = "$NHENTAI_T/galleries/$mediaId/thumb$imageType"
 
     fun getBookCover(mediaId: String): String = "${getThumbnailUrl(mediaId)}/cover.jpg"
 
     fun getThumbnailByPage(
-            mediaId: String,
-            pageNumber: Int,
-            imageType: String
+        mediaId: String,
+        pageNumber: Int,
+        imageType: String
     ): String = "${getThumbnailUrl(mediaId)}/${pageNumber}t.$imageType"
 
     private fun getGalleryUrl(mediaId: String): String = "$NHENTAI_I/galleries/$mediaId"
 
     fun getPictureUrl(
-            mediaId: String,
-            pageNumber: Int,
-            imageType: String
+        mediaId: String,
+        pageNumber: Int,
+        imageType: String
     ): String = "${getGalleryUrl(mediaId)}/$pageNumber.$imageType"
+
+    fun getCommentPosterAvatarUrl(avatarUrl: String): String {
+        return "$NHENTAI_I/$avatarUrl"
+    }
 }

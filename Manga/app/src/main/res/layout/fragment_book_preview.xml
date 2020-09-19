@@ -7,11 +7,12 @@
     tools:ignore="RtlCompat"
     tools:targetApi="jelly_bean">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/svPreview"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/grey_1"
+        android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,6 +88,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle_1"
+                app:layout_goneMarginTop="@dimen/dp10"
                 app:myFont="@string/NotoSansBold" />
 
             <LinearLayout
@@ -638,6 +640,52 @@
 
             </HorizontalScrollView>
 
+            <nhdphuong.com.manga.views.customs.MyTextView
+                android:id="@+id/mtvCommentThread"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_medium"
+                android:layout_marginBottom="@dimen/space_medium"
+                android:text="@string/comments"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="@+id/hsvRecommendList"
+                app:layout_constraintTop_toBottomOf="@+id/hsvRecommendList"
+                app:layout_goneMarginTop="@dimen/dp10"
+                app:myFont="@string/NotoSansBold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCommentList"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/mtvCommentThread" />
+
+            <nhdphuong.com.manga.views.customs.MyButton
+                android:id="@+id/mbShowFullList"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_medium"
+                android:layout_marginLeft="@dimen/space_medium"
+                android:layout_marginTop="@dimen/space_normal"
+                android:layout_marginEnd="@dimen/space_medium"
+                android:layout_marginRight="@dimen/space_medium"
+                android:layout_marginBottom="@dimen/space_normal"
+                android:background="@drawable/button_red_all_corners_radius"
+                android:gravity="center"
+                android:paddingTop="@dimen/space_medium"
+                android:paddingBottom="@dimen/space_medium"
+                android:text="@string/show_full_comment_list"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/normal_text_size"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rvCommentList"
+                app:myButtonFont="@string/NotoSansBold" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

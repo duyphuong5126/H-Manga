@@ -3,6 +3,7 @@ package nhdphuong.com.manga.data
 import io.reactivex.Completable
 import io.reactivex.Single
 import nhdphuong.com.manga.data.entity.BookResponse
+import nhdphuong.com.manga.data.entity.CommentResponse
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.RecommendBookResponse
 import nhdphuong.com.manga.data.entity.RemoteBookResponse
@@ -26,6 +27,7 @@ interface BookDataSource {
 
         suspend fun getBookDetails(bookId: String): BookResponse
         suspend fun getRecommendBook(bookId: String): RecommendBookResponse
+        suspend fun getCommentList(bookId: String): CommentResponse
     }
 
     interface Local {

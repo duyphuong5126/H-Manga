@@ -22,6 +22,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_book_preview.buttonClearDownloadedData
 import kotlinx.android.synthetic.main.fragment_book_preview.buttonUnSeen
 import kotlinx.android.synthetic.main.fragment_book_preview.clBookIdClickableArea
@@ -37,6 +38,8 @@ import kotlinx.android.synthetic.main.fragment_book_preview.layoutGroups
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutLanguages
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutParodies
 import kotlinx.android.synthetic.main.fragment_book_preview.layoutTags
+import kotlinx.android.synthetic.main.fragment_book_preview.mbShowFullList
+import kotlinx.android.synthetic.main.fragment_book_preview.mtvCommentThread
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvDownload
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvDownloaded
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvFavorite
@@ -44,6 +47,7 @@ import kotlinx.android.synthetic.main.fragment_book_preview.mtvLastVisitedPage
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvNotFavorite
 import kotlinx.android.synthetic.main.fragment_book_preview.mtvRecommendBook
 import kotlinx.android.synthetic.main.fragment_book_preview.pbDownloading
+import kotlinx.android.synthetic.main.fragment_book_preview.rvCommentList
 import kotlinx.android.synthetic.main.fragment_book_preview.rvPreviewList
 import kotlinx.android.synthetic.main.fragment_book_preview.rvRecommendList
 import kotlinx.android.synthetic.main.fragment_book_preview.svBookCover
@@ -85,19 +89,23 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.tags.Tag
+import nhdphuong.com.manga.data.entity.comment.Comment
 import nhdphuong.com.manga.features.reader.ReaderActivity
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.ImageUtils
+import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.supports.copyToClipBoard
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
 import nhdphuong.com.manga.views.adapters.BookAdapter
+import nhdphuong.com.manga.views.adapters.CommentAdapter
 import nhdphuong.com.manga.views.adapters.PreviewAdapter
 import nhdphuong.com.manga.views.becomeInvisible
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.doOnGlobalLayout
+import nhdphuong.com.manga.views.doOnScrollToBottom
 import nhdphuong.com.manga.views.gone
 
 /*
@@ -129,6 +137,8 @@ class BookPreviewFragment :
     private lateinit var refreshGalleryDialog: Dialog
     private var isDownloadingRequested = false
     private var isDeletingRequested = false
+
+    private var commentAdapter: CommentAdapter? = null
 
     @Volatile
     private var isPresenterStarted: Boolean = false
@@ -730,6 +740,50 @@ class BookPreviewFragment :
         mtvPageNumber.text = ""
         mtvLastVisitedPage.gone()
         lastVisitedPage.gone()
+    }
+
+    override fun setUpCommentList(commentList: List<Comment>, pageSize: Int) {
+        commentAdapter = CommentAdapter(commentList)
+        rvCommentList.adapter = commentAdapter
+        rvCommentList.isNestedScrollingEnabled = false
+        context?.let {
+            rvCommentList.layoutManager =
+                LinearLayoutManager(it, LinearLayoutManager.VERTICAL, false)
+            rvCommentList.addItemDecoration(SpaceItemDecoration(it, R.dimen.space_medium))
+        }
+        val hasComments = commentList.isNotEmpty()
+        mtvCommentThread.becomeVisibleIf(hasComments)
+        rvCommentList.becomeVisibleIf(hasComments)
+        if (hasComments) {
+            svPreview.doOnScrollToBottom {
+                presenter.syncNextPageOfCommentList(commentAdapter?.itemCount ?: 0)
+            }
+        }
+    }
+
+    override fun showMoreCommentList(commentList: List<Comment>) {
+        if (commentList.isEmpty()) {
+            return
+        }
+        commentAdapter?.addNewComments(commentList)
+        if (commentList.isNotEmpty()) {
+            svPreview.doOnScrollToBottom {
+                presenter.syncNextPageOfCommentList(commentAdapter?.itemCount ?: 0)
+            }
+        }
+    }
+
+    override fun hideCommentList() {
+        mtvCommentThread.gone()
+        rvCommentList.gone()
+    }
+
+    override fun enableShowFullCommentListButton(notShownComments: Int) {
+        mbShowFullList.text = getString(R.string.show_full_comment_list, notShownComments)
+        mbShowFullList.becomeVisible()
+        mbShowFullList.setOnClickListener {
+            Toast.makeText(context, "Show full comment list", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun showLoading() {

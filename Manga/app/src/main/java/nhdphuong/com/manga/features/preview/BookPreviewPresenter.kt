@@ -31,7 +31,9 @@ import nhdphuong.com.manga.Constants.Companion.ANALYTICS_BOOK_NAME
 import nhdphuong.com.manga.Constants.Companion.EVENT_OPEN_BOOK
 import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.data.entity.BookResponse
+import nhdphuong.com.manga.data.entity.CommentResponse
 import nhdphuong.com.manga.data.entity.RecommendBookResponse
+import nhdphuong.com.manga.data.entity.comment.Comment
 import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
 import nhdphuong.com.manga.usecase.GetDownloadedBookCoverUseCase
 import nhdphuong.com.manga.usecase.GetLastVisitedPageUseCase
@@ -60,6 +62,7 @@ class BookPreviewPresenter @Inject constructor(
     companion object {
         private const val TAG = "BookPreviewPresenter"
         private const val MILLISECOND: Long = 1000
+        private const val COMMENTS_PER_PAGE = 25
     }
 
     private var isTagListInitialized = false
@@ -82,6 +85,8 @@ class BookPreviewPresenter @Inject constructor(
     private lateinit var groupList: ArrayList<Tag>
 
     private val bookThumbnailList = ArrayList<String>()
+
+    private val commentSource = ArrayList<Comment>()
 
     private val uploadedTimeStamp: String = SupportUtils.getTimeElapsed(
         System.currentTimeMillis() - book.updateAt * MILLISECOND
@@ -143,6 +148,35 @@ class BookPreviewPresenter @Inject constructor(
         languageList = ArrayList()
         parodyList = ArrayList()
         groupList = ArrayList()
+
+        if (viewDownloadedData) {
+            return
+        }
+        io.launch {
+            when (val commentResponse = bookRepository.getCommentList(book.bookId)) {
+                is CommentResponse.Success -> {
+                    Logger.d(TAG, "commentList=${commentResponse.commentList.size}")
+                    val startPosition = 0
+                    val desiredEndPosition = COMMENTS_PER_PAGE
+                    val endPosition = minOf(commentResponse.commentList.size, desiredEndPosition)
+                    val firstPage = if (endPosition > startPosition) {
+                        commentResponse.commentList.subList(startPosition, endPosition)
+                    } else emptyList()
+                    main.launch {
+                        commentSource.addAll(commentResponse.commentList)
+                        if (firstPage.isNotEmpty()) {
+                            view.setUpCommentList(firstPage, COMMENTS_PER_PAGE)
+                        } else {
+                            view.hideCommentList()
+                        }
+                    }
+                }
+
+                is CommentResponse.Failure -> {
+                    Logger.d(TAG, "failed to get comment list with error: ${commentResponse.error}")
+                }
+            }
+        }
     }
 
     override fun loadInfoLists() {
@@ -405,6 +439,26 @@ class BookPreviewPresenter @Inject constructor(
             view.showLastVisitedPage(lastVisitedPage + 1, bookThumbnailList[lastVisitedPage])
         } else {
             view.hideLastVisitedPage()
+        }
+    }
+
+    override fun syncNextPageOfCommentList(currentCommentCount: Int) {
+        if (currentCommentCount < COMMENTS_PER_PAGE || currentCommentCount % COMMENTS_PER_PAGE > 0) {
+            return
+        }
+        Logger.d(TAG, "currentCommentCount=$currentCommentCount")
+        if (currentCommentCount >= (2 * COMMENTS_PER_PAGE)) {
+            val notShownComments = commentSource.size - currentCommentCount
+            view.enableShowFullCommentListButton(notShownComments)
+            return
+        }
+        val page = currentCommentCount / COMMENTS_PER_PAGE
+        val startPosition = page * COMMENTS_PER_PAGE
+        val desiredEndPosition = (page + 1) * COMMENTS_PER_PAGE
+        val endPosition = minOf(commentSource.size, desiredEndPosition)
+
+        if (endPosition > startPosition) {
+            view.showMoreCommentList(commentSource.subList(startPosition, endPosition))
         }
     }
 

@@ -3,6 +3,7 @@ package nhdphuong.com.manga.api
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.data.entity.book.RemoteBook
+import nhdphuong.com.manga.data.entity.comment.Comment
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -30,4 +31,7 @@ interface BookApiService {
     @Suppress("unused")
     @GET("/api/gallery/{bookId}/related")
     fun getRecommendBook(@Path("bookId") bookId: String): Call<RecommendBook>
+
+    @GET("/api/gallery/{bookId}/comments")
+    fun getCommentList(@Path("bookId") bookId: String): Call<List<Comment>>
 }

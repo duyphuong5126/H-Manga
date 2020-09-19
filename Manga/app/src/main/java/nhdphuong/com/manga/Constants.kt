@@ -38,6 +38,16 @@ class Constants {
         const val GROUP = "group"
         const val TAG = "tag"
 
+        const val GALLERY_ID = "gallery_id"
+        const val POSTER = "poster"
+        const val USER_NAME = "username"
+        const val SLUG = "slug"
+        const val AVATAR_URL = "avatar_url"
+        const val IS_SUPER_USER = "is_superuser"
+        const val IS_STAFF = "is_staff"
+        const val POST_DATE = "post_date"
+        const val BODY = "body"
+
         // App constants
         const val RANDOM = "Random"
         const val TAGS = "Tags"

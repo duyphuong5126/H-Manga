@@ -2,6 +2,7 @@ package nhdphuong.com.manga.views
 
 import android.view.View
 import android.view.ViewTreeObserver
+import androidx.core.widget.NestedScrollView
 
 fun View.becomeVisible() {
     visibility = View.VISIBLE
@@ -25,6 +26,16 @@ fun View.doOnGlobalLayout(task: () -> Unit) {
         override fun onGlobalLayout() {
             task.invoke()
             viewTreeObserver.removeOnGlobalLayoutListener(this)
+        }
+    })
+}
+
+fun NestedScrollView.doOnScrollToBottom(task: () -> Unit) {
+    setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, _, _, _ ->
+        if (!this.canScrollVertically(1)) {
+            val onScrollChangeListener: NestedScrollView.OnScrollChangeListener? = null
+            this.setOnScrollChangeListener(onScrollChangeListener)
+            task()
         }
     })
 }

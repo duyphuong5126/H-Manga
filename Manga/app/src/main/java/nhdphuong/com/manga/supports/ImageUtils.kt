@@ -37,6 +37,16 @@ class ImageUtils {
             Glide.with(imageView).load(url).apply(requestOptions).into(imageView)
         }
 
+        @SuppressLint("CheckResult")
+        fun <IV : ImageView> loadCircularImage(url: String, defaultResource: Int, imageView: IV) {
+            val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
+                .error(defaultResource)
+                .circleCrop()
+                .timeout(TIME_OUT)
+                .skipMemoryCache(true)
+            Glide.with(imageView).load(url).apply(requestOptions).into(imageView)
+        }
+
         fun <IV : ImageView> loadImage(
             url: String,
             defaultResource: Int,

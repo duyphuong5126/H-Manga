@@ -5,18 +5,21 @@ import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.entity.BookResponse
+import nhdphuong.com.manga.data.entity.CommentResponse
 import nhdphuong.com.manga.data.entity.RecommendBookResponse
 import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RecommendBook
 import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.entity.book.SortOption
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import nhdphuong.com.manga.data.entity.comment.Comment
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.Locale
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /*
  * Created by nhdphuong on 3/24/18.
@@ -60,6 +63,22 @@ class BookRemoteDataSource(
             } catch (throwable: Throwable) {
                 Logger.d(TAG, "get all recommend book of $bookId failed=$throwable")
                 continuation.resume(RecommendBookResponse.Failure(throwable))
+            }
+        }
+    }
+
+    override suspend fun getCommentList(bookId: String): CommentResponse {
+        return suspendCoroutine { continuation ->
+            try {
+                val url =
+                    String.format(Locale.US, "https://nhentai.net/api/gallery/%s/comments", bookId)
+                val responseData = performGetRequest(url)
+                val commentsResponse = Gson().fromJson(responseData, Array<Comment>::class.java)
+                val recommendBookResult = CommentResponse.Success(commentsResponse.toList())
+                continuation.resume(recommendBookResult)
+            } catch (throwable: Throwable) {
+                Logger.d(TAG, "get all recommend book of $bookId failed=$throwable")
+                continuation.resume(CommentResponse.Failure(throwable))
             }
         }
     }

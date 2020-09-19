@@ -196,6 +196,9 @@
     <string name="page_number_hint">Enter page number</string>
     <string name="invalid_page">Invalid page number</string>
 
+    <string name="comments">Comments</string>
+    <string name="show_full_comment_list">Show more %d comments</string>
+
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>
         <item>..</item>

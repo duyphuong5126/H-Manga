@@ -4,6 +4,7 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.entity.BookResponse
+import nhdphuong.com.manga.data.entity.CommentResponse
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.RecommendBookResponse
 import nhdphuong.com.manga.data.entity.RemoteBookResponse
@@ -131,5 +132,9 @@ class BookRepository @Inject constructor(
 
     override fun getLastVisitedPage(bookId: String): Single<Int> {
         return bookLocalDataSource.getLastVisitedPage(bookId)
+    }
+
+    override suspend fun getCommentList(bookId: String): CommentResponse {
+        return bookRemoteDataSource.getCommentList(bookId)
     }
 }
