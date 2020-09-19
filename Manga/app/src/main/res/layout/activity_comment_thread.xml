@@ -56,15 +56,10 @@
 
         <ImageButton
             android:id="@+id/ibScrollToTop"
-            android:layout_width="@dimen/normal_button_size"
-            android:layout_height="@dimen/normal_button_size"
-            android:layout_marginEnd="@dimen/space_normal"
-            android:layout_marginRight="@dimen/space_normal"
-            android:background="@drawable/button_circle_transparent"
-            android:contentDescription="@string/switch_recent_list"
-            android:paddingStart="@dimen/space_normal"
+            android:layout_width="@dimen/large_box_size"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_transparent_rect_rounded_all_corners"
             android:paddingTop="@dimen/space_small"
-            android:paddingEnd="@dimen/space_normal"
             android:paddingBottom="@dimen/space_small"
             android:rotation="90"
             android:scaleType="center"

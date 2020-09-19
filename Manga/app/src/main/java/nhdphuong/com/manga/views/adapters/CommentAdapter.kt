@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.layout_comment.view.advancedUserIcon
 import kotlinx.android.synthetic.main.layout_comment.view.comment
 import kotlinx.android.synthetic.main.layout_comment.view.commentDate
 import kotlinx.android.synthetic.main.layout_comment.view.posterAvatar
@@ -12,6 +13,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.comment.Comment
 import nhdphuong.com.manga.supports.ImageUtils
+import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.customs.MyTextView
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -47,6 +49,7 @@ class CommentAdapter(
         private val posterName: MyTextView = itemView.posterName
         private val content: MyTextView = itemView.comment
         private val dateTime: MyTextView = itemView.commentDate
+        private val advancedUserIcon: ImageView = itemView.advancedUserIcon
 
         fun bindTo(comment: Comment) {
             comment.poster?.avatarUrl?.let {
@@ -62,6 +65,14 @@ class CommentAdapter(
             comment.posDate?.let {
                 val dateTimeFormat = SimpleDateFormat("E, dd MMM yyyy HH:mm", Locale.US)
                 dateTime.text = dateTimeFormat.format(Date(it))
+            }
+
+            val isStaff = comment.poster?.isStaff ?: false
+            val isSuperUser = comment.poster?.isSuperUser ?: false
+            advancedUserIcon.becomeVisibleIf(isStaff || isSuperUser)
+            when {
+                isStaff -> advancedUserIcon.setImageResource(R.drawable.ic_staff_white)
+                isSuperUser -> advancedUserIcon.setImageResource(R.drawable.ic_super_user)
             }
         }
     }
