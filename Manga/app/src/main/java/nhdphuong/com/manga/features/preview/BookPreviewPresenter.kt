@@ -150,6 +150,7 @@ class BookPreviewPresenter @Inject constructor(
         groupList = ArrayList()
 
         if (viewDownloadedData) {
+            view.hideCommentList()
             return
         }
         io.launch {

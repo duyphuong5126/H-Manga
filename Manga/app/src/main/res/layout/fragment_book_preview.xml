@@ -648,7 +648,7 @@
                 android:text="@string/comments"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="@+id/hsvRecommendList"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/hsvRecommendList"
                 app:layout_goneMarginTop="@dimen/dp10"
                 app:myFont="@string/NotoSansBold" />
