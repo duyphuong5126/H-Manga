@@ -33,6 +33,15 @@ fun View.doOnGlobalLayout(task: () -> Unit) {
     })
 }
 
+fun RecyclerView.doOnScrolled(task: () -> Unit) {
+    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            task()
+        }
+    })
+}
+
 fun RecyclerView.doOnScrollToBottom(distanceFromBottom: Int = 0, task: () -> Unit) {
     addOnScrollListener(object : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {

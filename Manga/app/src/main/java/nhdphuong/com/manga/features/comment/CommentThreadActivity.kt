@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_comment_thread.ibScrollToTop
 import kotlinx.android.synthetic.main.activity_comment_thread.rvCommentList
 import kotlinx.android.synthetic.main.activity_comment_thread.ibBack
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.comment.Comment
@@ -18,6 +19,7 @@ import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.CommentAdapter
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.doOnScrollToBottom
+import nhdphuong.com.manga.views.doOnScrolled
 import javax.inject.Inject
 
 
@@ -45,31 +47,44 @@ class CommentThreadActivity : AppCompatActivity(), CommentThreadContract.View {
             onBackPressed()
         }
 
-        ibScrollToTop?.setOnClickListener {
-            rvCommentList?.scrollToPosition(0)
-        }
-
         presenter.start()
     }
 
     override fun setUpCommentList(commentList: List<Comment>, pageSize: Int) {
-        commentAdapter = CommentAdapter(commentList)
-        rvCommentList?.adapter = commentAdapter
-        rvCommentList?.isNestedScrollingEnabled = false
-        val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        rvCommentList?.layoutManager = linearLayoutManager
-        rvCommentList?.addItemDecoration(
-            SpaceItemDecoration(
-                this,
-                R.dimen.space_medium,
-                showFirstDivider = true,
-                showLastDivider = true
+        rvCommentList?.let {
+            commentAdapter = CommentAdapter(commentList)
+            it.adapter = commentAdapter
+            it.isNestedScrollingEnabled = false
+            val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+            it.layoutManager = linearLayoutManager
+            it.addItemDecoration(
+                SpaceItemDecoration(
+                    this,
+                    R.dimen.space_medium,
+                    showFirstDivider = true,
+                    showLastDivider = true
+                )
             )
-        )
-        val hasComments = commentList.isNotEmpty()
-        rvCommentList?.becomeVisibleIf(hasComments)
-        if (hasComments) {
-            rvCommentList?.doOnScrollToBottom(PREFETCH_COMMENTS_DISTANCE, this::prefetchCommentList)
+            val commentCount = commentList.size
+            it.becomeVisibleIf(commentCount > 0)
+            ibScrollToTop?.setOnClickListener { _ ->
+                val firstVisiblePos = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
+                if (firstVisiblePos > pageSize) {
+                    it.scrollToPosition(pageSize)
+                    it.smoothScrollToPosition(0)
+                } else {
+                    it.smoothScrollToPosition(0)
+                }
+            }
+            it.doOnScrolled {
+                val firstVisiblePos = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
+                Logger.d("CommentThreadActivity", "firstVisiblePos=$firstVisiblePos")
+                ibScrollToTop?.becomeVisibleIf(firstVisiblePos > pageSize)
+            }
+
+            if (commentCount > 0) {
+                it.doOnScrollToBottom(PREFETCH_COMMENTS_DISTANCE, this::prefetchCommentList)
+            }
         }
     }
 
