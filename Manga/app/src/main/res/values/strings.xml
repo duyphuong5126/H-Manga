@@ -192,7 +192,7 @@
     <string name="library_error_time_out_label">Connection timeout!\nPlease try again later</string>
     <string name="library_error_unknown_label">Unable to load book library!</string>
 
-    <string name="jump_to_page">Jump To Page</string>
+    <string name="jump_to_page">Go To Page</string>
     <string name="page_number_hint">Enter page number</string>
     <string name="invalid_page">Invalid page number</string>
 
