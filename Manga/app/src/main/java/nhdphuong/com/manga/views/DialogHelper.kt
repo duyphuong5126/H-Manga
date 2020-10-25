@@ -160,13 +160,22 @@ class DialogHelper {
             )
         }
 
-        fun showTagDataBeingDownloadedDialog(activity: Activity, onOk: () -> Unit = {}) {
+        fun showTagDataBeingDownloadedDialog(
+            activity: Activity,
+            onOk: () -> Unit = {},
+            onDismiss: () -> Unit = {}
+        ) {
             val message = activity.getString(R.string.downloading_tags_already_started_message)
-            showOkDialog(
+            val cancel = activity.getString(R.string.ok)
+            val ok = activity.getString(R.string.stop_downloading_tags)
+            showOkDismissDialog(
                 activity,
                 activity.getString(R.string.downloading_tags_already_started_title),
                 message,
-                onOk
+                ok,
+                cancel,
+                onOk,
+                onDismiss
             )
         }
 

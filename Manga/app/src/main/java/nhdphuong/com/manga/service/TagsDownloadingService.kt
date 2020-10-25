@@ -81,6 +81,9 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
             val tagResult = TagResult(fileUtils, sharedPreferencesManager)
             val currentPageTracker = AtomicInteger(0)
             Observable.fromIterable(pages.sorted())
+                .takeWhile {
+                    !isForcedStopping.get()
+                }
                 .doOnSubscribe {
                     isRunning.compareAndSet(false, true)
                 }
@@ -113,6 +116,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
                     postDownloadingCompletedMessages()
                     tagResult.exportTags()
                     isRunning.compareAndSet(true, false)
+                    isForcedStopping.compareAndSet(true, false)
                 })
                 .let(compositeDisposable::add)
         }
@@ -222,6 +226,8 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
         private const val TAG = "TagsDownloadingService"
         private const val NUMBER_OF_PAGES = "numberOfPages"
 
+        private val isForcedStopping = AtomicBoolean(false)
+
         private val isRunning = AtomicBoolean(false)
         val isTagBeingDownloaded: Boolean get() = isRunning.get()
 
@@ -229,6 +235,10 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
             Intent(fromContext, TagsDownloadingService::class.java).apply {
                 putExtra(NUMBER_OF_PAGES, numberOfPage)
             }.let(fromContext::startService)
+        }
+
+        fun stopCurrentTask() {
+            isForcedStopping.compareAndSet(false, true)
         }
 
         @Parcelize

@@ -39,9 +39,21 @@ class AdminFragment : Fragment(), AdminContract.View {
     companion object {
         const val TAG = "AdminFragment"
         private const val REQUEST_STORAGE_PERMISSION = 3143
+
+        private enum class DownloadingSwitch {
+            Start, Stop
+        }
     }
 
     private lateinit var presenter: AdminContract.Presenter
+
+    private var currentDownloadingSwitch: DownloadingSwitch = DownloadingSwitch.Start
+        set(value) {
+            if (value != field) {
+                changeDownloadButtonStatus(value)
+            }
+            field = value
+        }
 
     private val tagDownloadingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -84,8 +96,18 @@ class AdminFragment : Fragment(), AdminContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mtv_pages_count?.text = ""
         mbt_start_downloading?.setOnClickListener {
-            presenter.startDownloading()
+            if (!TagsDownloadingService.isTagBeingDownloaded) {
+                presenter.startDownloading()
+            } else {
+                activity?.let {
+                    DialogHelper.showTagDataBeingDownloadedDialog(it, onOk = {
+                        TagsDownloadingService.stopCurrentTask()
+                        currentDownloadingSwitch = DownloadingSwitch.Start
+                    })
+                }
+            }
         }
 
         clearAllData()
@@ -99,6 +121,11 @@ class AdminFragment : Fragment(), AdminContract.View {
 
     override fun onStart() {
         super.onStart()
+        currentDownloadingSwitch = if (TagsDownloadingService.isTagBeingDownloaded) {
+            DownloadingSwitch.Stop
+        } else {
+            DownloadingSwitch.Start
+        }
         BroadCastReceiverHelper.registerBroadcastReceiver(
             context,
             tagDownloadingReceiver,
@@ -162,13 +189,10 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     override fun startDownloadingTagData(numberOfPage: Long) {
-        activity?.let {
+        currentDownloadingSwitch = DownloadingSwitch.Stop
+        context?.let {
             Logger.d(TAG, "isTagBeingDownloaded=${TagsDownloadingService.isTagBeingDownloaded}")
-            if (!TagsDownloadingService.isTagBeingDownloaded) {
-                TagsDownloadingService.start(it, numberOfPage)
-            } else {
-                DialogHelper.showTagDataBeingDownloadedDialog(it)
-            }
+            TagsDownloadingService.start(it, numberOfPage)
         }
     }
 
@@ -205,7 +229,6 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     private fun clearAllData() {
-        mtv_pages_count?.text = ""
         mtv_pages_downloaded?.text = ""
         mtv_artists_count?.text = ""
         mtv_characters_count?.text = ""
@@ -215,5 +238,16 @@ class AdminFragment : Fragment(), AdminContract.View {
         mtv_groups_count?.text = ""
         mtv_tags_count?.text = ""
         mtv_unknown_tags_count?.text = ""
+    }
+
+    private fun changeDownloadButtonStatus(newStatus: DownloadingSwitch) {
+        Logger.d(TAG, "currentDownloadingSwitch=$newStatus")
+        mbt_start_downloading?.text = getString(
+            if (newStatus == DownloadingSwitch.Start) {
+                R.string.start_downloading
+            } else {
+                R.string.stop_downloading
+            }
+        )
     }
 }
