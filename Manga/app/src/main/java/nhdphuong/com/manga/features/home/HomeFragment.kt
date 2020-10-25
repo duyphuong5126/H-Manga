@@ -378,7 +378,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             NotificationCompat.PRIORITY_DEFAULT,
             message,
             true,
-            Constants.NOTIFICATION_ID
+            Constants.APP_UPGRADE_NOTIFICATION_ID
         )
     }
 

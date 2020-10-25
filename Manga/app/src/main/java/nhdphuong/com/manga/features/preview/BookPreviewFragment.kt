@@ -587,58 +587,62 @@ class BookPreviewFragment :
     }
 
     override fun initDownloading(total: Int) {
-        clDownloadProgress.becomeVisible()
-        pbDownloading.max = total
-        mtvDownloaded.text = String.format(getString(R.string.preview_download_progress), 0, total)
+        clDownloadProgress?.becomeVisible()
+        pbDownloading?.max = total
+        mtvDownloaded?.text = String.format(getString(R.string.preview_download_progress), 0, total)
     }
 
     override fun updateDownloadProgress(progress: Int, total: Int) {
-        clDownloadProgress.becomeVisible()
-        pbDownloading.max = total
+        clDownloadProgress?.becomeVisible()
+        pbDownloading?.max = total
         updateProgressDrawable(progress, total)
-        pbDownloading.progress = progress
-        mtvDownloaded.text =
+        pbDownloading?.progress = progress
+        mtvDownloaded?.text =
             String.format(getString(R.string.preview_download_progress), progress, total)
     }
 
     override fun finishDownloading() {
-        mtvDownloaded.text = getString(R.string.done)
-        pbDownloading?.postDelayed({
-            updateProgressDrawable(0, pbDownloading.max)
-            pbDownloading?.max = 0
-            clDownloadProgress?.gone()
-            mtvDownloaded?.text = getString(R.string.preview_download_progress)
-        }, DOWNLOADING_BAR_HIDING_DELAY)
+        mtvDownloaded?.text = getString(R.string.done)
+        pbDownloading?.let {
+            it.postDelayed({
+                updateProgressDrawable(0, it.max)
+                it.max = 0
+                clDownloadProgress?.gone()
+                mtvDownloaded?.text = getString(R.string.preview_download_progress)
+            }, DOWNLOADING_BAR_HIDING_DELAY)
+        }
     }
 
     override fun finishDownloading(downloadFailedCount: Int, total: Int) {
-        mtvDownloaded.text =
+        mtvDownloaded?.text =
             String.format(getString(R.string.fail_to_download), downloadFailedCount)
-        pbDownloading?.postDelayed({
-            updateProgressDrawable(0, pbDownloading.max)
-            pbDownloading?.max = 0
-            clDownloadProgress?.gone()
-            mtvDownloaded?.text = getString(R.string.preview_download_progress)
-        }, DOWNLOADING_BAR_HIDING_DELAY)
+        pbDownloading?.let {
+            it.postDelayed({
+                updateProgressDrawable(0, it.max)
+                it.max = 0
+                clDownloadProgress?.gone()
+                mtvDownloaded?.text = getString(R.string.preview_download_progress)
+            }, DOWNLOADING_BAR_HIDING_DELAY)
+        }
     }
 
     override fun initDeleting() {
-        mtvDownloaded.text = ""
+        mtvDownloaded?.text = ""
     }
 
     override fun updateDeletingProgress(progress: Int, total: Int) {
-        clDownloadProgress.becomeVisible()
-        pbDownloading.max = total
+        clDownloadProgress?.becomeVisible()
+        pbDownloading?.max = total
         updateProgressDrawable(progress, total)
-        pbDownloading.progress = progress
-        mtvDownloaded.text = getString(R.string.preview_deleting_progress, progress, total)
+        pbDownloading?.progress = progress
+        mtvDownloaded?.text = getString(R.string.preview_deleting_progress, progress, total)
     }
 
     override fun finishDeleting(bookId: String) {
-        pbDownloading.max = 1
-        pbDownloading.progress = 1
+        pbDownloading?.max = 1
+        pbDownloading?.progress = 1
         updateProgressDrawable(1, 1)
-        mtvDownloaded.text = getString(R.string.cleared)
+        mtvDownloaded?.text = getString(R.string.cleared)
 
         pbDownloading?.postDelayed({
             updateProgressDrawable(0, 1)
@@ -649,14 +653,16 @@ class BookPreviewFragment :
     }
 
     override fun finishDeleting(bookId: String, deletingFailedCount: Int) {
-        mtvDownloaded.text = getString(R.string.fail_to_delete, deletingFailedCount)
-        updateProgressDrawable(0, pbDownloading.max)
+        mtvDownloaded?.text = getString(R.string.fail_to_delete, deletingFailedCount)
+        pbDownloading?.let {
+            updateProgressDrawable(0, it.max)
 
-        pbDownloading?.postDelayed({
-            pbDownloading?.max = 0
-            pbDownloading?.progress = 0
-            clDownloadProgress?.gone()
-        }, DELETING_BAR_HIDING_DELAY)
+            it.postDelayed({
+                it.max = 0
+                it.progress = 0
+                clDownloadProgress?.gone()
+            }, DELETING_BAR_HIDING_DELAY)
+        }
 
         closePreviewAfterRemovedBook(bookId)
     }

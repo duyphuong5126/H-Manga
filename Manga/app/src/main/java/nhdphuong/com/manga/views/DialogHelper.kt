@@ -160,6 +160,16 @@ class DialogHelper {
             )
         }
 
+        fun showTagDataBeingDownloadedDialog(activity: Activity, onOk: () -> Unit = {}) {
+            val message = activity.getString(R.string.downloading_tags_already_started_message)
+            showOkDialog(
+                activity,
+                activity.getString(R.string.downloading_tags_already_started_title),
+                message,
+                onOk
+            )
+        }
+
         fun showBookListRefreshingDialog(activity: Activity, onOk: () -> Unit) {
             showOkDialog(
                 activity, activity.getString(R.string.book_list_refreshing_title),

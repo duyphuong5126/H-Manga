@@ -68,6 +68,9 @@
             android:name=".service.BookDownloadingService"
             android:exported="false" />
         <service
+            android:name=".service.TagsDownloadingService"
+            android:exported="false" />
+        <service
             android:name=".service.BookDeletingService"
             android:exported="false" />
     </application>

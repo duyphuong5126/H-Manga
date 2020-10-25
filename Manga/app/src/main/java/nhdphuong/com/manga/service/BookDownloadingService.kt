@@ -143,6 +143,7 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
         downloadingFailedCount: Int,
         total: Int
     ) {
+        NotificationHelper.cancelNotification(NOTIFICATION_ID)
         val data = Bundle().apply {
             putString(BOOK_ID, bookId)
             putInt(DOWNLOADING_FAILED_COUNT, downloadingFailedCount)
@@ -153,6 +154,7 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
     }
 
     private fun sendDownloadingProgressNotification(bookId: String, progress: Int, total: Int) {
+        NotificationHelper.cancelNotification(NOTIFICATION_ID)
         val progressTitle = getString(R.string.downloading_in_progress)
         val notificationDescription = getString(
             R.string.book_progress_template, bookId, progress, total

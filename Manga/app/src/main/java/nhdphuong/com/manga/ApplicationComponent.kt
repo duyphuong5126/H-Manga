@@ -23,6 +23,7 @@ import nhdphuong.com.manga.features.tags.TagsComponent
 import nhdphuong.com.manga.features.tags.TagsModule
 import nhdphuong.com.manga.service.BookDeletingService
 import nhdphuong.com.manga.service.BookDownloadingService
+import nhdphuong.com.manga.service.TagsDownloadingService
 import nhdphuong.com.manga.service.TagsUpdateService
 import nhdphuong.com.manga.usecase.UseCaseModule
 import javax.inject.Singleton
@@ -46,5 +47,6 @@ interface ApplicationComponent {
     fun inject(service: TagsUpdateService)
     fun inject(bookDownloadingService: BookDownloadingService)
     fun inject(bookDeletingService: BookDeletingService)
+    fun inject(tagsDownloadingService: TagsDownloadingService)
     fun inject(nHentaiApp: NHentaiApp)
 }
