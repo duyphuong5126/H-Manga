@@ -87,11 +87,13 @@ import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
+import nhdphuong.com.manga.data.entity.DownloadingResult
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.entity.comment.Comment
 import nhdphuong.com.manga.features.comment.CommentThreadActivity
 import nhdphuong.com.manga.features.reader.ReaderActivity
+import nhdphuong.com.manga.service.BookDownloadingService
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SpaceItemDecoration
@@ -148,6 +150,8 @@ class BookPreviewFragment :
     private var viewDownloadedData = false
 
     private lateinit var previewLayoutManager: MyGridLayoutManager
+
+    private var bookId: String = ""
 
     private val bookDownloadingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -351,6 +355,23 @@ class BookPreviewFragment :
             ACTION_SHOW_GALLERY_REFRESHING_DIALOG,
             ACTION_DISMISS_GALLERY_REFRESHING_DIALOG
         )
+        if (bookId.isNotBlank()) {
+            BookDownloadingService.getLastStatus(bookId)?.let {
+                when (it) {
+                    is DownloadingResult.DownloadingProgress -> {
+                        updateDownloadProgress(it.progress, it.total)
+                    }
+
+                    is DownloadingResult.DownloadingFailure -> {
+                        finishDownloadingWithError(bookId)
+                    }
+
+                    is DownloadingResult.DownloadingCompleted -> {
+                        finishDownloading()
+                    }
+                }
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -427,6 +448,7 @@ class BookPreviewFragment :
                 .show()
             context?.copyToClipBoard(bookId, bookId)
         }
+        this.bookId = bookId
     }
 
     override fun showTagList(tagList: List<Tag>) {
@@ -599,6 +621,7 @@ class BookPreviewFragment :
         pbDownloading?.progress = progress
         mtvDownloaded?.text =
             String.format(getString(R.string.preview_download_progress), progress, total)
+        BookDownloadingService.clearStatus(bookId)
     }
 
     override fun finishDownloading() {
@@ -611,6 +634,7 @@ class BookPreviewFragment :
                 mtvDownloaded?.text = getString(R.string.preview_download_progress)
             }, DOWNLOADING_BAR_HIDING_DELAY)
         }
+        BookDownloadingService.clearStatus(bookId)
     }
 
     override fun finishDownloading(downloadFailedCount: Int, total: Int) {
@@ -624,6 +648,22 @@ class BookPreviewFragment :
                 mtvDownloaded?.text = getString(R.string.preview_download_progress)
             }, DOWNLOADING_BAR_HIDING_DELAY)
         }
+        BookDownloadingService.clearStatus(bookId)
+    }
+
+    private fun finishDownloadingWithError(bookId: String) {
+        activity?.let {
+            DialogHelper.showBookDownloadingFailureDialog(it, bookId)
+        }
+        pbDownloading?.let {
+            it.postDelayed({
+                updateProgressDrawable(0, it.max)
+                it.max = 0
+                clDownloadProgress?.gone()
+                mtvDownloaded?.text = getString(R.string.preview_download_progress)
+            }, DOWNLOADING_BAR_HIDING_DELAY)
+        }
+        BookDownloadingService.clearStatus(bookId)
     }
 
     override fun initDeleting() {

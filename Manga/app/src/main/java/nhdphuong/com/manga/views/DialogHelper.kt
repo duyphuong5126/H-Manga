@@ -210,6 +210,19 @@ class DialogHelper {
             )
         }
 
+        fun showBookDownloadingFailureDialog(
+            activity: Activity,
+            bookId: String,
+            onOk: () -> Unit = {}
+        ) {
+            showOkDialog(
+                activity,
+                activity.getString(R.string.downloading_failure),
+                activity.getString(R.string.downloading_book_failed_message, bookId),
+                onOk
+            )
+        }
+
         fun showJumToPageDialog(
             activity: Activity,
             minimum: Int,

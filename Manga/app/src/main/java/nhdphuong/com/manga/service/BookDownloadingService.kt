@@ -20,8 +20,10 @@ import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
 import nhdphuong.com.manga.DownloadManager.BookDownloadCallback
 import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
 import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
+import nhdphuong.com.manga.data.entity.DownloadingResult
 import nhdphuong.com.manga.data.entity.DownloadingResult.DownloadingProgress
 import nhdphuong.com.manga.data.entity.DownloadingResult.DownloadingFailure
+import nhdphuong.com.manga.data.entity.DownloadingResult.DownloadingCompleted
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.usecase.DownloadBookUseCase
 import javax.inject.Inject
@@ -75,6 +77,7 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
                         bookDownloader.startDownloading(book.bookId, book.numOfPages)
                     }
                     .subscribeBy(onNext = { result ->
+                        downloadingStatusMap[book.bookId] = result
                         when (result) {
                             is DownloadingProgress -> {
                                 bookDownloader.updateProgress(book.bookId, result.progress)
@@ -90,9 +93,11 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
                                     "Failed to download ${result.fileUrl} of book ${book.bookId}: ${result.error.localizedMessage}"
                                 )
                             }
+                            else -> { }
                         }
                     }, onError = {
                         Logger.e(TAG, "Failure in downloading book ${book.mediaId} with error: $it")
+                        downloadingStatusMap[book.bookId] = DownloadingFailure("", it)
                         bookDownloader.endDownloadingWithError(
                             book.bookId,
                             bookDownloader.progress,
@@ -100,6 +105,7 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
                         )
                     }, onComplete = {
                         Logger.d(TAG, "Finished downloading book ${book.bookId}")
+                        downloadingStatusMap[book.bookId] = DownloadingCompleted
                         bookDownloader.endDownloading(
                             book.bookId,
                             bookDownloader.progress,
@@ -219,6 +225,18 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
     companion object {
         private const val TAG = "BookDownloadingService"
         private const val BOOK = "book"
+
+        private val downloadingStatusMap = HashMap<String, DownloadingResult>()
+
+        fun clearStatus(bookId: String) {
+            downloadingStatusMap.remove(bookId)
+        }
+
+        fun getLastStatus(bookId: String): DownloadingResult? {
+            return if (downloadingStatusMap.containsKey(bookId)) {
+                downloadingStatusMap[bookId]
+            } else null
+        }
 
         @JvmStatic
         fun start(fromContext: Context, book: Book) {
