@@ -36,6 +36,7 @@ import nhdphuong.com.manga.data.entity.RecommendBookResponse
 import nhdphuong.com.manga.data.entity.comment.Comment
 import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
 import nhdphuong.com.manga.usecase.GetDownloadedBookCoverUseCase
+import nhdphuong.com.manga.usecase.GetDownloadedBookPagesUseCase
 import nhdphuong.com.manga.usecase.GetLastVisitedPageUseCase
 import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 import nhdphuong.com.manga.usecase.StartBookDeletingUseCase
@@ -48,6 +49,7 @@ class BookPreviewPresenter @Inject constructor(
     private val view: BookPreviewContract.View,
     private val book: Book,
     private val getDownloadedBookCoverUseCase: GetDownloadedBookCoverUseCase,
+    private val getDownloadedBookPagesUseCase: GetDownloadedBookPagesUseCase,
     private val startBookDownloadingUseCase: StartBookDownloadingUseCase,
     private val startBookDeletingUseCase: StartBookDeletingUseCase,
     private val getLastVisitedPageUseCase: GetLastVisitedPageUseCase,
@@ -254,7 +256,6 @@ class BookPreviewPresenter @Inject constructor(
             }
 
             loadBookThumbnails()
-            view.showBookThumbnailList(bookThumbnailList)
 
             if (!viewDownloadedData) {
                 loadRecommendBook()
@@ -499,19 +500,33 @@ class BookPreviewPresenter @Inject constructor(
     }
 
     private fun loadBookThumbnails() {
-        val mediaId = book.mediaId
-        val bookPages: List<ImageMeasurements> = book.bookImages.pages
-        if (bookPages.isEmpty()) {
-            return
-        }
-        for (pageId in bookPages.indices) {
-            val page = bookPages[pageId]
-            val url = ApiConstants.getThumbnailByPage(
-                mediaId,
-                pageId + 1,
-                page.imageType
-            )
-            bookThumbnailList.add(url)
+        if (viewDownloadedData) {
+            getDownloadedBookPagesUseCase.execute(book.bookId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(onSuccess = { downloadedImages ->
+                    Logger.d(TAG, "Book ${book.bookId}: ${downloadedImages.size} page(s)")
+                    bookThumbnailList.addAll(downloadedImages)
+                    view.showBookThumbnailList(bookThumbnailList)
+                }, onError = {
+                    Logger.d(TAG, "Failed to get pages of book ${book.bookId}: $it")
+                }).addTo(compositeDisposable)
+        } else {
+            val mediaId = book.mediaId
+            val bookPages: List<ImageMeasurements> = book.bookImages.pages
+            if (bookPages.isEmpty()) {
+                return
+            }
+            for (pageId in bookPages.indices) {
+                val page = bookPages[pageId]
+                val url = ApiConstants.getThumbnailByPage(
+                    mediaId,
+                    pageId + 1,
+                    page.imageType
+                )
+                bookThumbnailList.add(url)
+            }
+            view.showBookThumbnailList(bookThumbnailList)
         }
         isInfoLoaded = true
     }

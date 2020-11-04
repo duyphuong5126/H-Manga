@@ -11,6 +11,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.customs.MyTextView
+import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.gone
 
 /*
@@ -82,12 +83,14 @@ class BookReaderAdapter(
         }
 
         fun reloadImage() {
-            ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, onLoadSuccess = {
-                mtvPageTitle.gone()
-                Logger.d(TAG, "$pageUrl is loaded successfully")
-            }, onLoadFailed = {
-                Logger.d(TAG, "$pageUrl loading failed")
-            })
+            ivPage.doOnGlobalLayout {
+                ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, onLoadSuccess = {
+                    mtvPageTitle.gone()
+                    Logger.d(TAG, "$pageUrl is loaded successfully")
+                }, onLoadFailed = {
+                    Logger.d(TAG, "$pageUrl loading failed")
+                })
+            }
         }
     }
 }
