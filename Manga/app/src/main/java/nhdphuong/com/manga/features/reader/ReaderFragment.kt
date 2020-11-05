@@ -13,9 +13,10 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.fragment_reader.clDownloadedPopup
-import kotlinx.android.synthetic.main.fragment_reader.clReaderBottom
+import kotlinx.android.synthetic.main.fragment_reader.layoutReaderBottom
 import kotlinx.android.synthetic.main.fragment_reader.clReaderTop
 import kotlinx.android.synthetic.main.fragment_reader.ibBack
 import kotlinx.android.synthetic.main.fragment_reader.ibDownload
@@ -24,14 +25,17 @@ import kotlinx.android.synthetic.main.fragment_reader.ibRefresh
 import kotlinx.android.synthetic.main.fragment_reader.mtvBookTitle
 import kotlinx.android.synthetic.main.fragment_reader.mtvCurrentPage
 import kotlinx.android.synthetic.main.fragment_reader.mtvDownloadTitle
+import kotlinx.android.synthetic.main.fragment_reader.rvQuickNavigation
 import kotlinx.android.synthetic.main.fragment_reader.vpPages
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.AnimationHelper
+import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.BookReaderAdapter
+import nhdphuong.com.manga.views.adapters.ReaderNavigationAdapter
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.gone
 
@@ -43,6 +47,7 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     private lateinit var presenter: ReaderContract.Presenter
     private lateinit var rotationAnimation: Animation
     private lateinit var bookReaderAdapter: BookReaderAdapter
+    private lateinit var navigationAdapter: ReaderNavigationAdapter
 
     private var viewDownloadedData = false
 
@@ -143,26 +148,45 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
     override fun showBookPages(pageList: List<String>) {
         activity?.let { activity ->
-            bookReaderAdapter = BookReaderAdapter(activity, pageList, View.OnClickListener {
-                if (clReaderBottom.visibility == View.VISIBLE) {
+            navigationAdapter = ReaderNavigationAdapter(
+                pageList,
+                object : ReaderNavigationAdapter.ThumbnailSelectListener {
+                    override fun onItemSelected(position: Int) {
+                        vpPages?.currentItem = position
+                    }
+                })
+            rvQuickNavigation?.adapter = navigationAdapter
+            rvQuickNavigation?.layoutManager =
+                LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+            rvQuickNavigation?.addItemDecoration(
+                SpaceItemDecoration(
+                    activity,
+                    R.dimen.space_medium,
+                    showFirstDivider = false,
+                    showLastDivider = true
+                )
+            )
+
+            bookReaderAdapter = BookReaderAdapter(pageList, View.OnClickListener {
+                if (layoutReaderBottom?.visibility == View.VISIBLE) {
                     AnimationHelper.startSlideOutTop(activity, clReaderTop) {
                         clReaderTop.visibility = View.GONE
                     }
-                    AnimationHelper.startSlideOutBottom(activity, clReaderBottom) {
-                        clReaderBottom.visibility = View.GONE
+                    AnimationHelper.startSlideOutBottom(activity, layoutReaderBottom) {
+                        layoutReaderBottom.visibility = View.GONE
                     }
                 } else {
                     AnimationHelper.startSlideInTop(activity, clReaderTop) {
                         clReaderTop.visibility = View.VISIBLE
                     }
-                    AnimationHelper.startSlideInBottom(activity, clReaderBottom) {
-                        clReaderBottom.visibility = View.VISIBLE
+                    AnimationHelper.startSlideInBottom(activity, layoutReaderBottom) {
+                        layoutReaderBottom.visibility = View.VISIBLE
                     }
                 }
             })
-            vpPages.adapter = bookReaderAdapter
-            vpPages.offscreenPageLimit = OFFSCREEN_LIMIT
-            vpPages.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            vpPages?.adapter = bookReaderAdapter
+            vpPages?.offscreenPageLimit = OFFSCREEN_LIMIT
+            vpPages?.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
                 override fun onPageScrollStateChanged(state: Int) {
 
                 }
@@ -183,6 +207,8 @@ class ReaderFragment : Fragment(), ReaderContract.View {
                     if (position + 1 < bookReaderAdapter.count) {
                         bookReaderAdapter.resetPageToNormal(position + 1)
                     }
+                    rvQuickNavigation?.scrollToPosition(position)
+                    navigationAdapter.updateSelectedIndex(position)
                 }
             })
         }

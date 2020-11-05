@@ -1,6 +1,5 @@
 package nhdphuong.com.manga.views.adapters
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +17,6 @@ import nhdphuong.com.manga.views.gone
  * Created by nhdphuong on 5/5/18.
  */
 class BookReaderAdapter(
-    private val mContext: Context,
     private val mPageUrlList: List<String>,
     private val mOnTapListener: View.OnClickListener
 ) : PagerAdapter() {
@@ -34,7 +32,8 @@ class BookReaderAdapter(
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val readerViewHolder = BookReaderViewHolder(
-            LayoutInflater.from(mContext).inflate(R.layout.item_book_page, container, false),
+            LayoutInflater.from(container.context)
+                .inflate(R.layout.item_book_page, container, false),
             mPageUrlList[position],
             position + 1
         )
