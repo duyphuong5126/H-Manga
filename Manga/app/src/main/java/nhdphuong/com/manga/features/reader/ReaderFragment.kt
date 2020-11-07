@@ -76,7 +76,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         ibDownloadPopupClose.setOnClickListener(this)
         ibShare.setOnClickListener(this)
 
-        ibDownload.becomeVisibleIf(!viewDownloadedData)
+        ibDownload.becomeVisibleIf(!viewDownloadedData, otherWiseVisibility = View.INVISIBLE)
         ibShare.becomeVisibleIf(!viewDownloadedData)
         context?.let { context ->
             rotationAnimation = AnimationHelper.getRotationAnimation(context)

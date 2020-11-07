@@ -11,8 +11,8 @@ fun View.becomeVisible() {
     visibility = View.VISIBLE
 }
 
-fun View.becomeVisibleIf(condition: Boolean) {
-    visibility = if (condition) View.VISIBLE else View.GONE
+fun View.becomeVisibleIf(condition: Boolean, otherWiseVisibility: Int = View.GONE) {
+    visibility = if (condition) View.VISIBLE else otherWiseVisibility
 }
 
 fun View.becomeInvisible() {
