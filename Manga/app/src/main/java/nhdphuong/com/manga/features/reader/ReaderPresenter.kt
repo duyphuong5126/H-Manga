@@ -203,6 +203,17 @@ class ReaderPresenter @Inject constructor(
         }
     }
 
+    override fun generateSharableLink() {
+        val pageId = currentPage
+        if (pageId in book.bookImages.pages.indices) {
+            view.processSharingCurrentPage(
+                book.bookId,
+                book.title.pretty,
+                ApiConstants.getSharablePageUrl(book.bookId, pageId + 1)
+            )
+        }
+    }
+
     override fun stop() {
         Logger.d(TAG, "End reading: ${book.previewTitle}")
         isDownloading = false

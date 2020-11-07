@@ -50,7 +50,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/ibDownload"
+            app:layout_constraintEnd_toStartOf="@id/ibShare"
             app:layout_constraintStart_toEndOf="@id/ibBack"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_goneMarginEnd="@dimen/space_medium">
@@ -71,7 +71,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageButton
-            android:id="@+id/ibDownload"
+            android:id="@+id/ibShare"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button_transparent_rect_rounded_all_corners"
@@ -81,9 +81,7 @@
             android:paddingEnd="@dimen/space_normal"
             android:paddingBottom="@dimen/space_small"
             android:scaleType="center"
-            android:scaleX="0.8"
-            android:scaleY="0.8"
-            android:src="@drawable/ic_download_white"
+            android:src="@drawable/ic_share_white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -157,9 +155,11 @@
                 android:id="@+id/ibRefresh"
                 android:layout_width="@dimen/normal_button_size"
                 android:layout_height="@dimen/normal_button_size"
+                android:layout_marginStart="@dimen/space_normal"
                 android:background="@drawable/button_circle_transparent"
                 android:contentDescription="@string/refresh"
                 android:padding="@dimen/space_medium"
+                android:scaleType="center"
                 android:src="@drawable/ic_sync_white"
                 app:layout_constraintBottom_toBottomOf="@+id/mtvCurrentPage"
                 app:layout_constraintEnd_toStartOf="@id/mtvCurrentPage"
@@ -168,17 +168,32 @@
 
             <nhdphuong.com.manga.views.customs.MyTextView
                 android:id="@+id/mtvCurrentPage"
-                android:layout_width="250dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/bottom_reader"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/header_title_size"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/ibDownload"
+                app:layout_constraintStart_toEndOf="@id/ibRefresh"
                 app:layout_constraintTop_toTopOf="parent"
                 app:myFont="@string/NotoSansRegular" />
+
+            <ImageButton
+                android:id="@+id/ibDownload"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/normal_button_size"
+                android:layout_marginEnd="@dimen/space_normal"
+                android:background="@drawable/button_transparent_rect_rounded_all_corners"
+                android:contentDescription="@string/download"
+                android:padding="@dimen/space_medium"
+                android:scaleType="center"
+                android:src="@drawable/ic_download_white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/mtvCurrentPage"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>

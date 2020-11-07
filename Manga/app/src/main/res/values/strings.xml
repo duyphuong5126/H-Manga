@@ -210,6 +210,9 @@
     <string name="comments">Comments</string>
     <string name="show_full_comment_list">Show more %d comments</string>
 
+    <string name="page_sharing_title">\[%s\] %s - via nHentai Android</string>
+    <string name="page_sharing_chooser_title">Share this page via</string>
+
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>
         <item>..</item>

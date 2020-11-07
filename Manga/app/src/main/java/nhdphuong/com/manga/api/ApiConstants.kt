@@ -32,6 +32,9 @@ object ApiConstants {
         imageType: String
     ): String = "${getGalleryUrl(mediaId)}/$pageNumber.$imageType"
 
+    fun getSharablePageUrl(bookId: String, pageNumber: Int): String =
+        "$NHENTAI_HOME/g/$bookId/$pageNumber/"
+
     fun getCommentPosterAvatarUrl(avatarUrl: String): String {
         return "$NHENTAI_I/$avatarUrl"
     }

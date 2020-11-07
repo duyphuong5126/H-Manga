@@ -16,12 +16,13 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.fragment_reader.clDownloadedPopup
-import kotlinx.android.synthetic.main.fragment_reader.layoutReaderBottom
 import kotlinx.android.synthetic.main.fragment_reader.clReaderTop
 import kotlinx.android.synthetic.main.fragment_reader.ibBack
 import kotlinx.android.synthetic.main.fragment_reader.ibDownload
 import kotlinx.android.synthetic.main.fragment_reader.ibDownloadPopupClose
 import kotlinx.android.synthetic.main.fragment_reader.ibRefresh
+import kotlinx.android.synthetic.main.fragment_reader.ibShare
+import kotlinx.android.synthetic.main.fragment_reader.layoutReaderBottom
 import kotlinx.android.synthetic.main.fragment_reader.mtvBookTitle
 import kotlinx.android.synthetic.main.fragment_reader.mtvCurrentPage
 import kotlinx.android.synthetic.main.fragment_reader.mtvDownloadTitle
@@ -42,7 +43,7 @@ import nhdphuong.com.manga.views.gone
 /*
  * Created by nhdphuong on 5/5/18.
  */
-class ReaderFragment : Fragment(), ReaderContract.View {
+class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
 
     private lateinit var presenter: ReaderContract.Presenter
     private lateinit var rotationAnimation: Animation
@@ -69,33 +70,17 @@ class ReaderFragment : Fragment(), ReaderContract.View {
         if (viewDownloadedData) {
             presenter.enableViewDownloadedDataMode()
         }
-        ibBack.setOnClickListener {
-            presenter.forceBackToGallery()
-        }
-
-        mtvCurrentPage.setOnClickListener {
-            presenter.backToGallery()
-        }
+        ibBack.setOnClickListener(this)
+        mtvCurrentPage.setOnClickListener(this)
+        ibDownload.setOnClickListener(this)
+        ibDownloadPopupClose.setOnClickListener(this)
+        ibShare.setOnClickListener(this)
 
         ibDownload.becomeVisibleIf(!viewDownloadedData)
-        ibDownload.setOnClickListener {
-            presenter.downloadCurrentPage()
-        }
-
-        ibDownloadPopupClose.setOnClickListener {
-            hideDownloadPopup()
-        }
+        ibShare.becomeVisibleIf(!viewDownloadedData)
         context?.let { context ->
             rotationAnimation = AnimationHelper.getRotationAnimation(context)
-            ibRefresh.setOnClickListener {
-                ibRefresh.startAnimation(rotationAnimation)
-                presenter.reloadCurrentPage { currentPage: Int ->
-                    bookReaderAdapter.resetPage(currentPage)
-                    ibRefresh?.postDelayed({
-                        ibRefresh?.clearAnimation()
-                    }, 3000)
-                }
-            }
+            ibRefresh.setOnClickListener(this)
         }
 
         view.isFocusableInTouchMode = true
@@ -137,6 +122,40 @@ class ReaderFragment : Fragment(), ReaderContract.View {
     override fun onStop() {
         super.onStop()
         presenter.stop()
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.ibShare -> {
+                presenter.generateSharableLink()
+            }
+
+            R.id.ibBack -> {
+                presenter.forceBackToGallery()
+            }
+
+            R.id.mtvCurrentPage -> {
+                presenter.backToGallery()
+            }
+
+            R.id.ibDownload -> {
+                presenter.downloadCurrentPage()
+            }
+
+            R.id.ibDownloadPopupClose -> {
+                hideDownloadPopup()
+            }
+
+            R.id.ibRefresh -> {
+                ibRefresh?.startAnimation(rotationAnimation)
+                presenter.reloadCurrentPage { currentPage: Int ->
+                    bookReaderAdapter.resetPage(currentPage)
+                    ibRefresh?.postDelayed({
+                        ibRefresh?.clearAnimation()
+                    }, 3000)
+                }
+            }
+        }
     }
 
     override fun showBookTitle(bookTitle: String) {
@@ -278,6 +297,21 @@ class ReaderFragment : Fragment(), ReaderContract.View {
 
     override fun removeNotification(notificationId: Int) {
         NotificationHelper.cancelNotification(notificationId)
+    }
+
+    override fun processSharingCurrentPage(bookId: String, bookTitle: String, url: String) {
+        val sharingTitle = getString(R.string.page_sharing_title, bookId, bookTitle)
+        val shareIntent: Intent = Intent(Intent.ACTION_SEND)
+            .putExtra(Intent.EXTRA_SUBJECT, sharingTitle)
+            .putExtra(Intent.EXTRA_TEXT, url)
+            .setType("text/plain")
+
+        context?.startActivity(
+            Intent.createChooser(
+                shareIntent,
+                getString(R.string.page_sharing_chooser_title)
+            )
+        )
     }
 
     override fun showLoading() {

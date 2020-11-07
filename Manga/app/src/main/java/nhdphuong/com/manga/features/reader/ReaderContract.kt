@@ -20,6 +20,7 @@ interface ReaderContract {
         fun updateDownloadPopupTitle(downloadPage: Int)
         fun removeNotification(notificationId: Int)
         fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int)
+        fun processSharingCurrentPage(bookId: String, bookTitle: String, url: String)
     }
 
     interface Presenter : Base.Presenter {
@@ -31,5 +32,6 @@ interface ReaderContract {
         fun reloadCurrentPage(onForceReload: (Int) -> Unit)
         fun updateNotificationId(notificationId: Int)
         fun endReading()
+        fun generateSharableLink()
     }
 }
