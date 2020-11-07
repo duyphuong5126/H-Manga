@@ -29,16 +29,14 @@
 
         <jp.shts.android.library.TriangleLabelView
             android:id="@+id/tlvRecent"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:visibility="visible"
             app:backgroundColor="@color/redED2553"
             app:corner="leftTop"
             app:labelBottomPadding="3dp"
             app:labelCenterPadding="3dp"
             app:labelTopPadding="20dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:primaryText="@string/favorite"
