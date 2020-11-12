@@ -66,7 +66,7 @@ import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import nhdphuong.com.manga.views.createLoadingDialog
 import nhdphuong.com.manga.views.showBookListRefreshingDialog
-import nhdphuong.com.manga.views.showJumToPageDialog
+import nhdphuong.com.manga.views.showGoToPageDialog
 
 /*
  * Created by nhdphuong on 3/16/18.
@@ -215,7 +215,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
                 activity?.run {
                     val maxPages = homePaginationAdapter.itemCount
                     if (maxPages > 1) {
-                        showJumToPageDialog(1, maxPages, onOk = { page ->
+                        showGoToPageDialog(1, maxPages, onOk = { page ->
                             val toJumpPage = page - 1
                             jumpTo(toJumpPage)
                             homePresenter.jumpToPage(toJumpPage.toLong())

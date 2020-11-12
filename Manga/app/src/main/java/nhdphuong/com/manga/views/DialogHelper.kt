@@ -231,7 +231,7 @@ fun Activity.showStoragePermissionDialog(onOk: () -> Unit = {}, onDismiss: () ->
     )
 }
 
-fun Activity.showJumToPageDialog(
+fun Activity.showGoToPageDialog(
     minimum: Int,
     maximum: Int,
     onOk: (number: Int) -> Unit = {},
