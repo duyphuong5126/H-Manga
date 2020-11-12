@@ -195,7 +195,7 @@ class HomePresenter @Inject constructor(
         }
     }
 
-    override fun reloadCurrentPage(onRefreshed: () -> Unit) {
+    override fun reloadCurrentPage() {
         if (isRefreshing.compareAndSet(false, true)) {
             io.launch {
                 val remoteBooks = getBooksListByPage(currentPage, true)
@@ -221,7 +221,7 @@ class HomePresenter @Inject constructor(
                             view.refreshHomePagination(currentNumOfPages, currentPage.toInt() - 1)
                             view.refreshHomeBookList()
                         }
-                        onRefreshed()
+                        view.finishRefreshing()
                         if (isCurrentPageEmpty) {
                             view.showNothingView()
                         } else {

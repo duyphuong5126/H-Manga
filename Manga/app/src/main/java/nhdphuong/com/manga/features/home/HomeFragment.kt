@@ -63,13 +63,15 @@ import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.doOnGlobalLayout
-import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
+import nhdphuong.com.manga.views.createLoadingDialog
+import nhdphuong.com.manga.views.showBookListRefreshingDialog
+import nhdphuong.com.manga.views.showJumToPageDialog
 
 /*
  * Created by nhdphuong on 3/16/18.
  */
-class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
+class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickListener {
 
     private lateinit var homeListAdapter: BookAdapter
     private lateinit var homePaginationAdapter: PaginationAdapter
@@ -98,25 +100,13 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         Logger.d(TAG, "onViewCreated")
 
         nsvMainList.overScrollMode = View.OVER_SCROLL_NEVER
-        btnFirst.setOnClickListener {
-            homePresenter.jumToFirstPage()
-            homePaginationAdapter.selectFirstPage()
-            jumpTo(0)
+        activity?.let {
+            loadingDialog = it.createLoadingDialog()
         }
-        btnLast.setOnClickListener {
-            homePresenter.jumToLastPage()
-            homePaginationAdapter.selectLastPage()
-            jumpTo(homePaginationAdapter.itemCount - 1)
-        }
-        loadingDialog = DialogHelper.createLoadingDialog(activity!!)
         srlPullToReload.addPtrUIHandler(this)
         srlPullToReload.setPtrHandler(object : PtrHandler {
             override fun onRefreshBegin(frame: PtrFrameLayout?) {
-                homePresenter.reloadCurrentPage {
-                    frame?.postDelayed({
-                        srlPullToReload?.refreshComplete()
-                    }, REFRESH_COMPLETE_DURATION)
-                }
+                homePresenter.reloadCurrentPage()
             }
 
             override fun checkCanDoRefresh(
@@ -127,44 +117,14 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
                 return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header)
             }
         })
-        clReload.setOnClickListener {
-            homePresenter.reloadCurrentPage {
-
-            }
-        }
-
-        mtvRecentOption.setOnClickListener {
-            layoutSortOptions.fullScroll(HorizontalScrollView.FOCUS_LEFT)
-            homePresenter.updateSortOption(SortOption.Recent)
-        }
-
-        mtvPopularToday.setOnClickListener {
-            homePresenter.updateSortOption(SortOption.PopularToday)
-        }
-
-        mtvPopularWeek.setOnClickListener {
-            homePresenter.updateSortOption(SortOption.PopularWeek)
-        }
-
-        mtvPopularAllTime.setOnClickListener {
-            layoutSortOptions.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
-            homePresenter.updateSortOption(SortOption.PopularAllTime)
-        }
-        btnJumpToPage.setOnClickListener {
-            activity?.run {
-                val maxPages = homePaginationAdapter.itemCount
-                if (maxPages > 1) {
-                    DialogHelper.showJumToPageDialog(this, 1, maxPages, { page ->
-                        val toJumpPage = page - 1
-                        jumpTo(toJumpPage)
-                        homePresenter.jumpToPage(toJumpPage.toLong())
-                        homePaginationAdapter.jumpToIndex(toJumpPage)
-                    }, {
-
-                    })
-                }
-            }
-        }
+        clReload.setOnClickListener(this)
+        mtvRecentOption.setOnClickListener(this)
+        mtvPopularToday.setOnClickListener(this)
+        mtvPopularWeek.setOnClickListener(this)
+        mtvPopularAllTime.setOnClickListener(this)
+        btnJumpToPage.setOnClickListener(this)
+        btnFirst.setOnClickListener(this)
+        btnLast.setOnClickListener(this)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -172,17 +132,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
         Logger.d(TAG, "onActivityCreated")
         homePresenter.start()
         toggleSearchResult("")
-        mtvUpgradeTitle.setOnClickListener {
-            clUpgradePopup.gone()
-            upgradePopupPlaceHolder.gone()
-            homePresenter.setNewerVersionAcknowledged()
-            context?.openUrl(REPOSITORY_URL)
-        }
-        ibUpgradePopupClose.setOnClickListener {
-            clUpgradePopup.gone()
-            upgradePopupPlaceHolder.gone()
-            homePresenter.setNewerVersionAcknowledged()
-        }
+        mtvUpgradeTitle.setOnClickListener(this)
+        ibUpgradePopupClose.setOnClickListener(this)
     }
 
     override fun onResume() {
@@ -221,6 +172,71 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             data?.action == Constants.RECENT_DATA_UPDATED_ACTION
         ) {
             homePresenter.reloadRecentBooks()
+        }
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.btnFirst -> {
+                homePresenter.jumToFirstPage()
+                homePaginationAdapter.selectFirstPage()
+                jumpTo(0)
+            }
+
+            R.id.btnLast -> {
+                homePresenter.jumToLastPage()
+                homePaginationAdapter.selectLastPage()
+                jumpTo(homePaginationAdapter.itemCount - 1)
+            }
+
+            R.id.clReload -> {
+                homePresenter.reloadCurrentPage()
+            }
+
+            R.id.mtvRecentOption -> {
+                layoutSortOptions.fullScroll(HorizontalScrollView.FOCUS_LEFT)
+                homePresenter.updateSortOption(SortOption.Recent)
+            }
+
+            R.id.mtvPopularToday -> {
+                homePresenter.updateSortOption(SortOption.PopularToday)
+            }
+
+            R.id.mtvPopularWeek -> {
+                homePresenter.updateSortOption(SortOption.PopularWeek)
+            }
+
+            R.id.mtvPopularAllTime -> {
+                layoutSortOptions.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+                homePresenter.updateSortOption(SortOption.PopularAllTime)
+            }
+
+            R.id.btnJumpToPage -> {
+                activity?.run {
+                    val maxPages = homePaginationAdapter.itemCount
+                    if (maxPages > 1) {
+                        showJumToPageDialog(1, maxPages, onOk = { page ->
+                            val toJumpPage = page - 1
+                            jumpTo(toJumpPage)
+                            homePresenter.jumpToPage(toJumpPage.toLong())
+                            homePaginationAdapter.jumpToIndex(toJumpPage)
+                        })
+                    }
+                }
+            }
+
+            R.id.mtvUpgradeTitle -> {
+                clUpgradePopup.gone()
+                upgradePopupPlaceHolder.gone()
+                homePresenter.setNewerVersionAcknowledged()
+                context?.openUrl(REPOSITORY_URL)
+            }
+
+            R.id.ibUpgradePopupClose -> {
+                clUpgradePopup.gone()
+                upgradePopupPlaceHolder.gone()
+                homePresenter.setNewerVersionAcknowledged()
+            }
         }
     }
 
@@ -339,9 +355,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
     }
 
     override fun showRefreshingDialog() {
-        DialogHelper.showBookListRefreshingDialog(activity!!) {
-
-        }
+        activity?.showBookListRefreshingDialog()
     }
 
     override fun showFavoriteBooks(favoriteList: List<String>) {
@@ -390,6 +404,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler {
             ErrorEnum.UnknownError -> R.string.library_error_unknown_label
         }
         tvNothing?.text = getString(stringResId)
+    }
+
+    override fun finishRefreshing() {
+        srlPullToReload?.postDelayed({
+            srlPullToReload?.refreshComplete()
+        }, REFRESH_COMPLETE_DURATION)
     }
 
     fun changeSearchInputted(data: String) {

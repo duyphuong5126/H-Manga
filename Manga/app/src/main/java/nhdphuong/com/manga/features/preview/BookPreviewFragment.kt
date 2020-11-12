@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -98,7 +99,6 @@ import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.supports.copyToClipBoard
-import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
 import nhdphuong.com.manga.views.adapters.BookAdapter
@@ -107,9 +107,16 @@ import nhdphuong.com.manga.views.adapters.PreviewAdapter
 import nhdphuong.com.manga.views.becomeInvisible
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.createLoadingDialog
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.doOnScrollToBottom
 import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.showBookDownloadingDialog
+import nhdphuong.com.manga.views.showBookDownloadingFailureDialog
+import nhdphuong.com.manga.views.showDownloadingFinishedDialog
+import nhdphuong.com.manga.views.showStoragePermissionDialog
+import nhdphuong.com.manga.views.showThisBookDownloadingDialog
+import nhdphuong.com.manga.views.showUnSeenBookConfirmationDialog
 
 /*
  * Created by nhdphuong on 4/14/18.
@@ -117,7 +124,8 @@ import nhdphuong.com.manga.views.gone
 class BookPreviewFragment :
     Fragment(),
     BookPreviewContract.View,
-    InformationCardAdapter.TagSelectedListener {
+    InformationCardAdapter.TagSelectedListener,
+    View.OnClickListener {
     companion object {
         private const val TAG = "BookPreviewFragment"
         private const val NUM_OF_ROWS = 2
@@ -262,16 +270,10 @@ class BookPreviewFragment :
         }
 
         mtvDownload.becomeVisibleIf(!viewDownloadedData)
-        mtvDownload.setOnClickListener {
-            isDownloadingRequested = true
-            presenter.downloadBook()
-        }
+        mtvDownload.setOnClickListener(this)
 
         buttonClearDownloadedData.becomeVisibleIf(viewDownloadedData)
-        buttonClearDownloadedData.setOnClickListener {
-            isDeletingRequested = true
-            presenter.deleteBook()
-        }
+        buttonClearDownloadedData.setOnClickListener(this)
 
         val changeFavoriteListener = View.OnClickListener { presenter.changeBookFavorite() }
         mtvFavorite.setOnClickListener(changeFavoriteListener)
@@ -282,33 +284,9 @@ class BookPreviewFragment :
         svPreview.overScrollMode = View.OVER_SCROLL_NEVER
         svBookCover.overScrollMode = View.OVER_SCROLL_NEVER
 
-        ivBookCover.setOnClickListener {
-            activity?.let { activity ->
-                if (ibBack.visibility == View.VISIBLE) {
-                    AnimationHelper.startSlideOutTop(activity, ibBack) {
-                        ibBack.gone()
-                    }
-                } else {
-                    AnimationHelper.startSlideInTop(activity, ibBack) {
-                        ibBack.becomeVisible()
-                    }
-                }
-            }
-        }
-
-        ibBack.setOnClickListener {
-            activity?.onBackPressed()
-        }
-
-        buttonUnSeen.setOnClickListener {
-            activity?.let {
-                DialogHelper.showUnSeenBookConfirmationDialog(it, onOk = {
-                    presenter.unSeenBook()
-                }, onDismiss = {
-                    Logger.d(TAG, "UnSeen canceled")
-                })
-            }
-        }
+        ivBookCover.setOnClickListener(this)
+        ibBack.setOnClickListener(this)
+        buttonUnSeen.setOnClickListener(this)
 
         view.doOnGlobalLayout {
             if (!isPresenterStarted) {
@@ -316,16 +294,14 @@ class BookPreviewFragment :
                 presenter.loadInfoLists()
             }
         }
-
-        activity?.let { activity ->
-            val loadingTitle = activity.getString(R.string.refreshing_gallery)
-            refreshGalleryDialog = DialogHelper.createLoadingDialog(activity, loadingTitle)
-        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Logger.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
+        activity?.let {
+            refreshGalleryDialog = it.createLoadingDialog(R.string.refreshing_gallery)
+        }
         presenter.start()
     }
 
@@ -403,6 +379,57 @@ class BookPreviewFragment :
         super.onDestroy()
     }
 
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.mtvDownload -> {
+                isDownloadingRequested = true
+                presenter.downloadBook()
+            }
+
+            R.id.buttonClearDownloadedData -> {
+                isDeletingRequested = true
+                presenter.deleteBook()
+            }
+
+            R.id.mtvFavorite,
+            R.id.mtvNotFavorite -> {
+                presenter.changeBookFavorite()
+            }
+
+            R.id.ivBookCover -> {
+                activity?.let { activity ->
+                    if (ibBack.visibility == View.VISIBLE) {
+                        AnimationHelper.startSlideOutTop(activity, ibBack) {
+                            ibBack.gone()
+                        }
+                    } else {
+                        AnimationHelper.startSlideInTop(activity, ibBack) {
+                            ibBack.becomeVisible()
+                        }
+                    }
+                }
+            }
+
+            R.id.ibBack -> {
+                activity?.onBackPressed()
+            }
+
+            R.id.buttonUnSeen -> {
+                activity?.showUnSeenBookConfirmationDialog(onOk = {
+                    presenter.unSeenBook()
+                }, onDismiss = {
+                    Logger.d(TAG, "UnSeen canceled")
+                })
+            }
+
+            R.id.clBookIdClickableArea -> {
+                Toast.makeText(context, "Copied Book ID $bookId to clipboard", Toast.LENGTH_SHORT)
+                    .show()
+                context?.copyToClipBoard(bookId, bookId)
+            }
+        }
+    }
+
     override fun showBookCoverImage(coverUrl: String) {
         if (!NHentaiApp.instance.isCensored) {
             ImageUtils.loadImage(
@@ -443,11 +470,7 @@ class BookPreviewFragment :
 
     override fun showBookId(bookId: String) {
         tvBookId.text = bookId
-        clBookIdClickableArea.setOnClickListener {
-            Toast.makeText(context, "Copied Book ID $bookId to clipboard", Toast.LENGTH_SHORT)
-                .show()
-            context?.copyToClipBoard(bookId, bookId)
-        }
+        clBookIdClickableArea.setOnClickListener(this)
         this.bookId = bookId
     }
 
@@ -593,19 +616,17 @@ class BookPreviewFragment :
     }
 
     override fun showRequestStoragePermission() {
-        activity?.run {
-            DialogHelper.showStoragePermissionDialog(this, onOk = {
-                requestStoragePermission()
-            }, onDismiss = {
-                Toast.makeText(
-                    context,
-                    getString(R.string.toast_storage_permission_require),
-                    Toast.LENGTH_SHORT
-                ).show()
-                isDownloadingRequested = false
-                isDeletingRequested = false
-            })
-        }
+        activity?.showStoragePermissionDialog(onOk = {
+            requestStoragePermission()
+        }, onDismiss = {
+            Toast.makeText(
+                context,
+                getString(R.string.toast_storage_permission_require),
+                Toast.LENGTH_SHORT
+            ).show()
+            isDownloadingRequested = false
+            isDeletingRequested = false
+        })
     }
 
     override fun initDownloading(total: Int) {
@@ -652,9 +673,7 @@ class BookPreviewFragment :
     }
 
     private fun finishDownloadingWithError(bookId: String) {
-        activity?.let {
-            DialogHelper.showBookDownloadingFailureDialog(it, bookId)
-        }
+        activity?.showBookDownloadingFailureDialog(bookId)
         pbDownloading?.let {
             it.postDelayed({
                 updateProgressDrawable(0, it.max)
@@ -708,21 +727,17 @@ class BookPreviewFragment :
     }
 
     override fun showBookBeingDownloaded(bookId: String) {
-        activity?.run {
-            DialogHelper.showBookDownloadingDialog(this, bookId, onOk = {
-                presenter.restartBookPreview(bookId)
-            }, onDismiss = {
-                Logger.d(TAG, "Downloading book $bookId is aware")
-            })
-        }
+        activity?.showBookDownloadingDialog(bookId, onOk = {
+            presenter.restartBookPreview(bookId)
+        }, onDismiss = {
+            Logger.d(TAG, "Downloading book $bookId is aware")
+        })
     }
 
     override fun showThisBookBeingDownloaded() {
-        activity?.run {
-            DialogHelper.showThisBookDownloadingDialog(this, onOk = {
-                Logger.d(TAG, "Downloading this book is aware")
-            })
-        }
+        activity?.showThisBookDownloadingDialog(onOk = {
+            Logger.d(TAG, "Downloading this book is aware")
+        })
     }
 
     override fun showFavoriteBookSaved(isFavorite: Boolean) {
@@ -744,22 +759,16 @@ class BookPreviewFragment :
     }
 
     override fun showOpenFolderView() {
-        activity?.run {
-            Handler().postDelayed({
-                if (isActive()) {
-                    DialogHelper.showDownloadingFinishedDialog(this, onOk = {
-                        val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
-                        viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        viewGalleryIntent.type = "image/*"
-                        startActivity(
-                            Intent.createChooser(viewGalleryIntent, getString(R.string.open_with))
-                        )
-                    }, onDismiss = {
-
-                    })
-                }
-            }, if (refreshGalleryDialog.isShowing) SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY else 0)
-        }
+        Handler(Looper.getMainLooper()).postDelayed({
+            activity?.showDownloadingFinishedDialog(onOk = {
+                val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
+                viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                viewGalleryIntent.type = "image/*"
+                startActivity(
+                    Intent.createChooser(viewGalleryIntent, getString(R.string.open_with))
+                )
+            })
+        }, if (refreshGalleryDialog.isShowing) SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY else 0)
     }
 
     override fun startReadingFromPage(page: Int, book: Book) {

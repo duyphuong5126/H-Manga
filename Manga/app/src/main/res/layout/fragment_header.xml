@@ -53,7 +53,7 @@
             tools:targetApi="lollipop" />
 
         <ImageButton
-            android:id="@+id/ib_clear_search"
+            android:id="@+id/ibClearSearch"
             android:layout_width="@dimen/normal_icon_size"
             android:layout_height="@dimen/normal_icon_size"
             android:layout_marginTop="@dimen/space_small"

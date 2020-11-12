@@ -42,18 +42,18 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.enum.ErrorEnum
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
-import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
+import nhdphuong.com.manga.views.createLoadingDialog
 
 /*
  * Created by nhdphuong on 6/10/18.
  */
-class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
+class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnClickListener {
     companion object {
         private const val TAG = "RecentFragment"
 
@@ -71,6 +71,13 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
 
     private val updateDotsHandler: Handler = Handler()
 
+    private val currentRecentType: String
+        get() {
+            return activity?.intent?.extras?.getString(
+                Constants.RECENT_TYPE, Constants.RECENT
+            ) ?: Constants.RECENT
+        }
+
     override fun setPresenter(presenter: RecentContract.Presenter) {
         this.presenter = presenter
     }
@@ -86,11 +93,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recentType = activity?.intent?.extras?.getString(
-            Constants.RECENT_TYPE, Constants.RECENT
-        ) ?: Constants.RECENT
-
-        loadingDialog = DialogHelper.createLoadingDialog(activity!!)
+        val recentType = currentRecentType
         srlPullToReload.addPtrUIHandler(this)
         srlPullToReload.setPtrHandler(object : PtrHandler {
             override fun onRefreshBegin(frame: PtrFrameLayout?) {
@@ -121,37 +124,20 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
             }
         )
 
-        ibSwitch.setOnClickListener {
-            RecentActivity.restart(
-                if (recentType == Constants.RECENT) {
-                    Constants.FAVORITE
-                } else {
-                    Constants.RECENT
-                }
-            )
-        }
-        ibBack.setOnClickListener {
-            activity?.onBackPressed()
-        }
-        btnFirst.setOnClickListener {
-            presenter.jumToFirstPage()
-            paginationAdapter.jumpToFirst()
-            jumpTo(0)
-        }
-        btnLast.setOnClickListener {
-            presenter.jumToLastPage()
-            paginationAdapter.jumpToLast()
-            jumpTo(paginationAdapter.itemCount - 1)
-        }
+        ibSwitch.setOnClickListener(this)
+        ibBack.setOnClickListener(this)
+        btnFirst.setOnClickListener(this)
+        btnLast.setOnClickListener(this)
         clReload.gone()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        activity?.let {
+            loadingDialog = it.createLoadingDialog()
+        }
 
-        val recentType = activity?.intent?.extras?.getString(
-            Constants.RECENT_TYPE, Constants.RECENT
-        ) ?: Constants.RECENT
+        val recentType = currentRecentType
         tvNothing.text = if (recentType == Constants.RECENT) {
             getString(R.string.no_recent_book)
         } else {
@@ -183,6 +169,36 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler {
     override fun onDestroy() {
         super.onDestroy()
         presenter.stop()
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.ibSwitch -> {
+                RecentActivity.restart(
+                    if (currentRecentType == Constants.RECENT) {
+                        Constants.FAVORITE
+                    } else {
+                        Constants.RECENT
+                    }
+                )
+            }
+
+            R.id.ibBack -> {
+                activity?.onBackPressed()
+            }
+
+            R.id.btnFirst -> {
+                presenter.jumToFirstPage()
+                paginationAdapter.jumpToFirst()
+                jumpTo(0)
+            }
+
+            R.id.btnLast -> {
+                presenter.jumToLastPage()
+                paginationAdapter.jumpToLast()
+                jumpTo(paginationAdapter.itemCount - 1)
+            }
+        }
     }
 
     override fun setUpRecentBookList(recentBookList: List<Book>) {

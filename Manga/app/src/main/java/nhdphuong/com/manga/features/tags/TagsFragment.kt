@@ -43,7 +43,7 @@ import kotlin.math.abs
 /*
  * Created by nhdphuong on 5/12/18.
  */
-class TagsFragment : Fragment(), TagsContract, TagsContract.View {
+class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickListener {
 
     private lateinit var mPresenter: TagsContract.Presenter
 
@@ -115,45 +115,61 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View {
                 }
             })
         }
-        buttonTabAlphabet.setOnClickListener {
-            changeTagFilterType(TagFilter.ALPHABET)
-            toggleTabButton(true, buttonTabAlphabet)
-            toggleTabButton(false, buttonTabPopularity)
-        }
-        buttonTabPopularity.setOnClickListener {
-            changeTagFilterType(TagFilter.POPULARITY)
-            toggleTabButton(false, buttonTabAlphabet)
-            toggleTabButton(true, buttonTabPopularity)
-        }
-        buttonFirstCharacter.setOnClickListener {
-            mCharacterAdapter.jumpToFirst()
-            if (mCharacterAdapter.itemCount > 0) {
-                listAlphabet.scrollToPosition(0)
-            }
-        }
-        buttonLastCharacter.setOnClickListener {
-            mCharacterAdapter.jumpToLast()
-            if (mCharacterAdapter.itemCount > 0) {
-                listAlphabet.scrollToPosition(mCharacterAdapter.itemCount - 1)
-            }
-        }
-        buttonFirstPage.setOnClickListener {
-            mNumberAdapter.jumpToFirst()
-            if (mNumberAdapter.itemCount > 0) {
-                listPages.scrollToPosition(0)
-            }
-        }
-        buttonLastPage.setOnClickListener {
-            mNumberAdapter.jumpToLast()
-            if (mNumberAdapter.itemCount > 0) {
-                listPages.scrollToPosition(mNumberAdapter.itemCount - 1)
-            }
-        }
+        buttonTabAlphabet.setOnClickListener(this)
+        buttonTabPopularity.setOnClickListener(this)
+        buttonFirstCharacter.setOnClickListener(this)
+        buttonLastCharacter.setOnClickListener(this)
+        buttonFirstPage.setOnClickListener(this)
+        buttonLastPage.setOnClickListener(this)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         mPresenter.start()
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.mb_alphabet -> {
+                changeTagFilterType(TagFilter.ALPHABET)
+                toggleTabButton(true, buttonTabAlphabet)
+                toggleTabButton(false, buttonTabPopularity)
+            }
+
+            R.id.mb_popularity -> {
+                changeTagFilterType(TagFilter.POPULARITY)
+                toggleTabButton(false, buttonTabAlphabet)
+                toggleTabButton(true, buttonTabPopularity)
+            }
+
+            R.id.btn_first -> {
+                mCharacterAdapter.jumpToFirst()
+                if (mCharacterAdapter.itemCount > 0) {
+                    listAlphabet.scrollToPosition(0)
+                }
+            }
+
+            R.id.btn_last -> {
+                mCharacterAdapter.jumpToLast()
+                if (mCharacterAdapter.itemCount > 0) {
+                    listAlphabet.scrollToPosition(mCharacterAdapter.itemCount - 1)
+                }
+            }
+
+            R.id.btn_first_page -> {
+                mNumberAdapter.jumpToFirst()
+                if (mNumberAdapter.itemCount > 0) {
+                    listPages.scrollToPosition(0)
+                }
+            }
+
+            R.id.btn_last_page -> {
+                mNumberAdapter.jumpToLast()
+                if (mNumberAdapter.itemCount > 0) {
+                    listPages.scrollToPosition(mNumberAdapter.itemCount - 1)
+                }
+            }
+        }
     }
 
     override fun onTagChange(@Tag tag: String) {

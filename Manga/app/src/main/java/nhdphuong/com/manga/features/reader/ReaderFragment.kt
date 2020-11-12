@@ -34,11 +34,11 @@ import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.SpaceItemDecoration
-import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.BookReaderAdapter
 import nhdphuong.com.manga.views.adapters.ReaderNavigationAdapter
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.showStoragePermissionDialog
 
 /*
  * Created by nhdphuong on 5/5/18.
@@ -257,17 +257,15 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     override fun showRequestStoragePermission() {
-        activity?.let { activity ->
-            DialogHelper.showStoragePermissionDialog(activity, onOk = {
-                requestStoragePermission()
-            }, onDismiss = {
-                Toast.makeText(
-                    activity,
-                    getString(R.string.toast_storage_permission_require),
-                    Toast.LENGTH_SHORT
-                ).show()
-            })
-        }
+        activity?.showStoragePermissionDialog(onOk = {
+            requestStoragePermission()
+        }, onDismiss = {
+            Toast.makeText(
+                activity,
+                getString(R.string.toast_storage_permission_require),
+                Toast.LENGTH_SHORT
+            ).show()
+        })
     }
 
     override fun showDownloadPopup() {

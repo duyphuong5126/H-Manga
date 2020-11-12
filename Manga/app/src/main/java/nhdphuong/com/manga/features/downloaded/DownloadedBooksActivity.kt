@@ -40,7 +40,6 @@ import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
-import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.becomeInvisible
 import nhdphuong.com.manga.views.doOnGlobalLayout
@@ -48,9 +47,13 @@ import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
+import nhdphuong.com.manga.views.createLoadingDialog
 import javax.inject.Inject
 
-class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.View, PtrUIHandler {
+class DownloadedBooksActivity : AppCompatActivity(),
+    DownloadedBooksContract.View,
+    PtrUIHandler,
+    View.OnClickListener {
     @Inject
     lateinit var downloadedBooksPresenter: DownloadedBooksContract.Presenter
 
@@ -66,7 +69,7 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
         NHentaiApp.instance.applicationComponent.plus(DownloadedBooksModule(this))
             .inject(this)
 
-        loadingDialog = DialogHelper.createLoadingDialog(this)
+        loadingDialog = createLoadingDialog()
         ibSwitch.becomeInvisible()
         mtvTitle.text = getString(R.string.downloaded_books)
 
@@ -87,19 +90,9 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
             }
         })
 
-        ibBack.setOnClickListener {
-            onBackPressed()
-        }
-        btnFirst.setOnClickListener {
-            downloadedBooksPresenter.jumToFirstPage()
-            paginationAdapter.jumpToFirst()
-            jumpTo(0)
-        }
-        btnLast.setOnClickListener {
-            downloadedBooksPresenter.jumToLastPage()
-            paginationAdapter.jumpToLast()
-            jumpTo(paginationAdapter.itemCount - 1)
-        }
+        ibBack.setOnClickListener(this)
+        btnFirst.setOnClickListener(this)
+        btnLast.setOnClickListener(this)
         clReload.gone()
         tvNothing.text = getString(R.string.no_downloaded_book)
         downloadedBooksPresenter.start()
@@ -126,6 +119,26 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
     override fun onDestroy() {
         super.onDestroy()
         downloadedBooksPresenter.stop()
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.ibBack -> {
+                onBackPressed()
+            }
+
+            R.id.btnFirst -> {
+                downloadedBooksPresenter.jumToFirstPage()
+                paginationAdapter.jumpToFirst()
+                jumpTo(0)
+            }
+
+            R.id.btnLast -> {
+                downloadedBooksPresenter.jumToLastPage()
+                paginationAdapter.jumpToLast()
+                jumpTo(paginationAdapter.itemCount - 1)
+            }
+        }
     }
 
     override fun setUpBookList(bookList: List<Book>) {

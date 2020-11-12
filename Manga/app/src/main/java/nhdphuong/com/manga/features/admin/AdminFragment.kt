@@ -33,7 +33,8 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.service.TagsDownloadingService
 import nhdphuong.com.manga.service.TagsDownloadingService.Companion.TagDownloadingResult
-import nhdphuong.com.manga.views.DialogHelper
+import nhdphuong.com.manga.views.showStoragePermissionDialog
+import nhdphuong.com.manga.views.showTagDataBeingDownloadedDialog
 
 class AdminFragment : Fragment(), AdminContract.View {
     companion object {
@@ -101,11 +102,9 @@ class AdminFragment : Fragment(), AdminContract.View {
             if (!TagsDownloadingService.isTagBeingDownloaded) {
                 presenter.startDownloading()
             } else {
-                activity?.let {
-                    DialogHelper.showTagDataBeingDownloadedDialog(it, onOk = {
-                        TagsDownloadingService.stopCurrentTask()
-                        currentDownloadingSwitch = DownloadingSwitch.Start
-                    })
+                activity?.showTagDataBeingDownloadedDialog {
+                    TagsDownloadingService.stopCurrentTask()
+                    currentDownloadingSwitch = DownloadingSwitch.Start
                 }
             }
         }
@@ -197,7 +196,7 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     override fun showRequestStoragePermission() {
-        DialogHelper.showStoragePermissionDialog(activity!!, onOk = {
+        activity?.showStoragePermissionDialog(onOk = {
             requestStoragePermission()
         }, onDismiss = {
             Toast.makeText(

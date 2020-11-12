@@ -15,9 +15,9 @@ import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.comment.Comment
 import nhdphuong.com.manga.supports.SpaceItemDecoration
-import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.CommentAdapter
 import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.createLoadingDialog
 import nhdphuong.com.manga.views.doOnScrollToBottom
 import nhdphuong.com.manga.views.doOnScrolled
 import javax.inject.Inject
@@ -40,8 +40,7 @@ class CommentThreadActivity : AppCompatActivity(), CommentThreadContract.View {
                 .inject(this)
         }
 
-        val loadingTitle = getString(R.string.loading)
-        loadingDialog = DialogHelper.createLoadingDialog(this, loadingTitle)
+        loadingDialog = createLoadingDialog()
 
         ibBack?.setOnClickListener {
             onBackPressed()

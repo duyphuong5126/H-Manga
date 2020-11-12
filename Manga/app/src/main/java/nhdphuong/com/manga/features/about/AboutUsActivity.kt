@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import kotlinx.android.synthetic.main.activity_about_us.tvTwitterInfo
 import kotlinx.android.synthetic.main.activity_about_us.tvEmailInfo
@@ -23,7 +24,7 @@ import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.customs.MyTextView
 import javax.inject.Inject
 
-class AboutUsActivity : AppCompatActivity(), AboutUsContract.View {
+class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickListener {
     @Inject
     lateinit var presenter: AboutUsContract.Presenter
 
@@ -50,15 +51,11 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View {
             this.openUrl(repositoryUrl)
         }
         versionLabel.text = getString(R.string.app_version_template, BuildConfig.VERSION_NAME)
-        backButton.setOnClickListener {
-            onBackPressed()
-        }
+        backButton.setOnClickListener(this)
         scNotificationAcceptor.setOnCheckedChangeListener { _, isChecked ->
             presenter.changeAppUpgradeNotificationAcceptance(isChecked)
         }
-        mbUpgradeButton.setOnClickListener {
-            openUrl(REPOSITORY_URL)
-        }
+        mbUpgradeButton.setOnClickListener(this)
     }
 
     override fun onStart() {
@@ -74,6 +71,18 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View {
     override fun onDestroy() {
         presenter.clear()
         super.onDestroy()
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.ibBack -> {
+                onBackPressed()
+            }
+
+            R.id.mbUpgradeButton -> {
+                openUrl(REPOSITORY_URL)
+            }
+        }
     }
 
     override fun showAppUpgradeNotificationAcceptance(notificationAllowed: Boolean) {
