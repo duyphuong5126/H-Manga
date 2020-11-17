@@ -14,59 +14,25 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.HorizontalScrollView
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.AppCompatImageButton
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.fragment_book_preview.buttonClearDownloadedData
-import kotlinx.android.synthetic.main.fragment_book_preview.buttonUnSeen
-import kotlinx.android.synthetic.main.fragment_book_preview.clBookIdClickableArea
-import kotlinx.android.synthetic.main.fragment_book_preview.clDownloadProgress
-import kotlinx.android.synthetic.main.fragment_book_preview.hsvRecommendList
-import kotlinx.android.synthetic.main.fragment_book_preview.ibBack
-import kotlinx.android.synthetic.main.fragment_book_preview.ivBookCover
-import kotlinx.android.synthetic.main.fragment_book_preview.lastVisitedPage
-import kotlinx.android.synthetic.main.fragment_book_preview.layoutArtists
-import kotlinx.android.synthetic.main.fragment_book_preview.layoutCategories
-import kotlinx.android.synthetic.main.fragment_book_preview.layoutCharacters
-import kotlinx.android.synthetic.main.fragment_book_preview.layoutGroups
-import kotlinx.android.synthetic.main.fragment_book_preview.layoutLanguages
-import kotlinx.android.synthetic.main.fragment_book_preview.layoutParodies
-import kotlinx.android.synthetic.main.fragment_book_preview.layoutTags
-import kotlinx.android.synthetic.main.fragment_book_preview.mbShowFullList
-import kotlinx.android.synthetic.main.fragment_book_preview.mtvCommentThread
-import kotlinx.android.synthetic.main.fragment_book_preview.mtvDownload
-import kotlinx.android.synthetic.main.fragment_book_preview.mtvDownloaded
-import kotlinx.android.synthetic.main.fragment_book_preview.mtvFavorite
-import kotlinx.android.synthetic.main.fragment_book_preview.mtvLastVisitedPage
-import kotlinx.android.synthetic.main.fragment_book_preview.mtvNotFavorite
-import kotlinx.android.synthetic.main.fragment_book_preview.mtvRecommendBook
-import kotlinx.android.synthetic.main.fragment_book_preview.pbDownloading
-import kotlinx.android.synthetic.main.fragment_book_preview.rvCommentList
-import kotlinx.android.synthetic.main.fragment_book_preview.rvPreviewList
-import kotlinx.android.synthetic.main.fragment_book_preview.rvRecommendList
-import kotlinx.android.synthetic.main.fragment_book_preview.svBookCover
-import kotlinx.android.synthetic.main.fragment_book_preview.svPreview
-import kotlinx.android.synthetic.main.fragment_book_preview.tvArtistsLabel
-import kotlinx.android.synthetic.main.fragment_book_preview.tvBookId
-import kotlinx.android.synthetic.main.fragment_book_preview.tvCategoriesLabel
-import kotlinx.android.synthetic.main.fragment_book_preview.tvCharactersLabel
-import kotlinx.android.synthetic.main.fragment_book_preview.tvGroupsLabel
-import kotlinx.android.synthetic.main.fragment_book_preview.tvLanguagesLabel
-import kotlinx.android.synthetic.main.fragment_book_preview.tvPageCount
-import kotlinx.android.synthetic.main.fragment_book_preview.tvParodiesLabel
-import kotlinx.android.synthetic.main.fragment_book_preview.tvTagsLabel
-import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_1
-import kotlinx.android.synthetic.main.fragment_book_preview.tvTitle_2
-import kotlinx.android.synthetic.main.fragment_book_preview.tvUpdatedAt
-import kotlinx.android.synthetic.main.item_preview.ivPageThumbnail
-import kotlinx.android.synthetic.main.item_preview.mtvPageNumber
-import kotlinx.android.synthetic.main.item_preview.vNavigation
+import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_COMPLETED
 import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_FAILED
@@ -98,7 +64,6 @@ import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.supports.copyToClipBoard
-import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
 import nhdphuong.com.manga.views.adapters.BookAdapter
@@ -107,9 +72,18 @@ import nhdphuong.com.manga.views.adapters.PreviewAdapter
 import nhdphuong.com.manga.views.becomeInvisible
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.createLoadingDialog
+import nhdphuong.com.manga.views.customs.MyButton
+import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.doOnScrollToBottom
 import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.showBookDownloadingDialog
+import nhdphuong.com.manga.views.showBookDownloadingFailureDialog
+import nhdphuong.com.manga.views.showDownloadingFinishedDialog
+import nhdphuong.com.manga.views.showStoragePermissionDialog
+import nhdphuong.com.manga.views.showThisBookDownloadingDialog
+import nhdphuong.com.manga.views.showUnSeenBookConfirmationDialog
 
 /*
  * Created by nhdphuong on 4/14/18.
@@ -117,7 +91,8 @@ import nhdphuong.com.manga.views.gone
 class BookPreviewFragment :
     Fragment(),
     BookPreviewContract.View,
-    InformationCardAdapter.TagSelectedListener {
+    InformationCardAdapter.TagSelectedListener,
+    View.OnClickListener {
     companion object {
         private const val TAG = "BookPreviewFragment"
         private const val NUM_OF_ROWS = 2
@@ -133,6 +108,51 @@ class BookPreviewFragment :
         private const val PREVIEW_CACHE_SIZE = 10
         private const val PREFETCH_COMMENTS_DISTANCE = 10
     }
+
+    private lateinit var buttonClearDownloadedData: MyTextView
+    private lateinit var buttonUnSeen: AppCompatImageButton
+    private lateinit var clBookIdClickableArea: ConstraintLayout
+    private lateinit var clDownloadProgress: ConstraintLayout
+    private lateinit var hsvRecommendList: HorizontalScrollView
+    private lateinit var ibBack: ImageButton
+    private lateinit var ivBookCover: ImageView
+    private lateinit var lastVisitedPage: View
+    private lateinit var layoutArtists: LinearLayout
+    private lateinit var layoutCategories: LinearLayout
+    private lateinit var layoutCharacters: LinearLayout
+    private lateinit var layoutGroups: LinearLayout
+    private lateinit var layoutLanguages: LinearLayout
+    private lateinit var layoutParodies: LinearLayout
+    private lateinit var layoutTags: LinearLayout
+    private lateinit var mbShowFullList: MyButton
+    private lateinit var mtvCommentThread: MyTextView
+    private lateinit var mtvDownload: MyTextView
+    private lateinit var mtvDownloaded: MyTextView
+    private lateinit var mtvFavorite: MyTextView
+    private lateinit var mtvLastVisitedPage: MyTextView
+    private lateinit var mtvNotFavorite: MyTextView
+    private lateinit var mtvRecommendBook: MyTextView
+    private lateinit var pbDownloading: ProgressBar
+    private lateinit var rvCommentList: RecyclerView
+    private lateinit var rvPreviewList: RecyclerView
+    private lateinit var rvRecommendList: RecyclerView
+    private lateinit var svBookCover: NestedScrollView
+    private lateinit var svPreview: NestedScrollView
+    private lateinit var tvArtistsLabel: MyTextView
+    private lateinit var tvBookId: MyTextView
+    private lateinit var tvCategoriesLabel: MyTextView
+    private lateinit var tvCharactersLabel: MyTextView
+    private lateinit var tvGroupsLabel: MyTextView
+    private lateinit var tvLanguagesLabel: MyTextView
+    private lateinit var tvPageCount: MyTextView
+    private lateinit var tvParodiesLabel: MyTextView
+    private lateinit var tvTagsLabel: MyTextView
+    private lateinit var tvTitle1: MyTextView
+    private lateinit var tvTitle2: MyTextView
+    private lateinit var tvUpdatedAt: MyTextView
+    private lateinit var ivPageThumbnail: ImageView
+    private lateinit var mtvPageNumber: MyTextView
+    private lateinit var vNavigation: View
 
     private lateinit var presenter: BookPreviewContract.Presenter
     private lateinit var previewAdapter: PreviewAdapter
@@ -238,6 +258,8 @@ class BookPreviewFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Logger.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
+        setUpUI(view)
+
         viewDownloadedData = arguments?.getBoolean(Constants.VIEW_DOWNLOADED_DATA) ?: false
         if (viewDownloadedData) {
             presenter.enableViewDownloadedDataMode()
@@ -262,16 +284,10 @@ class BookPreviewFragment :
         }
 
         mtvDownload.becomeVisibleIf(!viewDownloadedData)
-        mtvDownload.setOnClickListener {
-            isDownloadingRequested = true
-            presenter.downloadBook()
-        }
+        mtvDownload.setOnClickListener(this)
 
         buttonClearDownloadedData.becomeVisibleIf(viewDownloadedData)
-        buttonClearDownloadedData.setOnClickListener {
-            isDeletingRequested = true
-            presenter.deleteBook()
-        }
+        buttonClearDownloadedData.setOnClickListener(this)
 
         val changeFavoriteListener = View.OnClickListener { presenter.changeBookFavorite() }
         mtvFavorite.setOnClickListener(changeFavoriteListener)
@@ -282,33 +298,9 @@ class BookPreviewFragment :
         svPreview.overScrollMode = View.OVER_SCROLL_NEVER
         svBookCover.overScrollMode = View.OVER_SCROLL_NEVER
 
-        ivBookCover.setOnClickListener {
-            activity?.let { activity ->
-                if (ibBack.visibility == View.VISIBLE) {
-                    AnimationHelper.startSlideOutTop(activity, ibBack) {
-                        ibBack.gone()
-                    }
-                } else {
-                    AnimationHelper.startSlideInTop(activity, ibBack) {
-                        ibBack.becomeVisible()
-                    }
-                }
-            }
-        }
-
-        ibBack.setOnClickListener {
-            activity?.onBackPressed()
-        }
-
-        buttonUnSeen.setOnClickListener {
-            activity?.let {
-                DialogHelper.showUnSeenBookConfirmationDialog(it, onOk = {
-                    presenter.unSeenBook()
-                }, onDismiss = {
-                    Logger.d(TAG, "UnSeen canceled")
-                })
-            }
-        }
+        ivBookCover.setOnClickListener(this)
+        ibBack.setOnClickListener(this)
+        buttonUnSeen.setOnClickListener(this)
 
         view.doOnGlobalLayout {
             if (!isPresenterStarted) {
@@ -316,16 +308,14 @@ class BookPreviewFragment :
                 presenter.loadInfoLists()
             }
         }
-
-        activity?.let { activity ->
-            val loadingTitle = activity.getString(R.string.refreshing_gallery)
-            refreshGalleryDialog = DialogHelper.createLoadingDialog(activity, loadingTitle)
-        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Logger.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
+        activity?.let {
+            refreshGalleryDialog = it.createLoadingDialog(R.string.refreshing_gallery)
+        }
         presenter.start()
     }
 
@@ -403,6 +393,57 @@ class BookPreviewFragment :
         super.onDestroy()
     }
 
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.mtvDownload -> {
+                isDownloadingRequested = true
+                presenter.downloadBook()
+            }
+
+            R.id.buttonClearDownloadedData -> {
+                isDeletingRequested = true
+                presenter.deleteBook()
+            }
+
+            R.id.mtvFavorite,
+            R.id.mtvNotFavorite -> {
+                presenter.changeBookFavorite()
+            }
+
+            R.id.ivBookCover -> {
+                activity?.let { activity ->
+                    if (ibBack.visibility == View.VISIBLE) {
+                        AnimationHelper.startSlideOutTop(activity, ibBack) {
+                            ibBack.gone()
+                        }
+                    } else {
+                        AnimationHelper.startSlideInTop(activity, ibBack) {
+                            ibBack.becomeVisible()
+                        }
+                    }
+                }
+            }
+
+            R.id.ibBack -> {
+                activity?.onBackPressed()
+            }
+
+            R.id.buttonUnSeen -> {
+                activity?.showUnSeenBookConfirmationDialog(onOk = {
+                    presenter.unSeenBook()
+                }, onDismiss = {
+                    Logger.d(TAG, "UnSeen canceled")
+                })
+            }
+
+            R.id.clBookIdClickableArea -> {
+                Toast.makeText(context, "Copied Book ID $bookId to clipboard", Toast.LENGTH_SHORT)
+                    .show()
+                context?.copyToClipBoard(bookId, bookId)
+            }
+        }
+    }
+
     override fun showBookCoverImage(coverUrl: String) {
         if (!NHentaiApp.instance.isCensored) {
             ImageUtils.loadImage(
@@ -425,29 +466,25 @@ class BookPreviewFragment :
 
     override fun show1stTitle(firstTitle: String) {
         if (!TextUtils.isEmpty(firstTitle)) {
-            tvTitle_1.becomeVisible()
-            tvTitle_1.text = firstTitle
+            tvTitle1.becomeVisible()
+            tvTitle1.text = firstTitle
         } else {
-            tvTitle_1.gone()
+            tvTitle1.gone()
         }
     }
 
     override fun show2ndTitle(secondTitle: String) {
         if (!TextUtils.isEmpty(secondTitle)) {
-            tvTitle_2.becomeVisible()
-            tvTitle_2.text = secondTitle
+            tvTitle2.becomeVisible()
+            tvTitle2.text = secondTitle
         } else {
-            tvTitle_2.gone()
+            tvTitle2.gone()
         }
     }
 
     override fun showBookId(bookId: String) {
         tvBookId.text = bookId
-        clBookIdClickableArea.setOnClickListener {
-            Toast.makeText(context, "Copied Book ID $bookId to clipboard", Toast.LENGTH_SHORT)
-                .show()
-            context?.copyToClipBoard(bookId, bookId)
-        }
+        clBookIdClickableArea.setOnClickListener(this)
         this.bookId = bookId
     }
 
@@ -593,114 +630,110 @@ class BookPreviewFragment :
     }
 
     override fun showRequestStoragePermission() {
-        activity?.run {
-            DialogHelper.showStoragePermissionDialog(this, onOk = {
-                requestStoragePermission()
-            }, onDismiss = {
-                Toast.makeText(
-                    context,
-                    getString(R.string.toast_storage_permission_require),
-                    Toast.LENGTH_SHORT
-                ).show()
-                isDownloadingRequested = false
-                isDeletingRequested = false
-            })
-        }
+        activity?.showStoragePermissionDialog(onOk = {
+            requestStoragePermission()
+        }, onDismiss = {
+            Toast.makeText(
+                context,
+                getString(R.string.toast_storage_permission_require),
+                Toast.LENGTH_SHORT
+            ).show()
+            isDownloadingRequested = false
+            isDeletingRequested = false
+        })
     }
 
     override fun initDownloading(total: Int) {
-        clDownloadProgress?.becomeVisible()
-        pbDownloading?.max = total
-        mtvDownloaded?.text = String.format(getString(R.string.preview_download_progress), 0, total)
+        clDownloadProgress.becomeVisible()
+        pbDownloading.max = total
+        mtvDownloaded.text = String.format(getString(R.string.preview_download_progress), 0, total)
     }
 
     override fun updateDownloadProgress(progress: Int, total: Int) {
-        clDownloadProgress?.becomeVisible()
-        pbDownloading?.max = total
+        clDownloadProgress.becomeVisible()
+        pbDownloading.max = total
         updateProgressDrawable(progress, total)
-        pbDownloading?.progress = progress
-        mtvDownloaded?.text =
+        pbDownloading.progress = progress
+        mtvDownloaded.text =
             String.format(getString(R.string.preview_download_progress), progress, total)
         BookDownloadingService.clearStatus(bookId)
     }
 
     override fun finishDownloading() {
-        mtvDownloaded?.text = getString(R.string.done)
-        pbDownloading?.let {
+        mtvDownloaded.text = getString(R.string.done)
+        pbDownloading.let {
             it.postDelayed({
                 updateProgressDrawable(0, it.max)
                 it.max = 0
-                clDownloadProgress?.gone()
-                mtvDownloaded?.text = getString(R.string.preview_download_progress)
+                clDownloadProgress.gone()
+                mtvDownloaded.text = getString(R.string.preview_download_progress)
             }, DOWNLOADING_BAR_HIDING_DELAY)
         }
         BookDownloadingService.clearStatus(bookId)
     }
 
     override fun finishDownloading(downloadFailedCount: Int, total: Int) {
-        mtvDownloaded?.text =
+        mtvDownloaded.text =
             String.format(getString(R.string.fail_to_download), downloadFailedCount)
-        pbDownloading?.let {
+        pbDownloading.let {
             it.postDelayed({
                 updateProgressDrawable(0, it.max)
                 it.max = 0
-                clDownloadProgress?.gone()
-                mtvDownloaded?.text = getString(R.string.preview_download_progress)
+                clDownloadProgress.gone()
+                mtvDownloaded.text = getString(R.string.preview_download_progress)
             }, DOWNLOADING_BAR_HIDING_DELAY)
         }
         BookDownloadingService.clearStatus(bookId)
     }
 
     private fun finishDownloadingWithError(bookId: String) {
-        activity?.let {
-            DialogHelper.showBookDownloadingFailureDialog(it, bookId)
-        }
-        pbDownloading?.let {
+        activity?.showBookDownloadingFailureDialog(bookId)
+        pbDownloading.let {
             it.postDelayed({
                 updateProgressDrawable(0, it.max)
                 it.max = 0
-                clDownloadProgress?.gone()
-                mtvDownloaded?.text = getString(R.string.preview_download_progress)
+                clDownloadProgress.gone()
+                mtvDownloaded.text = getString(R.string.preview_download_progress)
             }, DOWNLOADING_BAR_HIDING_DELAY)
         }
         BookDownloadingService.clearStatus(bookId)
     }
 
     override fun initDeleting() {
-        mtvDownloaded?.text = ""
+        mtvDownloaded.text = ""
     }
 
     override fun updateDeletingProgress(progress: Int, total: Int) {
-        clDownloadProgress?.becomeVisible()
-        pbDownloading?.max = total
+        clDownloadProgress.becomeVisible()
+        pbDownloading.max = total
         updateProgressDrawable(progress, total)
-        pbDownloading?.progress = progress
-        mtvDownloaded?.text = getString(R.string.preview_deleting_progress, progress, total)
+        pbDownloading.progress = progress
+        mtvDownloaded.text = getString(R.string.preview_deleting_progress, progress, total)
     }
 
     override fun finishDeleting(bookId: String) {
-        pbDownloading?.max = 1
-        pbDownloading?.progress = 1
+        pbDownloading.max = 1
+        pbDownloading.progress = 1
         updateProgressDrawable(1, 1)
-        mtvDownloaded?.text = getString(R.string.cleared)
+        mtvDownloaded.text = getString(R.string.cleared)
 
-        pbDownloading?.postDelayed({
+        pbDownloading.postDelayed({
             updateProgressDrawable(0, 1)
-            clDownloadProgress?.gone()
+            clDownloadProgress.gone()
         }, DELETING_BAR_HIDING_DELAY)
 
         closePreviewAfterRemovedBook(bookId)
     }
 
     override fun finishDeleting(bookId: String, deletingFailedCount: Int) {
-        mtvDownloaded?.text = getString(R.string.fail_to_delete, deletingFailedCount)
-        pbDownloading?.let {
+        mtvDownloaded.text = getString(R.string.fail_to_delete, deletingFailedCount)
+        pbDownloading.let {
             updateProgressDrawable(0, it.max)
 
             it.postDelayed({
                 it.max = 0
                 it.progress = 0
-                clDownloadProgress?.gone()
+                clDownloadProgress.gone()
             }, DELETING_BAR_HIDING_DELAY)
         }
 
@@ -708,21 +741,17 @@ class BookPreviewFragment :
     }
 
     override fun showBookBeingDownloaded(bookId: String) {
-        activity?.run {
-            DialogHelper.showBookDownloadingDialog(this, bookId, onOk = {
-                presenter.restartBookPreview(bookId)
-            }, onDismiss = {
-                Logger.d(TAG, "Downloading book $bookId is aware")
-            })
-        }
+        activity?.showBookDownloadingDialog(bookId, onOk = {
+            presenter.restartBookPreview(bookId)
+        }, onDismiss = {
+            Logger.d(TAG, "Downloading book $bookId is aware")
+        })
     }
 
     override fun showThisBookBeingDownloaded() {
-        activity?.run {
-            DialogHelper.showThisBookDownloadingDialog(this, onOk = {
-                Logger.d(TAG, "Downloading this book is aware")
-            })
-        }
+        activity?.showThisBookDownloadingDialog(onOk = {
+            Logger.d(TAG, "Downloading this book is aware")
+        })
     }
 
     override fun showFavoriteBookSaved(isFavorite: Boolean) {
@@ -744,22 +773,16 @@ class BookPreviewFragment :
     }
 
     override fun showOpenFolderView() {
-        activity?.run {
-            Handler().postDelayed({
-                if (isActive()) {
-                    DialogHelper.showDownloadingFinishedDialog(this, onOk = {
-                        val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
-                        viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        viewGalleryIntent.type = "image/*"
-                        startActivity(
-                            Intent.createChooser(viewGalleryIntent, getString(R.string.open_with))
-                        )
-                    }, onDismiss = {
-
-                    })
-                }
-            }, if (refreshGalleryDialog.isShowing) SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY else 0)
-        }
+        Handler(Looper.getMainLooper()).postDelayed({
+            activity?.showDownloadingFinishedDialog(onOk = {
+                val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
+                viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                viewGalleryIntent.type = "image/*"
+                startActivity(
+                    Intent.createChooser(viewGalleryIntent, getString(R.string.open_with))
+                )
+            })
+        }, if (refreshGalleryDialog.isShowing) SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY else 0)
     }
 
     override fun startReadingFromPage(page: Int, book: Book) {
@@ -794,17 +817,17 @@ class BookPreviewFragment :
 
     override fun setUpCommentList(commentList: List<Comment>, pageSize: Int) {
         commentAdapter = CommentAdapter(commentList)
-        rvCommentList?.adapter = commentAdapter
-        rvCommentList?.isNestedScrollingEnabled = false
+        rvCommentList.adapter = commentAdapter
+        rvCommentList.isNestedScrollingEnabled = false
         context?.let {
             val linearLayoutManager = LinearLayoutManager(it, LinearLayoutManager.VERTICAL, false)
-            rvCommentList?.layoutManager = linearLayoutManager
-            rvCommentList?.addItemDecoration(SpaceItemDecoration(it, R.dimen.space_medium))
+            rvCommentList.layoutManager = linearLayoutManager
+            rvCommentList.addItemDecoration(SpaceItemDecoration(it, R.dimen.space_medium))
             val hasComments = commentList.isNotEmpty()
             mtvCommentThread.becomeVisibleIf(hasComments)
-            rvCommentList?.becomeVisibleIf(hasComments)
+            rvCommentList.becomeVisibleIf(hasComments)
             if (hasComments) {
-                svPreview?.doOnScrollToBottom(
+                svPreview.doOnScrollToBottom(
                     linearLayoutManager, PREFETCH_COMMENTS_DISTANCE, this::prefetchCommentList
                 )
             }
@@ -817,8 +840,8 @@ class BookPreviewFragment :
         }
         commentAdapter?.addNewComments(commentList)
         if (commentList.isNotEmpty()) {
-            (rvCommentList?.layoutManager as? LinearLayoutManager)?.let {
-                svPreview?.doOnScrollToBottom(
+            (rvCommentList.layoutManager as? LinearLayoutManager)?.let {
+                svPreview.doOnScrollToBottom(
                     it, PREFETCH_COMMENTS_DISTANCE, this::prefetchCommentList
                 )
             }
@@ -826,8 +849,8 @@ class BookPreviewFragment :
     }
 
     override fun hideCommentList() {
-        mtvCommentThread?.gone()
-        rvCommentList?.gone()
+        mtvCommentThread.gone()
+        rvCommentList.gone()
     }
 
     override fun enableShowFullCommentListButton(notShownComments: Int, bookId: String) {
@@ -861,6 +884,53 @@ class BookPreviewFragment :
             setResult(Activity.RESULT_OK, intent)
             finish()
         }
+    }
+
+    private fun setUpUI(rootView: View) {
+        buttonClearDownloadedData = rootView.findViewById(R.id.buttonClearDownloadedData)
+        buttonUnSeen = rootView.findViewById(R.id.buttonUnSeen)
+        clBookIdClickableArea = rootView.findViewById(R.id.clBookIdClickableArea)
+        clDownloadProgress = rootView.findViewById(R.id.clDownloadProgress)
+        hsvRecommendList = rootView.findViewById(R.id.hsvRecommendList)
+        ibBack = rootView.findViewById(R.id.ibBack)
+        ivBookCover = rootView.findViewById(R.id.ivBookCover)
+        lastVisitedPage = rootView.findViewById(R.id.lastVisitedPage)
+        layoutArtists = rootView.findViewById(R.id.layoutArtists)
+        layoutCategories = rootView.findViewById(R.id.layoutCategories)
+        layoutCharacters = rootView.findViewById(R.id.layoutCharacters)
+        layoutGroups = rootView.findViewById(R.id.layoutGroups)
+        layoutLanguages = rootView.findViewById(R.id.layoutLanguages)
+        layoutParodies = rootView.findViewById(R.id.layoutParodies)
+        layoutTags = rootView.findViewById(R.id.layoutTags)
+        mbShowFullList = rootView.findViewById(R.id.mbShowFullList)
+        mtvCommentThread = rootView.findViewById(R.id.mtvCommentThread)
+        mtvDownload = rootView.findViewById(R.id.mtvDownload)
+        mtvDownloaded = rootView.findViewById(R.id.mtvDownloaded)
+        mtvFavorite = rootView.findViewById(R.id.mtvFavorite)
+        mtvLastVisitedPage = rootView.findViewById(R.id.mtvLastVisitedPage)
+        mtvNotFavorite = rootView.findViewById(R.id.mtvNotFavorite)
+        mtvRecommendBook = rootView.findViewById(R.id.mtvRecommendBook)
+        pbDownloading = rootView.findViewById(R.id.pbDownloading)
+        rvCommentList = rootView.findViewById(R.id.rvCommentList)
+        rvPreviewList = rootView.findViewById(R.id.rvPreviewList)
+        rvRecommendList = rootView.findViewById(R.id.rvRecommendList)
+        svBookCover = rootView.findViewById(R.id.svBookCover)
+        svPreview = rootView.findViewById(R.id.svPreview)
+        tvArtistsLabel = rootView.findViewById(R.id.tvArtistsLabel)
+        tvBookId = rootView.findViewById(R.id.tvBookId)
+        tvCategoriesLabel = rootView.findViewById(R.id.tvCategoriesLabel)
+        tvCharactersLabel = rootView.findViewById(R.id.tvCharactersLabel)
+        tvGroupsLabel = rootView.findViewById(R.id.tvGroupsLabel)
+        tvLanguagesLabel = rootView.findViewById(R.id.tvLanguagesLabel)
+        tvPageCount = rootView.findViewById(R.id.tvPageCount)
+        tvParodiesLabel = rootView.findViewById(R.id.tvParodiesLabel)
+        tvTagsLabel = rootView.findViewById(R.id.tvTagsLabel)
+        tvTitle1 = rootView.findViewById(R.id.tvTitle_1)
+        tvTitle2 = rootView.findViewById(R.id.tvTitle_2)
+        tvUpdatedAt = rootView.findViewById(R.id.tvUpdatedAt)
+        ivPageThumbnail = lastVisitedPage.findViewById(R.id.ivPageThumbnail)
+        mtvPageNumber = lastVisitedPage.findViewById(R.id.mtvPageNumber)
+        vNavigation = lastVisitedPage.findViewById(R.id.vNavigation)
     }
 
     private fun loadInfoList(layout: ViewGroup, infoList: List<Tag>) {
@@ -898,7 +968,7 @@ class BookPreviewFragment :
 
     private fun updateProgressDrawable(progress: Int, max: Int) {
         context?.let {
-            pbDownloading?.progressDrawable = getProgressDrawableId(it, progress, max)
+            pbDownloading.progressDrawable = getProgressDrawableId(it, progress, max)
         }
     }
 
@@ -914,7 +984,7 @@ class BookPreviewFragment :
     }
 
     private fun closePreviewAfterRemovedBook(bookId: String) {
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             activity?.run {
                 intent.action = Constants.REFRESH_DOWNLOADED_BOOK_LIST
                 intent.putExtra(BOOK_ID, bookId)

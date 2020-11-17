@@ -53,8 +53,8 @@ class BookRepository @Inject constructor(
         bookLocalDataSource.saveRecentBook(bookId)
     }
 
-    override suspend fun getFavoriteBook(limit: Int, offset: Int): LinkedList<RecentBook> {
-        return bookLocalDataSource.getFavoriteBook(limit, offset)
+    override suspend fun getFavoriteBooks(limit: Int, offset: Int): LinkedList<RecentBook> {
+        return bookLocalDataSource.getFavoriteBooks(limit, offset)
     }
 
     override suspend fun getRecentBooks(limit: Int, offset: Int): LinkedList<RecentBook> {

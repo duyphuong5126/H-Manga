@@ -50,7 +50,7 @@ class BookLocalDataSource @Inject constructor(
         return result
     }
 
-    override suspend fun getFavoriteBook(limit: Int, offset: Int): LinkedList<RecentBook> {
+    override suspend fun getFavoriteBooks(limit: Int, offset: Int): LinkedList<RecentBook> {
         val result = LinkedList<RecentBook>()
         result.addAll(bookDAO.getFavoriteBooks(limit, offset))
         return result
