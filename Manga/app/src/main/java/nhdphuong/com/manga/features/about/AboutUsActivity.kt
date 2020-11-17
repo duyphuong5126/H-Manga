@@ -41,15 +41,11 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
         NHentaiApp.instance.applicationComponent.plus(AboutUsModule(this)).inject(this)
 
         setUpView()
-        twitterInfo.addClickAbleText(TWITTER_URL, TWITTER_LABEL) { twitterUrl ->
-            this.openUrl(twitterUrl)
-        }
+        twitterInfo.addClickAbleText(TWITTER_URL, TWITTER_LABEL, this::openUrl)
         emailInfo.addClickAbleText(EMAIL, EMAIL) { emailAddress ->
             this.openEmailApp(emailAddress, BuildConfig.VERSION_NAME)
         }
-        repositoryInfo.addClickAbleText(REPOSITORY_URL, REPOSITORY_LABEL) { repositoryUrl ->
-            this.openUrl(repositoryUrl)
-        }
+        repositoryInfo.addClickAbleText(REPOSITORY_URL, REPOSITORY_LABEL, this::openUrl)
         versionLabel.text = getString(R.string.app_version_template, BuildConfig.VERSION_NAME)
         backButton.setOnClickListener(this)
         scNotificationAcceptor.setOnCheckedChangeListener { _, isChecked ->

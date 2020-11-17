@@ -12,15 +12,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.fragment_header.edtSearch
-import kotlinx.android.synthetic.main.fragment_header.ibHamburger
-import kotlinx.android.synthetic.main.fragment_header.ibSearch
-import kotlinx.android.synthetic.main.fragment_header.ibClearSearch
-import kotlinx.android.synthetic.main.fragment_header.ibMainLogo
-import kotlinx.android.synthetic.main.fragment_header.rvMainTabs
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
@@ -59,6 +55,13 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
 
     private var suggestionAdapter: ArrayAdapter<String>? = null
 
+    private lateinit var edtSearch: AutoCompleteTextView
+    private lateinit var ibHamburger: ImageButton
+    private lateinit var ibSearch: ImageButton
+    private lateinit var ibClearSearch: ImageButton
+    private lateinit var ibMainLogo: ImageButton
+    private lateinit var rvMainTabs: RecyclerView
+
     override fun setPresenter(presenter: HeaderContract.Presenter) {
         this.presenter = presenter
     }
@@ -78,8 +81,8 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpUI(view)
         val context: Context = context!!
-        val activity = activity!!
         iconType = arguments?.run {
             HeaderIconType.fromTypeCode(getInt(ICON_TYPE_CODE, HeaderIconType.Logo.typeCode))
         } ?: HeaderIconType.Logo
@@ -103,7 +106,7 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
                         return
                     }
                     Tab.ADMIN -> {
-                        activity.showAdminEntryDialog(onOk = {
+                        activity?.showAdminEntryDialog(onOk = {
                             AdminActivity.start(context)
                             resetTabBar()
                         }, onDismiss = {
@@ -122,10 +125,10 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
                     }
                     Tab.INFO -> {
                         AboutUsActivity.start(context)
-                        activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+                        activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                     }
                     else -> {
-                        activity.showTagsNotAvailable {
+                        activity?.showTagsNotAvailable {
                             resetTabBar()
                         }
                     }
@@ -291,6 +294,15 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
     }
 
     override fun isActive(): Boolean = isAdded
+
+    private fun setUpUI(rootView: View) {
+        edtSearch = rootView.findViewById(R.id.edtSearch)
+        ibHamburger = rootView.findViewById(R.id.ibHamburger)
+        ibSearch = rootView.findViewById(R.id.ibSearch)
+        ibClearSearch = rootView.findViewById(R.id.ibClearSearch)
+        ibMainLogo = rootView.findViewById(R.id.ibMainLogo)
+        rvMainTabs = rootView.findViewById(R.id.rvMainTabs)
+    }
 
     private fun resetTabBar() {
         tabAdapter.reset()

@@ -37,7 +37,7 @@ import java.net.SocketTimeoutException
 import java.util.Locale
 import java.util.Random
 import java.util.Collections
-import java.util.Stack
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.collections.HashMap
@@ -75,7 +75,7 @@ class HomePresenter @Inject constructor(
     private var preventiveData = HashMap<Long, ArrayList<Book>>()
 
     private var isLoadingPreventiveData = false
-    private val jobStack = Stack<Job>()
+    private val jobList = CopyOnWriteArrayList<Job>()
     private var isRefreshing = AtomicBoolean(false)
 
     private var searchData: String = ""
@@ -327,8 +327,8 @@ class HomePresenter @Inject constructor(
     override fun stop() {
         Logger.d(TAG, "stop")
         io.launch {
-            while (jobStack.size > 0) {
-                val job = jobStack.pop()
+            while (jobList.size > 0) {
+                val job = jobList.removeAt(0)
                 job.cancel()
             }
         }
@@ -384,7 +384,7 @@ class HomePresenter @Inject constructor(
                 }
             }
         }
-        jobStack.push(downloadingJob)
+        jobList.add(downloadingJob)
     }
 
     private fun onPageChange(pageNumber: Long) {

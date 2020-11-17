@@ -5,23 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.fragment_tags.btn_first as buttonFirstCharacter
-import kotlinx.android.synthetic.main.fragment_tags.btn_first_page as buttonFirstPage
-import kotlinx.android.synthetic.main.fragment_tags.btn_last as buttonLastCharacter
-import kotlinx.android.synthetic.main.fragment_tags.btn_last_page as buttonLastPage
-import kotlinx.android.synthetic.main.fragment_tags.cl_alphabet_navigation as layoutNavigation
-import kotlinx.android.synthetic.main.fragment_tags.mb_alphabet as buttonTabAlphabet
-import kotlinx.android.synthetic.main.fragment_tags.mb_popularity as buttonTabPopularity
-import kotlinx.android.synthetic.main.fragment_tags.mtv_count as labelCount
-import kotlinx.android.synthetic.main.fragment_tags.mtv_title as title
-import kotlinx.android.synthetic.main.fragment_tags.nsv_container as tagLayoutRoot
-import kotlinx.android.synthetic.main.fragment_tags.rv_alphabet_pagination as listAlphabet
-import kotlinx.android.synthetic.main.fragment_tags.rv_pagination as listPages
-import kotlinx.android.synthetic.main.fragment_tags.rv_tags_list as listTags
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -36,6 +26,7 @@ import nhdphuong.com.manga.views.adapters.TagItemAdapter
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.customs.MyButton
+import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.gone
 import kotlin.math.abs
@@ -55,6 +46,20 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
     private lateinit var mTagItemAdapter: TagItemAdapter
     private var mSearchContract: SearchContract? = null
 
+    private lateinit var buttonFirstCharacter: ImageView
+    private lateinit var buttonFirstPage: ImageView
+    private lateinit var buttonLastCharacter: ImageView
+    private lateinit var buttonLastPage: ImageView
+    private lateinit var layoutNavigation: ConstraintLayout
+    private lateinit var buttonTabAlphabet: MyButton
+    private lateinit var buttonTabPopularity: MyButton
+    private lateinit var labelCount: MyTextView
+    private lateinit var title: MyTextView
+    private lateinit var tagLayoutRoot: NestedScrollView
+    private lateinit var listAlphabet: RecyclerView
+    private lateinit var listPages: RecyclerView
+    private lateinit var listTags: RecyclerView
+
     override fun setPresenter(presenter: TagsContract.Presenter) {
         mPresenter = presenter
     }
@@ -69,6 +74,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpUI(view)
         mCharacterAdapter = PaginationAdapter(
             mCharacterCount,
             PaginationAdapter.PaginationMode.CHARACTER
@@ -92,16 +98,16 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
             adapter = mCharacterAdapter
 
             val updateNavigationButtons = {
-                listAlphabet?.post {
+                listAlphabet.post {
                     val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
                     val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
                     val visibilityDistance =
                         abs(lastVisibleItemPosition - firstVisibleItemPosition) + 1
                     if (firstVisibleItemPosition >= 0) {
-                        buttonFirstCharacter?.becomeVisibleIf(firstVisibleItemPosition > 0 && visibilityDistance < mCharacterCount)
+                        buttonFirstCharacter.becomeVisibleIf(firstVisibleItemPosition > 0 && visibilityDistance < mCharacterCount)
                     }
                     if (lastVisibleItemPosition >= 0) {
-                        buttonLastCharacter?.becomeVisibleIf(lastVisibleItemPosition < mCharacterCount - 1 && visibilityDistance < mCharacterCount)
+                        buttonLastCharacter.becomeVisibleIf(lastVisibleItemPosition < mCharacterCount - 1 && visibilityDistance < mCharacterCount)
                     }
                 }
             }
@@ -212,15 +218,15 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
         listPages.adapter = mNumberAdapter
 
         val updateNavigationButtons = {
-            listPages?.post {
+            listPages.post {
                 val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
                 val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
                 val visibilityDistance = abs(lastVisibleItemPosition - firstVisibleItemPosition) + 1
                 if (firstVisibleItemPosition >= 0) {
-                    buttonFirstPage?.becomeVisibleIf(firstVisibleItemPosition > 0 && visibilityDistance < pageCount)
+                    buttonFirstPage.becomeVisibleIf(firstVisibleItemPosition > 0 && visibilityDistance < pageCount)
                 }
                 if (lastVisibleItemPosition >= 0) {
-                    buttonLastPage?.becomeVisibleIf(lastVisibleItemPosition < pageCount - 1 && visibilityDistance < pageCount)
+                    buttonLastPage.becomeVisibleIf(lastVisibleItemPosition < pageCount - 1 && visibilityDistance < pageCount)
                 }
             }
         }
@@ -275,6 +281,22 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
     }
 
     override fun isActive(): Boolean = isAdded
+
+    private fun setUpUI(rootView: View) {
+        buttonFirstCharacter = rootView.findViewById(R.id.btn_first)
+        buttonFirstPage = rootView.findViewById(R.id.btn_first_page)
+        buttonLastCharacter = rootView.findViewById(R.id.btn_last)
+        buttonLastPage = rootView.findViewById(R.id.btn_last_page)
+        layoutNavigation = rootView.findViewById(R.id.cl_alphabet_navigation)
+        buttonTabAlphabet = rootView.findViewById(R.id.mb_alphabet)
+        buttonTabPopularity = rootView.findViewById(R.id.mb_popularity)
+        labelCount = rootView.findViewById(R.id.mtv_count)
+        title = rootView.findViewById(R.id.mtv_title)
+        tagLayoutRoot = rootView.findViewById(R.id.nsv_container)
+        listAlphabet = rootView.findViewById(R.id.rv_alphabet_pagination)
+        listPages = rootView.findViewById(R.id.rv_pagination)
+        listTags = rootView.findViewById(R.id.rv_tags_list)
+    }
 
     private fun changeTagFilterType(tagFilter: TagFilter) {
         mPresenter.changeTagFilterType(tagFilter)

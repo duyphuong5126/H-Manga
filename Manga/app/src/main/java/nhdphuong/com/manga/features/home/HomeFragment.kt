@@ -17,37 +17,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.ProgressBar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import kotlinx.android.synthetic.main.fragment_book_list.btnFirst
-import kotlinx.android.synthetic.main.fragment_book_list.btnJumpToPage
-import kotlinx.android.synthetic.main.fragment_book_list.btnLast
-import kotlinx.android.synthetic.main.fragment_book_list.clNavigation
-import kotlinx.android.synthetic.main.fragment_book_list.clNothing
-import kotlinx.android.synthetic.main.fragment_book_list.clReload
-import kotlinx.android.synthetic.main.fragment_book_list.mtv_search_result
-import kotlinx.android.synthetic.main.fragment_book_list.nsvMainList
-import kotlinx.android.synthetic.main.fragment_book_list.refreshHeader
-import kotlinx.android.synthetic.main.fragment_book_list.rvMainList
-import kotlinx.android.synthetic.main.fragment_book_list.rvPagination
-import kotlinx.android.synthetic.main.fragment_book_list.srlPullToReload
-import kotlinx.android.synthetic.main.fragment_book_list.clUpgradePopup
-import kotlinx.android.synthetic.main.fragment_book_list.ibUpgradePopupClose
-import kotlinx.android.synthetic.main.fragment_book_list.layoutSortOptions
-import kotlinx.android.synthetic.main.fragment_book_list.mtvPopularAllTime
-import kotlinx.android.synthetic.main.fragment_book_list.mtvPopularToday
-import kotlinx.android.synthetic.main.fragment_book_list.mtvPopularWeek
-import kotlinx.android.synthetic.main.fragment_book_list.mtvRecentOption
-import kotlinx.android.synthetic.main.fragment_book_list.mtvUpgradeTitle
-import kotlinx.android.synthetic.main.fragment_book_list.tvNothing
-import kotlinx.android.synthetic.main.fragment_book_list.upgradePopupPlaceHolder
-import kotlinx.android.synthetic.main.layout_refresh_header.view.ivRefresh
-import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvLastUpdate
-import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvRefresh
-import kotlinx.android.synthetic.main.layout_refresh_header.view.pbRefresh
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -65,6 +44,7 @@ import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import nhdphuong.com.manga.views.createLoadingDialog
+import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.showBookListRefreshingDialog
 import nhdphuong.com.manga.views.showGoToPageDialog
 
@@ -80,7 +60,62 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
     private val searchResultTitle: String = NHentaiApp.instance.getString(R.string.search_result)
 
-    private val updateDotsHandler: Handler = Handler()
+    private val updateDotsHandler: Handler = Handler(Looper.getMainLooper())
+    private lateinit var btnFirst: ImageView
+    private lateinit var btnJumpToPage: ImageView
+    private lateinit var btnLast: ImageView
+    private lateinit var clNavigation: ConstraintLayout
+    private lateinit var clNothing: ConstraintLayout
+    private lateinit var clReload: ConstraintLayout
+    private lateinit var mtvSearchResult: MyTextView
+    private lateinit var nsvMainList: NestedScrollView
+    private lateinit var refreshHeader: View
+    private lateinit var rvMainList: RecyclerView
+    private lateinit var rvPagination: RecyclerView
+    private lateinit var srlPullToReload: PtrFrameLayout
+    private lateinit var clUpgradePopup: ConstraintLayout
+    private lateinit var ibUpgradePopupClose: ImageButton
+    private lateinit var layoutSortOptions: HorizontalScrollView
+    private lateinit var mtvPopularAllTime: MyTextView
+    private lateinit var mtvPopularToday: MyTextView
+    private lateinit var mtvPopularWeek: MyTextView
+    private lateinit var mtvRecentOption: MyTextView
+    private lateinit var mtvUpgradeTitle: MyTextView
+    private lateinit var tvNothing: MyTextView
+    private lateinit var upgradePopupPlaceHolder: View
+    private lateinit var ivRefresh: ImageView
+    private lateinit var mtvLastUpdate: MyTextView
+    private lateinit var mtvRefresh: MyTextView
+    private lateinit var pbRefresh: ProgressBar
+
+    private fun setUpUI(rootView: View) {
+        btnFirst = rootView.findViewById(R.id.btnFirst)
+        btnJumpToPage = rootView.findViewById(R.id.btnJumpToPage)
+        btnLast = rootView.findViewById(R.id.btnLast)
+        clNavigation = rootView.findViewById(R.id.clNavigation)
+        clNothing = rootView.findViewById(R.id.clNothing)
+        clReload = rootView.findViewById(R.id.clReload)
+        mtvSearchResult = rootView.findViewById(R.id.mtv_search_result)
+        nsvMainList = rootView.findViewById(R.id.nsvMainList)
+        refreshHeader = rootView.findViewById(R.id.refreshHeader)
+        rvMainList = rootView.findViewById(R.id.rvMainList)
+        rvPagination = rootView.findViewById(R.id.rvPagination)
+        srlPullToReload = rootView.findViewById(R.id.srlPullToReload)
+        clUpgradePopup = rootView.findViewById(R.id.clUpgradePopup)
+        ibUpgradePopupClose = rootView.findViewById(R.id.ibUpgradePopupClose)
+        layoutSortOptions = rootView.findViewById(R.id.layoutSortOptions)
+        mtvPopularAllTime = rootView.findViewById(R.id.mtvPopularAllTime)
+        mtvPopularToday = rootView.findViewById(R.id.mtvPopularToday)
+        mtvPopularWeek = rootView.findViewById(R.id.mtvPopularWeek)
+        mtvRecentOption = rootView.findViewById(R.id.mtvRecentOption)
+        mtvUpgradeTitle = rootView.findViewById(R.id.mtvUpgradeTitle)
+        tvNothing = rootView.findViewById(R.id.tvNothing)
+        upgradePopupPlaceHolder = rootView.findViewById(R.id.upgradePopupPlaceHolder)
+        ivRefresh = refreshHeader.findViewById(R.id.ivRefresh)
+        mtvLastUpdate = refreshHeader.findViewById(R.id.mtvLastUpdate)
+        mtvRefresh = refreshHeader.findViewById(R.id.mtvRefresh)
+        pbRefresh = refreshHeader.findViewById(R.id.pbRefresh)
+    }
 
     override fun setPresenter(presenter: HomeContract.Presenter) {
         homePresenter = presenter
@@ -98,6 +133,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Logger.d(TAG, "onViewCreated")
+        setUpUI(view)
 
         nsvMainList.overScrollMode = View.OVER_SCROLL_NEVER
         activity?.let {
@@ -269,8 +305,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     override fun refreshHomeBookList() {
         homeListAdapter.notifyDataSetChanged()
         homePresenter.saveLastBookListRefreshTime()
-        rvMainList?.post {
-            rvMainList?.smoothScrollBy(0, 0)
+        rvMainList.post {
+            rvMainList.smoothScrollBy(0, 0)
         }
         homePresenter.reloadRecentBooks()
     }
@@ -300,18 +336,18 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         mainPagination.layoutManager = layoutManager
         mainPagination.adapter = homePaginationAdapter
         val updateNavigationButtons = {
-            mainPagination?.post {
+            mainPagination.post {
                 val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
                 val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
                 val showJumpToFirstButton = firstVisibleItemPosition > 0
                 val showJumpToLastButton = lastVisibleItemPosition < pageCount - 1
                 if (firstVisibleItemPosition >= 0) {
-                    btnFirst?.becomeVisibleIf(showJumpToFirstButton)
+                    btnFirst.becomeVisibleIf(showJumpToFirstButton)
                 }
                 if (lastVisibleItemPosition >= 0) {
-                    btnLast?.becomeVisibleIf(showJumpToLastButton)
+                    btnLast.becomeVisibleIf(showJumpToLastButton)
                 }
-                btnJumpToPage?.becomeVisibleIf(showJumpToFirstButton || showJumpToLastButton)
+                btnJumpToPage.becomeVisibleIf(showJumpToFirstButton || showJumpToLastButton)
             }
         }
         mainPagination.doOnGlobalLayout {
@@ -328,30 +364,30 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {
         val lastRefresh = String.format(getString(R.string.last_update), lastRefreshTimeStamp)
-        refreshHeader.mtvLastUpdate.text = lastRefresh
+        mtvLastUpdate.text = lastRefresh
     }
 
     override fun showNothingView() {
-        clNothing?.becomeVisible()
+        clNothing.becomeVisible()
     }
 
     override fun hideNothingView() {
-        clNothing?.gone()
+        clNothing.gone()
     }
 
     override fun enableSortOption(sortOption: SortOption) {
-        mtvRecentOption?.isActivated = sortOption == SortOption.Recent
-        mtvPopularToday?.isActivated = sortOption == SortOption.PopularToday
-        mtvPopularWeek?.isActivated = sortOption == SortOption.PopularWeek
-        mtvPopularAllTime?.isActivated = sortOption == SortOption.PopularAllTime
+        mtvRecentOption.isActivated = sortOption == SortOption.Recent
+        mtvPopularToday.isActivated = sortOption == SortOption.PopularToday
+        mtvPopularWeek.isActivated = sortOption == SortOption.PopularWeek
+        mtvPopularAllTime.isActivated = sortOption == SortOption.PopularAllTime
     }
 
     override fun showSortOptionList() {
-        layoutSortOptions?.becomeVisible()
+        layoutSortOptions.becomeVisible()
     }
 
     override fun hideSortOptionList() {
-        layoutSortOptions?.gone()
+        layoutSortOptions.gone()
     }
 
     override fun showRefreshingDialog() {
@@ -381,9 +417,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     override fun showUpgradeNotification(latestVersionCode: String) {
         clUpgradePopup.becomeVisible()
         upgradePopupPlaceHolder.becomeVisible()
-        clUpgradePopup?.postDelayed({
-            clUpgradePopup?.gone()
-            upgradePopupPlaceHolder?.gone()
+        clUpgradePopup.postDelayed({
+            clUpgradePopup.gone()
+            upgradePopupPlaceHolder.gone()
         }, APP_UPGRADE_TIME_OUT)
         val title = getString(R.string.app_upgrade_notification_title, latestVersionCode)
         val message = getString(R.string.app_upgrade_notification_message)
@@ -403,12 +439,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
             ErrorEnum.TimeOutError -> R.string.library_error_time_out_label
             ErrorEnum.UnknownError -> R.string.library_error_unknown_label
         }
-        tvNothing?.text = getString(stringResId)
+        tvNothing.text = getString(stringResId)
     }
 
     override fun finishRefreshing() {
-        srlPullToReload?.postDelayed({
-            srlPullToReload?.refreshComplete()
+        srlPullToReload.postDelayed({
+            srlPullToReload.refreshComplete()
         }, REFRESH_COMPLETE_DURATION)
     }
 
@@ -440,12 +476,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshComplete")
-        refreshHeader.mtvRefresh.text = getString(R.string.updated)
+        mtvRefresh.text = getString(R.string.updated)
         homePresenter.saveLastBookListRefreshTime()
         homePresenter.reloadLastBookListRefreshTime()
-        refreshHeader.ivRefresh.rotation = 0F
-        refreshHeader.ivRefresh.becomeVisible()
-        refreshHeader.pbRefresh.gone()
+        ivRefresh.rotation = 0F
+        ivRefresh.becomeVisible()
+        pbRefresh.gone()
         updateDotsHandler.removeCallbacksAndMessages(null)
     }
 
@@ -461,16 +497,16 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
                     "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}"
         )
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
-            refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
-            refreshHeader.ivRefresh.rotation = REFRESH_HEADER_ANGEL
+            mtvRefresh.text = getString(R.string.release_to_refresh)
+            ivRefresh.rotation = REFRESH_HEADER_ANGEL
         }
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshBegin")
-        refreshHeader.ivRefresh.gone()
-        refreshHeader.pbRefresh.becomeVisible()
-        refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
+        ivRefresh.gone()
+        pbRefresh.becomeVisible()
+        mtvRefresh.text = String.format(getString(R.string.updating), "")
         runUpdateDotsTask()
 
     }
@@ -482,7 +518,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
     override fun onUIReset(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIReset")
-        refreshHeader.mtvRefresh.text = getString(R.string.pull_down)
+        mtvRefresh.text = getString(R.string.pull_down)
     }
 
     private fun jumpTo(pageNumber: Int) {
@@ -499,7 +535,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
             Logger.d(TAG, "Current pos: $currentPos")
-            refreshHeader?.mtvRefresh?.text =
+            mtvRefresh.text =
                 String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }
@@ -513,7 +549,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     }
 
     private fun toggleSearchResult(data: String) {
-        mtv_search_result.run {
+        mtvSearchResult.run {
             text = String.format(searchResultTitle, data)
             becomeVisibleIf(data.isNotBlank())
         }

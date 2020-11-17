@@ -15,27 +15,14 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.ProgressBar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.layout_special_book_list.btnFirst
-import kotlinx.android.synthetic.main.layout_special_book_list.btnLast
-import kotlinx.android.synthetic.main.layout_special_book_list.clNavigation
-import kotlinx.android.synthetic.main.layout_special_book_list.ibBack
-import kotlinx.android.synthetic.main.layout_special_book_list.ibSwitch
-import kotlinx.android.synthetic.main.layout_special_book_list.mtvTitle
-import kotlinx.android.synthetic.main.layout_special_book_list.refreshHeader
-import kotlinx.android.synthetic.main.layout_special_book_list.rvBookList
-import kotlinx.android.synthetic.main.layout_special_book_list.rvPagination
-import kotlinx.android.synthetic.main.layout_special_book_list.srlPullToReload
-import kotlinx.android.synthetic.main.layout_special_book_list.clNothing
-import kotlinx.android.synthetic.main.layout_special_book_list.clReload
-import kotlinx.android.synthetic.main.layout_special_book_list.tvNothing
-import kotlinx.android.synthetic.main.layout_refresh_header.view.ivRefresh
-import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvLastUpdate
-import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvRefresh
-import kotlinx.android.synthetic.main.layout_refresh_header.view.pbRefresh
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
@@ -49,6 +36,7 @@ import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import nhdphuong.com.manga.views.createLoadingDialog
+import nhdphuong.com.manga.views.customs.MyTextView
 
 /*
  * Created by nhdphuong on 6/10/18.
@@ -69,7 +57,26 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
     private lateinit var paginationAdapter: PaginationAdapter
     private lateinit var loadingDialog: Dialog
 
-    private val updateDotsHandler: Handler = Handler()
+
+    private lateinit var btnFirst: ImageView
+    private lateinit var btnLast: ImageView
+    private lateinit var clNavigation: ConstraintLayout
+    private lateinit var ibBack: ImageButton
+    private lateinit var ibSwitch: ImageButton
+    private lateinit var mtvTitle: MyTextView
+    private lateinit var refreshHeader: View
+    private lateinit var rvBookList: RecyclerView
+    private lateinit var rvPagination: RecyclerView
+    private lateinit var srlPullToReload: PtrFrameLayout
+    private lateinit var clNothing: ConstraintLayout
+    private lateinit var clReload: ConstraintLayout
+    private lateinit var tvNothing: MyTextView
+    private lateinit var ivRefresh: ImageView
+    private lateinit var mtvLastUpdate: MyTextView
+    private lateinit var mtvRefresh: MyTextView
+    private lateinit var pbRefresh: ProgressBar
+
+    private val updateDotsHandler: Handler = Handler(Looper.getMainLooper())
 
     private val currentRecentType: String
         get() {
@@ -92,13 +99,14 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpUI(view)
 
         val recentType = currentRecentType
         srlPullToReload.addPtrUIHandler(this)
         srlPullToReload.setPtrHandler(object : PtrHandler {
             override fun onRefreshBegin(frame: PtrFrameLayout?) {
-                srlPullToReload?.postDelayed({
-                    srlPullToReload?.refreshComplete()
+                srlPullToReload.postDelayed({
+                    srlPullToReload.refreshComplete()
                     RecentActivity.restart(recentType)
                 }, REFRESHING_DELAY)
             }
@@ -275,7 +283,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
 
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {
         val lastRefresh = String.format(getString(R.string.last_update), lastRefreshTimeStamp)
-        refreshHeader.mtvLastUpdate.text = lastRefresh
+        mtvLastUpdate.text = lastRefresh
     }
 
     override fun showNothingView(@RecentType recentType: String) {
@@ -289,7 +297,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
             ErrorEnum.TimeOutError -> R.string.library_error_time_out_label
             ErrorEnum.UnknownError -> R.string.library_error_unknown_label
         }
-        tvNothing?.text = getString(stringResId)
+        tvNothing.text = getString(stringResId)
     }
 
     override fun showLoading() {
@@ -311,12 +319,12 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshComplete")
         endUpdateDotsTask()
-        refreshHeader.mtvRefresh.text = getString(R.string.updated)
+        mtvRefresh.text = getString(R.string.updated)
         presenter.saveLastBookListRefreshTime()
         presenter.reloadLastBookListRefreshTime()
-        refreshHeader.ivRefresh.rotation = 0F
-        refreshHeader.ivRefresh.becomeVisible()
-        refreshHeader.pbRefresh.gone()
+        ivRefresh.rotation = 0F
+        ivRefresh.becomeVisible()
+        pbRefresh.gone()
     }
 
     override fun onUIPositionChange(
@@ -331,16 +339,16 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
                     "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}"
         )
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
-            refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
-            refreshHeader.ivRefresh.rotation = REFRESHING_ROTATION
+            mtvRefresh.text = getString(R.string.release_to_refresh)
+            ivRefresh.rotation = REFRESHING_ROTATION
         }
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshBegin")
-        refreshHeader.ivRefresh.gone()
-        refreshHeader.pbRefresh.becomeVisible()
-        refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
+        ivRefresh.gone()
+        pbRefresh.becomeVisible()
+        mtvRefresh.text = String.format(getString(R.string.updating), "")
         runUpdateDotsTask()
     }
 
@@ -351,7 +359,27 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
 
     override fun onUIReset(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIReset")
-        refreshHeader.mtvRefresh.text = getString(R.string.pull_down)
+        mtvRefresh.text = getString(R.string.pull_down)
+    }
+
+    private fun setUpUI(rootView: View) {
+        btnFirst = rootView.findViewById(R.id.btnFirst)
+        btnLast = rootView.findViewById(R.id.btnLast)
+        clNavigation = rootView.findViewById(R.id.clNavigation)
+        ibBack = rootView.findViewById(R.id.ibBack)
+        ibSwitch = rootView.findViewById(R.id.ibSwitch)
+        mtvTitle = rootView.findViewById(R.id.mtvTitle)
+        refreshHeader = rootView.findViewById(R.id.refreshHeader)
+        rvBookList = rootView.findViewById(R.id.rvBookList)
+        rvPagination = rootView.findViewById(R.id.rvPagination)
+        srlPullToReload = rootView.findViewById(R.id.srlPullToReload)
+        clNothing = rootView.findViewById(R.id.clNothing)
+        clReload = rootView.findViewById(R.id.clReload)
+        tvNothing = rootView.findViewById(R.id.tvNothing)
+        ivRefresh = refreshHeader.findViewById(R.id.ivRefresh)
+        mtvLastUpdate = refreshHeader.findViewById(R.id.mtvLastUpdate)
+        mtvRefresh = refreshHeader.findViewById(R.id.mtvRefresh)
+        pbRefresh = refreshHeader.findViewById(R.id.pbRefresh)
     }
 
     @SuppressLint("SetTextI18n")
@@ -361,7 +389,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
             Logger.d("Dialog", "Current pos: $currentPos")
-            refreshHeader?.mtvRefresh?.text =
+            mtvRefresh.text =
                 String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }

@@ -9,25 +9,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
+import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
-import kotlinx.android.synthetic.main.fragment_reader.clDownloadedPopup
-import kotlinx.android.synthetic.main.fragment_reader.clReaderTop
-import kotlinx.android.synthetic.main.fragment_reader.ibBack
-import kotlinx.android.synthetic.main.fragment_reader.ibDownload
-import kotlinx.android.synthetic.main.fragment_reader.ibDownloadPopupClose
-import kotlinx.android.synthetic.main.fragment_reader.ibRefresh
-import kotlinx.android.synthetic.main.fragment_reader.ibShare
-import kotlinx.android.synthetic.main.fragment_reader.layoutReaderBottom
-import kotlinx.android.synthetic.main.fragment_reader.mtvBookTitle
-import kotlinx.android.synthetic.main.fragment_reader.mtvCurrentPage
-import kotlinx.android.synthetic.main.fragment_reader.mtvDownloadTitle
-import kotlinx.android.synthetic.main.fragment_reader.rvQuickNavigation
-import kotlinx.android.synthetic.main.fragment_reader.vpPages
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
@@ -37,6 +28,7 @@ import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.views.adapters.BookReaderAdapter
 import nhdphuong.com.manga.views.adapters.ReaderNavigationAdapter
 import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.showStoragePermissionDialog
 
@@ -49,6 +41,20 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     private lateinit var rotationAnimation: Animation
     private lateinit var bookReaderAdapter: BookReaderAdapter
     private lateinit var navigationAdapter: ReaderNavigationAdapter
+
+    private lateinit var clDownloadedPopup: ConstraintLayout
+    private lateinit var clReaderTop: ConstraintLayout
+    private lateinit var ibBack: ImageButton
+    private lateinit var ibDownload: ImageButton
+    private lateinit var ibDownloadPopupClose: ImageButton
+    private lateinit var ibRefresh: ImageButton
+    private lateinit var ibShare: ImageButton
+    private lateinit var layoutReaderBottom: LinearLayout
+    private lateinit var mtvBookTitle: MyTextView
+    private lateinit var mtvCurrentPage: MyTextView
+    private lateinit var mtvDownloadTitle: MyTextView
+    private lateinit var rvQuickNavigation: RecyclerView
+    private lateinit var vpPages: ViewPager
 
     private var viewDownloadedData = false
 
@@ -66,6 +72,8 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpUI(view)
+
         viewDownloadedData = arguments?.getBoolean(Constants.VIEW_DOWNLOADED_DATA) ?: false
         if (viewDownloadedData) {
             presenter.enableViewDownloadedDataMode()
@@ -147,11 +155,11 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
             }
 
             R.id.ibRefresh -> {
-                ibRefresh?.startAnimation(rotationAnimation)
+                ibRefresh.startAnimation(rotationAnimation)
                 presenter.reloadCurrentPage { currentPage: Int ->
                     bookReaderAdapter.resetPage(currentPage)
-                    ibRefresh?.postDelayed({
-                        ibRefresh?.clearAnimation()
+                    ibRefresh.postDelayed({
+                        ibRefresh.clearAnimation()
                     }, 3000)
                 }
             }
@@ -171,13 +179,13 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                 pageList,
                 object : ReaderNavigationAdapter.ThumbnailSelectListener {
                     override fun onItemSelected(position: Int) {
-                        vpPages?.currentItem = position
+                        vpPages.currentItem = position
                     }
                 })
-            rvQuickNavigation?.adapter = navigationAdapter
-            rvQuickNavigation?.layoutManager =
+            rvQuickNavigation.adapter = navigationAdapter
+            rvQuickNavigation.layoutManager =
                 LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-            rvQuickNavigation?.addItemDecoration(
+            rvQuickNavigation.addItemDecoration(
                 SpaceItemDecoration(
                     activity,
                     R.dimen.space_medium,
@@ -187,7 +195,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
             )
 
             bookReaderAdapter = BookReaderAdapter(pageList, View.OnClickListener {
-                if (layoutReaderBottom?.visibility == View.VISIBLE) {
+                if (layoutReaderBottom.visibility == View.VISIBLE) {
                     AnimationHelper.startSlideOutTop(activity, clReaderTop) {
                         clReaderTop.visibility = View.GONE
                     }
@@ -203,9 +211,9 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                     }
                 }
             })
-            vpPages?.adapter = bookReaderAdapter
-            vpPages?.offscreenPageLimit = OFFSCREEN_LIMIT
-            vpPages?.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            vpPages.adapter = bookReaderAdapter
+            vpPages.offscreenPageLimit = OFFSCREEN_LIMIT
+            vpPages.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
                 override fun onPageScrollStateChanged(state: Int) {
 
                 }
@@ -226,7 +234,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                     if (position + 1 < bookReaderAdapter.count) {
                         bookReaderAdapter.resetPageToNormal(position + 1)
                     }
-                    rvQuickNavigation?.scrollToPosition(position)
+                    rvQuickNavigation.scrollToPosition(position)
                     navigationAdapter.updateSelectedIndex(position)
                 }
             })
@@ -273,8 +281,8 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     override fun hideDownloadPopup() {
-        clDownloadedPopup?.postDelayed({
-            clDownloadedPopup?.gone()
+        clDownloadedPopup.postDelayed({
+            clDownloadedPopup.gone()
         }, 3000)
     }
 
@@ -325,6 +333,22 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     override fun isActive(): Boolean = isAdded
+
+    private fun setUpUI(rootView: View) {
+        clDownloadedPopup = rootView.findViewById(R.id.clDownloadedPopup)
+        clReaderTop = rootView.findViewById(R.id.clReaderTop)
+        ibBack = rootView.findViewById(R.id.ibBack)
+        ibDownload = rootView.findViewById(R.id.ibDownload)
+        ibDownloadPopupClose = rootView.findViewById(R.id.ibDownloadPopupClose)
+        ibRefresh = rootView.findViewById(R.id.ibRefresh)
+        ibShare = rootView.findViewById(R.id.ibShare)
+        layoutReaderBottom = rootView.findViewById(R.id.layoutReaderBottom)
+        mtvBookTitle = rootView.findViewById(R.id.mtvBookTitle)
+        mtvCurrentPage = rootView.findViewById(R.id.mtvCurrentPage)
+        mtvDownloadTitle = rootView.findViewById(R.id.mtvDownloadTitle)
+        rvQuickNavigation = rootView.findViewById(R.id.rvQuickNavigation)
+        vpPages = rootView.findViewById(R.id.vpPages)
+    }
 
     private fun requestStoragePermission() {
         val storagePermission = arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)

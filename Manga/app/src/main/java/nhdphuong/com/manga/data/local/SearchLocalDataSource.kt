@@ -31,7 +31,7 @@ class SearchLocalDataSourceImpl @Inject constructor(
     override fun getLatestSearchEntries(maximumEntries: Int): Single<List<String>> {
         return searchDAO.getLatestSearchEntries(maximumEntries)
             .map {
-                it.map { searchModel -> searchModel.searchInfo }
+                it.map(SearchModel::searchInfo)
             }
     }
 }

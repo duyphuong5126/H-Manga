@@ -4,12 +4,11 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.activity_comment_thread.ibScrollToTop
-import kotlinx.android.synthetic.main.activity_comment_thread.rvCommentList
-import kotlinx.android.synthetic.main.activity_comment_thread.ibBack
+import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -31,9 +30,14 @@ class CommentThreadActivity : AppCompatActivity(), CommentThreadContract.View {
 
     private lateinit var loadingDialog: Dialog
 
+    private lateinit var ibScrollToTop: ImageButton
+    private lateinit var rvCommentList: RecyclerView
+    private lateinit var ibBack: ImageButton
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comment_thread)
+        setUpUI()
         intent?.getStringExtra(BOOK_ID).orEmpty().let {
             NHentaiApp.instance.applicationComponent
                 .plus(CommentThreadModule(this, it))
@@ -42,7 +46,7 @@ class CommentThreadActivity : AppCompatActivity(), CommentThreadContract.View {
 
         loadingDialog = createLoadingDialog()
 
-        ibBack?.setOnClickListener {
+        ibBack.setOnClickListener {
             onBackPressed()
         }
 
@@ -50,7 +54,7 @@ class CommentThreadActivity : AppCompatActivity(), CommentThreadContract.View {
     }
 
     override fun setUpCommentList(commentList: List<Comment>, pageSize: Int) {
-        rvCommentList?.let {
+        rvCommentList.let {
             commentAdapter = CommentAdapter(commentList)
             it.adapter = commentAdapter
             it.isNestedScrollingEnabled = false
@@ -66,7 +70,7 @@ class CommentThreadActivity : AppCompatActivity(), CommentThreadContract.View {
             )
             val commentCount = commentList.size
             it.becomeVisibleIf(commentCount > 0)
-            ibScrollToTop?.setOnClickListener { _ ->
+            ibScrollToTop.setOnClickListener { _ ->
                 val firstVisiblePos = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
                 if (firstVisiblePos > pageSize) {
                     it.scrollToPosition(pageSize)
@@ -78,7 +82,7 @@ class CommentThreadActivity : AppCompatActivity(), CommentThreadContract.View {
             it.doOnScrolled {
                 val firstVisiblePos = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
                 Logger.d("CommentThreadActivity", "firstVisiblePos=$firstVisiblePos")
-                ibScrollToTop?.becomeVisibleIf(firstVisiblePos > pageSize)
+                ibScrollToTop.becomeVisibleIf(firstVisiblePos > pageSize)
             }
 
             if (commentCount > 0) {
@@ -105,6 +109,12 @@ class CommentThreadActivity : AppCompatActivity(), CommentThreadContract.View {
     override fun isActive(): Boolean {
         val currentState = lifecycle.currentState
         return currentState != Lifecycle.State.DESTROYED
+    }
+
+    private fun setUpUI() {
+        ibScrollToTop = findViewById(R.id.ibScrollToTop)
+        rvCommentList = findViewById(R.id.rvCommentList)
+        ibBack = findViewById(R.id.ibBack)
     }
 
     private fun prefetchCommentList() {
