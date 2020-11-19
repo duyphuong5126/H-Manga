@@ -253,8 +253,8 @@ class HomePresenter @Inject constructor(
 
     override fun reloadRecentBooks() {
         io.launch {
-            val recentList = ArrayList<String>()
-            val favoriteList = ArrayList<String>()
+            val recentList = CopyOnWriteArrayList<String>()
+            val favoriteList = CopyOnWriteArrayList<String>()
             mainList.forEach {
                 val bookId = it.bookId
                 when {
