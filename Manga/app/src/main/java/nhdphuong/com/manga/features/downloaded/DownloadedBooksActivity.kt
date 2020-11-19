@@ -71,6 +71,8 @@ class DownloadedBooksActivity : AppCompatActivity(),
     private lateinit var pbRefresh: ProgressBar
 
     private fun setUpUI() {
+        ibSwitch = findViewById(R.id.ibSwitch)
+        mtvTitle = findViewById(R.id.mtvTitle)
         btnFirst = findViewById(R.id.btnFirst)
         btnLast = findViewById(R.id.btnLast)
         ibBack = findViewById(R.id.ibBack)

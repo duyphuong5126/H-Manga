@@ -103,6 +103,7 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
                     }
                     Tab.DOWNLOADED -> {
                         DownloadedBooksActivity.start(context)
+                        resetTabBar()
                         return
                     }
                     Tab.ADMIN -> {
@@ -271,7 +272,7 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
     }
 
     override fun showNoNetworkPopup() {
-        activity?.showInternetRequiredDialog()
+        activity?.showInternetRequiredDialog(this::resetTabBar)
     }
 
     override fun setUpSuggestionList(suggestionList: List<String>) {
