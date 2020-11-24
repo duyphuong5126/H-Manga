@@ -66,7 +66,7 @@ class HomePresenter @Inject constructor(
         private const val BOOKS_PER_PAGE = MAX_PER_PAGE
     }
 
-    private var mainList = ArrayList<Book>()
+    private var mainList = CopyOnWriteArrayList<Book>()
     private var currentNumOfPages = 0L
     private var currentLimitPerPage = 0
     private var currentPage = 1L
@@ -253,8 +253,8 @@ class HomePresenter @Inject constructor(
 
     override fun reloadRecentBooks() {
         io.launch {
-            val recentList = CopyOnWriteArrayList<String>()
-            val favoriteList = CopyOnWriteArrayList<String>()
+            val recentList = ArrayList<String>()
+            val favoriteList = ArrayList<String>()
             mainList.forEach {
                 val bookId = it.bookId
                 when {

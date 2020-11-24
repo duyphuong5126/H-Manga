@@ -104,9 +104,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
         srlPullToReload.addPtrUIHandler(this)
         srlPullToReload.setPtrHandler(object : PtrHandler {
             override fun onRefreshBegin(frame: PtrFrameLayout?) {
-                srlPullToReload.postDelayed({
-                    srlPullToReload.refreshComplete()
-                }, 1000)
+                srlPullToReload.postDelayed(srlPullToReload::refreshComplete, 1000)
             }
 
             override fun checkCanDoRefresh(
