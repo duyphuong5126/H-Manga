@@ -158,9 +158,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                 ibRefresh.startAnimation(rotationAnimation)
                 presenter.reloadCurrentPage { currentPage: Int ->
                     bookReaderAdapter.resetPage(currentPage)
-                    ibRefresh.postDelayed({
-                        ibRefresh.clearAnimation()
-                    }, 3000)
+                    ibRefresh.postDelayed(ibRefresh::clearAnimation, 3000)
                 }
             }
         }
