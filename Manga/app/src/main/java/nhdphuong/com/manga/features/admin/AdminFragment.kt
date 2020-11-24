@@ -9,19 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_admin.mbt_start_downloading
-import kotlinx.android.synthetic.main.fragment_admin.mtv_artists_count
-import kotlinx.android.synthetic.main.fragment_admin.mtv_categories_count
-import kotlinx.android.synthetic.main.fragment_admin.mtv_characters_count
-import kotlinx.android.synthetic.main.fragment_admin.mtv_groups_count
-import kotlinx.android.synthetic.main.fragment_admin.mtv_languages_count
-import kotlinx.android.synthetic.main.fragment_admin.mtv_pages_count
-import kotlinx.android.synthetic.main.fragment_admin.mtv_pages_downloaded
-import kotlinx.android.synthetic.main.fragment_admin.mtv_parodies_count
-import kotlinx.android.synthetic.main.fragment_admin.mtv_tags_count
-import kotlinx.android.synthetic.main.fragment_admin.mtv_unknown_tags_count
-import kotlinx.android.synthetic.main.fragment_admin.sp_censored
 import nhdphuong.com.manga.Constants.Companion.ACTION_TAGS_DOWNLOADING_COMPLETED
 import nhdphuong.com.manga.Constants.Companion.ACTION_TAGS_DOWNLOADING_FAILED
 import nhdphuong.com.manga.Constants.Companion.ACTION_TAGS_DOWNLOADING_PROGRESS
@@ -33,7 +22,10 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.service.TagsDownloadingService
 import nhdphuong.com.manga.service.TagsDownloadingService.Companion.TagDownloadingResult
-import nhdphuong.com.manga.views.DialogHelper
+import nhdphuong.com.manga.views.customs.MyButton
+import nhdphuong.com.manga.views.customs.MyTextView
+import nhdphuong.com.manga.views.showStoragePermissionDialog
+import nhdphuong.com.manga.views.showTagDataBeingDownloadedDialog
 
 class AdminFragment : Fragment(), AdminContract.View {
     companion object {
@@ -44,6 +36,19 @@ class AdminFragment : Fragment(), AdminContract.View {
             Start, Stop
         }
     }
+
+    private lateinit var mbtStartDownloading: MyButton
+    private lateinit var mtvArtistsCount: MyTextView
+    private lateinit var mtvCategoriesCount: MyTextView
+    private lateinit var mtvCharactersCount: MyTextView
+    private lateinit var mtvGroupsCount: MyTextView
+    private lateinit var mtvLanguagesCount: MyTextView
+    private lateinit var mtvPagesCount: MyTextView
+    private lateinit var mtvPagesDownloaded: MyTextView
+    private lateinit var mtvParodiesCount: MyTextView
+    private lateinit var mtvTagsCount: MyTextView
+    private lateinit var mtvUnknownTagsCount: MyTextView
+    private lateinit var spCensored: SwitchCompat
 
     private lateinit var presenter: AdminContract.Presenter
 
@@ -96,24 +101,23 @@ class AdminFragment : Fragment(), AdminContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mtv_pages_count?.text = ""
-        mbt_start_downloading?.setOnClickListener {
+        setUpUI(view)
+        mtvPagesCount.text = ""
+        mbtStartDownloading.setOnClickListener {
             if (!TagsDownloadingService.isTagBeingDownloaded) {
                 presenter.startDownloading()
             } else {
-                activity?.let {
-                    DialogHelper.showTagDataBeingDownloadedDialog(it, onOk = {
-                        TagsDownloadingService.stopCurrentTask()
-                        currentDownloadingSwitch = DownloadingSwitch.Start
-                    })
+                activity?.showTagDataBeingDownloadedDialog {
+                    TagsDownloadingService.stopCurrentTask()
+                    currentDownloadingSwitch = DownloadingSwitch.Start
                 }
             }
         }
 
         clearAllData()
 
-        sp_censored?.isChecked = NHentaiApp.instance.isCensored
-        sp_censored?.setOnCheckedChangeListener { _, isChecked ->
+        spCensored.isChecked = NHentaiApp.instance.isCensored
+        spCensored.setOnCheckedChangeListener { _, isChecked ->
             presenter.toggleCensored(isChecked)
         }
         presenter.start()
@@ -161,7 +165,7 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     override fun showNumberOfPages(numOfPages: Long) {
-        mtv_pages_count?.text = getString(R.string.number_of_pages, numOfPages)
+        mtvPagesCount.text = getString(R.string.number_of_pages, numOfPages)
     }
 
     private fun updateDownloadingStatistics(
@@ -176,15 +180,15 @@ class AdminFragment : Fragment(), AdminContract.View {
         unknownsTypes: Int
     ) {
         val resources = resources
-        mtv_pages_downloaded?.text = resources.getString(R.string.downloaded_pages, downloadedPages)
-        mtv_artists_count?.text = resources.getString(R.string.number_of_artists, artists)
-        mtv_characters_count?.text = resources.getString(R.string.number_of_characters, characters)
-        mtv_categories_count?.text = resources.getString(R.string.number_of_categories, categories)
-        mtv_languages_count?.text = resources.getString(R.string.number_of_languages, languages)
-        mtv_parodies_count?.text = resources.getString(R.string.number_of_parodies, parodies)
-        mtv_groups_count?.text = resources.getString(R.string.number_of_groups, groups)
-        mtv_tags_count?.text = resources.getString(R.string.number_of_tags, tags)
-        mtv_unknown_tags_count?.text =
+        mtvPagesDownloaded.text = resources.getString(R.string.downloaded_pages, downloadedPages)
+        mtvArtistsCount.text = resources.getString(R.string.number_of_artists, artists)
+        mtvCharactersCount.text = resources.getString(R.string.number_of_characters, characters)
+        mtvCategoriesCount.text = resources.getString(R.string.number_of_categories, categories)
+        mtvLanguagesCount.text = resources.getString(R.string.number_of_languages, languages)
+        mtvParodiesCount.text = resources.getString(R.string.number_of_parodies, parodies)
+        mtvGroupsCount.text = resources.getString(R.string.number_of_groups, groups)
+        mtvTagsCount.text = resources.getString(R.string.number_of_tags, tags)
+        mtvUnknownTagsCount.text =
             resources.getString(R.string.number_of_unknown, unknownsTypes)
     }
 
@@ -197,7 +201,7 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     override fun showRequestStoragePermission() {
-        DialogHelper.showStoragePermissionDialog(activity!!, onOk = {
+        activity?.showStoragePermissionDialog(onOk = {
             requestStoragePermission()
         }, onDismiss = {
             Toast.makeText(
@@ -222,6 +226,20 @@ class AdminFragment : Fragment(), AdminContract.View {
 
     override fun isActive(): Boolean = isAdded
 
+    private fun setUpUI(rootView: View) {
+        mbtStartDownloading = rootView.findViewById(R.id.mbt_start_downloading)
+        mtvArtistsCount = rootView.findViewById(R.id.mtv_artists_count)
+        mtvCategoriesCount = rootView.findViewById(R.id.mtv_categories_count)
+        mtvCharactersCount = rootView.findViewById(R.id.mtv_characters_count)
+        mtvGroupsCount = rootView.findViewById(R.id.mtv_groups_count)
+        mtvLanguagesCount = rootView.findViewById(R.id.mtv_languages_count)
+        mtvPagesCount = rootView.findViewById(R.id.mtv_pages_count)
+        mtvPagesDownloaded = rootView.findViewById(R.id.mtv_pages_downloaded)
+        mtvParodiesCount = rootView.findViewById(R.id.mtv_parodies_count)
+        mtvTagsCount = rootView.findViewById(R.id.mtv_tags_count)
+        mtvUnknownTagsCount = rootView.findViewById(R.id.mtv_unknown_tags_count)
+        spCensored = rootView.findViewById(R.id.sp_censored)
+    }
 
     private fun requestStoragePermission() {
         val storagePermission = arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -229,20 +247,20 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     private fun clearAllData() {
-        mtv_pages_downloaded?.text = ""
-        mtv_artists_count?.text = ""
-        mtv_characters_count?.text = ""
-        mtv_categories_count?.text = ""
-        mtv_languages_count?.text = ""
-        mtv_parodies_count?.text = ""
-        mtv_groups_count?.text = ""
-        mtv_tags_count?.text = ""
-        mtv_unknown_tags_count?.text = ""
+        mtvPagesDownloaded.text = ""
+        mtvArtistsCount.text = ""
+        mtvCharactersCount.text = ""
+        mtvCategoriesCount.text = ""
+        mtvLanguagesCount.text = ""
+        mtvParodiesCount.text = ""
+        mtvGroupsCount.text = ""
+        mtvTagsCount.text = ""
+        mtvUnknownTagsCount.text = ""
     }
 
     private fun changeDownloadButtonStatus(newStatus: DownloadingSwitch) {
         Logger.d(TAG, "currentDownloadingSwitch=$newStatus")
-        mbt_start_downloading?.text = getString(
+        mbtStartDownloading.text = getString(
             if (newStatus == DownloadingSwitch.Start) {
                 R.string.start_downloading
             } else {

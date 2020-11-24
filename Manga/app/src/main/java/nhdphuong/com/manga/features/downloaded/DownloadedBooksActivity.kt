@@ -15,32 +15,20 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.ProgressBar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.layout_refresh_header.view.ivRefresh
-import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvRefresh
-import kotlinx.android.synthetic.main.layout_refresh_header.view.pbRefresh
-import kotlinx.android.synthetic.main.layout_refresh_header.view.mtvLastUpdate
-import kotlinx.android.synthetic.main.layout_special_book_list.ibSwitch
-import kotlinx.android.synthetic.main.layout_special_book_list.mtvTitle
-import kotlinx.android.synthetic.main.layout_special_book_list.srlPullToReload
-import kotlinx.android.synthetic.main.layout_special_book_list.ibBack
-import kotlinx.android.synthetic.main.layout_special_book_list.btnFirst
-import kotlinx.android.synthetic.main.layout_special_book_list.btnLast
-import kotlinx.android.synthetic.main.layout_special_book_list.rvBookList
-import kotlinx.android.synthetic.main.layout_special_book_list.rvPagination
-import kotlinx.android.synthetic.main.layout_special_book_list.refreshHeader
-import kotlinx.android.synthetic.main.layout_special_book_list.clNothing
-import kotlinx.android.synthetic.main.layout_special_book_list.clReload
-import kotlinx.android.synthetic.main.layout_special_book_list.tvNothing
+import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
-import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.becomeInvisible
 import nhdphuong.com.manga.views.doOnGlobalLayout
@@ -48,9 +36,14 @@ import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
+import nhdphuong.com.manga.views.createLoadingDialog
+import nhdphuong.com.manga.views.customs.MyTextView
 import javax.inject.Inject
 
-class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.View, PtrUIHandler {
+class DownloadedBooksActivity : AppCompatActivity(),
+    DownloadedBooksContract.View,
+    PtrUIHandler,
+    View.OnClickListener {
     @Inject
     lateinit var downloadedBooksPresenter: DownloadedBooksContract.Presenter
 
@@ -58,7 +51,43 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
     private lateinit var bookListAdapter: BookAdapter
     private lateinit var paginationAdapter: PaginationAdapter
 
-    private val updateDotsHandler: Handler = Handler()
+    private val updateDotsHandler: Handler = Handler(Looper.getMainLooper())
+
+    private lateinit var ibSwitch: ImageButton
+    private lateinit var mtvTitle: MyTextView
+    private lateinit var srlPullToReload: PtrFrameLayout
+    private lateinit var ibBack: ImageButton
+    private lateinit var btnFirst: ImageView
+    private lateinit var btnLast: ImageView
+    private lateinit var rvBookList: RecyclerView
+    private lateinit var rvPagination: RecyclerView
+    private lateinit var refreshHeader: View
+    private lateinit var clNothing: ConstraintLayout
+    private lateinit var clReload: ConstraintLayout
+    private lateinit var tvNothing: MyTextView
+    private lateinit var ivRefresh: ImageView
+    private lateinit var mtvLastUpdate: MyTextView
+    private lateinit var mtvRefresh: MyTextView
+    private lateinit var pbRefresh: ProgressBar
+
+    private fun setUpUI() {
+        ibSwitch = findViewById(R.id.ibSwitch)
+        mtvTitle = findViewById(R.id.mtvTitle)
+        btnFirst = findViewById(R.id.btnFirst)
+        btnLast = findViewById(R.id.btnLast)
+        ibBack = findViewById(R.id.ibBack)
+        refreshHeader = findViewById(R.id.refreshHeader)
+        rvBookList = findViewById(R.id.rvBookList)
+        rvPagination = findViewById(R.id.rvPagination)
+        srlPullToReload = findViewById(R.id.srlPullToReload)
+        clNothing = findViewById(R.id.clNothing)
+        clReload = findViewById(R.id.clReload)
+        tvNothing = findViewById(R.id.tvNothing)
+        ivRefresh = refreshHeader.findViewById(R.id.ivRefresh)
+        mtvLastUpdate = refreshHeader.findViewById(R.id.mtvLastUpdate)
+        mtvRefresh = refreshHeader.findViewById(R.id.mtvRefresh)
+        pbRefresh = refreshHeader.findViewById(R.id.pbRefresh)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,16 +95,16 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
         NHentaiApp.instance.applicationComponent.plus(DownloadedBooksModule(this))
             .inject(this)
 
-        loadingDialog = DialogHelper.createLoadingDialog(this)
+        setUpUI()
+
+        loadingDialog = createLoadingDialog()
         ibSwitch.becomeInvisible()
         mtvTitle.text = getString(R.string.downloaded_books)
 
         srlPullToReload.addPtrUIHandler(this)
         srlPullToReload.setPtrHandler(object : PtrHandler {
             override fun onRefreshBegin(frame: PtrFrameLayout?) {
-                srlPullToReload?.postDelayed({
-                    srlPullToReload?.refreshComplete()
-                }, 1000)
+                srlPullToReload.postDelayed(srlPullToReload::refreshComplete, 1000)
             }
 
             override fun checkCanDoRefresh(
@@ -87,19 +116,9 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
             }
         })
 
-        ibBack.setOnClickListener {
-            onBackPressed()
-        }
-        btnFirst.setOnClickListener {
-            downloadedBooksPresenter.jumToFirstPage()
-            paginationAdapter.jumpToFirst()
-            jumpTo(0)
-        }
-        btnLast.setOnClickListener {
-            downloadedBooksPresenter.jumToLastPage()
-            paginationAdapter.jumpToLast()
-            jumpTo(paginationAdapter.itemCount - 1)
-        }
+        ibBack.setOnClickListener(this)
+        btnFirst.setOnClickListener(this)
+        btnLast.setOnClickListener(this)
         clReload.gone()
         tvNothing.text = getString(R.string.no_downloaded_book)
         downloadedBooksPresenter.start()
@@ -126,6 +145,26 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
     override fun onDestroy() {
         super.onDestroy()
         downloadedBooksPresenter.stop()
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.ibBack -> {
+                onBackPressed()
+            }
+
+            R.id.btnFirst -> {
+                downloadedBooksPresenter.jumToFirstPage()
+                paginationAdapter.jumpToFirst()
+                jumpTo(0)
+            }
+
+            R.id.btnLast -> {
+                downloadedBooksPresenter.jumToLastPage()
+                paginationAdapter.jumpToLast()
+                jumpTo(paginationAdapter.itemCount - 1)
+            }
+        }
     }
 
     override fun setUpBookList(bookList: List<Book>) {
@@ -201,7 +240,7 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
 
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {
         val lastRefresh = String.format(getString(R.string.last_update), lastRefreshTimeStamp)
-        refreshHeader.mtvLastUpdate.text = lastRefresh
+        mtvLastUpdate.text = lastRefresh
     }
 
     override fun showRecentBooks(recentList: List<String>) {
@@ -231,11 +270,11 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
 
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
         endUpdateDotsTask()
-        refreshHeader.mtvRefresh.text = getString(R.string.updated)
+        mtvRefresh.text = getString(R.string.updated)
         downloadedBooksPresenter.reloadLastBookListRefreshTime()
-        refreshHeader.ivRefresh.rotation = 0F
-        refreshHeader.ivRefresh.becomeVisible()
-        refreshHeader.pbRefresh.gone()
+        ivRefresh.rotation = 0F
+        ivRefresh.becomeVisible()
+        pbRefresh.gone()
     }
 
     override fun onUIPositionChange(
@@ -245,15 +284,15 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
         ptrIndicator: PtrIndicator?
     ) {
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
-            refreshHeader.mtvRefresh.text = getString(R.string.release_to_refresh)
-            refreshHeader.ivRefresh.rotation = 180F
+            mtvRefresh.text = getString(R.string.release_to_refresh)
+            ivRefresh.rotation = 180F
         }
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
-        refreshHeader.ivRefresh.gone()
-        refreshHeader.pbRefresh.becomeVisible()
-        refreshHeader.mtvRefresh.text = String.format(getString(R.string.updating), "")
+        ivRefresh.gone()
+        pbRefresh.becomeVisible()
+        mtvRefresh.text = String.format(getString(R.string.updating), "")
         runUpdateDotsTask()
     }
 
@@ -262,7 +301,7 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
     }
 
     override fun onUIReset(frame: PtrFrameLayout?) {
-        refreshHeader.mtvRefresh.text = getString(R.string.pull_down)
+        mtvRefresh.text = getString(R.string.pull_down)
     }
 
     @SuppressLint("SetTextI18n")
@@ -272,7 +311,7 @@ class DownloadedBooksActivity : AppCompatActivity(), DownloadedBooksContract.Vie
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
             Logger.d("Dialog", "Current pos: $currentPos")
-            refreshHeader?.mtvRefresh?.text =
+            mtvRefresh.text =
                 String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }

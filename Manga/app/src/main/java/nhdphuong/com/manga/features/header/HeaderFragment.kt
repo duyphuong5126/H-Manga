@@ -12,15 +12,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.fragment_header.edtSearch
-import kotlinx.android.synthetic.main.fragment_header.ibHamburger
-import kotlinx.android.synthetic.main.fragment_header.ibSearch
-import kotlinx.android.synthetic.main.fragment_header.ib_clear_search
-import kotlinx.android.synthetic.main.fragment_header.ibMainLogo
-import kotlinx.android.synthetic.main.fragment_header.rvMainTabs
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
@@ -33,13 +29,17 @@ import nhdphuong.com.manga.features.recent.RecentActivity
 import nhdphuong.com.manga.features.tags.TagsActivity
 import nhdphuong.com.manga.features.tags.TagsContract
 import nhdphuong.com.manga.supports.SpaceItemDecoration
-import nhdphuong.com.manga.views.DialogHelper
 import nhdphuong.com.manga.views.adapters.TabAdapter
+import nhdphuong.com.manga.views.becomeVisibleIf
+import nhdphuong.com.manga.views.showAdminEntryDialog
+import nhdphuong.com.manga.views.showInternetRequiredDialog
+import nhdphuong.com.manga.views.showTagsDownloadingDialog
+import nhdphuong.com.manga.views.showTagsNotAvailable
 
 /*
  * Created by nhdphuong on 4/10/18.
  */
-class HeaderFragment : Fragment(), HeaderContract.View {
+class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
     companion object {
         private const val TAG_REQUEST_CODE = 10007
         const val ICON_TYPE_CODE = "IconTypeCode"
@@ -54,6 +54,13 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     private var iconType: HeaderIconType = HeaderIconType.Logo
 
     private var suggestionAdapter: ArrayAdapter<String>? = null
+
+    private lateinit var edtSearch: AutoCompleteTextView
+    private lateinit var ibHamburger: ImageButton
+    private lateinit var ibSearch: ImageButton
+    private lateinit var ibClearSearch: ImageButton
+    private lateinit var ibMainLogo: ImageButton
+    private lateinit var rvMainTabs: RecyclerView
 
     override fun setPresenter(presenter: HeaderContract.Presenter) {
         this.presenter = presenter
@@ -74,8 +81,8 @@ class HeaderFragment : Fragment(), HeaderContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpUI(view)
         val context: Context = context!!
-        val activity = activity!!
         iconType = arguments?.run {
             HeaderIconType.fromTypeCode(getInt(ICON_TYPE_CODE, HeaderIconType.Logo.typeCode))
         } ?: HeaderIconType.Logo
@@ -96,10 +103,11 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                     }
                     Tab.DOWNLOADED -> {
                         DownloadedBooksActivity.start(context)
+                        resetTabBar()
                         return
                     }
                     Tab.ADMIN -> {
-                        DialogHelper.showAdminEntryDialog(activity, onOk = {
+                        activity?.showAdminEntryDialog(onOk = {
                             AdminActivity.start(context)
                             resetTabBar()
                         }, onDismiss = {
@@ -118,10 +126,10 @@ class HeaderFragment : Fragment(), HeaderContract.View {
                     }
                     Tab.INFO -> {
                         AboutUsActivity.start(context)
-                        activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+                        activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                     }
                     else -> {
-                        DialogHelper.showTagsNotAvailable(activity) {
+                        activity?.showTagsNotAvailable {
                             resetTabBar()
                         }
                     }
@@ -140,20 +148,10 @@ class HeaderFragment : Fragment(), HeaderContract.View {
             false
         )
 
-        ibMainLogo.setOnClickListener {
-            edtSearch.setText("")
-            searchContract?.onSearchInputted("")
-        }
-
-        ibHamburger.setOnClickListener {
-            toggleTagsLayout()
-        }
-
-        ibSearch.setOnClickListener {
-            val searchContent = edtSearch.text.toString()
-            presenter.saveSearchInfo(searchContent)
-            searchContract?.onSearchInputted(searchContent)
-        }
+        ibMainLogo.setOnClickListener(this)
+        ibHamburger.setOnClickListener(this)
+        ibSearch.setOnClickListener(this)
+        ibClearSearch.setOnClickListener(this)
 
         edtSearch.setOnEditorActionListener { _, actionId, _ ->
             when (actionId and EditorInfo.IME_MASK_ACTION) {
@@ -165,11 +163,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         }
         edtSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                ib_clear_search.visibility = if (s?.isNotBlank() == true) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
+                ibClearSearch.becomeVisibleIf(s?.isNotBlank() == true)
             }
 
             override fun beforeTextChanged(
@@ -186,10 +180,6 @@ class HeaderFragment : Fragment(), HeaderContract.View {
             }
 
         })
-
-        ib_clear_search.setOnClickListener {
-            edtSearch.setText("")
-        }
     }
 
     override fun onResume() {
@@ -217,6 +207,29 @@ class HeaderFragment : Fragment(), HeaderContract.View {
         }
     }
 
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.ibMainLogo -> {
+                edtSearch.setText("")
+                searchContract?.onSearchInputted("")
+            }
+
+            R.id.ibHamburger -> {
+                toggleTagsLayout()
+            }
+
+            R.id.ibSearch -> {
+                val searchContent = edtSearch.text.toString()
+                presenter.saveSearchInfo(searchContent)
+                searchContract?.onSearchInputted(searchContent)
+            }
+
+            R.id.ibClearSearch -> {
+                edtSearch.setText("")
+            }
+        }
+    }
+
     override fun setTagChangeListener(tagsContract: TagsContract) {
         tagChangeListener = tagsContract
     }
@@ -235,11 +248,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     }
 
     override fun showTagsDownloadingPopup() {
-        activity?.run {
-            DialogHelper.showTagsDownloadingDialog(this, onOk = {
-                resetTabBar()
-            })
-        }
+        activity?.showTagsDownloadingDialog(this::resetTabBar)
     }
 
     override fun goToTagsList(tab: Tab) {
@@ -263,9 +272,7 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     }
 
     override fun showNoNetworkPopup() {
-        activity?.let { activity ->
-            DialogHelper.showInternetRequiredDialog(activity, onOk = {})
-        }
+        activity?.showInternetRequiredDialog(this::resetTabBar)
     }
 
     override fun setUpSuggestionList(suggestionList: List<String>) {
@@ -288,6 +295,15 @@ class HeaderFragment : Fragment(), HeaderContract.View {
     }
 
     override fun isActive(): Boolean = isAdded
+
+    private fun setUpUI(rootView: View) {
+        edtSearch = rootView.findViewById(R.id.edtSearch)
+        ibHamburger = rootView.findViewById(R.id.ibHamburger)
+        ibSearch = rootView.findViewById(R.id.ibSearch)
+        ibClearSearch = rootView.findViewById(R.id.ibClearSearch)
+        ibMainLogo = rootView.findViewById(R.id.ibMainLogo)
+        rvMainTabs = rootView.findViewById(R.id.rvMainTabs)
+    }
 
     private fun resetTabBar() {
         tabAdapter.reset()

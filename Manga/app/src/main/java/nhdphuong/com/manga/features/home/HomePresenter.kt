@@ -37,7 +37,7 @@ import java.net.SocketTimeoutException
 import java.util.Locale
 import java.util.Random
 import java.util.Collections
-import java.util.Stack
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.collections.HashMap
@@ -66,7 +66,7 @@ class HomePresenter @Inject constructor(
         private const val BOOKS_PER_PAGE = MAX_PER_PAGE
     }
 
-    private var mainList = ArrayList<Book>()
+    private var mainList = CopyOnWriteArrayList<Book>()
     private var currentNumOfPages = 0L
     private var currentLimitPerPage = 0
     private var currentPage = 1L
@@ -75,7 +75,7 @@ class HomePresenter @Inject constructor(
     private var preventiveData = HashMap<Long, ArrayList<Book>>()
 
     private var isLoadingPreventiveData = false
-    private val jobStack = Stack<Job>()
+    private val jobList = CopyOnWriteArrayList<Job>()
     private var isRefreshing = AtomicBoolean(false)
 
     private var searchData: String = ""
@@ -195,7 +195,7 @@ class HomePresenter @Inject constructor(
         }
     }
 
-    override fun reloadCurrentPage(onRefreshed: () -> Unit) {
+    override fun reloadCurrentPage() {
         if (isRefreshing.compareAndSet(false, true)) {
             io.launch {
                 val remoteBooks = getBooksListByPage(currentPage, true)
@@ -221,7 +221,7 @@ class HomePresenter @Inject constructor(
                             view.refreshHomePagination(currentNumOfPages, currentPage.toInt() - 1)
                             view.refreshHomeBookList()
                         }
-                        onRefreshed()
+                        view.finishRefreshing()
                         if (isCurrentPageEmpty) {
                             view.showNothingView()
                         } else {
@@ -327,8 +327,8 @@ class HomePresenter @Inject constructor(
     override fun stop() {
         Logger.d(TAG, "stop")
         io.launch {
-            while (jobStack.size > 0) {
-                val job = jobStack.pop()
+            while (jobList.size > 0) {
+                val job = jobList.removeAt(0)
                 job.cancel()
             }
         }
@@ -384,7 +384,7 @@ class HomePresenter @Inject constructor(
                 }
             }
         }
-        jobStack.push(downloadingJob)
+        jobList.add(downloadingJob)
     }
 
     private fun onPageChange(pageNumber: Long) {

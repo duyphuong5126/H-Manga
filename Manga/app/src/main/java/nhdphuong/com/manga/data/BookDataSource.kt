@@ -34,7 +34,7 @@ interface BookDataSource {
         suspend fun saveRecentBook(bookId: String)
         suspend fun saveFavoriteBook(bookId: String, isFavorite: Boolean)
         suspend fun getRecentBooks(limit: Int, offset: Int): LinkedList<RecentBook>
-        suspend fun getFavoriteBook(limit: Int, offset: Int): LinkedList<RecentBook>
+        suspend fun getFavoriteBooks(limit: Int, offset: Int): LinkedList<RecentBook>
         suspend fun isFavoriteBook(bookId: String): Boolean
         fun checkIfFavoriteBook(bookId: String): Single<Boolean>
         suspend fun isRecentBook(bookId: String): Boolean

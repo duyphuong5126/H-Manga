@@ -24,16 +24,17 @@ import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.usecase.LogAnalyticsErrorUseCase
 import java.net.SocketTimeoutException
-import java.util.LinkedList
 import java.util.Collections
-import java.util.Stack
 import java.util.Locale
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import kotlin.collections.HashMap
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.abs
+import kotlin.math.min
 
 /*
  * Created by nhdphuong on 6/10/18.
@@ -49,6 +50,7 @@ class RecentPresenter @Inject constructor(
     companion object {
         private const val TAG = "RecentPresenter"
         private const val MAX_PER_PAGE = 25
+        private const val NUMBER_OF_PARALLEL_REQUESTS = 5
         private const val NUMBER_OF_PREVENTIVE_PAGES = 5
     }
 
@@ -63,12 +65,12 @@ class RecentPresenter @Inject constructor(
     private var type: String = Constants.RECENT
     private var currentPageCount: Int = 1
     private var currentPage: Int = 1
-    private val recentBookList = LinkedList<Book>()
+    private val recentBookList = ArrayList<Book>()
 
     @SuppressLint("UseSparseArrays")
-    private var preventiveData = HashMap<Int, LinkedList<Book>>()
+    private var preventiveData = HashMap<Int, ArrayList<Book>>()
     private var isLoadingPreventiveData = AtomicBoolean(false)
-    private val jobStack = Stack<Job>()
+    private val jobList = CopyOnWriteArrayList<Job>()
 
 
     private val remoteBookErrorSubject = PublishSubject.create<Throwable>()
@@ -97,7 +99,8 @@ class RecentPresenter @Inject constructor(
         view.showLoading()
         view.setUpRecentBookList(recentBookList)
         io.launch {
-            recentBookList.addAll(getRecentBook(currentPage - 1))
+            preventiveData[currentPage] = getRecentBook(currentPage - 1)
+            recentBookList.addAll(preventiveData[currentPage].orEmpty())
             main.launch {
                 if (view.isActive()) {
                     view.refreshRecentBookList()
@@ -132,7 +135,7 @@ class RecentPresenter @Inject constructor(
 
                 loadPreventiveData()
             }
-            jobStack.push(job)
+            jobList.add(job)
         }
     }
 
@@ -141,7 +144,7 @@ class RecentPresenter @Inject constructor(
     }
 
     override fun reloadRecentMarks() {
-        val bookList = LinkedList<String>()
+        val bookList = ArrayList<String>()
         io.launch {
             if (type == Constants.RECENT) {
                 for (id in 0 until recentBookList.size) {
@@ -206,8 +209,8 @@ class RecentPresenter @Inject constructor(
 
     override fun stop() {
         io.launch {
-            while (jobStack.size > 0) {
-                val job = jobStack.pop()
+            while (jobList.size > 0) {
+                val job = jobList.removeAt(0)
                 job.cancel()
             }
         }
@@ -223,8 +226,8 @@ class RecentPresenter @Inject constructor(
         io.launch {
             recentBookList.clear()
             var newPage = false
-            val currentList: LinkedList<Book> = if (preventiveData.containsKey(currentPage)) {
-                preventiveData[currentPage] as LinkedList<Book>
+            val currentList: List<Book> = if (preventiveData.containsKey(currentPage)) {
+                preventiveData[currentPage].orEmpty()
             } else {
                 newPage = true
                 main.launch {
@@ -237,16 +240,16 @@ class RecentPresenter @Inject constructor(
             recentBookList.addAll(currentList)
 
             if (preventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
-                val pageList = sortListPage(currentPage, LinkedList(preventiveData.keys))
+                val pageList = sortListPage(currentPage, ArrayList(preventiveData.keys))
                 var pageId = 0
                 logListInt("Before deleted page list: ", pageList)
                 while (preventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
                     val page = pageList[pageId++]
-                    (preventiveData[page] as LinkedList).clear()
+                    (preventiveData[page] as ArrayList).clear()
                     preventiveData.remove(page)
                 }
             }
-            logListInt("Final page list: ", LinkedList(preventiveData.keys))
+            logListInt("Final page list: ", ArrayList(preventiveData.keys))
 
             main.launch {
                 view.refreshRecentBookList()
@@ -258,10 +261,15 @@ class RecentPresenter @Inject constructor(
     }
 
     private suspend fun loadPreventiveData() {
+        if (currentPageCount <= currentPage) {
+            Logger.d(TAG, "No more preventive page left")
+            return
+        }
+        val toLoadPages = min(currentPageCount, NUMBER_OF_PREVENTIVE_PAGES)
         isLoadingPreventiveData.compareAndSet(false, true)
         suspendCoroutine<Boolean> { continuation ->
             runBlocking {
-                for (page in currentPage + 1..NUMBER_OF_PREVENTIVE_PAGES) {
+                for (page in currentPage + 1..toLoadPages) {
                     Logger.d(TAG, "Start loading page $page")
                     preventiveData[page] = getRecentBook(page - 1)
                 }
@@ -272,21 +280,48 @@ class RecentPresenter @Inject constructor(
         isLoadingPreventiveData.compareAndSet(true, false)
     }
 
-    private suspend fun getRecentBook(pageNumber: Int): LinkedList<Book> {
-        val bookList = LinkedList<Book>()
+    private suspend fun getRecentBook(pageNumber: Int): ArrayList<Book> {
         // Todo: Remove this try/catch
         try {
             val recentList = if (type == Constants.RECENT) {
                 bookRepository.getRecentBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
             } else {
-                bookRepository.getFavoriteBook(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
+                bookRepository.getFavoriteBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
             }
-            for (recent in recentList) {
-                when (val bookResponse = bookRepository.getBookDetails(recent.bookId)) {
-                    is BookResponse.Success -> bookList.add(bookResponse.book)
-                    is BookResponse.Failure -> remoteBookErrorSubject.onNext(bookResponse.error)
+            if (recentList.isEmpty()) {
+                return ArrayList()
+            }
+            Logger.d(TAG, "${recentList.size} recent books")
+            val bookList = Array<Book?>(recentList.size) { null }
+            recentList.mapIndexed { index, recentBook ->
+                Logger.d(TAG, "Index $index, book: ${recentBook.bookId}")
+                Pair(index, recentBook)
+            }.chunked(NUMBER_OF_PARALLEL_REQUESTS).forEach { subRecentList ->
+                suspendCoroutine<Boolean> { continuation ->
+                    val bookCounter = AtomicInteger(subRecentList.size)
+                    Logger.d(TAG, "Loading ${bookCounter.get()} recent book(s)")
+                    subRecentList.forEach { (index, recent) ->
+                        io.launch {
+                            when (val bookResponse = bookRepository.getBookDetails(recent.bookId)) {
+                                is BookResponse.Success -> {
+                                    Logger.d(TAG, "Add book ${recent.bookId} to index $index")
+                                    bookList[index] = bookResponse.book
+                                }
+                                is BookResponse.Failure -> {
+                                    Logger.d(TAG, "Failed to load book ${recent.bookId}")
+                                    remoteBookErrorSubject.onNext(bookResponse.error)
+                                }
+                            }
+                            if (bookCounter.decrementAndGet() <= 0) {
+                                continuation.resume(true)
+                            }
+                        }.let(jobList::add)
+                    }
                 }
             }
+            val resultList = ArrayList<Book>()
+            bookList.forEach { it?.let(resultList::add) }
+            return resultList
         } catch (throwable: Throwable) {
             remoteBookErrorSubject.onNext(throwable)
             logAnalyticsErrorUseCase.execute(throwable)
@@ -295,10 +330,10 @@ class RecentPresenter @Inject constructor(
                 .subscribe()
                 .addTo(compositeDisposable)
         }
-        return bookList
+        return ArrayList()
     }
 
-    private fun sortListPage(anchor: Int, pageList: LinkedList<Int>): LinkedList<Int> {
+    private fun sortListPage(anchor: Int, pageList: ArrayList<Int>): ArrayList<Int> {
         if (pageList.isEmpty()) {
             return pageList
         }

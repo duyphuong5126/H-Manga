@@ -28,6 +28,7 @@ interface HomeContract {
         fun startUpdateTagsService()
         fun showUpgradeNotification(latestVersionCode: String)
         fun updateErrorMessage(errorEnum: ErrorEnum)
+        fun finishRefreshing()
     }
 
     interface Presenter : Base.Presenter {
@@ -36,7 +37,7 @@ interface HomeContract {
         fun jumToLastPage()
         fun setNewerVersionAcknowledged()
         fun refreshAppVersion()
-        fun reloadCurrentPage(onRefreshed: () -> Unit)
+        fun reloadCurrentPage()
         fun reloadLastBookListRefreshTime()
         fun reloadRecentBooks()
         fun saveLastBookListRefreshTime()
