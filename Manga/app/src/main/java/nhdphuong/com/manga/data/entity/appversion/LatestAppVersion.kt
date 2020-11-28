@@ -1,4 +1,4 @@
-package nhdphuong.com.manga.data.entity
+package nhdphuong.com.manga.data.entity.appversion
 
 import com.google.gson.annotations.SerializedName
 import nhdphuong.com.manga.Constants

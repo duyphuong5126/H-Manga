@@ -9,6 +9,7 @@ import nhdphuong.com.manga.analytics.AnalyticsPusher
 import nhdphuong.com.manga.analytics.FirebaseAnalyticsPusherImpl
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.api.BookApiService
+import nhdphuong.com.manga.api.InstallationApiService
 import nhdphuong.com.manga.api.MasterDataApiService
 import nhdphuong.com.manga.data.local.Database
 import nhdphuong.com.manga.data.local.BookDAO
@@ -58,6 +59,15 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
     ): MasterDataApiService {
         serviceGenerator.setInterceptor(null)
         return serviceGenerator.createService(MasterDataApiService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideInstallationApiService(
+        @Named("nHentaiServiceGenerator") serviceGenerator: ServiceGenerator
+    ): InstallationApiService {
+        serviceGenerator.setInterceptor(null)
+        return serviceGenerator.createService(InstallationApiService::class.java)
     }
 
     @Singleton

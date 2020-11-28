@@ -256,6 +256,30 @@ fun Activity.showGoToPageDialog(
     )
 }
 
+fun Activity.showInstallationConfirmDialog(
+    versionCode: String,
+    onOk: () -> Unit = {},
+    onDismiss: () -> Unit = {}
+) {
+    val title = getString(R.string.installation_confirm_title)
+    val message = getString(R.string.installation_confirm_message, versionCode)
+    val okText = getString(R.string.ok)
+    val cancelText = getString(R.string.cancel)
+    showOkDismissDialog(this, title, message, okText, cancelText, onOk, onDismiss)
+}
+
+fun Activity.showFailedToUpgradeAppDialog(
+    versionCode: String,
+    onOk: () -> Unit = {},
+    onCancel: () -> Unit = {}
+) {
+    val title = getString(R.string.app_upgrade_failed_title)
+    val message = getString(R.string.app_upgrade_failed_message, versionCode)
+    val retry = getString(R.string.retry)
+    val installManually = getString(R.string.install_manually)
+    showOkDismissDialog(this, title, message, retry, installManually, onOk, onCancel, true)
+}
+
 @SuppressLint("InflateParams")
 private fun showOkDismissDialog(
     activity: Activity,
@@ -264,7 +288,8 @@ private fun showOkDismissDialog(
     ok: String,
     dismiss: String,
     onOk: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    canceledOnTouchOutside: Boolean = false
 ) {
     val contentView = activity.layoutInflater.inflate(
         R.layout.dialog_ok_dismiss,
@@ -288,7 +313,7 @@ private fun showOkDismissDialog(
         dialog.dismiss()
         onDismiss()
     }
-    dialog.setCanceledOnTouchOutside(false)
+    dialog.setCanceledOnTouchOutside(canceledOnTouchOutside)
     dialog.setContentView(contentView)
     dialog.show()
     dialog.window?.let { window ->

@@ -19,13 +19,13 @@ class NotificationHelper {
             return notificationId
         }
 
-        @Suppress("unused")
         fun sendNotification(
             title: String,
             priority: Int,
             content: String,
             usedAppIcon: Boolean,
-            notificationId: Int = System.currentTimeMillis().toInt()
+            notificationId: Int = System.currentTimeMillis().toInt(),
+            pendingIntent: PendingIntent? = null
         ): Int {
             val context = NHentaiApp.instance.applicationContext
             val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
@@ -33,6 +33,7 @@ class NotificationHelper {
                 .setContentText(content)
                 .setPriority(priority)
                 .setOnlyAlertOnce(true)
+            pendingIntent?.let(notificationBuilder::setContentIntent)
             if (usedAppIcon) {
                 notificationBuilder.setSmallIcon(R.drawable.ic_app_notification)
             }

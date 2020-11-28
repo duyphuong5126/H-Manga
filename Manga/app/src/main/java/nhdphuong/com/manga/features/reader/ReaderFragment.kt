@@ -1,6 +1,7 @@
 package nhdphuong.com.manga.features.reader
 
 import android.app.Activity
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -23,6 +24,7 @@ import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
+import nhdphuong.com.manga.features.NavigationRedirectActivity
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.views.adapters.BookReaderAdapter
@@ -289,13 +291,22 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     override fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int) {
-        NotificationHelper.sendBigContentNotification(
-            getString(R.string.now_reading),
-            NotificationCompat.PRIORITY_DEFAULT,
-            readingTitle,
-            true
-        ).let { notificationId ->
-            presenter.updateNotificationId(notificationId)
+        activity?.let {
+            val notificationIntent = Intent(it, NavigationRedirectActivity::class.java)
+            val pendingIntent = PendingIntent.getActivity(
+                it, 0,
+                notificationIntent, Intent.FILL_IN_ACTION
+            )
+            NotificationHelper.sendBigContentNotification(
+                getString(R.string.now_reading),
+                NotificationCompat.PRIORITY_DEFAULT,
+                readingTitle,
+                true,
+                System.currentTimeMillis().toInt(),
+                pendingIntent
+            ).let { notificationId ->
+                presenter.updateNotificationId(notificationId)
+            }
         }
     }
 

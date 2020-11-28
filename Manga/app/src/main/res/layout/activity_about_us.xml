@@ -90,154 +90,21 @@
             app:layout_constraintTop_toBottomOf="@id/ivAppIcon"
             app:myFont="@string/NotoSansBold" />
 
-        <nhdphuong.com.manga.views.customs.MyTextView
-            android:id="@+id/tvVersionLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_medium"
-            android:layout_marginLeft="@dimen/space_medium"
-            android:layout_marginTop="@dimen/space_medium"
-            android:layout_marginBottom="@dimen/space_medium"
-            android:text="@string/app_version_template"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvAppNameLabel"
-            app:myFont="@string/NotoSansBold" />
-
-        <nhdphuong.com.manga.views.customs.MyTextView
-            android:id="@+id/tvTagVersionLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_medium"
-            android:layout_marginLeft="@dimen/space_medium"
-            android:layout_marginTop="@dimen/space_medium"
-            android:layout_marginBottom="@dimen/space_medium"
-            android:text="@string/tag_data_version_template"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvVersionLabel"
-            app:myFont="@string/NotoSansBold" />
-
-        <nhdphuong.com.manga.views.customs.MyTextView
-            android:id="@+id/tvRepositoryLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_medium"
-            android:layout_marginLeft="@dimen/space_medium"
-            android:layout_marginTop="@dimen/space_medium"
-            android:layout_marginBottom="@dimen/space_medium"
-            android:text="@string/repository_url_template"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTagVersionLabel"
-            app:myFont="@string/NotoSansBold" />
-
-        <nhdphuong.com.manga.views.customs.MyTextView
-            android:id="@+id/tvRepositoryInfo"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAboutList"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_small"
-            android:layout_marginLeft="@dimen/space_small"
-            android:layout_marginEnd="@dimen/space_medium"
-            android:layout_marginRight="@dimen/space_medium"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="@id/tvRepositoryLabel"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/tvRepositoryLabel"
-            app:layout_constraintTop_toTopOf="@id/tvRepositoryLabel"
-            app:myFont="@string/NotoSansBold" />
-
-        <nhdphuong.com.manga.views.customs.MyTextView
-            android:id="@+id/tvEmailLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginStart="@dimen/space_medium"
             android:layout_marginLeft="@dimen/space_medium"
-            android:layout_marginTop="@dimen/space_medium"
-            android:layout_marginBottom="@dimen/space_medium"
-            android:text="@string/email_url_template"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvRepositoryLabel"
-            app:myFont="@string/NotoSansBold" />
-
-        <nhdphuong.com.manga.views.customs.MyTextView
-            android:id="@+id/tvEmailInfo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_small"
-            android:layout_marginLeft="@dimen/space_small"
             android:layout_marginEnd="@dimen/space_medium"
             android:layout_marginRight="@dimen/space_medium"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="@id/tvEmailLabel"
+            android:clipToPadding="true"
+            android:paddingTop="@dimen/space_medium"
+            android:paddingBottom="@dimen/space_medium"
+            app:layout_constraintBottom_toTopOf="@id/mbUpgradeButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/tvEmailLabel"
-            app:layout_constraintTop_toTopOf="@id/tvEmailLabel"
-            app:myFont="@string/NotoSansBold" />
-
-        <nhdphuong.com.manga.views.customs.MyTextView
-            android:id="@+id/tvTwitterLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_medium"
-            android:layout_marginLeft="@dimen/space_medium"
-            android:layout_marginTop="@dimen/space_medium"
-            android:layout_marginBottom="@dimen/space_medium"
-            android:text="@string/twitter_url_template"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvEmailLabel"
-            app:myFont="@string/NotoSansBold" />
-
-        <nhdphuong.com.manga.views.customs.MyTextView
-            android:id="@+id/tvTwitterInfo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_small"
-            android:layout_marginLeft="@dimen/space_small"
-            android:layout_marginEnd="@dimen/space_medium"
-            android:layout_marginRight="@dimen/space_medium"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="@id/tvTwitterLabel"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/tvTwitterLabel"
-            app:layout_constraintTop_toTopOf="@id/tvTwitterLabel"
-            app:myFont="@string/NotoSansBold" />
-
-        <nhdphuong.com.manga.views.customs.MyTextView
-            android:id="@+id/mtvUpgradeNotificationAcceptor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_medium"
-            android:layout_marginLeft="@dimen/space_medium"
-            android:layout_marginTop="@dimen/space_medium"
-            android:layout_marginBottom="@dimen/space_medium"
-            android:text="@string/app_upgrade_notification_receive"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTwitterLabel"
-            app:myFont="@string/NotoSansBold" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/scNotificationAcceptor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_small"
-            android:layout_marginLeft="@dimen/space_small"
-            android:layout_marginEnd="@dimen/space_medium"
-            android:layout_marginRight="@dimen/space_medium"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/mtvUpgradeNotificationAcceptor" />
+            app:layout_constraintTop_toBottomOf="@id/tvAppNameLabel" />
 
         <nhdphuong.com.manga.views.customs.MyButton
             android:id="@+id/mbUpgradeButton"
@@ -245,7 +112,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/space_medium"
             android:layout_marginLeft="@dimen/space_medium"
-            android:layout_marginTop="@dimen/space_normal"
             android:layout_marginEnd="@dimen/space_medium"
             android:layout_marginRight="@dimen/space_medium"
             android:layout_marginBottom="@dimen/space_normal"

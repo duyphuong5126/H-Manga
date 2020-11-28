@@ -1,9 +1,11 @@
 package nhdphuong.com.manga.data.remote
 
+import io.reactivex.Single
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.MasterDataApiService
 import nhdphuong.com.manga.data.MasterDataSource
-import nhdphuong.com.manga.data.entity.LatestAppVersion
+import nhdphuong.com.manga.data.entity.appversion.AppVersionInfo
+import nhdphuong.com.manga.data.entity.appversion.LatestAppVersion
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Category
 import nhdphuong.com.manga.data.entity.book.tags.Tag
@@ -190,5 +192,23 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
                 onError.invoke(t)
             }
         })
+    }
+
+    override fun getVersionHistory(): Single<List<AppVersionInfo>> {
+        return Single.create {
+            masterDataApiService.getVersionHistory()
+                .enqueue(object : Callback<List<AppVersionInfo>> {
+                    override fun onResponse(
+                        call: Call<List<AppVersionInfo>>,
+                        response: Response<List<AppVersionInfo>>
+                    ) {
+                        response.body()?.run(it::onSuccess)
+                    }
+
+                    override fun onFailure(call: Call<List<AppVersionInfo>>, t: Throwable) {
+                        it.onError(t)
+                    }
+                })
+        }
     }
 }

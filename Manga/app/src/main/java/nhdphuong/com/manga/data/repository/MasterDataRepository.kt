@@ -1,10 +1,12 @@
 package nhdphuong.com.manga.data.repository
 
+import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.MasterDataSource
-import nhdphuong.com.manga.data.entity.LatestAppVersion
+import nhdphuong.com.manga.data.entity.appversion.AppVersionInfo
+import nhdphuong.com.manga.data.entity.appversion.LatestAppVersion
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.entity.book.tags.Character
@@ -341,5 +343,9 @@ class MasterDataRepository @Inject constructor(
         io.launch {
             mMasterRemoteDataSource.fetchAppVersion(onSuccess, onError)
         }
+    }
+
+    fun getVersionHistory(): Single<List<AppVersionInfo>> {
+        return mMasterRemoteDataSource.getVersionHistory()
     }
 }

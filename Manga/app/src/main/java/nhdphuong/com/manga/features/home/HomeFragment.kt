@@ -8,6 +8,7 @@ import `in`.srain.cube.views.ptr.indicator.PtrIndicator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -36,8 +37,9 @@ import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.SortOption
 import nhdphuong.com.manga.enum.ErrorEnum
+import nhdphuong.com.manga.features.NavigationRedirectActivity
+import nhdphuong.com.manga.features.about.AboutUsActivity
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
-import nhdphuong.com.manga.supports.openUrl
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.gone
@@ -265,7 +267,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
                 clUpgradePopup.gone()
                 upgradePopupPlaceHolder.gone()
                 homePresenter.setNewerVersionAcknowledged()
-                context?.openUrl(REPOSITORY_URL)
+                context?.let {
+                    AboutUsActivity.start(it)
+                }
             }
 
             R.id.ibUpgradePopupClose -> {
@@ -423,13 +427,21 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         }, APP_UPGRADE_TIME_OUT)
         val title = getString(R.string.app_upgrade_notification_title, latestVersionCode)
         val message = getString(R.string.app_upgrade_notification_message)
-        NotificationHelper.sendNotification(
-            title,
-            NotificationCompat.PRIORITY_DEFAULT,
-            message,
-            true,
-            Constants.APP_UPGRADE_NOTIFICATION_ID
-        )
+        activity?.let {
+            val notificationIntent = Intent(it, NavigationRedirectActivity::class.java)
+            val pendingIntent = PendingIntent.getActivity(
+                it, 0,
+                notificationIntent, Intent.FILL_IN_ACTION
+            )
+            NotificationHelper.sendNotification(
+                title,
+                NotificationCompat.PRIORITY_DEFAULT,
+                message,
+                true,
+                Constants.APP_UPGRADE_NOTIFICATION_ID,
+                pendingIntent
+            )
+        }
     }
 
     override fun updateErrorMessage(errorEnum: ErrorEnum) {
@@ -563,6 +575,5 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         private const val REFRESH_COMPLETE_DURATION = 800L
         private const val REFRESH_HEADER_ANGEL = 180F
         private const val APP_UPGRADE_TIME_OUT = 2 * 60 * 1000L
-        private const val REPOSITORY_URL = "https://github.com/duyphuong5126/H-Manga/releases"
     }
 }

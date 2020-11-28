@@ -1,6 +1,8 @@
 package nhdphuong.com.manga.data
 
-import nhdphuong.com.manga.data.entity.LatestAppVersion
+import io.reactivex.Single
+import nhdphuong.com.manga.data.entity.appversion.AppVersionInfo
+import nhdphuong.com.manga.data.entity.appversion.LatestAppVersion
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Category
 import nhdphuong.com.manga.data.entity.book.tags.Tag
@@ -30,6 +32,8 @@ interface MasterDataSource {
             onSuccess: (LatestAppVersion) -> Unit,
             onError: (error: Throwable) -> Unit
         )
+
+        fun getVersionHistory(): Single<List<AppVersionInfo>>
     }
 
     interface Local {

@@ -102,7 +102,7 @@
     <string name="is_downloading_tags">Tags lists are being downloaded.\nPlease wait until they complete.</string>
 
     <string name="app_upgrade_notification">We have a newer version. Please check it out.</string>
-    <string name="app_upgrade_button">Check out new version (%s)</string>
+    <string name="app_upgrade_button">Install version %s</string>
     <string name="app_upgrade_notification_title">Version %s is available</string>
     <string name="app_upgrade_notification_message">You can check it out to have a better experience</string>
 
@@ -212,6 +212,27 @@
 
     <string name="page_sharing_title">\[%s\] %s - via nHentai Android</string>
     <string name="page_sharing_chooser_title">Share this page via</string>
+
+    <string name="view_other_app_versions">View other versions at:</string>
+    <string name="my_github">My GitHub</string>
+    <string name="email">Email:</string>
+    <string name="twitter">Twitter:</string>
+    <string name="install">Install</string>
+    <string name="newer_versions">Newer versions</string>
+    <string name="whats_new">What\'s New</string>
+
+    <string name="retry">Retry</string>
+    <string name="install_manually">Install Manually</string>
+
+    <string name="app_upgrade_failed_title">Failed To Upgrade App</string>
+    <string name="app_upgrade_failed_message">Failed to install version %s.\nPlease try again or install it manually:\nPress Install Manually button \u2192 Download apk file from GitHub \u2192 Install it manually</string>
+
+    <string name="app_being_upgraded_message">A new version is being installed.\nPlease try again later.</string>
+
+    <string name="installation_confirm_title">Update New Version</string>
+    <string name="installation_confirm_message">Do you want to install version %s?</string>
+
+    <string name="cancel">Cancel</string>
 
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>

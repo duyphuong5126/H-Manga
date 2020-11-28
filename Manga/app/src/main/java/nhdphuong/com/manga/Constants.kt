@@ -176,5 +176,8 @@ class Constants {
 
         const val LATEST_APP_VERSION_NUMBER = "app_version_number"
         const val LATEST_APP_VERSION_CODE = "app_version_code"
+        const val IS_ACTIVATED = "is_activated"
+        const val WHATS_NEW = "whats_new"
+        const val DOWNLOAD_URL = "download_url"
     }
 }

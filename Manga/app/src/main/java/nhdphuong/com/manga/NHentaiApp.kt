@@ -52,22 +52,27 @@ class NHentaiApp : Application() {
             return "$rootDirectory/${Constants.NHENTAI_DIRECTORY}"
         }
 
+    private val downloadDirectory: String
+        get() {
+            val apiVersion = Build.VERSION.SDK_INT
+            return when {
+                apiVersion >= Build.VERSION_CODES.Q -> {
+                    applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                }
+                else -> {
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                }
+            }.toString()
+        }
+
     private val tagsDirectory: String
         get() {
-            val rootDirectory = if (isExternalStorageWritable) {
-                val apiVersion = Build.VERSION.SDK_INT
-                when {
-                    apiVersion >= Build.VERSION_CODES.Q -> {
-                        applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-                    }
-                    else -> {
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                    }
-                }
-            } else {
-                applicationContext.filesDir
-            }.toString()
-            return "$rootDirectory/${Constants.NHENTAI_DIRECTORY}"
+            return "$downloadDirectory/${Constants.NHENTAI_DIRECTORY}"
+        }
+
+    val installationDirectory: String
+        get() {
+            return "$downloadDirectory/${Constants.NHENTAI_DIRECTORY}/apk"
         }
 
     fun getImageDirectory(bookName: String): String = "$imagesDirectory/$bookName"
