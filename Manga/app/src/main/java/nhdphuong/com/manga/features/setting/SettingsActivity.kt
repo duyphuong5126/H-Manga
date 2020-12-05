@@ -1,7 +1,5 @@
 package nhdphuong.com.manga.features.setting
 
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -19,7 +17,6 @@ import nhdphuong.com.manga.features.setting.uimodel.SettingUiModel
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.views.showRestartAppDialog
 import javax.inject.Inject
-import kotlin.system.exitProcess
 
 
 class SettingsActivity : AppCompatActivity(), SettingsContract.View,
@@ -59,16 +56,11 @@ class SettingsActivity : AppCompatActivity(), SettingsContract.View,
 
     override fun showRestartAppMessage() {
         showRestartAppDialog(onOk = {
-            val intent = Intent(applicationContext, HomeActivity::class.java)
-            val mPendingIntent = PendingIntent.getActivity(
-                applicationContext,
-                123654,
-                intent,
-                PendingIntent.FLAG_CANCEL_CURRENT
-            )
-            val mgr = applicationContext.getSystemService(ALARM_SERVICE) as AlarmManager
-            mgr[AlarmManager.RTC, System.currentTimeMillis() + 100] = mPendingIntent
-            exitProcess(0)
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            finishAffinity()
+            Runtime.getRuntime().exit(0)
         })
     }
 

@@ -246,7 +246,7 @@
     <string name="restart_app_message">App needs to be restarted to apply your changes. Would you like to restart now?</string>
 
     <string name="try_alter_native_domain_title">Try Other Domains</string>
-    <string name="try_alter_native_domain_message">Have you been not able to get data in the previous versions? Is your country blocking nHentai?\nIf so, you may want to try an alternative domain that can bypass that restriction.\nYou can try it later in: Top menu \u2192 Settings \u2192 Choose An Alternative Domain.</string>
+    <string name="try_alter_native_domain_message">Have you been not able to get data in the previous versions? Is your country blocking nHentai?\nIf so, you may want to try an alternative domain that can bypass that restriction.\nTry it out, or you also can do it later in: Top menu \u2192 Settings \u2192 Choose An Alternative Domain.</string>
 
     <string name="try_it">Try it</string>
 
