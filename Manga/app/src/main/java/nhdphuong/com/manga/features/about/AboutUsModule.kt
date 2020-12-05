@@ -3,7 +3,6 @@ package nhdphuong.com.manga.features.about
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
-import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.api.InstallationApiService
 import nhdphuong.com.manga.data.repository.MasterDataRepository
 import nhdphuong.com.manga.data.repository.installation.InstallationRemoteDataSource
@@ -36,7 +35,6 @@ class AboutUsModule(private val aboutView: AboutUsContract.View) {
         aboutView: AboutUsContract.View,
         masterDataRepository: MasterDataRepository,
         installationRepository: InstallationRepository,
-        sharedPreferencesManager: SharedPreferencesManager,
         @IO io: CoroutineScope,
         @Main main: CoroutineScope
     ): AboutUsContract.Presenter {
@@ -45,7 +43,6 @@ class AboutUsModule(private val aboutView: AboutUsContract.View) {
             getVersionCodeUseCase,
             masterDataRepository,
             installationRepository,
-            sharedPreferencesManager,
             io,
             main
         )

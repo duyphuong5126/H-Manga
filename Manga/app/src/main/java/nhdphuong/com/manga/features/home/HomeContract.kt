@@ -29,6 +29,7 @@ interface HomeContract {
         fun showUpgradeNotification(latestVersionCode: String)
         fun updateErrorMessage(errorEnum: ErrorEnum)
         fun finishRefreshing()
+        fun showAlternativeDomainsQuestion()
     }
 
     interface Presenter : Base.Presenter {
@@ -44,5 +45,6 @@ interface HomeContract {
         fun updateSearchData(data: String)
         fun pickBookRandomly()
         fun updateSortOption(sortOption: SortOption)
+        fun checkedOutAlternativeDomains()
     }
 }

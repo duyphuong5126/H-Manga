@@ -40,6 +40,7 @@ import nhdphuong.com.manga.enum.ErrorEnum
 import nhdphuong.com.manga.features.NavigationRedirectActivity
 import nhdphuong.com.manga.features.about.AboutUsActivity
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
+import nhdphuong.com.manga.features.setting.SettingsActivity
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.gone
@@ -49,6 +50,7 @@ import nhdphuong.com.manga.views.createLoadingDialog
 import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.showBookListRefreshingDialog
 import nhdphuong.com.manga.views.showGoToPageDialog
+import nhdphuong.com.manga.views.showTryAlternativeDomainsDialog
 
 /*
  * Created by nhdphuong on 3/16/18.
@@ -458,6 +460,15 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         srlPullToReload.postDelayed({
             srlPullToReload.refreshComplete()
         }, REFRESH_COMPLETE_DURATION)
+    }
+
+    override fun showAlternativeDomainsQuestion() {
+        activity?.let {
+            it.showTryAlternativeDomainsDialog(onOk = {
+                homePresenter.checkedOutAlternativeDomains()
+                SettingsActivity.start(it)
+            })
+        }
     }
 
     fun changeSearchInputted(data: String) {

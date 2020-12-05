@@ -7,4 +7,6 @@ sealed class SettingUiModel {
         val activeDomainId: String?,
         val alternativeDomainGroup: AlternativeDomainGroup
     ) : SettingUiModel()
+
+    data class AllowAppUpgradeStatus(var isEnabled: Boolean = false) : SettingUiModel()
 }

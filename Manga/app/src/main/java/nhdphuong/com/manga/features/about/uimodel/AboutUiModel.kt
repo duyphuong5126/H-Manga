@@ -11,8 +11,6 @@ sealed class AboutUiModel {
 
     data class SupportTwitter(val name: String, val url: String) : AboutUiModel()
 
-    data class AllowAppUpgradeStatus(var isEnabled: Boolean = false) : AboutUiModel()
-
     object NewVersionAvailable : AboutUiModel()
 
     data class AvailableVersion(

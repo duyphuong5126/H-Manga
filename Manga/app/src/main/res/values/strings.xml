@@ -121,7 +121,7 @@
     <string name="repository_url_template">See other versions at: </string>
     <string name="email_url_template">Email: </string>
     <string name="twitter_url_template">Twitter: </string>
-    <string name="app_upgrade_notification_receive">Allow app upgrade notification: </string>
+    <string name="app_upgrade_notification_receive">Allow app upgrade notification</string>
 
     <string name="downloaded">Downloaded</string>
     <string name="downloaded_books">Downloaded Books</string>
@@ -244,6 +244,11 @@
     <string name="restart_app_title">Restart Is Required</string>
     <string name="restart_button">Restart</string>
     <string name="restart_app_message">App needs to be restarted to apply your changes. Would you like to restart now?</string>
+
+    <string name="try_alter_native_domain_title">Try Other Domains</string>
+    <string name="try_alter_native_domain_message">Have you been not able to get data in the previous versions? Is your country blocking nHentai?\nIf so, you may want to try an alternative domain that can bypass that restriction.\nYou can try it later in: Top menu \u2192 Settings \u2192 Choose An Alternative Domain.</string>
+
+    <string name="try_it">Try it</string>
 
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>

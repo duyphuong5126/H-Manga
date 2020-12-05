@@ -35,6 +35,9 @@ class SharedPreferencesManager private constructor() {
         private const val ALTERNATIVE_THUMBNAIL_URL = "ALTERNATIVE_THUMBNAIL_URL"
         private const val ALTERNATIVE_DOMAIN_RAW_DATA = "ALTERNATIVE_DOMAIN_RAW_DATA"
 
+        private const val USER_CHECK_OUT_ALTERNATIVE_DOMAINS = "USER_CHECK_OUT_ALTERNATIVE_DOMAINS"
+        private const val TIMES_OPEN_APP = "TIMES_OPEN_APP"
+
         private var mInstance: SharedPreferencesManager? = null
         val instance: SharedPreferencesManager
             get() {
@@ -128,6 +131,18 @@ class SharedPreferencesManager private constructor() {
             mAdminPreferences.edit().putBoolean(KEY_CENSORED, value).apply()
         }
         get() = mAdminPreferences.getBoolean(KEY_CENSORED, false)
+
+    var timesOpenApp: Int
+        set(value) {
+            mAdminPreferences.edit().putInt(TIMES_OPEN_APP, value).apply()
+        }
+        get() = mAdminPreferences.getInt(TIMES_OPEN_APP, 0)
+
+    var checkedOutAlternativeDomains: Boolean
+        set(value) {
+            mAdminPreferences.edit().putBoolean(USER_CHECK_OUT_ALTERNATIVE_DOMAINS, value).apply()
+        }
+        get() = mAdminPreferences.getBoolean(USER_CHECK_OUT_ALTERNATIVE_DOMAINS, false)
 
     var isUpgradeNotificationAllowed: Boolean
         set(value) {

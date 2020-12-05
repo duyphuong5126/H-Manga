@@ -17,7 +17,6 @@ interface AboutUsContract {
     interface Presenter {
         fun setUp()
         fun clear()
-        fun changeAppUpgradeNotificationAcceptance(notificationAllowed: Boolean)
         fun downloadApk(versionNumber: Int, versionCode: String, outputDirectory: String)
     }
 }

@@ -13,5 +13,6 @@ interface SettingsContract {
     interface Presenter : Base.Presenter {
         fun activateAlternativeDomain(alternativeDomain: AlternativeDomain)
         fun clearAlternativeDomain()
+        fun changeAppUpgradeNotificationAcceptance(notificationAllowed: Boolean)
     }
 }

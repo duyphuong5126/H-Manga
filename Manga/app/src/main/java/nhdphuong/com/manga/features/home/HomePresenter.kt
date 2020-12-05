@@ -64,6 +64,7 @@ class HomePresenter @Inject constructor(
         private const val NUMBER_OF_PREVENTIVE_PAGES = 10
         private const val MAX_TRYING_PAGES = 10
         private const val BOOKS_PER_PAGE = MAX_PER_PAGE
+        private const val TIMES_OPEN_APP_NEED_ALTERNATIVE_DOMAINS_MESSAGE = 10
     }
 
     private var mainList = CopyOnWriteArrayList<Book>()
@@ -90,7 +91,7 @@ class HomePresenter @Inject constructor(
             val lastValue = field
             field = value
             if (lastValue != value) {
-                reload()
+                reload(false)
             }
         }
 
@@ -119,7 +120,8 @@ class HomePresenter @Inject constructor(
 
     override fun start() {
         Logger.d(TAG, "start")
-        reload()
+        sharedPreferencesManager.timesOpenApp++
+        reload(true)
         if (!sharedPreferencesManager.tagsDataDownloaded) {
             tagsDownloadManager.startDownloading()
             masterDataRepository.fetchAllTagLists { isSuccess ->
@@ -285,7 +287,7 @@ class HomePresenter @Inject constructor(
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe()
                 .addTo(compositeDisposable)
-            reload()
+            reload(false)
         } else {
             Logger.d(TAG, "Search data is not changed")
         }
@@ -324,6 +326,10 @@ class HomePresenter @Inject constructor(
         }
     }
 
+    override fun checkedOutAlternativeDomains() {
+        sharedPreferencesManager.checkedOutAlternativeDomains = true
+    }
+
     override fun stop() {
         Logger.d(TAG, "stop")
         io.launch {
@@ -336,7 +342,7 @@ class HomePresenter @Inject constructor(
         compositeDisposable.clear()
     }
 
-    private fun reload() {
+    private fun reload(needToAskAlternativeDomains: Boolean) {
         clearData()
 
         view.showLoading()
@@ -366,6 +372,13 @@ class HomePresenter @Inject constructor(
                 loadPreventiveData()
             }
 
+            val timesOpenApp = sharedPreferencesManager.timesOpenApp
+            val timesOpenAppMatched =
+                (timesOpenApp % TIMES_OPEN_APP_NEED_ALTERNATIVE_DOMAINS_MESSAGE == 0 || timesOpenApp == 1)
+            val checkedOutAlternativeDomains = sharedPreferencesManager.checkedOutAlternativeDomains
+            val alternativeDomainInUsed = sharedPreferencesManager.useAlternativeDomain
+            val showAlternativeDomainsQuestion = needToAskAlternativeDomains && timesOpenAppMatched
+                    && !checkedOutAlternativeDomains && !alternativeDomainInUsed
             main.launch {
                 if (view.isActive()) {
                     view.refreshHomeBookList()
@@ -381,6 +394,9 @@ class HomePresenter @Inject constructor(
                         view.hideSortOptionList()
                     }
                     view.hideLoading()
+                    if (showAlternativeDomainsQuestion) {
+                        view.showAlternativeDomainsQuestion()
+                    }
                 }
             }
         }

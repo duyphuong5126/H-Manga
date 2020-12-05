@@ -291,6 +291,17 @@ fun Activity.showRestartAppDialog(
     showOkDismissDialog(this, title, message, ok, cancel, onOk, onCancel, false)
 }
 
+fun Activity.showTryAlternativeDomainsDialog(
+    onOk: () -> Unit = {},
+    onCancel: () -> Unit = {}
+) {
+    val title = getString(R.string.try_alter_native_domain_title)
+    val message = getString(R.string.try_alter_native_domain_message)
+    val ok = getString(R.string.try_it)
+    val cancel = getString(R.string.cancel)
+    showOkDismissDialog(this, title, message, ok, cancel, onOk, onCancel, false)
+}
+
 @SuppressLint("InflateParams")
 private fun showOkDismissDialog(
     activity: Activity,

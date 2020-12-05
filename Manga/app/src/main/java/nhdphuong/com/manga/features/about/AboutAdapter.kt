@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
-import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.features.about.uimodel.AboutUiModel
@@ -13,7 +12,6 @@ import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.TagDataVersion
 import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.AppVersionsCenter
 import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.SupportEmail
 import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.SupportTwitter
-import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.AllowAppUpgradeStatus
 import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.AvailableVersion
 import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.NewVersionAvailable
 import nhdphuong.com.manga.supports.addClickAbleText
@@ -38,9 +36,6 @@ class AboutAdapter(
             SUPPORT_EMAIL,
             SUPPORT_TWITTER -> {
                 UrlViewHolder(inflater.inflate(R.layout.item_about_url, parent, false))
-            }
-            ALLOW_UPGRADE_STATUS -> {
-                SwitchViewHolder(inflater.inflate(R.layout.item_about_switch, parent, false))
             }
 
             else -> {
@@ -102,14 +97,6 @@ class AboutAdapter(
                     aboutCallback::openLink
                 )
             }
-            is AllowAppUpgradeStatus -> {
-                val itemLabel = context.getString(R.string.app_upgrade_notification_receive)
-                (holder as SwitchViewHolder).setUrl(
-                    itemLabel,
-                    aboutItem.isEnabled,
-                    aboutCallback::changeAppUpgradeNotificationStatus
-                )
-            }
             is NewVersionAvailable -> {
                 (holder as LabelViewHolder).setText(context.getString(R.string.newer_versions))
             }
@@ -132,7 +119,6 @@ class AboutAdapter(
             is AppVersionsCenter -> APP_VERSION_CENTER
             is SupportEmail -> SUPPORT_EMAIL
             is SupportTwitter -> SUPPORT_TWITTER
-            is AllowAppUpgradeStatus -> ALLOW_UPGRADE_STATUS
             is NewVersionAvailable -> NEW_VERSION_AVAILABLE
             is AvailableVersion -> AVAILABLE_VERSION
         }
@@ -142,7 +128,6 @@ class AboutAdapter(
     interface AboutCallback {
         fun openLink(url: String)
         fun openEmailAddress(email: String)
-        fun changeAppUpgradeNotificationStatus(enabled: Boolean)
         fun installVersion(versionCode: String, versionNumber: Int)
         fun showAppBeingUpgraded()
     }
@@ -167,19 +152,6 @@ class AboutAdapter(
         ) {
             mtvLabel.text = itemLabel
             mtvUrl.addClickAbleText(url, urlLabel, onUrlOpened)
-        }
-    }
-
-    private class SwitchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val mtvLabel: MyTextView = itemView.findViewById(R.id.mtvLabel)
-        private val scEnabled: SwitchCompat = itemView.findViewById(R.id.scEnabled)
-
-        fun setUrl(label: String, isEnabled: Boolean, onStatusChanged: (enabled: Boolean) -> Unit) {
-            mtvLabel.text = label
-            scEnabled.isChecked = isEnabled
-            scEnabled.setOnCheckedChangeListener { _, isChecked ->
-                onStatusChanged(isChecked)
-            }
         }
     }
 
@@ -234,9 +206,8 @@ class AboutAdapter(
         private const val APP_VERSION_CENTER = 3
         private const val SUPPORT_EMAIL = 4
         private const val SUPPORT_TWITTER = 5
-        private const val ALLOW_UPGRADE_STATUS = 6
-        private const val NEW_VERSION_AVAILABLE = 7
-        private const val AVAILABLE_VERSION = 8
+        private const val NEW_VERSION_AVAILABLE = 6
+        private const val AVAILABLE_VERSION = 7
 
         private data class BeingInstalledVersion(var versionNumber: Int = -1)
     }

@@ -126,10 +126,6 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
         })
     }
 
-    override fun changeAppUpgradeNotificationStatus(enabled: Boolean) {
-        presenter.changeAppUpgradeNotificationAcceptance(enabled)
-    }
-
     override fun startInstallApk(apkPath: String) {
         val file = File(apkPath)
         if (file.exists()) {

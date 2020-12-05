@@ -16,6 +16,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomain
 import nhdphuong.com.manga.features.home.HomeActivity
 import nhdphuong.com.manga.features.setting.uimodel.SettingUiModel
+import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.views.showRestartAppDialog
 import javax.inject.Inject
 import kotlin.system.exitProcess
@@ -47,6 +48,13 @@ class SettingsActivity : AppCompatActivity(), SettingsContract.View,
         settingsAdapter = SettingsAdapter(settingList, this)
         rvSettings.adapter = settingsAdapter
         rvSettings.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        rvSettings.addItemDecoration(
+            SpaceItemDecoration(
+                this, R.dimen.space_medium,
+                showFirstDivider = false,
+                showLastDivider = false
+            )
+        )
     }
 
     override fun showRestartAppMessage() {
@@ -62,6 +70,10 @@ class SettingsActivity : AppCompatActivity(), SettingsContract.View,
             mgr[AlarmManager.RTC, System.currentTimeMillis() + 100] = mPendingIntent
             exitProcess(0)
         })
+    }
+
+    override fun changeAppUpgradeNotificationStatus(enabled: Boolean) {
+        presenter.changeAppUpgradeNotificationAcceptance(enabled)
     }
 
     override fun onDomainSelected(alternativeDomain: AlternativeDomain) {
