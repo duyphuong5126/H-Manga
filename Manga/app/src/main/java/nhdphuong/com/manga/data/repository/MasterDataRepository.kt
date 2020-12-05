@@ -5,6 +5,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.MasterDataSource
+import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomain
+import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomainGroup
 import nhdphuong.com.manga.data.entity.appversion.AppVersionInfo
 import nhdphuong.com.manga.data.entity.appversion.LatestAppVersion
 import nhdphuong.com.manga.data.entity.book.tags.Artist
@@ -347,5 +349,24 @@ class MasterDataRepository @Inject constructor(
 
     fun getVersionHistory(): Single<List<AppVersionInfo>> {
         return mMasterRemoteDataSource.getVersionHistory()
+    }
+
+    fun getAlternativeDomains(): Single<AlternativeDomainGroup> {
+        return mMasterLocalDataSource.getAlternativeDomains()
+            .switchIfEmpty(
+                mMasterRemoteDataSource.fetchAlternativeDomains()
+                    .doOnSuccess(mMasterLocalDataSource::saveAlternativeDomains)
+            )
+    }
+
+    fun getActiveAlternativeDomainId(): String? =
+        mMasterLocalDataSource.getActiveAlternativeDomainId()
+
+    fun activateAlternativeDomain(alternativeDomain: AlternativeDomain) {
+        mMasterLocalDataSource.saveAlternativeDomain(alternativeDomain)
+    }
+
+    fun disableAlternativeDomain() {
+        mMasterLocalDataSource.saveAlternativeDomain(null)
     }
 }

@@ -1,8 +1,13 @@
 package nhdphuong.com.manga.data.local
 
+import com.google.gson.Gson
+import io.reactivex.Maybe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.MasterDataSource
+import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomain
+import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomainGroup
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Category
 import nhdphuong.com.manga.data.entity.book.tags.Tag
@@ -16,6 +21,7 @@ import javax.inject.Inject
 
 class MasterDataLocalDataSource @Inject constructor(
     private val mTagDAO: TagDAO,
+    private val sharedPreferencesManager: SharedPreferencesManager,
     @IO private val io: CoroutineScope
 ) : MasterDataSource.Local {
     override fun insertArtistsList(artistsList: List<Artist>) {
@@ -274,5 +280,37 @@ class MasterDataLocalDataSource @Inject constructor(
         io.launch {
             mTagDAO.insertUnknownTags(unknownTagsList)
         }
+    }
+
+    override fun saveAlternativeDomains(alternativeDomainGroup: AlternativeDomainGroup) {
+        Gson().toJson(alternativeDomainGroup).let {
+            sharedPreferencesManager.alternativeDomainsRawData = it
+        }
+    }
+
+    override fun saveAlternativeDomain(alternativeDomain: AlternativeDomain?) {
+        if (alternativeDomain != null) {
+            sharedPreferencesManager.saveActiveAlternativeDomain(alternativeDomain)
+        } else {
+            sharedPreferencesManager.clearActiveAlternativeDomain()
+        }
+    }
+
+    override fun getAlternativeDomains(): Maybe<AlternativeDomainGroup> {
+        return Maybe.create { emitter ->
+            sharedPreferencesManager.alternativeDomainsRawData.takeIf { it.isNotBlank() }?.let {
+                try {
+                    Gson().fromJson(it, AlternativeDomainGroup::class.java).let(emitter::onSuccess)
+                } catch (throwable: Throwable) {
+                    emitter.onError(throwable)
+                }
+            } ?: emitter.onComplete()
+        }
+    }
+
+    override fun getActiveAlternativeDomainId(): String? {
+        return if (sharedPreferencesManager.useAlternativeDomain) {
+            sharedPreferencesManager.activeAlternativeDomainId
+        } else null
     }
 }

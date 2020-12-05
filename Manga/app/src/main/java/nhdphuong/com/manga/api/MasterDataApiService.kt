@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.api
 
+import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomainGroup
 import nhdphuong.com.manga.data.entity.appversion.AppVersionInfo
 import nhdphuong.com.manga.data.entity.appversion.LatestAppVersion
 import nhdphuong.com.manga.data.entity.book.tags.Artist
@@ -51,4 +52,6 @@ interface MasterDataApiService {
     @GET("${ApiConstants.NHENTAI_DB}/VersionHistory.json")
     fun getVersionHistory(): Call<List<AppVersionInfo>>
 
+    @GET("${ApiConstants.NHENTAI_DB}/AlternativeDomains.json")
+    fun getAlternativeDomains(): Call<AlternativeDomainGroup>
 }

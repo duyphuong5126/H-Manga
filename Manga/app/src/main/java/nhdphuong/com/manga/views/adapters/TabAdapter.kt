@@ -40,6 +40,7 @@ class TabAdapter(
     private val parodiesTitle = context.getString(R.string.parodies)
     private val infoTitle = context.getString(R.string.info)
     private val adminTitle = context.getString(R.string.admin)
+    private val settingsTitle = context.getString(R.string.settings)
 
     init {
         tabList.clear()
@@ -108,6 +109,7 @@ class TabAdapter(
                 Tab.PARODIES -> parodiesTitle
                 Tab.INFO -> infoTitle
                 Tab.ADMIN -> adminTitle
+                Tab.SETTINGS -> settingsTitle
                 else -> tab.defaultName
             }
         }

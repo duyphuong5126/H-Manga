@@ -19,6 +19,8 @@ import nhdphuong.com.manga.features.reader.ReaderComponent
 import nhdphuong.com.manga.features.reader.ReaderModule
 import nhdphuong.com.manga.features.recent.RecentComponent
 import nhdphuong.com.manga.features.recent.RecentModule
+import nhdphuong.com.manga.features.setting.SettingsComponent
+import nhdphuong.com.manga.features.setting.SettingsModule
 import nhdphuong.com.manga.features.tags.TagsComponent
 import nhdphuong.com.manga.features.tags.TagsModule
 import nhdphuong.com.manga.service.BookDeletingService
@@ -42,6 +44,7 @@ interface ApplicationComponent {
     fun plus(adminModule: AdminModule): AdminComponent
     fun plus(downloadedBooksModule: DownloadedBooksModule): DownloadedBooksComponent
     fun plus(commentThreadModule: CommentThreadModule): CommentThreadComponent
+    fun plus(settingsModule: SettingsModule): SettingsComponent
     fun plus(aboutUsModule: AboutUsModule): AboutUsComponent
 
     fun inject(service: TagsUpdateService)

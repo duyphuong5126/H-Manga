@@ -58,7 +58,6 @@ class Constants {
         const val ARTISTS = "Artists"
         const val DOWNLOADED = "Downloaded"
 
-        @Suppress("unused")
         const val SETTINGS = "Settings"
         const val ADMIN = "Admin"
 
@@ -179,5 +178,12 @@ class Constants {
         const val IS_ACTIVATED = "is_activated"
         const val WHATS_NEW = "whats_new"
         const val DOWNLOAD_URL = "download_url"
+
+        const val ALTERNATIVE_DOMAINS_DATA_VERSION = "version"
+        const val ALTERNATIVE_DOMAINS = "supported_domains"
+        const val ALTERNATIVE_DOMAIN_ID = "domain_id"
+        const val ALTERNATIVE_HOME_URL = "home_url"
+        const val ALTERNATIVE_IMAGE_URL = "i_url"
+        const val ALTERNATIVE_THUMBNAIL_URL = "t_url"
     }
 }

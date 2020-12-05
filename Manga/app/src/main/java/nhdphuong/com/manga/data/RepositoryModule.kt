@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import nhdphuong.com.manga.api.BookApiService
+import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.api.MasterDataApiService
 import nhdphuong.com.manga.data.local.BookLocalDataSource
 import nhdphuong.com.manga.data.local.BookDAO
@@ -30,8 +30,8 @@ class RepositoryModule {
     @NonNull
     @Singleton
     @Remote
-    fun provideBookRemoteDataSource(bookApiService: BookApiService): BookDataSource.Remote {
-        return BookRemoteDataSource(bookApiService)
+    fun provideBookRemoteDataSource(): BookDataSource.Remote {
+        return BookRemoteDataSource()
     }
 
     @Provides
@@ -54,8 +54,15 @@ class RepositoryModule {
     @NonNull
     @Singleton
     @Local
-    fun providesMasterDataLocalDataSource(tagDAO: TagDAO): MasterDataSource.Local {
-        return MasterDataLocalDataSource(tagDAO, CoroutineScope(Dispatchers.IO))
+    fun providesMasterDataLocalDataSource(
+        tagDAO: TagDAO,
+        sharedPreferencesManager: SharedPreferencesManager
+    ): MasterDataSource.Local {
+        return MasterDataLocalDataSource(
+            tagDAO,
+            sharedPreferencesManager,
+            CoroutineScope(Dispatchers.IO)
+        )
     }
 
     @Provides

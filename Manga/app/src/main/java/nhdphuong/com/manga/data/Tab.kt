@@ -18,6 +18,7 @@ enum class Tab(val defaultName: String) {
     PARODIES(Constants.PARODIES),
     INFO(Constants.INFO),
 
+    SETTINGS(Constants.SETTINGS),
     ADMIN(Constants.ADMIN),
 
     NONE(Constants.RANDOM);

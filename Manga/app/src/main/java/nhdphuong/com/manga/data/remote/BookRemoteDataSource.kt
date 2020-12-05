@@ -2,7 +2,7 @@ package nhdphuong.com.manga.data.remote
 
 import com.google.gson.Gson
 import nhdphuong.com.manga.Logger
-import nhdphuong.com.manga.api.BookApiService
+import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.CommentResponse
@@ -15,9 +15,9 @@ import nhdphuong.com.manga.data.entity.book.SortOption
 import nhdphuong.com.manga.data.entity.comment.Comment
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
+import javax.net.ssl.HttpsURLConnection
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -25,10 +25,7 @@ import kotlin.coroutines.suspendCoroutine
  * Created by nhdphuong on 3/24/18.
  */
 // Todo: research EOFException when using retrofit
-class BookRemoteDataSource(
-    @Suppress("unused")
-    private val mBookApiService: BookApiService
-) : BookDataSource.Remote {
+class BookRemoteDataSource : BookDataSource.Remote {
     companion object {
         private const val TAG = "BookRemoteDataSource"
         private const val REQUEST_TIME_OUT = 20000
@@ -55,7 +52,7 @@ class BookRemoteDataSource(
     override suspend fun getRecommendBook(bookId: String): RecommendBookResponse {
         return suspendCoroutine { continuation ->
             try {
-                val url = "https://nhentai.net/api/gallery/$bookId/related"
+                val url = "${ApiConstants.homeUrl}/api/gallery/$bookId/related"
                 val responseData = performGetRequest(url)
                 val recommendBook = Gson().fromJson(responseData, RecommendBook::class.java)
                 val recommendBookResult = RecommendBookResponse.Success(recommendBook)
@@ -71,7 +68,11 @@ class BookRemoteDataSource(
         return suspendCoroutine { continuation ->
             try {
                 val url =
-                    String.format(Locale.US, "https://nhentai.net/api/gallery/%s/comments", bookId)
+                    String.format(
+                        Locale.US,
+                        "${ApiConstants.homeUrl}/api/gallery/%s/comments",
+                        bookId
+                    )
                 val responseData = performGetRequest(url)
                 val commentsResponse = Gson().fromJson(responseData, Array<Comment>::class.java)
                 val recommendBookResult = CommentResponse.Success(commentsResponse.toList())
@@ -86,7 +87,7 @@ class BookRemoteDataSource(
     override suspend fun getBookDetails(bookId: String): BookResponse {
         return suspendCoroutine { continuation ->
             try {
-                val url = "https://nhentai.net/api/gallery/$bookId"
+                val url = "${ApiConstants.homeUrl}/api/gallery/$bookId"
                 val responseData = performGetRequest(url)
                 val book = Gson().fromJson(responseData, Book::class.java)
                 val bookResult = BookResponse.Success(book)
@@ -105,14 +106,13 @@ class BookRemoteDataSource(
     ): RemoteBookResponse {
         return try {
             var url = if (searchContent.isNotBlank()) {
-                "https://nhentai.net/api/galleries/search?query=$searchContent&page=$page"
+                "${ApiConstants.homeUrl}/api/galleries/search?query=$searchContent&page=$page"
             } else {
-                "https://nhentai.net/api/galleries/all?page=$page"
+                "${ApiConstants.homeUrl}/api/galleries/all?page=$page"
             }
             if (sortOption != SortOption.Recent) {
                 url += getSortString(sortOption)
             }
-            Logger.d("BookRemoteDataSource", "url $url")
             val responseData = performGetRequest(url)
             val remoteBook = Gson().fromJson(responseData, RemoteBook::class.java)
             RemoteBookResponse.Success(remoteBook)
@@ -123,8 +123,9 @@ class BookRemoteDataSource(
     }
 
     private fun performGetRequest(requestUrl: String): String? {
+        Logger.d(TAG, "Get from url $requestUrl")
         val url = URL(requestUrl)
-        val connection = url.openConnection() as HttpURLConnection
+        val connection = url.openConnection() as HttpsURLConnection
         connection.requestMethod = "GET"
         connection.setRequestProperty("Content-length", "0")
         connection.useCaches = false
@@ -132,7 +133,7 @@ class BookRemoteDataSource(
         connection.connectTimeout = REQUEST_TIME_OUT
         connection.connect()
         when (connection.responseCode) {
-            HttpURLConnection.HTTP_OK -> {
+            HttpsURLConnection.HTTP_OK -> {
                 val br = BufferedReader(InputStreamReader(connection.inputStream))
                 val sb = StringBuilder()
                 var line = br.readLine()

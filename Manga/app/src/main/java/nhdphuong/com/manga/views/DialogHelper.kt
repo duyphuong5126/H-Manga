@@ -280,6 +280,17 @@ fun Activity.showFailedToUpgradeAppDialog(
     showOkDismissDialog(this, title, message, retry, installManually, onOk, onCancel, true)
 }
 
+fun Activity.showRestartAppDialog(
+    onOk: () -> Unit = {},
+    onCancel: () -> Unit = {}
+) {
+    val title = getString(R.string.restart_app_title)
+    val message = getString(R.string.restart_app_message)
+    val ok = getString(R.string.restart_button)
+    val cancel = getString(R.string.cancel)
+    showOkDismissDialog(this, title, message, ok, cancel, onOk, onCancel, false)
+}
+
 @SuppressLint("InflateParams")
 private fun showOkDismissDialog(
     activity: Activity,

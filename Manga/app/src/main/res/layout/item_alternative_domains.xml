@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_white_all_corners_small_radius"
+    android:orientation="vertical"
+    android:padding="@dimen/space_medium">
+
+    <nhdphuong.com.manga.views.customs.MyTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/space_small"
+        android:layout_marginRight="@dimen/space_small"
+        android:text="@string/available_alternative_domains"
+        android:textColor="@color/grey_4"
+        android:textSize="16sp"
+        app:myFont="@string/NotoSansBold" />
+
+    <RadioGroup
+        android:id="@+id/rgAvailableDomains"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_medium" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_small"
+        android:background="@drawable/bg_grey_rounded_all_corners"
+        android:orientation="vertical"
+        android:padding="@dimen/space_medium">
+
+        <nhdphuong.com.manga.views.customs.MyTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:drawableStart="@drawable/ic_info_small"
+            android:drawableLeft="@drawable/ic_info_small"
+            android:drawablePadding="@dimen/space_small"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:text="@string/what_is_an_alternative_domain"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:myFont="@string/NotoSansBold" />
+
+        <nhdphuong.com.manga.views.customs.MyTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_small"
+            android:text="@string/alternative_domain_explanation"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:myFont="@string/NotoSansRegular" />
+    </LinearLayout>
+
+</LinearLayout>

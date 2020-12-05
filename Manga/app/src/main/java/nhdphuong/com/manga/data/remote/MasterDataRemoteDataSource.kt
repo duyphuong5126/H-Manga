@@ -4,6 +4,7 @@ import io.reactivex.Single
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.MasterDataApiService
 import nhdphuong.com.manga.data.MasterDataSource
+import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomainGroup
 import nhdphuong.com.manga.data.entity.appversion.AppVersionInfo
 import nhdphuong.com.manga.data.entity.appversion.LatestAppVersion
 import nhdphuong.com.manga.data.entity.book.tags.Artist
@@ -206,6 +207,28 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
                     }
 
                     override fun onFailure(call: Call<List<AppVersionInfo>>, t: Throwable) {
+                        it.onError(t)
+                    }
+                })
+        }
+    }
+
+    override fun fetchAlternativeDomains(): Single<AlternativeDomainGroup> {
+        return Single.create {
+            masterDataApiService.getAlternativeDomains()
+                .enqueue(object : Callback<AlternativeDomainGroup> {
+                    override fun onResponse(
+                        call: Call<AlternativeDomainGroup>,
+                        response: Response<AlternativeDomainGroup>
+                    ) {
+                        if (response.isSuccessful) {
+                            response.body()?.let(it::onSuccess)
+                        } else {
+                            it.onError(IllegalStateException("Not successful in onResponse"))
+                        }
+                    }
+
+                    override fun onFailure(call: Call<AlternativeDomainGroup>, t: Throwable) {
                         it.onError(t)
                     }
                 })

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey_4"
+    tools:context=".features.setting.SettingsActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:paddingTop="@dimen/space_small"
+        android:paddingBottom="@dimen/space_small"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/ibBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_transparent_rect_rounded_all_corners"
+            android:contentDescription="@string/back"
+            android:paddingStart="@dimen/space_normal"
+            android:paddingTop="@dimen/space_small"
+            android:paddingEnd="@dimen/space_normal"
+            android:paddingBottom="@dimen/space_small"
+            android:scaleType="center"
+            android:scaleX="0.8"
+            android:scaleY="0.8"
+            android:src="@drawable/ic_back_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/mtvTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <nhdphuong.com.manga.views.customs.MyTextView
+            android:id="@+id/mtvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/space_normal"
+            android:layout_marginLeft="@dimen/space_normal"
+            android:gravity="center"
+            android:text="@string/settings"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/header_title_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ibBack"
+            app:layout_constraintTop_toTopOf="parent"
+            app:myFont="@string/NotoSansBold" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSettings"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_medium"
+        android:layout_marginLeft="@dimen/space_medium"
+        android:layout_marginEnd="@dimen/space_medium"
+        android:layout_marginRight="@dimen/space_medium"
+        android:clipToPadding="true"
+        android:paddingTop="@dimen/space_medium"
+        android:paddingBottom="@dimen/space_medium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/clTitle" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

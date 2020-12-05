@@ -2,6 +2,7 @@ package nhdphuong.com.manga
 
 import android.content.Context
 import android.content.SharedPreferences
+import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomain
 import javax.inject.Singleton
 
 /*
@@ -27,6 +28,12 @@ class SharedPreferencesManager private constructor() {
         private const val KEY_CURRENT_TAG_VERSION = "KEY_CURRENT_TAG_VERSION"
         private const val KEY_CENSORED = "KEY_CENSORED"
         private const val KEY_UPGRADE_NOTIFICATION_ALLOWED = "KEY_UPGRADE_NOTIFICATION_ALLOWED"
+        private const val IS_USE_ALTERNATIVE_DOMAIN = "IS_USE_ALTERNATIVE_DOMAIN"
+        private const val ALTERNATIVE_DOMAIN_ID = "ALTERNATIVE_DOMAIN_ID"
+        private const val ALTERNATIVE_HOME_URL = "ALTERNATIVE_HOME_URL"
+        private const val ALTERNATIVE_IMAGE_URL = "ALTERNATIVE_IMAGE_URL"
+        private const val ALTERNATIVE_THUMBNAIL_URL = "ALTERNATIVE_THUMBNAIL_URL"
+        private const val ALTERNATIVE_DOMAIN_RAW_DATA = "ALTERNATIVE_DOMAIN_RAW_DATA"
 
         private var mInstance: SharedPreferencesManager? = null
         val instance: SharedPreferencesManager
@@ -127,4 +134,46 @@ class SharedPreferencesManager private constructor() {
             mAdminPreferences.edit().putBoolean(KEY_UPGRADE_NOTIFICATION_ALLOWED, value).apply()
         }
         get() = mAdminPreferences.getBoolean(KEY_UPGRADE_NOTIFICATION_ALLOWED, true)
+
+    val useAlternativeDomain: Boolean
+        get() = mAdminPreferences.getBoolean(IS_USE_ALTERNATIVE_DOMAIN, false)
+
+    val activeAlternativeDomainId: String
+        get() = mAdminPreferences.getString(ALTERNATIVE_DOMAIN_ID, "").orEmpty()
+
+    val alternativeHomeUrl: String
+        get() = mAdminPreferences.getString(ALTERNATIVE_HOME_URL, "").orEmpty()
+
+    val alternativeImageUrl: String
+        get() = mAdminPreferences.getString(ALTERNATIVE_IMAGE_URL, "").orEmpty()
+
+    val alternativeThumbnailUrl: String
+        get() = mAdminPreferences.getString(ALTERNATIVE_THUMBNAIL_URL, "").orEmpty()
+
+    var alternativeDomainsRawData: String
+        set(value) {
+            mAdminPreferences.edit().putString(ALTERNATIVE_DOMAIN_RAW_DATA, value).apply()
+        }
+        get() = mAdminPreferences.getString(ALTERNATIVE_DOMAIN_RAW_DATA, "").orEmpty()
+
+    fun saveActiveAlternativeDomain(alternativeDomain: AlternativeDomain) {
+        mAdminPreferences.edit().putBoolean(IS_USE_ALTERNATIVE_DOMAIN, true).apply()
+        mAdminPreferences.edit()
+            .putString(ALTERNATIVE_DOMAIN_ID, alternativeDomain.domainId)
+            .putString(ALTERNATIVE_HOME_URL, alternativeDomain.homeUrl)
+            .putString(ALTERNATIVE_IMAGE_URL, alternativeDomain.imageUrl)
+            .putString(ALTERNATIVE_THUMBNAIL_URL, alternativeDomain.thumbnailUrl)
+            .apply()
+    }
+
+    fun clearActiveAlternativeDomain() {
+        mAdminPreferences.edit().putBoolean(IS_USE_ALTERNATIVE_DOMAIN, false).apply()
+        mAdminPreferences.edit()
+            .putString(ALTERNATIVE_DOMAIN_ID, "")
+            .putString(ALTERNATIVE_HOME_URL, "")
+            .putString(ALTERNATIVE_IMAGE_URL, "")
+            .putString(ALTERNATIVE_THUMBNAIL_URL, "")
+            .apply()
+    }
+
 }

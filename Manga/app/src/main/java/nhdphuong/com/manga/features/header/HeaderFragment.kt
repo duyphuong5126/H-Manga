@@ -26,6 +26,7 @@ import nhdphuong.com.manga.features.about.AboutUsActivity
 import nhdphuong.com.manga.features.admin.AdminActivity
 import nhdphuong.com.manga.features.downloaded.DownloadedBooksActivity
 import nhdphuong.com.manga.features.recent.RecentActivity
+import nhdphuong.com.manga.features.setting.SettingsActivity
 import nhdphuong.com.manga.features.tags.TagsActivity
 import nhdphuong.com.manga.features.tags.TagsContract
 import nhdphuong.com.manga.supports.SpaceItemDecoration
@@ -113,6 +114,9 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
                         }, onDismiss = {
                             resetTabBar()
                         })
+                    }
+                    Tab.SETTINGS -> {
+                        SettingsActivity.start(context)
                     }
                     Tab.ARTISTS,
                     Tab.CHARACTERS,

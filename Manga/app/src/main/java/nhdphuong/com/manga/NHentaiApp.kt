@@ -9,6 +9,8 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.Environment
 import android.os.IBinder
+import nhdphuong.com.manga.api.ApiConstants
+import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomain
 import nhdphuong.com.manga.service.TagsUpdateService
 import java.util.Locale
 import javax.inject.Inject
@@ -110,6 +112,14 @@ class NHentaiApp : Application() {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 mUpdateTagsService = (service as TagsUpdateService.TagsUpdateServiceBinder).service
             }
+        }
+        if (mSharedPreferencesManager.useAlternativeDomain) {
+            ApiConstants.alternativeDomain = AlternativeDomain(
+                domainId = mSharedPreferencesManager.activeAlternativeDomainId,
+                homeUrl = mSharedPreferencesManager.alternativeHomeUrl,
+                imageUrl = mSharedPreferencesManager.alternativeImageUrl,
+                thumbnailUrl = mSharedPreferencesManager.alternativeThumbnailUrl
+            )
         }
     }
 

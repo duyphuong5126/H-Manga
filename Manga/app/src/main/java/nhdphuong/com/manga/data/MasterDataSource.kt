@@ -1,6 +1,9 @@
 package nhdphuong.com.manga.data
 
+import io.reactivex.Maybe
 import io.reactivex.Single
+import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomain
+import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomainGroup
 import nhdphuong.com.manga.data.entity.appversion.AppVersionInfo
 import nhdphuong.com.manga.data.entity.appversion.LatestAppVersion
 import nhdphuong.com.manga.data.entity.book.tags.Artist
@@ -34,6 +37,8 @@ interface MasterDataSource {
         )
 
         fun getVersionHistory(): Single<List<AppVersionInfo>>
+
+        fun fetchAlternativeDomains(): Single<AlternativeDomainGroup>
     }
 
     interface Local {
@@ -216,5 +221,10 @@ interface MasterDataSource {
          * Fot UnknownTypes table
          */
         fun insertUnknownTypesList(unknownTagsList: List<UnknownTag>)
+
+        fun saveAlternativeDomains(alternativeDomainGroup: AlternativeDomainGroup)
+        fun saveAlternativeDomain(alternativeDomain: AlternativeDomain?)
+        fun getAlternativeDomains(): Maybe<AlternativeDomainGroup>
+        fun getActiveAlternativeDomainId(): String?
     }
 }
