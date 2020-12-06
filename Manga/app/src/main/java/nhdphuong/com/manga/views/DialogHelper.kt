@@ -202,8 +202,8 @@ fun Activity.showDownloadingFinishedDialog(
 ) {
     val permissionTitle = getString(R.string.book_downloading_finished)
     val permissionDescription = getString(R.string.is_want_to_open_folder)
-    val okString = getString(R.string.ok)
-    val dismissString = getString(R.string.dismiss)
+    val okString = getString(R.string.yes)
+    val dismissString = getString(R.string.no)
     showOkDismissDialog(
         this,
         permissionTitle,
