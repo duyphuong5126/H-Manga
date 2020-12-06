@@ -234,20 +234,20 @@
 
     <string name="cancel">Cancel</string>
 
-    <string name="use_default_domain">Use default domain (nHentai.net)</string>
+    <string name="use_default_domain">Use default server (nHentai.net)</string>
 
     <string name="settings">Settings</string>
-    <string name="no_alternative_domain_available">No available Alternative Domain</string>
-    <string name="available_alternative_domains">Choose An Alternative Domain</string>
-    <string name="what_is_an_alternative_domain">What is an alternative domain?</string>
-    <string name="alternative_domain_explanation">An alternative domain is a 3rd party web service that can redirect the requests from this app to the nHentai server. The 3rd party service can bypass the limitation on adult content in some countries. They will be the solution for you if you are living in the countries where the nHentai server is blocked. You may be able to get rid of VPN if you use an alternative domain. Please give it a try.</string>
+    <string name="no_alternative_domain_available">No available alternative server</string>
+    <string name="available_alternative_domains">Choose an alternative server</string>
+    <string name="what_is_an_alternative_domain">What is an alternative server?</string>
+    <string name="alternative_domain_explanation">An alternative server is a 3rd party server that can redirect the requests from this app to the nHentai server. The 3rd party server can bypass the limitation on adult content in some countries. They will be the solution you need if you are living in the countries where the nHentai server is blocked. You may be able to get rid of VPN if you use this solution. Consider giving it a try.</string>
 
     <string name="restart_app_title">Restart Is Required</string>
     <string name="restart_button">Restart</string>
     <string name="restart_app_message">App needs to be restarted to apply your changes. Would you like to restart now?</string>
 
-    <string name="try_alter_native_domain_title">Try Other Domains</string>
-    <string name="try_alter_native_domain_message">Have you been not able to get data in the previous versions? Is your country blocking nHentai?\nIf so, you may want to try an alternative domain that can bypass that restriction.\nTry it out, or you also can do it later in: Top menu \u2192 Settings \u2192 Choose An Alternative Domain.</string>
+    <string name="try_alter_native_domain_title">Try Other Servers</string>
+    <string name="try_alter_native_domain_message">Have you been not able to get data in the previous versions? Is your country blocking nHentai?\nIf so, you may want to try an alternative server that can bypass that restriction.\nTry it out, or you also can do it later in: Top menu \u2192 Settings \u2192 Choose An Alternative Server.</string>
 
     <string name="try_it">Try it</string>
 
