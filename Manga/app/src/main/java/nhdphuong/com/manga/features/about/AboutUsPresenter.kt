@@ -114,6 +114,7 @@ class AboutUsPresenter @Inject constructor(
             if (targetApkExisted) {
                 Single.just(targetPath)
             } else {
+                Logger.d(TAG, "Downloading apk from ${it.apkUrl}")
                 installationRepository.downloadFile(it.apkUrl, outputDirectory, it.versionCode)
             }
         }

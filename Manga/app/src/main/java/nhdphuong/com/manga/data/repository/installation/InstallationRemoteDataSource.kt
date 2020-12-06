@@ -7,6 +7,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 
 interface InstallationRemoteDataSource {
@@ -29,7 +30,12 @@ class InstallationRemoteDataSourceImpl(
                 ) {
                     val body = response.body()
                     if (response.isSuccessful && body != null) {
-                        it.onSuccess(writeFileAndReturnPath(body, outputDirectory, versionCode))
+                        val outputPath = writeFileAndReturnPath(body, outputDirectory, versionCode)
+                        if (outputPath.isNotBlank()) {
+                            it.onSuccess(outputPath)
+                        } else {
+                            it.onError(FileNotFoundException("Could not saved file from $url into local storage"))
+                        }
                     } else {
                         it.onError(IllegalStateException("Not success or null body in onResponse"))
                     }
@@ -48,7 +54,7 @@ class InstallationRemoteDataSourceImpl(
         versionCode: String
     ): String {
         val dirs = File(outputDirectory)
-        if (!dirs.mkdirs()) {
+        if (!dirs.mkdirs() && !dirs.exists()) {
             return ""
         }
 
