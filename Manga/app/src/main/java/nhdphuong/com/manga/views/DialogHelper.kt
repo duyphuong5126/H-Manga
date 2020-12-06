@@ -219,7 +219,7 @@ fun Activity.showStoragePermissionDialog(onOk: () -> Unit = {}, onDismiss: () ->
     val permissionTitle = getString(R.string.permission_require)
     val permissionDescription = getString(R.string.storage_permission_require)
     val okString = getString(R.string.ok)
-    val dismissString = getString(R.string.dismiss)
+    val dismissString = getString(R.string.cancel)
     showOkDismissDialog(
         this,
         permissionTitle,

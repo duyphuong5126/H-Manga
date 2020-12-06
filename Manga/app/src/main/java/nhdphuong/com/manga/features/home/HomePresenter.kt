@@ -64,7 +64,7 @@ class HomePresenter @Inject constructor(
         private const val NUMBER_OF_PREVENTIVE_PAGES = 10
         private const val MAX_TRYING_PAGES = 10
         private const val BOOKS_PER_PAGE = MAX_PER_PAGE
-        private const val TIMES_OPEN_APP_NEED_ALTERNATIVE_DOMAINS_MESSAGE = 10
+        private const val TIMES_OPEN_APP_NEED_ALTERNATIVE_DOMAINS_MESSAGE = 20
     }
 
     private var mainList = CopyOnWriteArrayList<Book>()
