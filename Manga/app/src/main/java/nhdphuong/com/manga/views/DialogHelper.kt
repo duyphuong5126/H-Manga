@@ -240,7 +240,7 @@ fun Activity.showGoToPageDialog(
     val title = getString(R.string.jump_to_page)
     val errorMessage = getString(R.string.invalid_page)
     val okString = getString(R.string.ok)
-    val dismissString = getString(R.string.dismiss)
+    val dismissString = getString(R.string.cancel)
     val inputHint = getString(R.string.page_number_hint) + " ($minimum - $maximum)"
     showOkDismissInputNumberDialog(
         this,
