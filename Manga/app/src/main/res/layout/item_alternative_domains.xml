@@ -8,6 +8,7 @@
     android:padding="@dimen/space_medium">
 
     <nhdphuong.com.manga.views.customs.MyTextView
+        android:id="@+id/alternativeDomainTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/space_small"
@@ -24,6 +25,7 @@
         android:layout_marginTop="@dimen/space_medium" />
 
     <LinearLayout
+        android:id="@+id/alternativeDomainExplainArea"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_small"

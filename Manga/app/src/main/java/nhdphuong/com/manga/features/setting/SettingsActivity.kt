@@ -54,6 +54,10 @@ class SettingsActivity : AppCompatActivity(), SettingsContract.View,
         )
     }
 
+    override fun updateSettingList() {
+        settingsAdapter?.notifyDataSetChanged()
+    }
+
     override fun showRestartAppMessage() {
         showRestartAppDialog(onOk = {
             val intent = Intent(this, HomeActivity::class.java)

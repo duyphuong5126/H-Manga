@@ -10,8 +10,6 @@
         android:id="@+id/mtvLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/space_medium"
-        android:layout_marginLeft="@dimen/space_medium"
         android:layout_marginTop="@dimen/space_small"
         android:layout_marginBottom="@dimen/space_small"
         android:text="@string/app_upgrade_notification_receive"

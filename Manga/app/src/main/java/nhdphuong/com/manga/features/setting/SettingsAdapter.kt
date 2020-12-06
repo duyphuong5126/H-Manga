@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.appcompat.widget.SwitchCompat
@@ -13,7 +14,9 @@ import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomain
 import nhdphuong.com.manga.features.setting.uimodel.SettingUiModel
 import nhdphuong.com.manga.features.setting.uimodel.SettingUiModel.AlternativeDomainsUiModel
 import nhdphuong.com.manga.features.setting.uimodel.SettingUiModel.AllowAppUpgradeStatus
+import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.customs.MyTextView
+import nhdphuong.com.manga.views.gone
 
 class SettingsAdapter(
     private val settingList: List<SettingUiModel>,
@@ -70,11 +73,28 @@ class SettingsAdapter(
         view: View,
         private val settingCallback: SettingCallback
     ) : RecyclerView.ViewHolder(view) {
+        private val alternativeDomainTitle: MyTextView =
+            view.findViewById(R.id.alternativeDomainTitle)
+        private val alternativeDomainExplainArea: LinearLayout =
+            view.findViewById(R.id.alternativeDomainExplainArea)
         private val rgAvailableDomains: RadioGroup = view.findViewById(R.id.rgAvailableDomains)
 
         @SuppressLint("InflateParams")
         fun bindTo(alternativeDomains: AlternativeDomainsUiModel) {
-            val layoutInflater = LayoutInflater.from(itemView.context)
+            val context = itemView.context
+            val layoutInflater = LayoutInflater.from(context)
+            if (alternativeDomains.alternativeDomainGroup.groups.isEmpty()) {
+                alternativeDomainTitle.text =
+                    context.getString(R.string.no_alternative_domain_available)
+                alternativeDomainExplainArea.gone()
+                rgAvailableDomains.gone()
+                return
+            } else {
+                alternativeDomainTitle.text =
+                    context.getString(R.string.available_alternative_domains)
+                alternativeDomainExplainArea.becomeVisible()
+                rgAvailableDomains.becomeVisible()
+            }
             alternativeDomains.alternativeDomainGroup.groups.forEach { domain ->
                 val domainItem: RadioButton = layoutInflater.inflate(
                     R.layout.item_alternative_domain_option,
@@ -102,7 +122,7 @@ class SettingsAdapter(
                     settingCallback.onClearAlternativeDomain()
                 }
             }
-            resetItem.setText(R.string.dont_use)
+            resetItem.setText(R.string.use_default_domain)
             rgAvailableDomains.addView(resetItem)
             if (alternativeDomains.activeDomainId.isNullOrBlank()) {
                 rgAvailableDomains.check(resetItem.id)

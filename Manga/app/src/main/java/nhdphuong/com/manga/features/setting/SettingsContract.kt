@@ -7,6 +7,7 @@ import nhdphuong.com.manga.features.setting.uimodel.SettingUiModel
 interface SettingsContract {
     interface View : Base.View<Presenter> {
         fun setUpSettings(settingList: List<SettingUiModel>)
+        fun updateSettingList()
         fun showRestartAppMessage()
     }
 

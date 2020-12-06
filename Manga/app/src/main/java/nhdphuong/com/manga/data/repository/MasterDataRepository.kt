@@ -28,7 +28,7 @@ class MasterDataRepository @Inject constructor(
     @IO private val io: CoroutineScope
 ) {
     companion object {
-        private const val TAG = "TagRepository"
+        private const val TAG = "MasterDataRepository"
         private const val TOTAL_TAG_TYPES = 8
     }
 
@@ -352,10 +352,26 @@ class MasterDataRepository @Inject constructor(
     }
 
     fun getAlternativeDomains(): Single<AlternativeDomainGroup> {
-        return mMasterLocalDataSource.getAlternativeDomains()
-            .switchIfEmpty(
-                mMasterRemoteDataSource.fetchAlternativeDomains()
-                    .doOnSuccess(mMasterLocalDataSource::saveAlternativeDomains)
+        return mMasterRemoteDataSource.fetchAlternativeDomains()
+            .doOnSuccess {
+                Logger.d(
+                    TAG,
+                    "Fetched Alternative Domains from remote - version = ${it.groupVersion}"
+                )
+                mMasterLocalDataSource.saveAlternativeDomains(it)
+            }.doOnError {
+                Logger.d(TAG, "Failed to fetch Alternative Domains from remote with error $it")
+            }
+            .onErrorResumeNext(
+                mMasterLocalDataSource.getAlternativeDomains().toSingle()
+                    .doOnSuccess {
+                        Logger.d(
+                            TAG,
+                            "Got Alternative Domains from local - version = ${it.groupVersion}"
+                        )
+                    }.doOnError {
+                        Logger.d(TAG, "Failed to get Alternative Domains from local with error $it")
+                    }
             )
     }
 

@@ -22,6 +22,7 @@ class SettingsPresenter @Inject constructor(
 
     override fun start() {
         settingList.add(AllowAppUpgradeStatus(sharedPreferencesManager.isUpgradeNotificationAllowed))
+        view.setUpSettings(settingList)
         masterDataRepository.getAlternativeDomains()
             .map {
                 Pair(masterDataRepository.getActiveAlternativeDomainId(), it)
@@ -31,7 +32,9 @@ class SettingsPresenter @Inject constructor(
             .subscribe({ (activeDomainId, domainGroup) ->
                 Logger.d(TAG, "Alternative domains = $domainGroup")
                 settingList.add(AlternativeDomainsUiModel(activeDomainId, domainGroup))
-                view.setUpSettings(settingList)
+                if (view.isActive()) {
+                    view.updateSettingList()
+                }
             }, {
                 Logger.d(TAG, "Failed to get alternative domains with error $it")
             }).let(compositeDisposable::add)

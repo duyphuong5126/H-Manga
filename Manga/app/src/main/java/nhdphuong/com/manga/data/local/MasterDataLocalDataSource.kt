@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import io.reactivex.Maybe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.MasterDataSource
 import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomain
@@ -283,8 +284,29 @@ class MasterDataLocalDataSource @Inject constructor(
     }
 
     override fun saveAlternativeDomains(alternativeDomainGroup: AlternativeDomainGroup) {
+        val currentData: AlternativeDomainGroup? =
+            sharedPreferencesManager.alternativeDomainsRawData.takeIf { it.isNotBlank() }?.let {
+                try {
+                    Gson().fromJson(it, AlternativeDomainGroup::class.java)
+                } catch (throwable: Throwable) {
+                    null
+                }
+            }
         Gson().toJson(alternativeDomainGroup).let {
-            sharedPreferencesManager.alternativeDomainsRawData = it
+            Logger.d(
+                TAG,
+                "Alternative domains - local version ${currentData?.groupVersion} - remote version = ${alternativeDomainGroup.groupVersion}"
+            )
+            if (currentData == null || currentData.groupVersion != alternativeDomainGroup.groupVersion) {
+                sharedPreferencesManager.alternativeDomainsRawData = it
+                val activeDomainsIsNotSupported = alternativeDomainGroup.groups.none { domain ->
+                    domain.domainId == sharedPreferencesManager.activeAlternativeDomainId
+                }
+                Logger.d(TAG, "activeDomainsIsNotSupported=$activeDomainsIsNotSupported")
+                if (activeDomainsIsNotSupported) {
+                    sharedPreferencesManager.clearActiveAlternativeDomain()
+                }
+            }
         }
     }
 
@@ -312,5 +334,9 @@ class MasterDataLocalDataSource @Inject constructor(
         return if (sharedPreferencesManager.useAlternativeDomain) {
             sharedPreferencesManager.activeAlternativeDomainId
         } else null
+    }
+
+    companion object {
+        private const val TAG = "MasterDataLocalDataSource"
     }
 }
