@@ -7,8 +7,8 @@
     android:background="@color/grey_1"
     tools:ignore="RtlCompat">
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/vpPages"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/book_pages"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:overScrollMode="never"

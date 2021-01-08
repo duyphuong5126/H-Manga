@@ -5,6 +5,7 @@ import android.view.ViewTreeObserver
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SnapHelper
 import nhdphuong.com.manga.Logger
 
 fun View.becomeVisible() {
@@ -77,6 +78,28 @@ fun NestedScrollView.doOnScrollToBottom(
             val onScrollChangeListener: NestedScrollView.OnScrollChangeListener? = null
             this.setOnScrollChangeListener(onScrollChangeListener)
             task()
+        }
+    })
+}
+
+fun RecyclerView.addSnapPositionChangedListener(
+    snapHelper: SnapHelper,
+    positionChanged: (newPosition: Int) -> Unit
+) {
+    var lastPosition = RecyclerView.NO_POSITION
+    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                recyclerView.layoutManager?.let { layoutManager ->
+                    snapHelper.findSnapView(layoutManager)?.let(layoutManager::getPosition)?.let {
+                        if (lastPosition != it) {
+                            lastPosition = it
+                            positionChanged.invoke(lastPosition)
+                        }
+                    }
+                }
+            }
         }
     })
 }

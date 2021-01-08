@@ -142,7 +142,7 @@
     <string name="downloading_book_failed_message">Failed to download the book %s\nPlease try it again</string>
 
     <string name="downloading_tags">Downloading tag data</string>
-    <string name="downloading_tags_progress">Tag data is being downloaded\nCurrent page: %d\nArtists: %d\nCharacters: %d\nCategories: %d\nLanguages: %d\nParodies: %d\nGroups: %d\nTags: %d\nUnknown types: %d</string>
+    <string name="downloading_tags_progress">Tag data is being downloaded\nCurrent page: %d/%d\nArtists: %d\nCharacters: %d\nCategories: %d\nLanguages: %d\nParodies: %d\nGroups: %d\nTags: %d\nUnknown types: %d</string>
     <string name="downloading_tags_failed">Failed to download tag data on page %d</string>
     <string name="downloading_tags_completed">Downloading tag data completed</string>
 

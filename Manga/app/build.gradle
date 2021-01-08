@@ -47,10 +47,10 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.google.firebase:firebase-core:17.5.1'
-    implementation 'com.google.firebase:firebase-crashlytics:17.2.2'
-    implementation 'com.google.firebase:firebase-analytics:17.6.0'
-    implementation "androidx.constraintlayout:constraintlayout:2.0.2"
+    implementation 'com.google.firebase:firebase-core:18.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
+    implementation 'com.google.firebase:firebase-analytics:18.0.0'
+    implementation "androidx.constraintlayout:constraintlayout:2.0.4"
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.multidex:multidex:2.0.1"
@@ -69,15 +69,15 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
     implementation "io.reactivex.rxjava2:rxkotlin:2.4.0"
 
-    implementation "android.arch.persistence.room:runtime:$room"
     annotationProcessor "android.arch.persistence.room:compiler:$room"
     implementation "android.arch.lifecycle:extensions:$room"
     implementation "android.arch.lifecycle:viewmodel:$room"
-    implementation "androidx.room:room-rxjava2:2.2.5"
+    implementation "androidx.room:room-rxjava2:2.2.6"
     implementation "androidx.appcompat:appcompat:1.2.0"
     annotationProcessor "android.arch.persistence.room:compiler:$room"
     annotationProcessor "androidx.room:room-compiler:$room"
-    kapt "android.arch.persistence.room:compiler:$room"
+    implementation "androidx.room:room-runtime:2.2.6"
+    kapt "androidx.room:room-compiler:2.2.6"
 
     implementation "com.google.dagger:dagger:$dagger"
     kapt "com.google.dagger:dagger-compiler:$dagger"
@@ -88,7 +88,7 @@ dependencies {
 
     implementation "org.apache.commons:commons-collections4:4.4"
 
-    testImplementation "junit:junit:4.13"
+    testImplementation "junit:junit:4.13.1"
     androidTestImplementation "com.android.support.test:runner:1.0.2"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:3.0.2"
 }

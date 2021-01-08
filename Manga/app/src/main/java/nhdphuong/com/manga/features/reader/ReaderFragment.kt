@@ -18,8 +18,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager.widget.ViewPager
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
@@ -29,6 +29,7 @@ import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.views.adapters.BookReaderAdapter
 import nhdphuong.com.manga.views.adapters.ReaderNavigationAdapter
+import nhdphuong.com.manga.views.addSnapPositionChangedListener
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.gone
@@ -56,7 +57,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     private lateinit var mtvCurrentPage: MyTextView
     private lateinit var mtvDownloadTitle: MyTextView
     private lateinit var rvQuickNavigation: RecyclerView
-    private lateinit var vpPages: ViewPager
+    private lateinit var rvBookPages: RecyclerView
 
     private var viewDownloadedData = false
 
@@ -179,7 +180,8 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                 pageList,
                 object : ReaderNavigationAdapter.ThumbnailSelectListener {
                     override fun onItemSelected(position: Int) {
-                        vpPages.currentItem = position
+                        rvBookPages.scrollToPosition(position)
+                        onPageChanged(position)
                     }
                 })
             rvQuickNavigation.adapter = navigationAdapter
@@ -194,7 +196,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                 )
             )
 
-            bookReaderAdapter = BookReaderAdapter(pageList, View.OnClickListener {
+            bookReaderAdapter = BookReaderAdapter(pageList) {
                 if (layoutReaderBottom.visibility == View.VISIBLE) {
                     AnimationHelper.startSlideOutTop(activity, clReaderTop) {
                         clReaderTop.visibility = View.GONE
@@ -210,34 +212,15 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                         layoutReaderBottom.visibility = View.VISIBLE
                     }
                 }
-            })
-            vpPages.adapter = bookReaderAdapter
-            vpPages.offscreenPageLimit = OFFSCREEN_LIMIT
-            vpPages.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-                override fun onPageScrollStateChanged(state: Int) {
-
-                }
-
-                override fun onPageScrolled(
-                    position: Int,
-                    positionOffset: Float,
-                    positionOffsetPixels: Int
-                ) {
-
-                }
-
-                override fun onPageSelected(position: Int) {
-                    presenter.updatePageIndicator(position)
-                    if (position - 1 >= 0) {
-                        bookReaderAdapter.resetPageToNormal(position - 1)
-                    }
-                    if (position + 1 < bookReaderAdapter.count) {
-                        bookReaderAdapter.resetPageToNormal(position + 1)
-                    }
-                    rvQuickNavigation.scrollToPosition(position)
-                    navigationAdapter.updateSelectedIndex(position)
-                }
-            })
+            }
+            rvBookPages.adapter = bookReaderAdapter
+            context?.let {
+                rvBookPages.layoutManager =
+                    LinearLayoutManager(it, LinearLayoutManager.HORIZONTAL, false)
+            }
+            val snapHelper = PagerSnapHelper()
+            snapHelper.attachToRecyclerView(rvBookPages)
+            rvBookPages.addSnapPositionChangedListener(snapHelper, this::onPageChanged)
         }
     }
 
@@ -250,7 +233,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     override fun jumpToPage(pageNumber: Int) {
-        vpPages.setCurrentItem(pageNumber, true)
+        rvBookPages.scrollToPosition(pageNumber)
     }
 
     override fun navigateToGallery(lastVisitedPage: Int) {
@@ -356,7 +339,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         mtvCurrentPage = rootView.findViewById(R.id.mtvCurrentPage)
         mtvDownloadTitle = rootView.findViewById(R.id.mtvDownloadTitle)
         rvQuickNavigation = rootView.findViewById(R.id.rvQuickNavigation)
-        vpPages = rootView.findViewById(R.id.vpPages)
+        rvBookPages = rootView.findViewById(R.id.book_pages)
     }
 
     private fun requestStoragePermission() {
@@ -364,9 +347,20 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         requestPermissions(storagePermission, REQUEST_STORAGE_PERMISSION)
     }
 
+    private fun onPageChanged(position: Int) {
+        presenter.updatePageIndicator(position)
+        if (position - 1 >= 0) {
+            bookReaderAdapter.resetPageToNormal(position - 1)
+        }
+        if (position + 1 < bookReaderAdapter.itemCount) {
+            bookReaderAdapter.resetPageToNormal(position + 1)
+        }
+        rvQuickNavigation.scrollToPosition(position)
+        navigationAdapter.updateSelectedIndex(position)
+    }
+
     companion object {
         private const val TAG = "ReaderFragment"
         private const val REQUEST_STORAGE_PERMISSION = 2364
-        private const val OFFSCREEN_LIMIT = 5
     }
 }

@@ -54,7 +54,6 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
     override fun onCreate() {
         super.onCreate()
         NHentaiApp.instance.applicationComponent.inject(this)
-        NHentaiApp.instance.applicationComponent.inject(this)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0,
@@ -78,7 +77,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
             val pages = arrayListOf<Long>()
             (1..numberOfPages).toCollection(pages)
 
-            val tagResult = TagResult(fileUtils, sharedPreferencesManager)
+            val tagResult = TagResult(numberOfPages, fileUtils, sharedPreferencesManager)
             val currentPageTracker = AtomicInteger(0)
             Observable.fromIterable(pages.sorted())
                 .takeWhile {
@@ -133,6 +132,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
         val notificationDescription = resources.getString(
             R.string.downloading_tags_progress,
             currentPage,
+            tagDownloadingResult.numberOfPages,
             tagDownloadingResult.artists,
             tagDownloadingResult.characters,
             tagDownloadingResult.categories,
@@ -243,6 +243,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
 
         @Parcelize
         data class TagDownloadingResult(
+            val numberOfPages: Long,
             val artists: Int = 0,
             val characters: Int = 0,
             val categories: Int = 0,
@@ -254,6 +255,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
         ) : Parcelable
 
         private class TagResult(
+            private val numberOfPages: Long,
             private val fileUtils: IFileUtils,
             private val sharedPreferencesManager: SharedPreferencesManager
         ) {
@@ -285,6 +287,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
 
             fun exportCurrentStatus(): TagDownloadingResult {
                 return TagDownloadingResult(
+                    numberOfPages,
                     artists.size,
                     characters.size,
                     categories.size,

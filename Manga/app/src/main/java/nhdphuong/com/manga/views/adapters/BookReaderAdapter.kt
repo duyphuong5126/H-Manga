@@ -3,7 +3,7 @@ package nhdphuong.com.manga.views.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.viewpager.widget.PagerAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.ortiz.touchview.TouchImageView
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
@@ -17,70 +17,67 @@ import nhdphuong.com.manga.views.gone
  * Created by nhdphuong on 5/5/18.
  */
 class BookReaderAdapter(
-    private val mPageUrlList: List<String>,
-    private val mOnTapListener: View.OnClickListener
-) : PagerAdapter() {
+    private val pageUrlList: List<String>,
+    private val onTapListener: View.OnClickListener
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TAG = "BookReaderAdapter"
     }
 
-    private val mPageMap: HashMap<Int, BookReaderViewHolder> = HashMap()
+    private val pageMap: HashMap<Int, Boolean> = HashMap()
 
     init {
-        mPageMap.clear()
+        pageMap.clear()
     }
 
-    override fun instantiateItem(container: ViewGroup, position: Int): Any {
-        val readerViewHolder = BookReaderViewHolder(
-            LayoutInflater.from(container.context)
-                .inflate(R.layout.item_book_page, container, false),
-            mPageUrlList[position],
-            position + 1
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return BookReaderViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_book_page, parent, false),
+            onTapListener
         )
-        mPageMap[position] = readerViewHolder
-        container.addView(readerViewHolder.view)
-        readerViewHolder.ivPage.setOnClickListener(mOnTapListener)
-        readerViewHolder.mtvPageTitle.setOnClickListener(mOnTapListener)
-        return readerViewHolder.view
     }
 
-    override fun isViewFromObject(view: View, `object`: Any): Boolean = view == `object`
-
-    override fun getCount(): Int = mPageUrlList.size
-
-    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-        Logger.d(TAG, "Remove item $position")
-        mPageMap[position]?.ivPage?.let { ivPage ->
-            ImageUtils.clear(ivPage)
-        }
-        container.removeView(`object` as View)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        (holder as BookReaderViewHolder).bindTo(pageUrlList[position], position)
     }
 
-    override fun getPageTitle(position: Int): CharSequence = "Page number ${position + 1}"
+    override fun getItemCount(): Int {
+        return pageUrlList.size
+    }
 
     fun resetPageToNormal(page: Int) {
-        mPageMap[page]?.ivPage?.let { ivPage ->
-            if (ivPage.isZoomed) {
-                ivPage.resetZoom()
+        pageMap[page]?.let { isZoomed ->
+            if (isZoomed) {
+                pageMap[page] = false
+                notifyItemChanged(page)
             }
         }
     }
 
     fun resetPage(page: Int) {
-        mPageMap[page]?.reloadImage()
+        notifyItemChanged(page)
     }
 
-    private class BookReaderViewHolder(val view: View, private val pageUrl: String, page: Int) {
-        val ivPage: TouchImageView = view.findViewById(R.id.ivPage)
-        val mtvPageTitle: MyTextView = view.findViewById(R.id.mtvPageTitle)
+    private class BookReaderViewHolder(
+        view: View,
+        onTapListener: View.OnClickListener
+    ) : RecyclerView.ViewHolder(view) {
+        private val ivPage: TouchImageView = view.findViewById(R.id.ivPage)
+        private val mtvPageTitle: MyTextView = view.findViewById(R.id.mtvPageTitle)
 
         init {
-            mtvPageTitle.text = page.toString()
-            mtvPageTitle.becomeVisible()
-            reloadImage()
+            ivPage.setOnClickListener(onTapListener)
+            mtvPageTitle.setOnClickListener(onTapListener)
         }
 
-        fun reloadImage() {
+        fun bindTo(pageUrl: String, page: Int) {
+            mtvPageTitle.text = page.toString()
+            mtvPageTitle.becomeVisible()
+            ivPage.resetZoom()
+            reloadImage(pageUrl)
+        }
+
+        fun reloadImage(pageUrl: String) {
             ivPage.doOnGlobalLayout {
                 ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, onLoadSuccess = {
                     mtvPageTitle.gone()
