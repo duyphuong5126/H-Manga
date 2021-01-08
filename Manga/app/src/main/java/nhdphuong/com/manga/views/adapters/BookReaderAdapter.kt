@@ -38,7 +38,7 @@ class BookReaderAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as BookReaderViewHolder).bindTo(pageUrlList[position], position)
+        (holder as BookReaderViewHolder).bindTo(pageUrlList[position], position + 1)
     }
 
     override fun getItemCount(): Int {

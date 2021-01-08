@@ -27,6 +27,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.features.NavigationRedirectActivity
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.SpaceItemDecoration
+import nhdphuong.com.manga.views.PreLoadingLinearLayoutManager
 import nhdphuong.com.manga.views.adapters.BookReaderAdapter
 import nhdphuong.com.manga.views.adapters.ReaderNavigationAdapter
 import nhdphuong.com.manga.views.addSnapPositionChangedListener
@@ -216,7 +217,12 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
             rvBookPages.adapter = bookReaderAdapter
             context?.let {
                 rvBookPages.layoutManager =
-                    LinearLayoutManager(it, LinearLayoutManager.HORIZONTAL, false)
+                    PreLoadingLinearLayoutManager(
+                        it,
+                        LinearLayoutManager.HORIZONTAL,
+                        false,
+                        PRELOAD_SIZE
+                    )
             }
             val snapHelper = PagerSnapHelper()
             snapHelper.attachToRecyclerView(rvBookPages)
@@ -362,5 +368,6 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     companion object {
         private const val TAG = "ReaderFragment"
         private const val REQUEST_STORAGE_PERMISSION = 2364
+        private const val PRELOAD_SIZE = 3
     }
 }
