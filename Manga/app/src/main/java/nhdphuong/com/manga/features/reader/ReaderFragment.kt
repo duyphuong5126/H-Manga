@@ -231,7 +231,6 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                     }
                     AnimationHelper.startSlideOutBottom(activity, layoutReaderBottom) {
                         layoutReaderBottom.visibility = View.GONE
-                        viewModeButton.visibility = View.GONE
                     }
                 } else {
                     AnimationHelper.startSlideInTop(activity, clReaderTop) {
@@ -239,7 +238,6 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                     }
                     AnimationHelper.startSlideInBottom(activity, layoutReaderBottom) {
                         layoutReaderBottom.visibility = View.VISIBLE
-                        viewModeButton.visibility = View.VISIBLE
                     }
                 }
             }
@@ -436,12 +434,6 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     private fun onPageChanged(position: Int) {
-        if (position - 1 >= 0) {
-            bookReaderAdapter.resetPageToNormal(position - 1)
-        }
-        if (position + 1 < bookReaderAdapter.itemCount) {
-            bookReaderAdapter.resetPageToNormal(position + 1)
-        }
         rvQuickNavigation.scrollToAroundPosition(position, ADDITIONAL_STEPS)
         updatePageInfo(position)
     }

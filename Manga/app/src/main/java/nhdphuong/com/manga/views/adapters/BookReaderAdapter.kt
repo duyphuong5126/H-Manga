@@ -15,6 +15,7 @@ import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.uimodel.ReaderType
+import nhdphuong.com.manga.views.uimodel.ReaderType.HorizontalPage
 import nhdphuong.com.manga.views.uimodel.ReaderType.VerticalScroll
 
 /*
@@ -25,12 +26,6 @@ class BookReaderAdapter(
     private var readerType: ReaderType,
     private val onTapListener: View.OnClickListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    private val pageMap: HashMap<Int, Boolean> = HashMap()
-
-    init {
-        pageMap.clear()
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         Logger.d(TAG, "onCreateViewHolder viewType: $viewType")
@@ -52,16 +47,6 @@ class BookReaderAdapter(
         return pageUrlList.size
     }
 
-    fun resetPageToNormal(page: Int) {
-        Logger.d(TAG, "resetPageToNormal page: $page")
-        pageMap[page]?.let { isZoomed ->
-            if (isZoomed) {
-                pageMap[page] = false
-                notifyItemChanged(page)
-            }
-        }
-    }
-
     fun resetPage(page: Int) {
         notifyItemChanged(page)
     }
@@ -77,38 +62,39 @@ class BookReaderAdapter(
         init {
             ivPage.setOnClickListener(onTapListener)
             mtvPageTitle.setOnClickListener(onTapListener)
+            setupOnTouchEvent()
         }
 
-        @SuppressLint("ClickableViewAccessibility")
         fun bindTo(pageUrl: String, page: Int) {
             mtvPageTitle.text = page.toString()
             mtvPageTitle.becomeVisible()
-            if (readerType == VerticalScroll) {
-                ivPage.setOnTouchListener { _, event ->
-                    return@setOnTouchListener if (event.pointerCount >= 2
-                        || (ivPage.canScrollHorizontally(1) && ivPage.canScrollHorizontally(-1))
-                    ) {
-                        when (event.action) {
-                            MotionEvent.ACTION_DOWN,
-                            MotionEvent.ACTION_MOVE -> {
-                                ivPage.parent.requestDisallowInterceptTouchEvent(true)
-                                false
-                            }
-
-
-                            MotionEvent.ACTION_UP -> {
-                                ivPage.parent.requestDisallowInterceptTouchEvent(false)
-                                true
-                            }
-
-                            else -> true
-                        }
-                    } else true
-                }
-            } else {
+            reloadImage(pageUrl)
+            if (readerType == HorizontalPage) {
                 ivPage.resetZoom()
             }
-            reloadImage(pageUrl)
+        }
+
+        @SuppressLint("ClickableViewAccessibility")
+        private fun setupOnTouchEvent() {
+            ivPage.setOnTouchListener { _, event ->
+                if (event.pointerCount >= 2 || (ivPage.canScrollHorizontally(1) && ivPage.canScrollHorizontally(-1))) {
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN,
+                        MotionEvent.ACTION_MOVE -> {
+                            ivPage.parent.requestDisallowInterceptTouchEvent(true)
+                            false
+                        }
+
+
+                        MotionEvent.ACTION_UP -> {
+                            ivPage.parent.requestDisallowInterceptTouchEvent(false)
+                            true
+                        }
+
+                        else -> true
+                    }
+                } else true
+            }
         }
 
         private fun reloadImage(pageUrl: String) {

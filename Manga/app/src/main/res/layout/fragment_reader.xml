@@ -129,23 +129,10 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageButton
-        android:id="@+id/ib_view_mode"
-        android:layout_width="@dimen/large_button_size"
-        android:layout_height="@dimen/large_button_size"
-        android:layout_marginEnd="@dimen/space_normal"
-        android:layout_marginBottom="@dimen/space_normal"
-        android:background="@drawable/grey_transparent_rect_rounded_all_corners"
-        android:scaleType="center"
-        android:src="@drawable/ic_horizontal_view_white"
-        app:layout_constraintBottom_toTopOf="@id/layoutReaderBottom"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <LinearLayout
         android:id="@+id/layoutReaderBottom"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#96000000"
         android:orientation="vertical"
         android:paddingTop="@dimen/space_medium"
         android:paddingBottom="@dimen/space_medium"
@@ -153,60 +140,78 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvQuickNavigation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/space_medium" />
+        <ImageButton
+            android:id="@+id/ib_view_mode"
+            android:layout_width="@dimen/large_button_size"
+            android:layout_height="@dimen/large_button_size"
+            android:layout_gravity="end"
+            android:layout_marginEnd="@dimen/space_normal"
+            android:layout_marginBottom="@dimen/space_normal"
+            android:background="@drawable/grey_transparent_rect_rounded_all_corners"
+            android:scaleType="center"
+            android:src="@drawable/ic_horizontal_view_white" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="#96000000"
+            android:orientation="vertical">
 
-            <ImageButton
-                android:id="@+id/ibRefresh"
-                android:layout_width="@dimen/normal_button_size"
-                android:layout_height="@dimen/normal_button_size"
-                android:layout_marginStart="@dimen/space_normal"
-                android:background="@drawable/button_circle_transparent"
-                android:contentDescription="@string/refresh"
-                android:padding="@dimen/space_medium"
-                android:scaleType="center"
-                android:src="@drawable/ic_sync_white"
-                app:layout_constraintBottom_toBottomOf="@+id/mtvCurrentPage"
-                app:layout_constraintEnd_toStartOf="@id/mtvCurrentPage"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/mtvCurrentPage" />
-
-            <nhdphuong.com.manga.views.customs.MyTextView
-                android:id="@+id/mtvCurrentPage"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/bottom_reader"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/header_title_size"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/ibDownload"
-                app:layout_constraintStart_toEndOf="@id/ibRefresh"
-                app:layout_constraintTop_toTopOf="parent"
-                app:myFont="@string/NotoSansRegular" />
-
-            <ImageButton
-                android:id="@+id/ibDownload"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvQuickNavigation"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/normal_button_size"
-                android:layout_marginEnd="@dimen/space_normal"
-                android:background="@drawable/button_transparent_rect_rounded_all_corners"
-                android:contentDescription="@string/download"
-                android:padding="@dimen/space_medium"
-                android:scaleType="center"
-                android:src="@drawable/ic_download_white"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/mtvCurrentPage"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_medium" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/ibRefresh"
+                    android:layout_width="@dimen/normal_button_size"
+                    android:layout_height="@dimen/normal_button_size"
+                    android:layout_marginStart="@dimen/space_normal"
+                    android:background="@drawable/button_circle_transparent"
+                    android:contentDescription="@string/refresh"
+                    android:padding="@dimen/space_medium"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_sync_white"
+                    app:layout_constraintBottom_toBottomOf="@+id/mtvCurrentPage"
+                    app:layout_constraintEnd_toStartOf="@id/mtvCurrentPage"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/mtvCurrentPage" />
+
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/mtvCurrentPage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/bottom_reader"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/header_title_size"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/ibDownload"
+                    app:layout_constraintStart_toEndOf="@id/ibRefresh"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:myFont="@string/NotoSansRegular" />
+
+                <ImageButton
+                    android:id="@+id/ibDownload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/normal_button_size"
+                    android:layout_marginEnd="@dimen/space_normal"
+                    android:background="@drawable/button_transparent_rect_rounded_all_corners"
+                    android:contentDescription="@string/download"
+                    android:padding="@dimen/space_medium"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_download_white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/mtvCurrentPage"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
     </LinearLayout>
 
