@@ -20,8 +20,10 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.supports.doInIOContext
 import nhdphuong.com.manga.usecase.SaveLastVisitedPageUseCase
+import nhdphuong.com.manga.views.uimodel.ReaderType
 import org.apache.commons.collections4.queue.CircularFifoQueue
 import java.io.File
 
@@ -35,6 +37,7 @@ class ReaderPresenter @Inject constructor(
     private val getDownloadedBookPagesUseCase: GetDownloadedBookPagesUseCase,
     private val saveLastVisitedPageUseCase: SaveLastVisitedPageUseCase,
     private val bookRepository: BookRepository,
+    private val preferencesManager: SharedPreferencesManager,
     private val fileUtils: IFileUtils,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
@@ -45,6 +48,12 @@ class ReaderPresenter @Inject constructor(
     private val downloadQueue = LinkedBlockingQueue<Int>()
     private var isDownloading = false
     private var notificationId: Int = -1
+
+    private var viewMode: ReaderType = preferencesManager.currentReaderType
+        set(value) {
+            field = value
+            preferencesManager.currentReaderType = value
+        }
 
     private val prefixNumber: Int
         get() {
@@ -103,6 +112,16 @@ class ReaderPresenter @Inject constructor(
             }
             setUpReader()
         }
+    }
+
+    override fun toggleViewMode() {
+        viewMode = if (viewMode == ReaderType.VerticalScroll) {
+            ReaderType.HorizontalPage
+        } else {
+            ReaderType.VerticalScroll
+        }
+        view.showBookPages(bookPages, viewMode, currentPage)
+        view.showPageIndicator(currentPage + 1, bookPages.size)
     }
 
     override fun updatePageIndicator(page: Int) {
@@ -232,15 +251,11 @@ class ReaderPresenter @Inject constructor(
     }
 
     private fun setUpReader() {
-        lastVisitedPageQueue.add(0)
+        currentPage = if (startReadingPage >= 0) startReadingPage else 0
         if (bookPages.isNotEmpty()) {
-            currentPage = 0
-            view.showBookPages(bookPages)
-            view.showPageIndicator(currentPage + 1, bookPages.size)
+            view.showBookPages(bookPages, viewMode, currentPage)
         }
-        if (startReadingPage >= 0) {
-            view.jumpToPage(startReadingPage)
-        }
+        lastVisitedPageQueue.add(currentPage)
 
         view.pushNowReadingNotification(
             book.previewTitle,

@@ -3,6 +3,8 @@ package nhdphuong.com.manga
 import android.content.Context
 import android.content.SharedPreferences
 import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomain
+import nhdphuong.com.manga.views.uimodel.ReaderType
+import nhdphuong.com.manga.views.uimodel.ReaderType.HorizontalPage
 import javax.inject.Singleton
 
 /*
@@ -28,6 +30,7 @@ class SharedPreferencesManager private constructor() {
         private const val KEY_CURRENT_TAG_VERSION = "KEY_CURRENT_TAG_VERSION"
         private const val KEY_CENSORED = "KEY_CENSORED"
         private const val KEY_UPGRADE_NOTIFICATION_ALLOWED = "KEY_UPGRADE_NOTIFICATION_ALLOWED"
+        private const val CURRENT_READER_MODE = "CURRENT_READER_MODE"
         private const val IS_USE_ALTERNATIVE_DOMAIN = "IS_USE_ALTERNATIVE_DOMAIN"
         private const val ALTERNATIVE_DOMAIN_ID = "ALTERNATIVE_DOMAIN_ID"
         private const val ALTERNATIVE_HOME_URL = "ALTERNATIVE_HOME_URL"
@@ -170,6 +173,15 @@ class SharedPreferencesManager private constructor() {
             mAdminPreferences.edit().putString(ALTERNATIVE_DOMAIN_RAW_DATA, value).apply()
         }
         get() = mAdminPreferences.getString(ALTERNATIVE_DOMAIN_RAW_DATA, "").orEmpty()
+
+    var currentReaderType: ReaderType
+        set(value) {
+            mBookPreferences.edit().putInt(CURRENT_READER_MODE, value.typeCode).apply()
+        }
+        get() {
+            val typeCode = mBookPreferences.getInt(CURRENT_READER_MODE, HorizontalPage.typeCode)
+            return ReaderType.fromTypeCode(typeCode)
+        }
 
     fun saveActiveAlternativeDomain(alternativeDomain: AlternativeDomain) {
         mAdminPreferences.edit().putBoolean(IS_USE_ALTERNATIVE_DOMAIN, true).apply()

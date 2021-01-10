@@ -46,10 +46,16 @@ class ReaderNavigationAdapter(
     }
 
     fun updateSelectedIndex(position: Int) {
-        val lastSelectedPosition = selectedPosition
-        selectedPosition = position
-        notifyItemChanged(lastSelectedPosition)
-        notifyItemChanged(selectedPosition)
+        if (position != selectedPosition) {
+            val lastSelectedPosition = selectedPosition
+            selectedPosition = position
+            notifyItemChanged(lastSelectedPosition)
+            notifyItemChanged(selectedPosition)
+        }
+    }
+
+    fun forceNavigate(toPosition: Int) {
+        thumbnailSelectListener.onItemSelected(toPosition)
     }
 
     private inner class NormalThumbnailItem(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -18,6 +18,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL
+import androidx.recyclerview.widget.LinearLayoutManager.VERTICAL
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Constants
@@ -33,8 +35,13 @@ import nhdphuong.com.manga.views.adapters.ReaderNavigationAdapter
 import nhdphuong.com.manga.views.addSnapPositionChangedListener
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.customs.MyTextView
+import nhdphuong.com.manga.views.doOnGlobalLayout
+import nhdphuong.com.manga.views.doOnScrolled
 import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.scrollToAroundPosition
 import nhdphuong.com.manga.views.showStoragePermissionDialog
+import nhdphuong.com.manga.views.uimodel.ReaderType
+import nhdphuong.com.manga.views.uimodel.ReaderType.VerticalScroll
 
 /*
  * Created by nhdphuong on 5/5/18.
@@ -59,8 +66,12 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     private lateinit var mtvDownloadTitle: MyTextView
     private lateinit var rvQuickNavigation: RecyclerView
     private lateinit var rvBookPages: RecyclerView
+    private lateinit var viewModeButton: ImageButton
 
     private var viewDownloadedData = false
+
+    private val snapHelper = PagerSnapHelper()
+    private lateinit var spaceItemDecoration: SpaceItemDecoration
 
     override fun setPresenter(presenter: ReaderContract.Presenter) {
         this.presenter = presenter
@@ -78,21 +89,24 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
         setUpUI(view)
 
+        context?.let {
+            spaceItemDecoration = SpaceItemDecoration(
+                it,
+                R.dimen.space_normal,
+                showFirstDivider = false,
+                showLastDivider = false
+            )
+        }
+
         viewDownloadedData = arguments?.getBoolean(Constants.VIEW_DOWNLOADED_DATA) ?: false
         if (viewDownloadedData) {
             presenter.enableViewDownloadedDataMode()
         }
-        ibBack.setOnClickListener(this)
-        mtvCurrentPage.setOnClickListener(this)
-        ibDownload.setOnClickListener(this)
-        ibDownloadPopupClose.setOnClickListener(this)
-        ibShare.setOnClickListener(this)
 
         ibDownload.becomeVisibleIf(!viewDownloadedData, otherWiseVisibility = View.INVISIBLE)
         ibShare.becomeVisibleIf(!viewDownloadedData)
         context?.let { context ->
             rotationAnimation = AnimationHelper.getRotationAnimation(context)
-            ibRefresh.setOnClickListener(this)
         }
 
         view.isFocusableInTouchMode = true
@@ -165,6 +179,10 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                     ibRefresh.postDelayed(ibRefresh::clearAnimation, 3000)
                 }
             }
+
+            R.id.ib_view_mode -> {
+                presenter.toggleViewMode()
+            }
         }
     }
 
@@ -175,19 +193,20 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         }
     }
 
-    override fun showBookPages(pageList: List<String>) {
+    override fun showBookPages(pageList: List<String>, readerType: ReaderType, startPage: Int) {
         activity?.let { activity ->
             navigationAdapter = ReaderNavigationAdapter(
                 pageList,
                 object : ReaderNavigationAdapter.ThumbnailSelectListener {
                     override fun onItemSelected(position: Int) {
                         rvBookPages.scrollToPosition(position)
-                        onPageChanged(position)
+                        updatePageInfo(position)
+                        rvQuickNavigation.scrollToAroundPosition(position, ADDITIONAL_STEPS)
                     }
                 })
             rvQuickNavigation.adapter = navigationAdapter
             rvQuickNavigation.layoutManager =
-                LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+                LinearLayoutManager(activity, HORIZONTAL, false)
             rvQuickNavigation.addItemDecoration(
                 SpaceItemDecoration(
                     activity,
@@ -197,13 +216,14 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                 )
             )
 
-            bookReaderAdapter = BookReaderAdapter(pageList) {
+            bookReaderAdapter = BookReaderAdapter(pageList, readerType) {
                 if (layoutReaderBottom.visibility == View.VISIBLE) {
                     AnimationHelper.startSlideOutTop(activity, clReaderTop) {
                         clReaderTop.visibility = View.GONE
                     }
                     AnimationHelper.startSlideOutBottom(activity, layoutReaderBottom) {
                         layoutReaderBottom.visibility = View.GONE
+                        viewModeButton.visibility = View.GONE
                     }
                 } else {
                     AnimationHelper.startSlideInTop(activity, clReaderTop) {
@@ -211,22 +231,25 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                     }
                     AnimationHelper.startSlideInBottom(activity, layoutReaderBottom) {
                         layoutReaderBottom.visibility = View.VISIBLE
+                        viewModeButton.visibility = View.VISIBLE
                     }
                 }
             }
             rvBookPages.adapter = bookReaderAdapter
-            context?.let {
-                rvBookPages.layoutManager =
-                    PreLoadingLinearLayoutManager(
-                        it,
-                        LinearLayoutManager.HORIZONTAL,
-                        false,
-                        PRELOAD_SIZE
-                    )
+            rvBookPages.setItemViewCacheSize(PRELOAD_SIZE)
+            val orientation = if (readerType == VerticalScroll) VERTICAL else HORIZONTAL
+            val layoutManager =
+                PreLoadingLinearLayoutManager(activity, orientation, false, PRELOAD_SIZE)
+            rvBookPages.layoutManager = layoutManager
+            when (readerType) {
+                VerticalScroll -> {
+                    changeToVerticalMode(layoutManager, startPage)
+                }
+
+                else -> {
+                    changeToHorizontalMode(startPage)
+                }
             }
-            val snapHelper = PagerSnapHelper()
-            snapHelper.attachToRecyclerView(rvBookPages)
-            rvBookPages.addSnapPositionChangedListener(snapHelper, this::onPageChanged)
         }
     }
 
@@ -236,10 +259,6 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
 
     override fun showBackToGallery() {
         mtvCurrentPage.text = getString(R.string.back_to_gallery)
-    }
-
-    override fun jumpToPage(pageNumber: Int) {
-        rvBookPages.scrollToPosition(pageNumber)
     }
 
     override fun navigateToGallery(lastVisitedPage: Int) {
@@ -332,6 +351,52 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
 
     override fun isActive(): Boolean = isAdded
 
+    private fun changeToVerticalMode(layoutManager: LinearLayoutManager, startPage: Int) {
+        rvBookPages.addItemDecoration(spaceItemDecoration)
+        snapHelper.attachToRecyclerView(null)
+
+        rvBookPages.clearOnScrollListeners()
+
+        updatePageInfo(startPage)
+        rvQuickNavigation.doOnGlobalLayout {
+            rvQuickNavigation.scrollToAroundPosition(startPage, ADDITIONAL_STEPS)
+        }
+        rvBookPages.doOnScrolled {
+            val firstItem = layoutManager.findFirstCompletelyVisibleItemPosition()
+            val lastItem = layoutManager.findLastCompletelyVisibleItemPosition()
+
+            if (firstItem >= 0 && lastItem >= 0) {
+                val middleItem = (firstItem + lastItem) / 2
+                updatePageInfo(middleItem)
+                rvQuickNavigation.scrollToAroundPosition(middleItem, ADDITIONAL_STEPS)
+            }
+        }
+
+        rvBookPages.postDelayed({
+            navigationAdapter.forceNavigate(startPage)
+        }, 1000)
+    }
+
+    private fun changeToHorizontalMode(startPage: Int) {
+        rvBookPages.removeItemDecoration(spaceItemDecoration)
+        snapHelper.attachToRecyclerView(rvBookPages)
+
+        rvBookPages.clearOnScrollListeners()
+
+        rvBookPages.addSnapPositionChangedListener(snapHelper, this::onPageChanged)
+
+        rvBookPages.scrollToPosition(startPage)
+        updatePageInfo(startPage)
+        rvQuickNavigation.doOnGlobalLayout {
+            rvQuickNavigation.scrollToAroundPosition(startPage, ADDITIONAL_STEPS)
+        }
+    }
+
+    private fun updatePageInfo(page: Int) {
+        presenter.updatePageIndicator(page)
+        navigationAdapter.updateSelectedIndex(page)
+    }
+
     private fun setUpUI(rootView: View) {
         clDownloadedPopup = rootView.findViewById(R.id.clDownloadedPopup)
         clReaderTop = rootView.findViewById(R.id.clReaderTop)
@@ -346,6 +411,15 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         mtvDownloadTitle = rootView.findViewById(R.id.mtvDownloadTitle)
         rvQuickNavigation = rootView.findViewById(R.id.rvQuickNavigation)
         rvBookPages = rootView.findViewById(R.id.book_pages)
+        viewModeButton = rootView.findViewById(R.id.ib_view_mode)
+
+        ibBack.setOnClickListener(this)
+        mtvCurrentPage.setOnClickListener(this)
+        ibDownload.setOnClickListener(this)
+        ibDownloadPopupClose.setOnClickListener(this)
+        ibShare.setOnClickListener(this)
+        ibRefresh.setOnClickListener(this)
+        viewModeButton.setOnClickListener(this)
     }
 
     private fun requestStoragePermission() {
@@ -354,20 +428,20 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     private fun onPageChanged(position: Int) {
-        presenter.updatePageIndicator(position)
         if (position - 1 >= 0) {
             bookReaderAdapter.resetPageToNormal(position - 1)
         }
         if (position + 1 < bookReaderAdapter.itemCount) {
             bookReaderAdapter.resetPageToNormal(position + 1)
         }
-        rvQuickNavigation.scrollToPosition(position)
-        navigationAdapter.updateSelectedIndex(position)
+        rvQuickNavigation.scrollToAroundPosition(position, ADDITIONAL_STEPS)
+        updatePageInfo(position)
     }
 
     companion object {
         private const val TAG = "ReaderFragment"
         private const val REQUEST_STORAGE_PERMISSION = 2364
-        private const val PRELOAD_SIZE = 3
+        private const val PRELOAD_SIZE = 5
+        private const val ADDITIONAL_STEPS = 2
     }
 }

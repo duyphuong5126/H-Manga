@@ -5,8 +5,11 @@ import android.view.ViewTreeObserver
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import androidx.recyclerview.widget.SnapHelper
 import nhdphuong.com.manga.Logger
+import kotlin.math.max
+import kotlin.math.min
 
 fun View.becomeVisible() {
     visibility = View.VISIBLE
@@ -90,7 +93,7 @@ fun RecyclerView.addSnapPositionChangedListener(
     addOnScrollListener(object : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+            if (newState == SCROLL_STATE_IDLE) {
                 recyclerView.layoutManager?.let { layoutManager ->
                     snapHelper.findSnapView(layoutManager)?.let(layoutManager::getPosition)?.let {
                         if (lastPosition != it) {
@@ -102,4 +105,30 @@ fun RecyclerView.addSnapPositionChangedListener(
             }
         }
     })
+}
+
+fun RecyclerView.scrollToAroundPosition(position: Int, additionalStep: Int = 0) {
+    if (additionalStep <= 0) {
+        scrollToPosition(position)
+    } else {
+        adapter?.itemCount?.takeIf { it > 0 }?.let { itemCount ->
+            (layoutManager as? LinearLayoutManager)?.let {
+                val firstPos = it.findFirstVisibleItemPosition()
+                val lasPos = it.findLastVisibleItemPosition()
+                if (firstPos >= 0 && lasPos >= 0) {
+                    val middlePos = (firstPos + lasPos) / 2
+                    when (position) {
+                        in firstPos + 1 until lasPos -> scrollToPosition(position)
+                        else -> {
+                            if (position > middlePos) {
+                                min(itemCount - 1, position + additionalStep)
+                            } else {
+                                max(0, position - additionalStep)
+                            }.let(this::scrollToPosition)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

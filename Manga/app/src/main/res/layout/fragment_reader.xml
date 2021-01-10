@@ -129,6 +129,18 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <ImageButton
+        android:id="@+id/ib_view_mode"
+        android:layout_width="@dimen/large_button_size"
+        android:layout_height="@dimen/large_button_size"
+        android:layout_marginEnd="@dimen/space_normal"
+        android:layout_marginBottom="@dimen/space_normal"
+        android:background="@drawable/grey_transparent_rect_rounded_all_corners"
+        android:scaleType="center"
+        android:src="@drawable/ic_horizontal_view_white"
+        app:layout_constraintBottom_toTopOf="@id/layoutReaderBottom"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <LinearLayout
         android:id="@+id/layoutReaderBottom"
         android:layout_width="0dp"
