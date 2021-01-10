@@ -41,6 +41,7 @@ import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.scrollToAroundPosition
 import nhdphuong.com.manga.views.showStoragePermissionDialog
 import nhdphuong.com.manga.views.uimodel.ReaderType
+import nhdphuong.com.manga.views.uimodel.ReaderType.HorizontalPage
 import nhdphuong.com.manga.views.uimodel.ReaderType.VerticalScroll
 
 /*
@@ -194,6 +195,13 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     override fun showBookPages(pageList: List<String>, readerType: ReaderType, startPage: Int) {
+        viewModeButton.setImageResource(
+            if (readerType == HorizontalPage) {
+                R.drawable.ic_horizontal_view_white
+            } else {
+                R.drawable.ic_vertical_view_white
+            }
+        )
         activity?.let { activity ->
             navigationAdapter = ReaderNavigationAdapter(
                 pageList,
