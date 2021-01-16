@@ -28,7 +28,6 @@ import java.util.Collections
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import kotlin.collections.HashMap
 import kotlin.coroutines.resume
@@ -50,7 +49,6 @@ class RecentPresenter @Inject constructor(
     companion object {
         private const val TAG = "RecentPresenter"
         private const val MAX_PER_PAGE = 25
-        private const val NUMBER_OF_PARALLEL_REQUESTS = 5
         private const val NUMBER_OF_PREVENTIVE_PAGES = 5
     }
 
@@ -283,44 +281,30 @@ class RecentPresenter @Inject constructor(
     private suspend fun getRecentBook(pageNumber: Int): ArrayList<Book> {
         // Todo: Remove this try/catch
         try {
-            val recentList = if (type == Constants.RECENT) {
+            val savedIdList = if (type == Constants.RECENT) {
                 bookRepository.getRecentBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
             } else {
                 bookRepository.getFavoriteBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
             }
-            if (recentList.isEmpty()) {
+            if (savedIdList.isEmpty()) {
                 return ArrayList()
             }
-            Logger.d(TAG, "${recentList.size} recent books")
-            val bookList = Array<Book?>(recentList.size) { null }
-            recentList.mapIndexed { index, recentBook ->
-                Logger.d(TAG, "Index $index, book: ${recentBook.bookId}")
-                Pair(index, recentBook)
-            }.chunked(NUMBER_OF_PARALLEL_REQUESTS).forEach { subRecentList ->
-                suspendCoroutine<Boolean> { continuation ->
-                    val bookCounter = AtomicInteger(subRecentList.size)
-                    Logger.d(TAG, "Loading ${bookCounter.get()} recent book(s)")
-                    subRecentList.forEach { (index, recent) ->
-                        io.launch {
-                            when (val bookResponse = bookRepository.getBookDetails(recent.bookId)) {
-                                is BookResponse.Success -> {
-                                    Logger.d(TAG, "Add book ${recent.bookId} to index $index")
-                                    bookList[index] = bookResponse.book
-                                }
-                                is BookResponse.Failure -> {
-                                    Logger.d(TAG, "Failed to load book ${recent.bookId}")
-                                    remoteBookErrorSubject.onNext(bookResponse.error)
-                                }
-                            }
-                            if (bookCounter.decrementAndGet() <= 0) {
-                                continuation.resume(true)
-                            }
-                        }.let(jobList::add)
+            Logger.d(TAG, "${savedIdList.size} recent books")
+            val resultList = ArrayList<Book>()
+            savedIdList.forEach { recent ->
+                when (val bookResponse = bookRepository.getBookDetails(recent.bookId)) {
+                    is BookResponse.Success -> {
+                        resultList.add(bookResponse.book)
+                    }
+                    is BookResponse.Failure -> {
+                        Logger.e(
+                            TAG,
+                            "Failed to load book ${recent.bookId} with error ${bookResponse.error}"
+                        )
+                        remoteBookErrorSubject.onNext(bookResponse.error)
                     }
                 }
             }
-            val resultList = ArrayList<Book>()
-            bookList.forEach { it?.let(resultList::add) }
             return resultList
         } catch (throwable: Throwable) {
             remoteBookErrorSubject.onNext(throwable)

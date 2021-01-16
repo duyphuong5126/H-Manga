@@ -86,8 +86,27 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         return inflater.inflate(R.layout.fragment_reader, container, false)
     }
 
+    private var bottomReaderTemplate = ""
+    private var backToGallery = ""
+    private var toastStoragePermissionLabel: String = ""
+    private var downloadProgressTemplate = ""
+    private var nowReading = ""
+    private var pageSharingTitleTemplate = ""
+    private var pageSharingChooserTemplate = ""
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        context?.let {
+            bottomReaderTemplate = it.getString(R.string.bottom_reader)
+            backToGallery = it.getString(R.string.back_to_gallery)
+            toastStoragePermissionLabel = it.getString(R.string.toast_storage_permission_require)
+            downloadProgressTemplate = it.getString(R.string.download_progress)
+            nowReading = it.getString(R.string.now_reading)
+            pageSharingTitleTemplate = it.getString(R.string.page_sharing_title)
+            pageSharingChooserTemplate = it.getString(R.string.page_sharing_chooser_title)
+        }
+
         setUpUI(view)
 
         context?.let {
@@ -260,11 +279,11 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     override fun showPageIndicator(currentPage: Int, total: Int) {
-        mtvCurrentPage.text = String.format(getString(R.string.bottom_reader), currentPage, total)
+        mtvCurrentPage.text = String.format(bottomReaderTemplate, currentPage, total)
     }
 
     override fun showBackToGallery() {
-        mtvCurrentPage.text = getString(R.string.back_to_gallery)
+        mtvCurrentPage.text = backToGallery
     }
 
     override fun navigateToGallery(lastVisitedPage: Int) {
@@ -284,7 +303,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         }, onDismiss = {
             Toast.makeText(
                 activity,
-                getString(R.string.toast_storage_permission_require),
+                toastStoragePermissionLabel,
                 Toast.LENGTH_SHORT
             ).show()
         })
@@ -301,7 +320,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     override fun updateDownloadPopupTitle(downloadPage: Int) {
-        mtvDownloadTitle.text = getString(R.string.download_progress, downloadPage.toString())
+        mtvDownloadTitle.text = String.format(downloadProgressTemplate, downloadPage.toString())
     }
 
     override fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int) {
@@ -312,7 +331,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                 notificationIntent, Intent.FILL_IN_ACTION
             )
             NotificationHelper.sendBigContentNotification(
-                getString(R.string.now_reading),
+                nowReading,
                 NotificationCompat.PRIORITY_DEFAULT,
                 readingTitle,
                 true,
@@ -329,7 +348,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     override fun processSharingCurrentPage(bookId: String, bookTitle: String, url: String) {
-        val sharingTitle = getString(R.string.page_sharing_title, bookId, bookTitle)
+        val sharingTitle = String.format(pageSharingTitleTemplate, bookId, bookTitle)
         val shareIntent: Intent = Intent(Intent.ACTION_SEND)
             .putExtra(Intent.EXTRA_SUBJECT, sharingTitle)
             .putExtra(Intent.EXTRA_TEXT, url)
@@ -338,7 +357,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         context?.startActivity(
             Intent.createChooser(
                 shareIntent,
-                getString(R.string.page_sharing_chooser_title)
+                pageSharingChooserTemplate
             )
         )
     }

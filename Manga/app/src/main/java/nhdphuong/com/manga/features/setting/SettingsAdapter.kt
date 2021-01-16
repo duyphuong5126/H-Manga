@@ -22,6 +22,7 @@ class SettingsAdapter(
     private val settingList: List<SettingUiModel>,
     private val settingCallback: SettingCallback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private var appUpgradeNotificationReceive = ""
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return when (viewType) {
@@ -49,10 +50,12 @@ class SettingsAdapter(
             }
 
             is AllowAppUpgradeStatus -> {
-                val itemLabel =
-                    holder.itemView.context.getString(R.string.app_upgrade_notification_receive)
+                if (appUpgradeNotificationReceive.isBlank()) {
+                    appUpgradeNotificationReceive =
+                        holder.itemView.context.getString(R.string.app_upgrade_notification_receive)
+                }
                 (holder as SwitchViewHolder).setUrl(
-                    itemLabel,
+                    appUpgradeNotificationReceive,
                     settingItem.isEnabled,
                     settingCallback::changeAppUpgradeNotificationStatus
                 )
@@ -69,7 +72,7 @@ class SettingsAdapter(
         }
     }
 
-    private class AlternativeDomainViewHolder(
+    private inner class AlternativeDomainViewHolder(
         view: View,
         private val settingCallback: SettingCallback
     ) : RecyclerView.ViewHolder(view) {
@@ -84,14 +87,12 @@ class SettingsAdapter(
             val context = itemView.context
             val layoutInflater = LayoutInflater.from(context)
             if (alternativeDomains.alternativeDomainGroup.groups.isEmpty()) {
-                alternativeDomainTitle.text =
-                    context.getString(R.string.no_alternative_domain_available)
+                alternativeDomainTitle.setText(R.string.no_alternative_domain_available)
                 alternativeDomainExplainArea.gone()
                 rgAvailableDomains.gone()
                 return
             } else {
-                alternativeDomainTitle.text =
-                    context.getString(R.string.available_alternative_domains)
+                alternativeDomainTitle.setText(R.string.available_alternative_domains)
                 alternativeDomainExplainArea.becomeVisible()
                 rgAvailableDomains.becomeVisible()
             }

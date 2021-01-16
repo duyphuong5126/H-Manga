@@ -29,9 +29,26 @@ class BookDeletingService : IntentService("BookDeletingService") {
 
     private val compositeDisposable = CompositeDisposable()
 
+    private var deletingBook = ""
+    private var deletingProgress = ""
+    private var bookProgressTemplate = ""
+    private var deletingCompleted = ""
+    private var deletingCompletedTemplate = ""
+    private var deletingFailed = ""
+    private var deletingFailedTemplate = ""
+
     override fun onCreate() {
         NHentaiApp.instance.applicationComponent.inject(this)
         super.onCreate()
+
+        deletingBook = getString(R.string.deleting_book)
+        deletingProgress = getString(R.string.deleting_in_progress)
+        bookProgressTemplate = getString(R.string.book_progress_template)
+        deletingCompleted = getString(R.string.deleting_completed)
+        deletingCompletedTemplate = getString(R.string.deleting_completed_template)
+        deletingFailed = getString(R.string.deleting_failure)
+        deletingFailedTemplate = getString(R.string.deleting_failed_template)
+
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0,
@@ -40,7 +57,7 @@ class BookDeletingService : IntentService("BookDeletingService") {
 
         val notification = NotificationCompat.Builder(this, Constants.NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_app_notification)
-            .setContentTitle(getString(R.string.deleting_book))
+            .setContentTitle(deletingBook)
             .setContentIntent(pendingIntent)
             .build()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -126,17 +143,14 @@ class BookDeletingService : IntentService("BookDeletingService") {
 
 
     private fun sendDeletingProgressNotification(bookId: String, progress: Int, total: Int) {
-        val progressTitle = getString(R.string.deleting_in_progress)
-        val notificationDescription = getString(
-            R.string.book_progress_template, bookId, progress, total
-        )
+        val notificationDescription = String.format(bookProgressTemplate, bookId, progress, total)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, Intent.FILL_IN_ACTION
         )
 
         NotificationHelper.sendBigContentNotification(
-            progressTitle,
+            deletingProgress,
             NotificationCompat.PRIORITY_DEFAULT,
             notificationDescription,
             true,
@@ -147,8 +161,8 @@ class BookDeletingService : IntentService("BookDeletingService") {
 
     private fun sendDeletingCompletedNotification(bookId: String) {
         NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
-        val successTitle = getString(R.string.deleting_completed)
-        val successMessage = getString(R.string.deleting_completed_template, bookId)
+        val successTitle = deletingCompleted
+        val successMessage = String.format(deletingCompletedTemplate, bookId)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, Intent.FILL_IN_ACTION
@@ -166,8 +180,8 @@ class BookDeletingService : IntentService("BookDeletingService") {
 
     private fun sendDeletingFailedNotification(bookId: String) {
         NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
-        val failureTitle = getString(R.string.deleting_failure)
-        val failureMessage = getString(R.string.deleting_failed_template, bookId)
+        val failureTitle = deletingFailed
+        val failureMessage = String.format(deletingFailedTemplate, bookId)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, Intent.FILL_IN_ACTION

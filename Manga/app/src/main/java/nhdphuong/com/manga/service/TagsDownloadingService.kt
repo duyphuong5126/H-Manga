@@ -51,9 +51,26 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
     @Inject
     lateinit var sharedPreferencesManager: SharedPreferencesManager
 
+    private var downloadingTags = ""
+    private var downloadingInProgress = ""
+    private var downloadingTagProgressTemplate = ""
+    private var downloadingCompleted = ""
+    private var downloadingTagsCompleted = ""
+    private var downloadingFailed = ""
+    private var downloadingTagsFailedTemplate = ""
+
     override fun onCreate() {
         super.onCreate()
         NHentaiApp.instance.applicationComponent.inject(this)
+
+        downloadingTags = getString(R.string.downloading_tags)
+        downloadingInProgress = getString(R.string.downloading_in_progress)
+        downloadingTagProgressTemplate = getString(R.string.downloading_tags_progress)
+        downloadingCompleted = getString(R.string.downloading_completed)
+        downloadingTagsCompleted = getString(R.string.downloading_tags_completed)
+        downloadingFailed = getString(R.string.downloading_failure)
+        downloadingTagsFailedTemplate = getString(R.string.downloading_tags_failed)
+
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0,
@@ -62,7 +79,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
 
         val notification = NotificationCompat.Builder(this, Constants.NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_app_notification)
-            .setContentTitle(getString(R.string.downloading_tags))
+            .setContentTitle(downloadingTags)
             .setContentIntent(pendingIntent)
             .build()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -128,9 +145,9 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
 
     private fun postProgressMessages(currentPage: Int, tagDownloadingResult: TagDownloadingResult) {
         NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
-        val progressTitle = getString(R.string.downloading_in_progress)
-        val notificationDescription = resources.getString(
-            R.string.downloading_tags_progress,
+        val progressTitle = downloadingInProgress
+        val notificationDescription = String.format(
+            downloadingTagProgressTemplate,
             currentPage,
             tagDownloadingResult.numberOfPages,
             tagDownloadingResult.artists,
@@ -166,11 +183,8 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
 
     private fun postDownloadingErrorMessages(currentPage: Int) {
         NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
-        val progressTitle = getString(R.string.downloading_failure)
-        val notificationDescription = resources.getString(
-            R.string.downloading_tags_failed,
-            currentPage
-        )
+        val progressTitle = downloadingFailed
+        val notificationDescription = String.format(downloadingTagsFailedTemplate, currentPage)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, Intent.FILL_IN_ACTION
@@ -189,8 +203,8 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
 
     private fun postDownloadingCompletedMessages() {
         NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
-        val progressTitle = getString(R.string.downloading_completed)
-        val notificationDescription = resources.getString(R.string.downloading_tags_completed)
+        val progressTitle = downloadingCompleted
+        val notificationDescription = downloadingTagsCompleted
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, Intent.FILL_IN_ACTION

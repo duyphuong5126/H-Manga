@@ -46,9 +46,26 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
 
     private val compositeDisposable = CompositeDisposable()
 
+    private var downloadingBook = ""
+    private var downloadingInProgress = ""
+    private var bookProgressTemplate = ""
+    private var downloadingCompleted = ""
+    private var downloadingCompletedTemplate = ""
+    private var downloadingFailed = ""
+    private var downloadingFailedTemplate = ""
+
     override fun onCreate() {
         super.onCreate()
         NHentaiApp.instance.applicationComponent.inject(this)
+
+        downloadingBook = getString(R.string.downloading_book)
+        downloadingInProgress = getString(R.string.downloading_in_progress)
+        bookProgressTemplate = getString(R.string.book_progress_template)
+        downloadingCompleted = getString(R.string.downloading_completed)
+        downloadingCompletedTemplate = getString(R.string.downloading_completed_template)
+        downloadingFailed = getString(R.string.downloading_failure)
+        downloadingFailedTemplate = getString(R.string.downloading_failed_template)
+
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0,
@@ -57,7 +74,7 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
 
         val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_app_notification)
-            .setContentTitle(getString(R.string.downloading_book))
+            .setContentTitle(downloadingBook)
             .setContentIntent(pendingIntent)
             .build()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -93,7 +110,8 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
                                     "Failed to download ${result.fileUrl} of book ${book.bookId}: ${result.error.localizedMessage}"
                                 )
                             }
-                            else -> { }
+                            else -> {
+                            }
                         }
                     }, onError = {
                         Logger.e(TAG, "Failure in downloading book ${book.mediaId} with error: $it")
@@ -161,10 +179,8 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
 
     private fun sendDownloadingProgressNotification(bookId: String, progress: Int, total: Int) {
         NotificationHelper.cancelNotification(NOTIFICATION_ID)
-        val progressTitle = getString(R.string.downloading_in_progress)
-        val notificationDescription = getString(
-            R.string.book_progress_template, bookId, progress, total
-        )
+        val progressTitle = downloadingInProgress
+        val notificationDescription = String.format(bookProgressTemplate, bookId, progress, total)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, FILL_IN_ACTION
@@ -182,8 +198,8 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
 
     private fun sendDownloadingCompletedNotification(bookId: String) {
         NotificationHelper.cancelNotification(NOTIFICATION_ID)
-        val successTitle = getString(R.string.downloading_completed)
-        val successMessage = getString(R.string.downloading_completed_template, bookId)
+        val successTitle = downloadingCompleted
+        val successMessage = String.format(downloadingCompletedTemplate, bookId)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, FILL_IN_ACTION
@@ -203,10 +219,9 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
         bookId: String, downloadingFailedCount: Int, total: Int
     ) {
         NotificationHelper.cancelNotification(NOTIFICATION_ID)
-        val failureTitle = getString(R.string.downloading_failure)
-        val failureMessage = getString(
-            R.string.downloading_failed_template, downloadingFailedCount, total, bookId
-        )
+        val failureTitle = downloadingFailed
+        val failureMessage =
+            String.format(downloadingFailedTemplate, downloadingFailedCount, total, bookId)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, FILL_IN_ACTION

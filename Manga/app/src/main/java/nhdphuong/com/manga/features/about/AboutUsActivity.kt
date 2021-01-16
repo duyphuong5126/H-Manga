@@ -45,10 +45,18 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
     private var pendingVersionCode = ""
     private var pendingVersionNumber = -1
 
+    private var toastStoragePermissionLabel: String = ""
+    private var upgradeButtonTemplate = ""
+    private var appBeingUpgradeMessage = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about_us)
         NHentaiApp.instance.applicationComponent.plus(AboutUsModule(this)).inject(this)
+
+        toastStoragePermissionLabel = getString(R.string.toast_storage_permission_require)
+        upgradeButtonTemplate = getString(R.string.app_upgrade_button)
+        appBeingUpgradeMessage = getString(R.string.app_being_upgraded_message)
 
         setUpView()
         backButton.setOnClickListener(this)
@@ -99,7 +107,7 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
     }
 
     override fun showAppUpgradeNotification(latestVersionNumber: Int, latestVersionCode: String) {
-        mbUpgradeButton.text = getString(R.string.app_upgrade_button, latestVersionCode)
+        mbUpgradeButton.text = String.format(upgradeButtonTemplate, latestVersionCode)
         mbUpgradeButton.setOnClickListener {
             installVersion(latestVersionCode, latestVersionNumber)
         }
@@ -168,7 +176,7 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
         }, onDismiss = {
             Toast.makeText(
                 this,
-                getString(R.string.toast_storage_permission_require),
+                toastStoragePermissionLabel,
                 Toast.LENGTH_SHORT
             ).show()
             removePendingStates()
@@ -194,8 +202,7 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
     }
 
     override fun showAppBeingUpgraded() {
-        Toast.makeText(this, getString(R.string.app_being_upgraded_message), Toast.LENGTH_SHORT)
-            .show()
+        Toast.makeText(this, appBeingUpgradeMessage, Toast.LENGTH_SHORT).show()
     }
 
     override fun showUpgradeCompleted(versionNumber: Int) {

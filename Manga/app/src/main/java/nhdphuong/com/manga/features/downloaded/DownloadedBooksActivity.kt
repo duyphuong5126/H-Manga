@@ -70,6 +70,14 @@ class DownloadedBooksActivity : AppCompatActivity(),
     private lateinit var mtvRefresh: MyTextView
     private lateinit var pbRefresh: ProgressBar
 
+    private var downloadedBooks = ""
+    private var noDownloadedBooks = ""
+    private var lastUpdate = ""
+    private var updated = ""
+    private var releaseToRefresh = ""
+    private var updatingTemplate = ""
+    private var pullDown = ""
+
     private fun setUpUI() {
         ibSwitch = findViewById(R.id.ibSwitch)
         mtvTitle = findViewById(R.id.mtvTitle)
@@ -95,11 +103,19 @@ class DownloadedBooksActivity : AppCompatActivity(),
         NHentaiApp.instance.applicationComponent.plus(DownloadedBooksModule(this))
             .inject(this)
 
+        downloadedBooks = getString(R.string.downloaded_books)
+        noDownloadedBooks = getString(R.string.no_downloaded_book)
+        lastUpdate = getString(R.string.last_update)
+        updated = getString(R.string.updated)
+        releaseToRefresh = getString(R.string.release_to_refresh)
+        updatingTemplate = getString(R.string.updating)
+        pullDown = getString(R.string.pull_down)
+
         setUpUI()
 
         loadingDialog = createLoadingDialog()
         ibSwitch.becomeInvisible()
-        mtvTitle.text = getString(R.string.downloaded_books)
+        mtvTitle.text = downloadedBooks
 
         srlPullToReload.addPtrUIHandler(this)
         srlPullToReload.setPtrHandler(object : PtrHandler {
@@ -120,7 +136,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
         btnFirst.setOnClickListener(this)
         btnLast.setOnClickListener(this)
         clReload.gone()
-        tvNothing.text = getString(R.string.no_downloaded_book)
+        tvNothing.text = noDownloadedBooks
         downloadedBooksPresenter.start()
     }
 
@@ -239,7 +255,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
     }
 
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {
-        val lastRefresh = String.format(getString(R.string.last_update), lastRefreshTimeStamp)
+        val lastRefresh = String.format(lastUpdate, lastRefreshTimeStamp)
         mtvLastUpdate.text = lastRefresh
     }
 
@@ -270,7 +286,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
 
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
         endUpdateDotsTask()
-        mtvRefresh.text = getString(R.string.updated)
+        mtvRefresh.text = updated
         downloadedBooksPresenter.reloadLastBookListRefreshTime()
         ivRefresh.rotation = 0F
         ivRefresh.becomeVisible()
@@ -284,7 +300,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
         ptrIndicator: PtrIndicator?
     ) {
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
-            mtvRefresh.text = getString(R.string.release_to_refresh)
+            mtvRefresh.text = releaseToRefresh
             ivRefresh.rotation = 180F
         }
     }
@@ -292,16 +308,16 @@ class DownloadedBooksActivity : AppCompatActivity(),
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
         ivRefresh.gone()
         pbRefresh.becomeVisible()
-        mtvRefresh.text = String.format(getString(R.string.updating), "")
+        mtvRefresh.text = String.format(updatingTemplate, "")
         runUpdateDotsTask()
     }
 
     override fun onUIRefreshPrepare(frame: PtrFrameLayout?) {
-        //mPresenter.reloadLastBookListRefreshTime()
+        downloadedBooksPresenter.reloadLastBookListRefreshTime()
     }
 
     override fun onUIReset(frame: PtrFrameLayout?) {
-        mtvRefresh.text = getString(R.string.pull_down)
+        mtvRefresh.text = pullDown
     }
 
     @SuppressLint("SetTextI18n")
@@ -309,10 +325,9 @@ class DownloadedBooksActivity : AppCompatActivity(),
         var currentPos = 0
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
-            val loadingString = getString(R.string.updating)
             Logger.d("Dialog", "Current pos: $currentPos")
             mtvRefresh.text =
-                String.format(loadingString, dotsArray[currentPos])
+                String.format(updatingTemplate, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }
         val runnable = object : Runnable {

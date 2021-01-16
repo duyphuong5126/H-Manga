@@ -1,7 +1,6 @@
 package nhdphuong.com.manga.views.adapters
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -125,7 +124,13 @@ class BookAdapter(
         private val tvLanguage: ImageView = itemView.findViewById(R.id.ivLanguage)
         private val tlvRecent: TriangleLabelView = itemView.findViewById(R.id.tlvRecent)
         private val vNavigation: View = itemView.findViewById(R.id.vNavigation)
-        private val context: Context = itemView.context
+
+        private val recentLabel = itemView.context.getString(R.string.recent)
+        private val favoriteLabel = itemView.context.getString(R.string.favorite)
+
+        private val recentColor = ContextCompat.getColor(itemView.context, R.color.blue0673B7)
+        private val favoriteColor = ContextCompat.getColor(itemView.context, R.color.redED2553)
+
         private var isTitleModifiable = true
 
         val ivThumbnail: ImageView
@@ -141,18 +146,14 @@ class BookAdapter(
 
         fun showRecentLabel() {
             tlvRecent.visibility = View.VISIBLE
-            tlvRecent.primaryText = context.getString(R.string.recent)
-            tlvRecent.setTriangleBackgroundColor(
-                ContextCompat.getColor(context, R.color.blue0673B7)
-            )
+            tlvRecent.primaryText = recentLabel
+            tlvRecent.setTriangleBackgroundColor(recentColor)
         }
 
         fun showFavoriteLabel() {
             tlvRecent.visibility = View.VISIBLE
-            tlvRecent.primaryText = context.getString(R.string.favorite)
-            tlvRecent.setTriangleBackgroundColor(
-                ContextCompat.getColor(context, R.color.redED2553)
-            )
+            tlvRecent.primaryText = favoriteLabel
+            tlvRecent.setTriangleBackgroundColor(favoriteColor)
         }
 
         fun hideRecentView() {

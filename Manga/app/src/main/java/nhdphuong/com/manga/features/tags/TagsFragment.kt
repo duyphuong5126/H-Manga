@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
-import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tag
 import nhdphuong.com.manga.data.TagFilter
@@ -39,7 +38,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
     private lateinit var mPresenter: TagsContract.Presenter
 
     private val mCharacterCount = Constants.TAG_PREFIXES.length
-    private val mTagCountString = NHentaiApp.instance.getString(R.string.tags_count)
+    private var mTagCountString = ""
 
     private lateinit var mCharacterAdapter: PaginationAdapter
     private lateinit var mNumberAdapter: PaginationAdapter
@@ -74,6 +73,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mTagCountString = getString(R.string.tags_count)
         setUpUI(view)
         mCharacterAdapter = PaginationAdapter(
             mCharacterCount,

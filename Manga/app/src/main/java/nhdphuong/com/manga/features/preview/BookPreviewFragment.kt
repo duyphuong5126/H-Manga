@@ -173,6 +173,18 @@ class BookPreviewFragment :
 
     private var bookId: String = ""
 
+    private var pageCountTemplate: String = ""
+    private var uploadedTimeTemplate: String = ""
+    private var toastStoragePermissionLabel: String = ""
+    private var previewDownloadProgressTemplate: String = ""
+    private var previewDeleteProgressTemplate: String = ""
+    private var failedToDownloadTemplate: String = ""
+    private var failedToDeleteTemplate: String = ""
+    private var doneLabel: String = ""
+    private var clearedLabel: String = ""
+    private var openWithLabel: String = ""
+    private var showFullCommentThreadTemplate: String = ""
+
     private val bookDownloadingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
@@ -258,6 +270,21 @@ class BookPreviewFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Logger.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
+
+        context?.let {
+            pageCountTemplate = it.getString(R.string.page_count)
+            uploadedTimeTemplate = it.getString(R.string.uploaded)
+            toastStoragePermissionLabel = it.getString(R.string.toast_storage_permission_require)
+            previewDownloadProgressTemplate = it.getString(R.string.preview_download_progress)
+            previewDeleteProgressTemplate = it.getString(R.string.preview_deleting_progress)
+            failedToDownloadTemplate = it.getString(R.string.fail_to_download)
+            failedToDeleteTemplate = it.getString(R.string.fail_to_delete)
+            doneLabel = it.getString(R.string.done)
+            clearedLabel = it.getString(R.string.cleared)
+            openWithLabel = it.getString(R.string.open_with)
+            showFullCommentThreadTemplate = it.getString(R.string.show_full_comment_list)
+        }
+
         setUpUI(view)
 
         viewDownloadedData = arguments?.getBoolean(Constants.VIEW_DOWNLOADED_DATA) ?: false
@@ -566,11 +593,11 @@ class BookPreviewFragment :
     }
 
     override fun showPageCount(pageCount: Int) {
-        tvPageCount.text = getString(R.string.page_count, pageCount.toString())
+        tvPageCount.text = String.format(pageCountTemplate, pageCount.toString())
     }
 
     override fun showUploadedTime(uploadedTime: String) {
-        tvUpdatedAt.text = getString(R.string.uploaded, uploadedTime)
+        tvUpdatedAt.text = String.format(uploadedTimeTemplate, uploadedTime)
     }
 
     override fun showBookThumbnailList(thumbnailList: List<String>) {
@@ -635,7 +662,7 @@ class BookPreviewFragment :
         }, onDismiss = {
             Toast.makeText(
                 context,
-                getString(R.string.toast_storage_permission_require),
+                toastStoragePermissionLabel,
                 Toast.LENGTH_SHORT
             ).show()
             isDownloadingRequested = false
@@ -646,7 +673,7 @@ class BookPreviewFragment :
     override fun initDownloading(total: Int) {
         clDownloadProgress.becomeVisible()
         pbDownloading.max = total
-        mtvDownloaded.text = String.format(getString(R.string.preview_download_progress), 0, total)
+        mtvDownloaded.text = String.format(previewDownloadProgressTemplate, 0, total)
     }
 
     override fun updateDownloadProgress(progress: Int, total: Int) {
@@ -655,18 +682,18 @@ class BookPreviewFragment :
         updateProgressDrawable(progress, total)
         pbDownloading.progress = progress
         mtvDownloaded.text =
-            String.format(getString(R.string.preview_download_progress), progress, total)
+            String.format(previewDownloadProgressTemplate, progress, total)
         BookDownloadingService.clearStatus(bookId)
     }
 
     override fun finishDownloading() {
-        mtvDownloaded.text = getString(R.string.done)
+        mtvDownloaded.text = doneLabel
         pbDownloading.let {
             it.postDelayed({
                 updateProgressDrawable(0, it.max)
                 it.max = 0
                 clDownloadProgress.gone()
-                mtvDownloaded.text = getString(R.string.preview_download_progress)
+                mtvDownloaded.text = previewDownloadProgressTemplate
             }, DOWNLOADING_BAR_HIDING_DELAY)
         }
         BookDownloadingService.clearStatus(bookId)
@@ -674,13 +701,13 @@ class BookPreviewFragment :
 
     override fun finishDownloading(downloadFailedCount: Int, total: Int) {
         mtvDownloaded.text =
-            String.format(getString(R.string.fail_to_download), downloadFailedCount)
+            String.format(failedToDownloadTemplate, downloadFailedCount)
         pbDownloading.let {
             it.postDelayed({
                 updateProgressDrawable(0, it.max)
                 it.max = 0
                 clDownloadProgress.gone()
-                mtvDownloaded.text = getString(R.string.preview_download_progress)
+                mtvDownloaded.text = previewDownloadProgressTemplate
             }, DOWNLOADING_BAR_HIDING_DELAY)
         }
         BookDownloadingService.clearStatus(bookId)
@@ -693,7 +720,7 @@ class BookPreviewFragment :
                 updateProgressDrawable(0, it.max)
                 it.max = 0
                 clDownloadProgress.gone()
-                mtvDownloaded.text = getString(R.string.preview_download_progress)
+                mtvDownloaded.text = previewDownloadProgressTemplate
             }, DOWNLOADING_BAR_HIDING_DELAY)
         }
         BookDownloadingService.clearStatus(bookId)
@@ -708,14 +735,14 @@ class BookPreviewFragment :
         pbDownloading.max = total
         updateProgressDrawable(progress, total)
         pbDownloading.progress = progress
-        mtvDownloaded.text = getString(R.string.preview_deleting_progress, progress, total)
+        mtvDownloaded.text = String.format(previewDeleteProgressTemplate, progress, total)
     }
 
     override fun finishDeleting(bookId: String) {
         pbDownloading.max = 1
         pbDownloading.progress = 1
         updateProgressDrawable(1, 1)
-        mtvDownloaded.text = getString(R.string.cleared)
+        mtvDownloaded.text = clearedLabel
 
         pbDownloading.postDelayed({
             updateProgressDrawable(0, 1)
@@ -726,7 +753,7 @@ class BookPreviewFragment :
     }
 
     override fun finishDeleting(bookId: String, deletingFailedCount: Int) {
-        mtvDownloaded.text = getString(R.string.fail_to_delete, deletingFailedCount)
+        mtvDownloaded.text = String.format(failedToDeleteTemplate, deletingFailedCount)
         pbDownloading.let {
             updateProgressDrawable(0, it.max)
 
@@ -779,7 +806,7 @@ class BookPreviewFragment :
                 viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 viewGalleryIntent.type = "image/*"
                 startActivity(
-                    Intent.createChooser(viewGalleryIntent, getString(R.string.open_with))
+                    Intent.createChooser(viewGalleryIntent, openWithLabel)
                 )
             })
         }, if (refreshGalleryDialog.isShowing) SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY else 0)
@@ -854,7 +881,7 @@ class BookPreviewFragment :
     }
 
     override fun enableShowFullCommentListButton(notShownComments: Int, bookId: String) {
-        mbShowFullList.text = getString(R.string.show_full_comment_list, notShownComments)
+        mbShowFullList.text = String.format(showFullCommentThreadTemplate, notShownComments)
         mbShowFullList.becomeVisible()
         mbShowFullList.setOnClickListener {
             context?.let {

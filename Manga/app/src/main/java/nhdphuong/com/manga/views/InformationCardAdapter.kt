@@ -26,12 +26,15 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
         private const val TAG = "InformationCardAdapter"
     }
 
+    private var countTemplate = ""
+
     @SuppressLint("InflateParams")
     fun loadInfoList(viewGroup: ViewGroup) {
         if (tagList.isEmpty()) {
             return
         }
         val context = viewGroup.context
+        countTemplate = context.getString(R.string.count)
         val layoutInflater = LayoutInflater.from(context)
         var tagLine = layoutInflater.inflate(
             R.layout.item_tag_line,
@@ -88,10 +91,7 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
         init {
             val context = view.context
             val label = if (NHentaiApp.instance.isCensored) "Censored" else tag.name
-            val count = String.format(
-                context.getString(R.string.count),
-                SupportUtils.formatBigNumber(tag.count)
-            )
+            val count = String.format(countTemplate, SupportUtils.formatBigNumber(tag.count))
             val finalText = "$label $count"
             val spannableText = SpannableString(finalText)
             spannableText.setSpan(
