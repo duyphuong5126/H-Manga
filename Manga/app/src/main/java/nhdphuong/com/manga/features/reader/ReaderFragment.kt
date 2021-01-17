@@ -397,9 +397,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
             }
         }
 
-        rvBookPages.postDelayed({
-            navigationAdapter.forceNavigate(startPage)
-        }, 1000)
+        navigationAdapter.forceNavigate(startPage)
     }
 
     private fun changeToHorizontalMode(startPage: Int) {
