@@ -148,7 +148,7 @@
     <string name="migration_result">Migrated %d/%d book(s)\nFailed to migrate %d/%d books</string>
 
     <string name="recent_favorite_books_migrating_title">Migrating you books</string>
-    <string name="recent_favorite_books_migrating_message">Your recent/favorite books are being migrated</string>
+    <string name="recent_favorite_books_migrating_message">Your recent/favorite books are being migrated.\nPlease try again later.</string>
 
     <string name="downloading_tags">Downloading tag data</string>
     <string name="downloading_tags_progress">Tag data is being downloaded\nCurrent page: %d/%d\nArtists: %d\nCharacters: %d\nCategories: %d\nLanguages: %d\nParodies: %d\nGroups: %d\nTags: %d\nUnknown types: %d</string>

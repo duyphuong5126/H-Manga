@@ -129,8 +129,8 @@ fun Activity.showInternetRequiredDialog(onOk: () -> Unit = {}) {
 fun Activity.showRecentFavoriteMigrationDialog(onOk: () -> Unit = {}) {
     showOkDialog(
         this,
-        getString(R.string.no_network_title),
-        getString(R.string.no_network_description),
+        getString(R.string.recent_favorite_books_migrating_title),
+        getString(R.string.recent_favorite_books_migrating_message),
         onOk
     )
 }
