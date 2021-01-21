@@ -121,11 +121,11 @@ class Constants {
         const val TABLE_SEARCH = "Search"
         const val BOOK_ID = "bookId"
         const val TAG_ID = "tagId"
-        const val IS_FAVORITE = "isFavorite"
         const val CREATED_AT = "createdAt"
         const val LOCAL_PATH = "localPath"
         const val LAST_VISITED_PAGE = "lastVisitedPage"
         const val SEARCH_INFO = "searchInfo"
+        const val RAW_BOOK = "rawBook"
 
         // Notifications
         const val NOTIFICATION_CHANNEL_ID = "nHentaiApp"

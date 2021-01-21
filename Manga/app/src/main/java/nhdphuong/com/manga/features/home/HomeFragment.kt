@@ -41,6 +41,7 @@ import nhdphuong.com.manga.features.NavigationRedirectActivity
 import nhdphuong.com.manga.features.about.AboutUsActivity
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
 import nhdphuong.com.manga.features.setting.SettingsActivity
+import nhdphuong.com.manga.service.RecentFavoriteMigrationService
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.gone
@@ -62,7 +63,18 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     private lateinit var homePresenter: HomeContract.Presenter
     private lateinit var loadingDialog: Dialog
 
-    private val searchResultTitle: String = NHentaiApp.instance.getString(R.string.search_result)
+    private var searchResultTitle = ""
+    private var lastUpdateTemplate = ""
+    private var upgradeTitleTemplate = ""
+    private var upgradeMessage = ""
+    private var internetErrorLabel = ""
+    private var dataParsingErrorLabel = ""
+    private var timeOutErrorLabel = ""
+    private var unknownErrorLabel = ""
+    private var updated = ""
+    private var releaseToRefresh = ""
+    private var updating = ""
+    private var pullDown = ""
 
     private val updateDotsHandler: Handler = Handler(Looper.getMainLooper())
     private lateinit var btnFirst: ImageView
@@ -137,6 +149,21 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Logger.d(TAG, "onViewCreated")
+        context?.let {
+            searchResultTitle = it.getString(R.string.search_result)
+            lastUpdateTemplate = it.getString(R.string.last_update)
+            upgradeTitleTemplate = it.getString(R.string.app_upgrade_notification_title)
+            upgradeMessage = it.getString(R.string.app_upgrade_notification_message)
+            internetErrorLabel = it.getString(R.string.internet_error)
+            dataParsingErrorLabel = it.getString(R.string.library_error_data_parsing_label)
+            timeOutErrorLabel = it.getString(R.string.library_error_time_out_label)
+            unknownErrorLabel = it.getString(R.string.library_error_unknown_label)
+            updated = it.getString(R.string.updated)
+            releaseToRefresh = it.getString(R.string.release_to_refresh)
+            updating = it.getString(R.string.updating)
+            pullDown = it.getString(R.string.pull_down)
+        }
+
         setUpUI(view)
 
         nsvMainList.overScrollMode = View.OVER_SCROLL_NEVER
@@ -369,7 +396,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     }
 
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {
-        val lastRefresh = String.format(getString(R.string.last_update), lastRefreshTimeStamp)
+        val lastRefresh = String.format(lastUpdateTemplate, lastRefreshTimeStamp)
         mtvLastUpdate.text = lastRefresh
     }
 
@@ -427,8 +454,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
             clUpgradePopup.gone()
             upgradePopupPlaceHolder.gone()
         }, APP_UPGRADE_TIME_OUT)
-        val title = getString(R.string.app_upgrade_notification_title, latestVersionCode)
-        val message = getString(R.string.app_upgrade_notification_message)
+        val title = String.format(upgradeTitleTemplate, latestVersionCode)
+        val message = upgradeMessage
         activity?.let {
             val notificationIntent = Intent(it, NavigationRedirectActivity::class.java)
             val pendingIntent = PendingIntent.getActivity(
@@ -471,6 +498,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         }
     }
 
+    override fun startRecentFavoriteMigration() {
+        context?.let {
+            RecentFavoriteMigrationService.enqueueWork(it)
+        }
+    }
+
     fun changeSearchInputted(data: String) {
         homePresenter.updateSortOption(SortOption.Recent)
         homePresenter.updateSearchData(data)
@@ -499,7 +532,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIRefreshComplete")
-        mtvRefresh.text = getString(R.string.updated)
+        mtvRefresh.text = updated
         homePresenter.saveLastBookListRefreshTime()
         homePresenter.reloadLastBookListRefreshTime()
         ivRefresh.rotation = 0F
@@ -520,7 +553,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
                     "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}"
         )
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
-            mtvRefresh.text = getString(R.string.release_to_refresh)
+            mtvRefresh.text = releaseToRefresh
             ivRefresh.rotation = REFRESH_HEADER_ANGEL
         }
     }
@@ -529,7 +562,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         Logger.d(TAG, "onUIRefreshBegin")
         ivRefresh.gone()
         pbRefresh.becomeVisible()
-        mtvRefresh.text = String.format(getString(R.string.updating), "")
+        mtvRefresh.text = String.format(updating, "")
         runUpdateDotsTask()
 
     }
@@ -541,7 +574,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
     override fun onUIReset(frame: PtrFrameLayout?) {
         Logger.d(TAG, "onUIReset")
-        mtvRefresh.text = getString(R.string.pull_down)
+        mtvRefresh.text = pullDown
     }
 
     private fun jumpTo(pageNumber: Int) {
@@ -556,10 +589,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         var currentPos = 0
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
-            val loadingString = getString(R.string.updating)
             Logger.d(TAG, "Current pos: $currentPos")
             mtvRefresh.text =
-                String.format(loadingString, dotsArray[currentPos])
+                String.format(updating, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
         }
         val runnable = object : Runnable {

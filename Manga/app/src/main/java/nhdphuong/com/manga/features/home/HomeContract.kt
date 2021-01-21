@@ -30,6 +30,7 @@ interface HomeContract {
         fun updateErrorMessage(errorEnum: ErrorEnum)
         fun finishRefreshing()
         fun showAlternativeDomainsQuestion()
+        fun startRecentFavoriteMigration()
     }
 
     interface Presenter : Base.Presenter {

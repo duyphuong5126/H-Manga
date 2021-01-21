@@ -4,9 +4,11 @@ import androidx.room.PrimaryKey
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
+import com.google.gson.Gson
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
-import nhdphuong.com.manga.Constants.Companion.IS_FAVORITE
 import nhdphuong.com.manga.Constants.Companion.CREATED_AT
+import nhdphuong.com.manga.Constants.Companion.RAW_BOOK
+import nhdphuong.com.manga.data.entity.book.Book
 
 /*
  * Created by nhdphuong on 6/8/18.
@@ -14,21 +16,13 @@ import nhdphuong.com.manga.Constants.Companion.CREATED_AT
 @Entity
 open class RecentBook(
     @PrimaryKey @ColumnInfo(name = BOOK_ID) var bookId: String,
-    @ColumnInfo(name = IS_FAVORITE) var favorite: Int,
-    @ColumnInfo(name = CREATED_AT) var createdAt: Long
+    @ColumnInfo(name = CREATED_AT) var createdAt: Long,
+    @ColumnInfo(name = RAW_BOOK) var _rawBook: String
 ) {
-
-    constructor(bookId: String, isFavorite: Boolean, createdAt: Long) : this(
-        bookId,
-        if (isFavorite) 1 else 0,
-        createdAt
-    )
-
     @Ignore
-    var isFavorite: Boolean = false
-        set(value) {
-            field = value
-            favorite = if (value) 1 else 0
-        }
-        get() = favorite == 1
+    val rawBook: Book? = try {
+        Gson().fromJson(_rawBook, Book::class.java)
+    } catch (throwable: Throwable) {
+        null
+    }
 }
