@@ -91,11 +91,11 @@ class NotificationHelper {
             return sendNotification(notificationBuilder.build(), System.currentTimeMillis().toInt())
         }
 
-        fun cancelNotification(notificationId: Int) {
+        fun cancelNotification(vararg notificationIds: Int) {
             val notificationManagerCompat = NotificationManagerCompat.from(
                 NHentaiApp.instance.applicationContext
             )
-            notificationManagerCompat.cancel(notificationId)
+            notificationIds.forEach(notificationManagerCompat::cancel)
         }
 
         @Suppress("unused")

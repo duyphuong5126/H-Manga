@@ -11,6 +11,7 @@ import nhdphuong.com.manga.Constants.Companion.TABLE_LAST_VISITED_PAGE
 import nhdphuong.com.manga.Constants.Companion.TABLE_SEARCH
 import nhdphuong.com.manga.Constants.Companion.TABLE_TAG
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.CREATED_AT
 import nhdphuong.com.manga.Constants.Companion.TAG_ID
 import nhdphuong.com.manga.Constants.Companion.LOCAL_PATH
 import nhdphuong.com.manga.Constants.Companion.ID
@@ -19,6 +20,7 @@ import nhdphuong.com.manga.Constants.Companion.IMAGE_TYPE
 import nhdphuong.com.manga.Constants.Companion.IMAGE_WIDTH
 import nhdphuong.com.manga.Constants.Companion.IMAGE_HEIGHT
 import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE
+import nhdphuong.com.manga.Constants.Companion.RAW_BOOK
 import nhdphuong.com.manga.Constants.Companion.SEARCH_INFO
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -37,11 +39,34 @@ class Database {
                         NHentaiApp.instance.applicationContext, NHentaiDB::class.java, NHENTAI_DB
                     ).addMigrations(
                         MIGRATE_FROM_2_TO_3, MIGRATE_FROM_3_TO_4, MIGRATE_FROM_4_TO_5,
-                        MIGRATE_FROM_5_TO_6
+                        MIGRATE_FROM_5_TO_6, MIGRATE_FROM_6_TO_7
                     ).build()
                 }
                 return mInstance!!
             }
+
+        private val MIGRATE_FROM_6_TO_7 = object : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                val recent = "RecentBook"
+                val newRecent = "RecentBook_new"
+                database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS $newRecent ($BOOK_ID TEXT NOT NULL, $CREATED_AT INTEGER NOT NULL, $RAW_BOOK TEXT NOT NULL DEFAULT '', PRIMARY KEY ($BOOK_ID))"
+                )
+
+                database.execSQL("INSERT INTO $newRecent ($BOOK_ID, $CREATED_AT) SELECT $BOOK_ID, $CREATED_AT FROM $recent")
+
+                val newFavorite = "FavoriteBook"
+                database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS $newFavorite ($BOOK_ID TEXT NOT NULL, $CREATED_AT INTEGER NOT NULL, $RAW_BOOK TEXT NOT NULL DEFAULT '', PRIMARY KEY ($BOOK_ID))"
+                )
+
+                database.execSQL("INSERT INTO $newFavorite ($BOOK_ID, $CREATED_AT) SELECT $BOOK_ID, $CREATED_AT FROM $recent WHERE isFavorite = 1")
+
+                database.execSQL("DROP TABLE $recent")
+
+                database.execSQL("ALTER TABLE $newRecent RENAME TO $recent")
+            }
+        }
 
         // Foreign key constraint of tagId is dropped
         private val MIGRATE_FROM_5_TO_6: Migration = object : Migration(5, 6) {

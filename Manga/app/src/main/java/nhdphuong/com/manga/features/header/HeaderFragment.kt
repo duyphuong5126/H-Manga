@@ -29,11 +29,13 @@ import nhdphuong.com.manga.features.recent.RecentActivity
 import nhdphuong.com.manga.features.setting.SettingsActivity
 import nhdphuong.com.manga.features.tags.TagsActivity
 import nhdphuong.com.manga.features.tags.TagsContract
+import nhdphuong.com.manga.service.RecentFavoriteMigrationService
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.views.adapters.TabAdapter
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.showAdminEntryDialog
 import nhdphuong.com.manga.views.showInternetRequiredDialog
+import nhdphuong.com.manga.views.showRecentFavoriteMigrationDialog
 import nhdphuong.com.manga.views.showTagsDownloadingDialog
 import nhdphuong.com.manga.views.showTagsNotAvailable
 
@@ -264,11 +266,19 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
     }
 
     override fun goToFavoriteList() {
-        RecentActivity.start(this@HeaderFragment, Constants.FAVORITE)
+        if (RecentFavoriteMigrationService.isMigrating) {
+            activity?.showRecentFavoriteMigrationDialog()
+        } else {
+            RecentActivity.start(this@HeaderFragment, Constants.FAVORITE)
+        }
     }
 
     override fun goToRecentList() {
-        RecentActivity.start(this@HeaderFragment, Constants.RECENT)
+        if (RecentFavoriteMigrationService.isMigrating) {
+            activity?.showRecentFavoriteMigrationDialog()
+        } else {
+            RecentActivity.start(this@HeaderFragment, Constants.RECENT)
+        }
     }
 
     override fun goToRandomBook() {

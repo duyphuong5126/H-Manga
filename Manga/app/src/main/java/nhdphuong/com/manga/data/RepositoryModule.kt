@@ -30,16 +30,20 @@ class RepositoryModule {
     @NonNull
     @Singleton
     @Remote
-    fun provideBookRemoteDataSource(): BookDataSource.Remote {
-        return BookRemoteDataSource()
+    fun provideBookRemoteDataSource(service: SerializationService): BookDataSource.Remote {
+        return BookRemoteDataSource(service)
     }
 
     @Provides
     @NonNull
     @Singleton
     @Local
-    fun providesBookLocalDataSource(bookDAO: BookDAO, tagDAO: TagDAO): BookDataSource.Local {
-        return BookLocalDataSource(bookDAO, tagDAO)
+    fun providesBookLocalDataSource(
+        bookDAO: BookDAO,
+        bookSerializationService: SerializationService,
+        tagDAO: TagDAO
+    ): BookDataSource.Local {
+        return BookLocalDataSource(bookDAO, tagDAO, bookSerializationService)
     }
 
     @Provides
@@ -56,12 +60,14 @@ class RepositoryModule {
     @Local
     fun providesMasterDataLocalDataSource(
         tagDAO: TagDAO,
-        sharedPreferencesManager: SharedPreferencesManager
+        sharedPreferencesManager: SharedPreferencesManager,
+        service: SerializationService
     ): MasterDataSource.Local {
         return MasterDataLocalDataSource(
             tagDAO,
             sharedPreferencesManager,
-            CoroutineScope(Dispatchers.IO)
+            service,
+            CoroutineScope(Dispatchers.IO),
         )
     }
 

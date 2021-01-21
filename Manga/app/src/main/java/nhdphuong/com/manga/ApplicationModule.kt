@@ -11,6 +11,8 @@ import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.api.InstallationApiService
 import nhdphuong.com.manga.api.MasterDataApiService
+import nhdphuong.com.manga.data.SerializationService
+import nhdphuong.com.manga.data.SerializationServiceImpl
 import nhdphuong.com.manga.data.local.Database
 import nhdphuong.com.manga.data.local.BookDAO
 import nhdphuong.com.manga.data.local.SearchDAO
@@ -111,5 +113,10 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
     @Provides
     fun providesAnalyticsPusher(context: Context): AnalyticsPusher {
         return FirebaseAnalyticsPusherImpl(context)
+    }
+
+    @Provides
+    fun providesBookSerializationService(): SerializationService {
+        return SerializationServiceImpl()
     }
 }

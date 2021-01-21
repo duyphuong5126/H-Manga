@@ -49,4 +49,10 @@ interface UseCaseModule {
 
     @Binds
     fun saveSearchInfoUseCase(saveSearchInfoUseCaseImpl: SaveSearchInfoUseCaseImpl): SaveSearchInfoUseCase
+
+    @Binds
+    fun recentFavoriteMigrationUseCase(useCaseImpl: RecentFavoriteMigrationUseCaseImpl): RecentFavoriteMigrationUseCase
+
+    @Binds
+    fun checkRecentFavoriteMigrationNeededUseCase(useCaseImpl: CheckRecentFavoriteMigrationNeededUseCaseImpl): CheckRecentFavoriteMigrationNeededUseCase
 }

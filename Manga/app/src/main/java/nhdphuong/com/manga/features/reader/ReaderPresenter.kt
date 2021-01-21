@@ -266,9 +266,7 @@ class ReaderPresenter @Inject constructor(
 
     private fun saveRecentBook() {
         io.launch {
-            if (!bookRepository.isFavoriteBook(book.bookId)) {
-                bookRepository.saveRecentBook(book.bookId)
-            }
+            bookRepository.saveRecentBook(book)
         }
     }
 
