@@ -142,6 +142,7 @@
     <string name="downloading_book_failed_message">Failed to download the book %s\nPlease try it again</string>
     <string name="migrating_books">Migrating your recent/favorite books</string>
     <string name="migration_progress_template">Migrated %d/%d books</string>
+    <string name="migration_progress_with_failure_template">Migrated %d books, failed on %d items, total: %d</string>
     <string name="migration_failure_template">Failed item(s) %d/%d books</string>
     <string name="migration_completed">Your recent/favorite books were migrated</string>
     <string name="migration_result">Migrated %d/%d book(s)\nFailed to migrate %d/%d books</string>

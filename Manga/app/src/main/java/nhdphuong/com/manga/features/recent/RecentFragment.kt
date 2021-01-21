@@ -36,6 +36,7 @@ import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import nhdphuong.com.manga.views.createLoadingDialog
+import nhdphuong.com.manga.views.customs.MyButton
 import nhdphuong.com.manga.views.customs.MyTextView
 
 /*
@@ -69,7 +70,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
     private lateinit var rvPagination: RecyclerView
     private lateinit var srlPullToReload: PtrFrameLayout
     private lateinit var clNothing: ConstraintLayout
-    private lateinit var clReload: ConstraintLayout
+    private lateinit var mbReload: MyButton
     private lateinit var tvNothing: MyTextView
     private lateinit var ivRefresh: ImageView
     private lateinit var mtvLastUpdate: MyTextView
@@ -136,7 +137,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         ibBack.setOnClickListener(this)
         btnFirst.setOnClickListener(this)
         btnLast.setOnClickListener(this)
-        clReload.gone()
+        mbReload.gone()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -374,7 +375,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         rvPagination = rootView.findViewById(R.id.rvPagination)
         srlPullToReload = rootView.findViewById(R.id.srlPullToReload)
         clNothing = rootView.findViewById(R.id.clNothing)
-        clReload = rootView.findViewById(R.id.clReload)
+        mbReload = rootView.findViewById(R.id.mbReload)
         tvNothing = rootView.findViewById(R.id.tvNothing)
         ivRefresh = refreshHeader.findViewById(R.id.ivRefresh)
         mtvLastUpdate = refreshHeader.findViewById(R.id.mtvLastUpdate)

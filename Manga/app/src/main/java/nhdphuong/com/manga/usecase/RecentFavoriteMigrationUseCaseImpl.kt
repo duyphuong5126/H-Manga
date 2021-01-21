@@ -6,6 +6,8 @@ import io.reactivex.rxkotlin.zipWith
 import nhdphuong.com.manga.data.SerializationService
 import nhdphuong.com.manga.data.entity.BookResponse.Success
 import nhdphuong.com.manga.data.entity.BookResponse.Failure
+import nhdphuong.com.manga.data.entity.FavoriteBook
+import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.RecentFavoriteMigrationResult
 import nhdphuong.com.manga.data.entity.RecentFavoriteMigrationResult.MigratedBook
 import nhdphuong.com.manga.data.entity.RecentFavoriteMigrationResult.BookMigrationError
@@ -23,11 +25,17 @@ class RecentFavoriteMigrationUseCaseImpl @Inject constructor(
         val total = AtomicInteger(0)
         return getFavoriteBookMigrationData()
             .zipWith(getRecentBookMigrationData())
-            .flatMapObservable {
-                val result = arrayListOf<MigrationData>().apply {
-                    addAll(it.first)
-                    addAll(it.second)
-                }
+            .flatMapObservable { (favoriteIds, recentIds) ->
+                val result = arrayListOf<MigrationData>()
+                arrayListOf<String>().apply {
+                    addAll(recentIds)
+                    addAll(favoriteIds)
+                }.distinct().map { bookId ->
+                    val isRecent = recentIds.firstOrNull { it == bookId } != null
+                    val isFavorite = favoriteIds.firstOrNull { it == bookId } != null
+                    MigrationData(bookId, isRecent, isFavorite)
+                }.let(result::addAll)
+
                 total.compareAndSet(0, result.size)
                 Observable.fromIterable(result)
             }.map {
@@ -38,9 +46,10 @@ class RecentFavoriteMigrationUseCaseImpl @Inject constructor(
                         val serializedBook = serializationService.serialize(
                             bookDetailsResponse.book
                         )
-                        if (it.isFavorite) {
+                        if (it.isInFavoriteList) {
                             bookRepository.updateRawFavoriteBook(bookId, serializedBook)
-                        } else {
+                        }
+                        if (it.isInRecentList) {
                             bookRepository.updateRawRecentBook(bookId, serializedBook)
                         }
                         MigratedBook(progress.incrementAndGet(), total.get())
@@ -51,21 +60,21 @@ class RecentFavoriteMigrationUseCaseImpl @Inject constructor(
             }
     }
 
-    private fun getRecentBookMigrationData(): Single<List<MigrationData>> {
+    private fun getRecentBookMigrationData(): Single<List<String>> {
         return bookRepository.getEmptyRecentBooks().map {
-            it.map { recentBook ->
-                MigrationData(recentBook.bookId, false)
-            }
+            it.map(RecentBook::bookId)
         }
     }
 
-    private fun getFavoriteBookMigrationData(): Single<List<MigrationData>> {
+    private fun getFavoriteBookMigrationData(): Single<List<String>> {
         return bookRepository.getEmptyFavoriteBooks().map {
-            it.map { favoriteBook ->
-                MigrationData(favoriteBook.bookId, true)
-            }
+            it.map(FavoriteBook::bookId)
         }
     }
 
-    private class MigrationData(val bookId: String, val isFavorite: Boolean)
+    private class MigrationData(
+        val bookId: String,
+        val isInRecentList: Boolean,
+        val isInFavoriteList: Boolean
+    )
 }

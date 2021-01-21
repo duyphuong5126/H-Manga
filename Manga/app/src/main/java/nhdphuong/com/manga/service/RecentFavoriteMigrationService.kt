@@ -26,6 +26,7 @@ class RecentFavoriteMigrationService : JobIntentService() {
 
     private var migratingBook = ""
     private var migrationProgressTemplate = ""
+    private var migrationProgressWithFailureTemplate = ""
     private var migrationFailureTemplate = ""
     private var migrationCompleted = ""
     private var migrationResultTemplate = ""
@@ -38,6 +39,8 @@ class RecentFavoriteMigrationService : JobIntentService() {
     override fun onHandleWork(intent: Intent) {
         migratingBook = getString(R.string.migrating_books)
         migrationProgressTemplate = getString(R.string.migration_progress_template)
+        migrationProgressWithFailureTemplate =
+            getString(R.string.migration_progress_with_failure_template)
         migrationFailureTemplate = getString(R.string.migration_failure_template)
         migrationCompleted = getString(R.string.migration_completed)
         migrationResultTemplate = getString(R.string.migration_result)
@@ -54,12 +57,12 @@ class RecentFavoriteMigrationService : JobIntentService() {
                     is MigratedBook -> {
                         progress = it.progress
                         total = it.total
-                        sendMigrationProgressNotification(progress, total)
+                        sendMigrationProgressNotification(progress, failed, total)
                     }
                     is BookMigrationError -> {
                         failed = it.failedItems
                         total = it.total
-                        sendMigrationFailureNotification(failed, total)
+                        sendMigrationProgressNotification(progress, failed, total)
                     }
                 }
                 Logger.d(
@@ -81,10 +84,14 @@ class RecentFavoriteMigrationService : JobIntentService() {
         compositeDisposable.clear()
     }
 
-    private fun sendMigrationProgressNotification(progress: Int, total: Int) {
-        NotificationHelper.cancelNotification(MIGRATION_PROGRESS_NOTIFICATION_ID)
+    private fun sendMigrationProgressNotification(progress: Int, failure: Int, total: Int) {
+        NotificationHelper.cancelNotification(MIGRATION_COMPLETED_NOTIFICATION_ID)
         val progressTitle = migratingBook
-        val notificationDescription = String.format(migrationProgressTemplate, progress, total)
+        val notificationDescription = if (failure == 0) {
+            String.format(migrationProgressTemplate, progress, total)
+        } else {
+            String.format(migrationProgressWithFailureTemplate, progress, failure, total)
+        }
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, Intent.FILL_IN_ACTION
@@ -100,38 +107,14 @@ class RecentFavoriteMigrationService : JobIntentService() {
         )
     }
 
-    private fun sendMigrationFailureNotification(failed: Int, total: Int) {
-        NotificationHelper.cancelNotification(MIGRATION_FAILURE_NOTIFICATION_ID)
-        val progressTitle = migratingBook
-        val notificationDescription = String.format(migrationFailureTemplate, failed, total)
-        val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, notificationIntent, Intent.FILL_IN_ACTION
-        )
-
-        NotificationHelper.sendBigContentNotification(
-            progressTitle,
-            NotificationCompat.PRIORITY_DEFAULT,
-            notificationDescription,
-            true,
-            MIGRATION_FAILURE_NOTIFICATION_ID,
-            pendingIntent
-        )
-    }
-
     private fun sendMigrationCompletedNotification(migrated: Int, failed: Int, total: Int) {
-        NotificationHelper.cancelNotification(MIGRATION_COMPLETED_NOTIFICATION_ID)
+        NotificationHelper.cancelNotification(MIGRATION_PROGRESS_NOTIFICATION_ID)
         val progressTitle = migrationCompleted
         val notificationDescription =
             String.format(migrationResultTemplate, migrated, total, failed, total)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, Intent.FILL_IN_ACTION
-        )
-
-        NotificationHelper.cancelNotification(
-            MIGRATION_PROGRESS_NOTIFICATION_ID,
-            MIGRATION_FAILURE_NOTIFICATION_ID
         )
 
         NotificationHelper.sendBigContentNotification(
@@ -151,8 +134,7 @@ class RecentFavoriteMigrationService : JobIntentService() {
         val isMigrating: Boolean get() = isBooksMigrating.get()
 
         private const val MIGRATION_PROGRESS_NOTIFICATION_ID = 12345
-        private const val MIGRATION_FAILURE_NOTIFICATION_ID = 67890
-        private const val MIGRATION_COMPLETED_NOTIFICATION_ID = 123456789
+        private const val MIGRATION_COMPLETED_NOTIFICATION_ID = 67890
 
         private const val TAG = "RecentFavoriteMigrationService"
 

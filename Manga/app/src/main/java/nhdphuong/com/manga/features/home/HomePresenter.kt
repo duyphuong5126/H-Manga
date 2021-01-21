@@ -211,7 +211,11 @@ class HomePresenter @Inject constructor(
     }
 
     override fun reloadCurrentPage() {
+        if (!networkUtils.isNetworkConnected()) {
+            return
+        }
         if (isRefreshing.compareAndSet(false, true)) {
+            view.showLoading()
             io.launch {
                 val remoteBooks = getBooksListByPage(currentPage, true)
                 currentNumOfPages = remoteBooks?.numOfPages ?: 0L
@@ -232,6 +236,7 @@ class HomePresenter @Inject constructor(
 
                 main.launch {
                     if (view.isActive()) {
+                        view.hideLoading()
                         if (!isCurrentPageEmpty) {
                             view.refreshHomePagination(currentNumOfPages, currentPage.toInt() - 1)
                             view.refreshHomeBookList()

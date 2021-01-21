@@ -48,6 +48,7 @@ import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import nhdphuong.com.manga.views.createLoadingDialog
+import nhdphuong.com.manga.views.customs.MyButton
 import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.showBookListRefreshingDialog
 import nhdphuong.com.manga.views.showGoToPageDialog
@@ -82,7 +83,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     private lateinit var btnLast: ImageView
     private lateinit var clNavigation: ConstraintLayout
     private lateinit var clNothing: ConstraintLayout
-    private lateinit var clReload: ConstraintLayout
+    private lateinit var mbReload: MyButton
     private lateinit var mtvSearchResult: MyTextView
     private lateinit var nsvMainList: NestedScrollView
     private lateinit var refreshHeader: View
@@ -110,7 +111,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         btnLast = rootView.findViewById(R.id.btnLast)
         clNavigation = rootView.findViewById(R.id.clNavigation)
         clNothing = rootView.findViewById(R.id.clNothing)
-        clReload = rootView.findViewById(R.id.clReload)
+        mbReload = rootView.findViewById(R.id.mbReload)
         mtvSearchResult = rootView.findViewById(R.id.mtv_search_result)
         nsvMainList = rootView.findViewById(R.id.nsvMainList)
         refreshHeader = rootView.findViewById(R.id.refreshHeader)
@@ -184,7 +185,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
                 return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header)
             }
         })
-        clReload.setOnClickListener(this)
+        mbReload.setOnClickListener(this)
         mtvRecentOption.setOnClickListener(this)
         mtvPopularToday.setOnClickListener(this)
         mtvPopularWeek.setOnClickListener(this)
@@ -256,7 +257,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
                 jumpTo(homePaginationAdapter.itemCount - 1)
             }
 
-            R.id.clReload -> {
+            R.id.mbReload -> {
                 homePresenter.reloadCurrentPage()
             }
 
