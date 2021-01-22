@@ -27,12 +27,14 @@ import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.features.NavigationRedirectActivity
+import nhdphuong.com.manga.service.NetworkManager
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.views.PreLoadingLinearLayoutManager
 import nhdphuong.com.manga.views.adapters.BookReaderAdapter
 import nhdphuong.com.manga.views.adapters.ReaderNavigationAdapter
 import nhdphuong.com.manga.views.addSnapPositionChangedListener
+import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.doOnGlobalLayout
@@ -43,6 +45,7 @@ import nhdphuong.com.manga.views.showStoragePermissionDialog
 import nhdphuong.com.manga.views.uimodel.ReaderType
 import nhdphuong.com.manga.views.uimodel.ReaderType.HorizontalPage
 import nhdphuong.com.manga.views.uimodel.ReaderType.VerticalScroll
+import javax.inject.Inject
 
 /*
  * Created by nhdphuong on 5/5/18.
@@ -55,7 +58,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     private lateinit var navigationAdapter: ReaderNavigationAdapter
 
     private lateinit var clDownloadedPopup: ConstraintLayout
-    private lateinit var clReaderTop: ConstraintLayout
+    private lateinit var llReaderTop: LinearLayout
     private lateinit var ibBack: ImageButton
     private lateinit var ibDownload: ImageButton
     private lateinit var ibDownloadPopupClose: ImageButton
@@ -68,8 +71,12 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     private lateinit var rvQuickNavigation: RecyclerView
     private lateinit var rvBookPages: RecyclerView
     private lateinit var viewModeButton: ImageButton
+    private lateinit var noNetworkLabel: MyTextView
 
     private var viewDownloadedData = false
+
+    @Inject
+    lateinit var networkManager: NetworkManager
 
     private val snapHelper = PagerSnapHelper()
     private lateinit var spaceItemDecoration: SpaceItemDecoration
@@ -84,6 +91,22 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_reader, container, false)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        context?.let(networkManager::attach)
+        if (!viewDownloadedData) {
+            if (!networkManager.isConnected) {
+                noNetworkLabel.becomeVisible()
+            }
+            networkManager.addNetworkAvailableTask {
+                activity?.runOnUiThread(noNetworkLabel::gone)
+            }
+            networkManager.addNetworkUnAvailableTask {
+                activity?.runOnUiThread(noNetworkLabel::becomeVisible)
+            }
+        }
     }
 
     private var bottomReaderTemplate = ""
@@ -168,6 +191,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     override fun onStop() {
         super.onStop()
         presenter.stop()
+        context?.let(networkManager::detach)
     }
 
     override fun onClick(v: View?) {
@@ -245,15 +269,15 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
 
             bookReaderAdapter = BookReaderAdapter(pageList, readerType) {
                 if (layoutReaderBottom.visibility == View.VISIBLE) {
-                    AnimationHelper.startSlideOutTop(activity, clReaderTop) {
-                        clReaderTop.visibility = View.GONE
+                    AnimationHelper.startSlideOutTop(activity, llReaderTop) {
+                        llReaderTop.visibility = View.GONE
                     }
                     AnimationHelper.startSlideOutBottom(activity, layoutReaderBottom) {
                         layoutReaderBottom.visibility = View.GONE
                     }
                 } else {
-                    AnimationHelper.startSlideInTop(activity, clReaderTop) {
-                        clReaderTop.visibility = View.VISIBLE
+                    AnimationHelper.startSlideInTop(activity, llReaderTop) {
+                        llReaderTop.visibility = View.VISIBLE
                     }
                     AnimationHelper.startSlideInBottom(activity, layoutReaderBottom) {
                         layoutReaderBottom.visibility = View.VISIBLE
@@ -422,7 +446,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
 
     private fun setUpUI(rootView: View) {
         clDownloadedPopup = rootView.findViewById(R.id.clDownloadedPopup)
-        clReaderTop = rootView.findViewById(R.id.clReaderTop)
+        llReaderTop = rootView.findViewById(R.id.llReaderTop)
         ibBack = rootView.findViewById(R.id.ibBack)
         ibDownload = rootView.findViewById(R.id.ibDownload)
         ibDownloadPopupClose = rootView.findViewById(R.id.ibDownloadPopupClose)
@@ -435,6 +459,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         rvQuickNavigation = rootView.findViewById(R.id.rvQuickNavigation)
         rvBookPages = rootView.findViewById(R.id.book_pages)
         viewModeButton = rootView.findViewById(R.id.ib_view_mode)
+        noNetworkLabel = rootView.findViewById(R.id.no_network_label)
 
         ibBack.setOnClickListener(this)
         mtvCurrentPage.setOnClickListener(this)

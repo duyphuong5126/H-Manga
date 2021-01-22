@@ -20,6 +20,8 @@ import nhdphuong.com.manga.data.local.TagDAO
 import nhdphuong.com.manga.scope.corountine.Default
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
+import nhdphuong.com.manga.service.NetworkManager
+import nhdphuong.com.manga.service.NetworkManagerImpl
 import nhdphuong.com.manga.supports.ServiceGenerator
 import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.NetworkUtils
@@ -118,5 +120,10 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
     @Provides
     fun providesBookSerializationService(): SerializationService {
         return SerializationServiceImpl()
+    }
+
+    @Provides
+    fun providesNetworkManager(networkManagerImpl: NetworkManagerImpl): NetworkManager {
+        return networkManagerImpl
     }
 }

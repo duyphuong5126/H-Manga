@@ -54,14 +54,10 @@ class HeaderPresenter @Inject constructor(
     override fun processSelectedTab(tab: Tab) {
         when (tab) {
             Tab.RECENT -> {
-                doIfNetworkIsAvailable {
-                    view.goToRecentList()
-                }
+                view.goToRecentList()
             }
             Tab.FAVORITE -> {
-                doIfNetworkIsAvailable {
-                    view.goToFavoriteList()
-                }
+                view.goToFavoriteList()
             }
             Tab.RANDOM -> {
                 doIfNetworkIsAvailable {
