@@ -190,6 +190,12 @@ class HomePresenter @Inject constructor(
         newerVersionAcknowledged.compareAndSet(false, true)
     }
 
+    override fun reloadIfEmpty() {
+        if (mainList.isEmpty()) {
+            reload(true)
+        }
+    }
+
     override fun refreshAppVersion() {
         io.launch {
             val upgradeNotificationAllowed = sharedPreferencesManager.isUpgradeNotificationAllowed

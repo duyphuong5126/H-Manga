@@ -99,7 +99,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_marginTop="@dimen/space_medium"
-            android:background="@drawable/bg_transparent_grey_rounded_all_corners"
+            android:background="@drawable/bg_primary_rounded_all_corners"
             android:drawableStart="@drawable/ic_wifi_off_white"
             android:drawablePadding="@dimen/space_normal"
             android:gravity="center"

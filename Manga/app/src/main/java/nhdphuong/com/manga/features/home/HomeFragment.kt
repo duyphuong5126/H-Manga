@@ -41,6 +41,7 @@ import nhdphuong.com.manga.features.NavigationRedirectActivity
 import nhdphuong.com.manga.features.about.AboutUsActivity
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
 import nhdphuong.com.manga.features.setting.SettingsActivity
+import nhdphuong.com.manga.service.NetworkManager
 import nhdphuong.com.manga.service.RecentFavoriteMigrationService
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
@@ -53,6 +54,7 @@ import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.showBookListRefreshingDialog
 import nhdphuong.com.manga.views.showGoToPageDialog
 import nhdphuong.com.manga.views.showTryAlternativeDomainsDialog
+import javax.inject.Inject
 
 /*
  * Created by nhdphuong on 3/16/18.
@@ -104,6 +106,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     private lateinit var mtvLastUpdate: MyTextView
     private lateinit var mtvRefresh: MyTextView
     private lateinit var pbRefresh: ProgressBar
+
+    @Inject
+    lateinit var networkManager: NetworkManager
 
     private fun setUpUI(rootView: View) {
         btnFirst = rootView.findViewById(R.id.btnFirst)
@@ -202,6 +207,19 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         toggleSearchResult("")
         mtvUpgradeTitle.setOnClickListener(this)
         ibUpgradePopupClose.setOnClickListener(this)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        context?.let(networkManager::attach)
+        networkManager.addNetworkAvailableTask {
+            activity?.runOnUiThread(homePresenter::reloadIfEmpty)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        context?.let(networkManager::detach)
     }
 
     override fun onResume() {

@@ -38,6 +38,7 @@ interface HomeContract {
         fun jumToFirstPage()
         fun jumToLastPage()
         fun setNewerVersionAcknowledged()
+        fun reloadIfEmpty()
         fun refreshAppVersion()
         fun reloadCurrentPage()
         fun reloadLastBookListRefreshTime()

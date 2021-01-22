@@ -45,6 +45,7 @@ import nhdphuong.com.manga.views.showStoragePermissionDialog
 import nhdphuong.com.manga.views.uimodel.ReaderType
 import nhdphuong.com.manga.views.uimodel.ReaderType.HorizontalPage
 import nhdphuong.com.manga.views.uimodel.ReaderType.VerticalScroll
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 /*
@@ -410,11 +411,15 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         rvQuickNavigation.doOnGlobalLayout {
             rvQuickNavigation.scrollToAroundPosition(startPage, ADDITIONAL_STEPS)
         }
+        val initialScrollingSetUp = AtomicBoolean(false)
         rvBookPages.doOnScrolled {
+            if (initialScrollingSetUp.compareAndSet(false, true)) {
+                return@doOnScrolled
+            }
             val firstItem = layoutManager.findFirstCompletelyVisibleItemPosition()
             val lastItem = layoutManager.findLastCompletelyVisibleItemPosition()
 
-            if (firstItem >= 0 && lastItem >= 0) {
+            if (firstItem in 0..lastItem && lastItem - firstItem <= 1) {
                 val middleItem = (firstItem + lastItem) / 2
                 updatePageInfo(middleItem)
                 rvQuickNavigation.scrollToAroundPosition(middleItem, ADDITIONAL_STEPS)

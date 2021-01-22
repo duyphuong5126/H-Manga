@@ -135,9 +135,11 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
         headerFragment.setRandomContract(this)
         mHeaderFragment = headerFragment
 
-        NHentaiApp.instance.applicationComponent.plus(
+        val homeComponent = NHentaiApp.instance.applicationComponent.plus(
             HomeModule(homeFragment),
             HeaderModule(headerFragment)
-        ).inject(this)
+        )
+        homeComponent.inject(this)
+        homeComponent.inject(homeFragment)
     }
 }

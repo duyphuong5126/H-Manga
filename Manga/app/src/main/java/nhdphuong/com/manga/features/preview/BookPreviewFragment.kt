@@ -25,6 +25,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -464,8 +465,7 @@ class BookPreviewFragment :
             }
 
             R.id.clBookIdClickableArea -> {
-                Toast.makeText(context, "Copied Book ID $bookId to clipboard", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(context, "Copied Book ID $bookId to clipboard", LENGTH_SHORT).show()
                 context?.copyToClipBoard(bookId, bookId)
             }
         }
@@ -660,11 +660,7 @@ class BookPreviewFragment :
         activity?.showStoragePermissionDialog(onOk = {
             requestStoragePermission()
         }, onDismiss = {
-            Toast.makeText(
-                context,
-                toastStoragePermissionLabel,
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(context, toastStoragePermissionLabel, LENGTH_SHORT).show()
             isDownloadingRequested = false
             isDeletingRequested = false
         })
@@ -902,14 +898,17 @@ class BookPreviewFragment :
 
     override fun onTagSelected(tag: Tag) {
         if (viewDownloadedData) {
-            return
-        }
-        activity?.run {
-            val intent = intent
-            intent.action = Constants.TAG_SELECTED_ACTION
-            intent.putExtra(Constants.SELECTED_TAG, tag.name)
-            setResult(Activity.RESULT_OK, intent)
-            finish()
+            val name = tag.name
+            context?.copyToClipBoard(name, name)
+            Toast.makeText(context, "Copied tag name $name to clipboard", LENGTH_SHORT).show()
+        } else {
+            activity?.run {
+                val intent = intent
+                intent.action = Constants.TAG_SELECTED_ACTION
+                intent.putExtra(Constants.SELECTED_TAG, tag.name)
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            }
         }
     }
 
