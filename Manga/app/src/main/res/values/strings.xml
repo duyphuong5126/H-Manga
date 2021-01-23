@@ -145,9 +145,9 @@
     <string name="migration_progress_with_failure_template">Migrated %d books, failed on %d items, total: %d</string>
     <string name="migration_failure_template">Failed item(s) %d/%d books</string>
     <string name="migration_completed">Your recent/favorite books were migrated</string>
-    <string name="migration_result">Migrated %d/%d book(s)\nFailed to migrate %d/%d books</string>
+    <string name="migration_result">Migrated %d/%d book(s)\nFailed to migrate %d/%d book(s)</string>
 
-    <string name="recent_favorite_books_migrating_title">Migrating you books</string>
+    <string name="recent_favorite_books_migrating_title">Migrating your books</string>
     <string name="recent_favorite_books_migrating_message">Your recent/favorite books are being migrated.\nPlease try again later.</string>
 
     <string name="downloading_tags">Downloading tag data</string>
