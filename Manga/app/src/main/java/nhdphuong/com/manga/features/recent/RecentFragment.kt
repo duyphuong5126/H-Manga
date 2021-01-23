@@ -20,9 +20,9 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
@@ -223,14 +223,13 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         )
         val recentList: RecyclerView = rvBookList
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
-        val recentListLayoutManager = object : GridLayoutManager(
-            context,
-            if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
-        ) {
+        val spanCount = if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
+        val recentListLayoutManager = object : StaggeredGridLayoutManager(spanCount, VERTICAL) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
             }
         }
+        recentListLayoutManager.gapStrategy = StaggeredGridLayoutManager.HORIZONTAL
         recentList.layoutManager = recentListLayoutManager
         recentList.adapter = recentListAdapter
     }

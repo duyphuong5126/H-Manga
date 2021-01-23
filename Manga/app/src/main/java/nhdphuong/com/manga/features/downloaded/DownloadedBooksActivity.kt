@@ -20,9 +20,9 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Lifecycle
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -196,19 +196,16 @@ class DownloadedBooksActivity : AppCompatActivity(),
         )
 
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
-        val bookListLayoutManager = object : GridLayoutManager(
-            this,
-            if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
-        ) {
+        val spanCount = if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
+        val bookListLayoutManager = object : StaggeredGridLayoutManager(spanCount, VERTICAL) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
             }
         }
+        bookListLayoutManager.gapStrategy = StaggeredGridLayoutManager.HORIZONTAL
         rvBookList.layoutManager = bookListLayoutManager
         rvBookList.adapter = bookListAdapter
-        rvBookList.doOnGlobalLayout {
-            downloadedBooksPresenter.reloadBookMarkers()
-        }
+        rvBookList.doOnGlobalLayout(downloadedBooksPresenter::reloadBookMarkers)
     }
 
     override fun refreshBookList() {
