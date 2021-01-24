@@ -8,6 +8,8 @@ import io.reactivex.rxkotlin.zipWith
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.BookDataSource
+import nhdphuong.com.manga.data.SerializationService
+import nhdphuong.com.manga.data.entity.FavoriteBook
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.BookImages
@@ -34,14 +36,47 @@ import javax.inject.Inject
  */
 class BookLocalDataSource @Inject constructor(
     private val bookDAO: BookDAO,
-    private val tagDAO: TagDAO
+    private val tagDAO: TagDAO,
+    private val serializationService: SerializationService
 ) : BookDataSource.Local {
-    override suspend fun saveRecentBook(bookId: String) {
-        bookDAO.insertRecentBooks(RecentBook(bookId, false, System.currentTimeMillis()))
+    override suspend fun saveRecentBook(book: Book) {
+        bookDAO.insertRecentBooks(
+            RecentBook(
+                book.bookId,
+                System.currentTimeMillis(),
+                serializeBook(book)
+            )
+        )
     }
 
-    override suspend fun saveFavoriteBook(bookId: String, isFavorite: Boolean) {
-        bookDAO.insertRecentBooks(RecentBook(bookId, isFavorite, System.currentTimeMillis()))
+    override suspend fun saveFavoriteBook(book: Book) {
+        bookDAO.insertFavoriteBooks(
+            FavoriteBook(
+                book.bookId,
+                System.currentTimeMillis(),
+                serializeBook(book)
+            )
+        )
+    }
+
+    override suspend fun removeFavoriteBook(book: Book) {
+        bookDAO.deleteFavoriteBook(book.bookId)
+    }
+
+    override fun getEmptyFavoriteBooks(): Single<List<FavoriteBook>> {
+        return bookDAO.getEmptyFavoriteBooks()
+    }
+
+    override fun getEmptyRecentBooks(): Single<List<RecentBook>> {
+        return bookDAO.getEmptyRecentBooks()
+    }
+
+    override fun getEmptyFavoriteBooksCount(): Int {
+        return bookDAO.getEmptyFavoriteBooksCount()
+    }
+
+    override fun getEmptyRecentBooksCount(): Int {
+        return bookDAO.getEmptyRecentBooksCount()
     }
 
     override suspend fun getRecentBooks(limit: Int, offset: Int): LinkedList<RecentBook> {
@@ -50,19 +85,27 @@ class BookLocalDataSource @Inject constructor(
         return result
     }
 
-    override suspend fun getFavoriteBooks(limit: Int, offset: Int): LinkedList<RecentBook> {
-        val result = LinkedList<RecentBook>()
+    override suspend fun getFavoriteBooks(limit: Int, offset: Int): LinkedList<FavoriteBook> {
+        val result = LinkedList<FavoriteBook>()
         result.addAll(bookDAO.getFavoriteBooks(limit, offset))
         return result
     }
 
+    override fun updateRawFavoriteBook(bookId: String, rawBook: String): Boolean {
+        return bookDAO.updateRawFavoriteBook(bookId, rawBook) > 0
+    }
+
+    override fun updateRawRecentBook(bookId: String, rawBook: String): Boolean {
+        return bookDAO.updateRawRecentBook(bookId, rawBook) > 0
+    }
+
     override suspend fun isFavoriteBook(bookId: String): Boolean {
-        return bookDAO.isFavoriteBook(bookId) == 1
+        return bookDAO.getFavoriteBookCount(bookId) > 0
     }
 
     override fun checkIfFavoriteBook(bookId: String): Single<Boolean> {
         return Single.fromCallable {
-            bookDAO.isFavoriteBook(bookId) == 1
+            bookDAO.getFavoriteBookCount(bookId) > 0
         }
     }
 
@@ -134,9 +177,15 @@ class BookLocalDataSource @Inject constructor(
             }
     }
 
-    override fun addToRecentList(bookId: String): Completable {
+    override fun addToRecentList(book: Book): Completable {
         return Completable.fromCallable {
-            bookDAO.insertRecentBooks(RecentBook(bookId, false, System.currentTimeMillis()))
+            bookDAO.insertRecentBooks(
+                RecentBook(
+                    book.bookId,
+                    System.currentTimeMillis(),
+                    serializeBook(book)
+                )
+            )
         }
     }
 
@@ -288,6 +337,10 @@ class BookLocalDataSource @Inject constructor(
                     Single.error(error)
                 }
             }
+    }
+
+    private fun serializeBook(book: Book): String {
+        return serializationService.serialize(book)
     }
 
     companion object {

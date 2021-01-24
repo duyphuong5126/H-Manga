@@ -53,9 +53,11 @@ class ReaderActivity : AppCompatActivity() {
 
         val book = intent.getParcelableExtra(Constants.BOOK) as Book
         val startReadingPage = intent.getIntExtra(Constants.START_PAGE, 0)
-        NHentaiApp.instance.applicationComponent.plus(
+        val readerComponent = NHentaiApp.instance.applicationComponent.plus(
             ReaderModule(readerFragment, book, startReadingPage)
-        ).inject(this)
+        )
+        readerComponent.inject(this)
+        readerComponent.inject(readerFragment)
     }
 
     override fun finish() {

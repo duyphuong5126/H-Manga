@@ -126,6 +126,15 @@ fun Activity.showInternetRequiredDialog(onOk: () -> Unit = {}) {
     )
 }
 
+fun Activity.showRecentFavoriteMigrationDialog(onOk: () -> Unit = {}) {
+    showOkDialog(
+        this,
+        getString(R.string.recent_favorite_books_migrating_title),
+        getString(R.string.recent_favorite_books_migrating_message),
+        onOk
+    )
+}
+
 fun Activity.showTagDataBeingDownloadedDialog(onOk: () -> Unit = {}, onDismiss: () -> Unit = {}) {
     val message = getString(R.string.downloading_tags_already_started_message)
     val cancel = getString(R.string.ok)

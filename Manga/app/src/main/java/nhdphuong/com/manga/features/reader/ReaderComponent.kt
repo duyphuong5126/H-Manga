@@ -10,4 +10,5 @@ import nhdphuong.com.manga.scope.ActivityScope
 @Subcomponent(modules = [ReaderModule::class])
 interface ReaderComponent {
     fun inject(readerActivity: ReaderActivity)
+    fun inject(readerFragment: ReaderFragment)
 }

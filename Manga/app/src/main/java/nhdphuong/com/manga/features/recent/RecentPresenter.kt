@@ -14,7 +14,8 @@ import kotlinx.coroutines.runBlocking
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
-import nhdphuong.com.manga.data.entity.BookResponse
+import nhdphuong.com.manga.data.entity.FavoriteBook
+import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.enum.ErrorEnum
@@ -145,29 +146,17 @@ class RecentPresenter @Inject constructor(
         val bookList = ArrayList<String>()
         io.launch {
             if (type == Constants.RECENT) {
-                for (id in 0 until recentBookList.size) {
-                    recentBookList[id].bookId.let { bookId ->
-                        when {
-                            bookRepository.isRecentBook(bookId) -> bookList.add(bookId)
-                            else -> {
-                            }
-                        }
-                    }
-                }
+                recentBookList.filter { bookRepository.isRecentBook(it.bookId) }
+                    .map(Book::bookId)
+                    .let(bookList::addAll)
 
                 main.launch {
                     view.showRecentBooks(bookList)
                 }
             } else {
-                for (id in 0 until recentBookList.size) {
-                    recentBookList[id].bookId.let { bookId ->
-                        when {
-                            bookRepository.isFavoriteBook(bookId) -> bookList.add(bookId)
-                            else -> {
-                            }
-                        }
-                    }
-                }
+                recentBookList.filter { bookRepository.isFavoriteBook(it.bookId) }
+                    .map(Book::bookId)
+                    .let(bookList::addAll)
 
                 main.launch {
                     view.showFavoriteBooks(bookList)
@@ -281,30 +270,14 @@ class RecentPresenter @Inject constructor(
     private suspend fun getRecentBook(pageNumber: Int): ArrayList<Book> {
         // Todo: Remove this try/catch
         try {
-            val savedIdList = if (type == Constants.RECENT) {
+            val resultList = ArrayList<Book>()
+            if (type == Constants.RECENT) {
                 bookRepository.getRecentBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
+                    .mapNotNull(RecentBook::rawBook)
             } else {
                 bookRepository.getFavoriteBooks(MAX_PER_PAGE, pageNumber * MAX_PER_PAGE)
-            }
-            if (savedIdList.isEmpty()) {
-                return ArrayList()
-            }
-            Logger.d(TAG, "${savedIdList.size} recent books")
-            val resultList = ArrayList<Book>()
-            savedIdList.forEach { recent ->
-                when (val bookResponse = bookRepository.getBookDetails(recent.bookId)) {
-                    is BookResponse.Success -> {
-                        resultList.add(bookResponse.book)
-                    }
-                    is BookResponse.Failure -> {
-                        Logger.e(
-                            TAG,
-                            "Failed to load book ${recent.bookId} with error ${bookResponse.error}"
-                        )
-                        remoteBookErrorSubject.onNext(bookResponse.error)
-                    }
-                }
-            }
+                    .mapNotNull(FavoriteBook::rawBook)
+            }.let(resultList::addAll)
             return resultList
         } catch (throwable: Throwable) {
             remoteBookErrorSubject.onNext(throwable)

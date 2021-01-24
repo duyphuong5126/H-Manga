@@ -2,6 +2,7 @@ package nhdphuong.com.manga.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import nhdphuong.com.manga.data.entity.FavoriteBook
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.tags.Artist
 import nhdphuong.com.manga.data.entity.book.tags.Category
@@ -23,6 +24,7 @@ import nhdphuong.com.manga.data.local.model.SearchModel
 @Database(
     entities = [
         RecentBook::class,
+        FavoriteBook::class,
         Tag::class,
         Artist::class,
         Character::class,
@@ -37,7 +39,7 @@ import nhdphuong.com.manga.data.local.model.SearchModel
         LastVisitedPage::class,
         SearchModel::class
     ],
-    version = 6
+    version = 7
 )
 abstract class NHentaiDB : RoomDatabase() {
     abstract fun getRecentBookDAO(): BookDAO

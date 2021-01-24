@@ -11,6 +11,8 @@ import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.api.BookApiService
 import nhdphuong.com.manga.api.InstallationApiService
 import nhdphuong.com.manga.api.MasterDataApiService
+import nhdphuong.com.manga.data.SerializationService
+import nhdphuong.com.manga.data.SerializationServiceImpl
 import nhdphuong.com.manga.data.local.Database
 import nhdphuong.com.manga.data.local.BookDAO
 import nhdphuong.com.manga.data.local.SearchDAO
@@ -18,6 +20,8 @@ import nhdphuong.com.manga.data.local.TagDAO
 import nhdphuong.com.manga.scope.corountine.Default
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
+import nhdphuong.com.manga.service.NetworkManager
+import nhdphuong.com.manga.service.NetworkManagerImpl
 import nhdphuong.com.manga.supports.ServiceGenerator
 import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.NetworkUtils
@@ -111,5 +115,15 @@ class ApplicationModule(private val mApplication: NHentaiApp) {
     @Provides
     fun providesAnalyticsPusher(context: Context): AnalyticsPusher {
         return FirebaseAnalyticsPusherImpl(context)
+    }
+
+    @Provides
+    fun providesBookSerializationService(): SerializationService {
+        return SerializationServiceImpl()
+    }
+
+    @Provides
+    fun providesNetworkManager(networkManagerImpl: NetworkManagerImpl): NetworkManager {
+        return networkManagerImpl
     }
 }

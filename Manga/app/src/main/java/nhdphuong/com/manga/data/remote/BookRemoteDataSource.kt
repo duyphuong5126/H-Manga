@@ -1,9 +1,9 @@
 package nhdphuong.com.manga.data.remote
 
-import com.google.gson.Gson
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.BookDataSource
+import nhdphuong.com.manga.data.SerializationService
 import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.CommentResponse
 import nhdphuong.com.manga.data.entity.RecommendBookResponse
@@ -25,7 +25,9 @@ import kotlin.coroutines.suspendCoroutine
  * Created by nhdphuong on 3/24/18.
  */
 // Todo: research EOFException when using retrofit
-class BookRemoteDataSource : BookDataSource.Remote {
+class BookRemoteDataSource(
+    private val serializationService: SerializationService
+) : BookDataSource.Remote {
     companion object {
         private const val TAG = "BookRemoteDataSource"
         private const val REQUEST_TIME_OUT = 20000
@@ -53,8 +55,8 @@ class BookRemoteDataSource : BookDataSource.Remote {
         return suspendCoroutine { continuation ->
             try {
                 val url = "${ApiConstants.homeUrl}/api/gallery/$bookId/related"
-                val responseData = performGetRequest(url)
-                val recommendBook = Gson().fromJson(responseData, RecommendBook::class.java)
+                val responseData = performGetRequest(url).orEmpty()
+                val recommendBook = serializationService.deserialize(responseData, RecommendBook::class.java)
                 val recommendBookResult = RecommendBookResponse.Success(recommendBook)
                 continuation.resume(recommendBookResult)
             } catch (throwable: Throwable) {
@@ -73,8 +75,8 @@ class BookRemoteDataSource : BookDataSource.Remote {
                         "${ApiConstants.homeUrl}/api/gallery/%s/comments",
                         bookId
                     )
-                val responseData = performGetRequest(url)
-                val commentsResponse = Gson().fromJson(responseData, Array<Comment>::class.java)
+                val responseData = performGetRequest(url).orEmpty()
+                val commentsResponse = serializationService.deserialize(responseData, Array<Comment>::class.java)
                 val recommendBookResult = CommentResponse.Success(commentsResponse.toList())
                 continuation.resume(recommendBookResult)
             } catch (throwable: Throwable) {
@@ -88,14 +90,25 @@ class BookRemoteDataSource : BookDataSource.Remote {
         return suspendCoroutine { continuation ->
             try {
                 val url = "${ApiConstants.homeUrl}/api/gallery/$bookId"
-                val responseData = performGetRequest(url)
-                val book = Gson().fromJson(responseData, Book::class.java)
+                val responseData = performGetRequest(url).orEmpty()
+                val book = serializationService.deserialize(responseData, Book::class.java)
                 val bookResult = BookResponse.Success(book)
                 continuation.resume(bookResult)
             } catch (throwable: Throwable) {
                 Logger.d(TAG, "get book details of $bookId failed=$throwable")
                 continuation.resume(BookResponse.Failure(throwable))
             }
+        }
+    }
+
+    override fun getBookDetailsSynchronously(bookId: String): BookResponse {
+        return try {
+            val url = "${ApiConstants.homeUrl}/api/gallery/$bookId"
+            val responseData = performGetRequest(url).orEmpty()
+            val book = serializationService.deserialize(responseData, Book::class.java)
+            BookResponse.Success(book)
+        } catch (throwable: Throwable) {
+            BookResponse.Failure(throwable)
         }
     }
 
@@ -113,8 +126,8 @@ class BookRemoteDataSource : BookDataSource.Remote {
             if (sortOption != SortOption.Recent) {
                 url += getSortString(sortOption)
             }
-            val responseData = performGetRequest(url)
-            val remoteBook = Gson().fromJson(responseData, RemoteBook::class.java)
+            val responseData = performGetRequest(url).orEmpty()
+            val remoteBook = serializationService.deserialize(responseData, RemoteBook::class.java)
             RemoteBookResponse.Success(remoteBook)
         } catch (throwable: Throwable) {
             Logger.d(TAG, "get all remote books of page $page failed=$throwable")

@@ -82,15 +82,15 @@
     <string name="permission_require">Permission Required</string>
     <string name="storage_permission_require">We need storage permission to store the downloaded data</string>
     <string name="toast_storage_permission_require">Please allow us to store data in your device!</string>
-    <string name="preview_download_progress">Downloaded %s of %s</string>
-    <string name="preview_deleting_progress">Deleted %d of %d</string>
+    <string name="preview_download_progress">Downloaded %s/%s pages</string>
+    <string name="preview_deleting_progress">Deleted %d/%d pages</string>
     <string name="cleared">Clear</string>
     <string name="fail_to_download">Could not download %s items</string>
     <string name="fail_to_delete">Could not delete %d items</string>
     <string name="is_book_being_downloaded">Book downloading</string>
     <string name="is_downloading_this_book">This book is being downloaded.\nPlease wait until it completes.</string>
-    <string name="is_downloading_another_book">The book number %s is being downloaded, please try again later.</string>
-    <string name="reload_library">Reload library</string>
+    <string name="is_downloading_another_book">Book ID %s is being downloaded, please try again later.</string>
+    <string name="reload_library">Reload Library</string>
     <string name="book_list_refreshing_title">Book list is refreshing</string>
     <string name="book_list_refreshing_description">Book list is now refreshing.\nPlease try again later.</string>
     <string name="pull_down">Pull it down</string>
@@ -134,12 +134,21 @@
     <string name="deleting_failure">Deleting failure</string>
     <string name="downloading_completed">Downloading completed</string>
     <string name="deleting_completed">Deleting completed</string>
-    <string name="downloading_completed_template">The book %s was downloaded</string>
-    <string name="deleting_completed_template">The book %s was deleted</string>
-    <string name="downloading_failed_template">Failed to download %d/%d pages of the book %s</string>
-    <string name="deleting_failed_template">Failed to delete the book %s</string>
+    <string name="downloading_completed_template">Book ID %s was downloaded</string>
+    <string name="deleting_completed_template">Book ID %s was deleted</string>
+    <string name="downloading_failed_template">Failed to download %d/%d pages of book ID %s</string>
+    <string name="deleting_failed_template">Failed to delete book ID %s</string>
     <string name="book_progress_template">Book ID: %s, progress: %d/%d</string>
-    <string name="downloading_book_failed_message">Failed to download the book %s\nPlease try it again</string>
+    <string name="downloading_book_failed_message">Failed to download book ID %s\nPlease try it again</string>
+    <string name="migrating_books">Migrating your recent/favorite books</string>
+    <string name="migration_progress_template">Migrated %d/%d books</string>
+    <string name="migration_progress_with_failure_template">Migrated %d books, failed on %d items, total: %d</string>
+    <string name="migration_failure_template">Failed item(s) %d/%d books</string>
+    <string name="migration_completed">Your recent/favorite books were migrated</string>
+    <string name="migration_result">Migrated %d/%d book(s)\nFailed to migrate %d/%d book(s)</string>
+
+    <string name="recent_favorite_books_migrating_title">Migrating your books</string>
+    <string name="recent_favorite_books_migrating_message">Your recent/favorite books are being migrated.\nPlease try again later.</string>
 
     <string name="downloading_tags">Downloading tag data</string>
     <string name="downloading_tags_progress">Tag data is being downloaded\nCurrent page: %d/%d\nArtists: %d\nCharacters: %d\nCategories: %d\nLanguages: %d\nParodies: %d\nGroups: %d\nTags: %d\nUnknown types: %d</string>

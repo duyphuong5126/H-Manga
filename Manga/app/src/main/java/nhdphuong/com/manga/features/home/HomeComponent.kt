@@ -11,4 +11,5 @@ import nhdphuong.com.manga.scope.ActivityScope
 @Subcomponent(modules = [HomeModule::class, HeaderModule::class])
 interface HomeComponent {
     fun inject(homeActivity: HomeActivity)
+    fun inject(homeActivity: HomeFragment)
 }

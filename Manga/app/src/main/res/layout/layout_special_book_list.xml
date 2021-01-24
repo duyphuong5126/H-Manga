@@ -236,41 +236,29 @@
                     app:layout_constraintTop_toBottomOf="@id/ivNothing"
                     app:myFont="@string/NotoSansBold" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/clReload"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvNothing">
-
-                    <nhdphuong.com.manga.views.customs.MyTextView
-                        android:id="@+id/mtvReload"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:gravity="center"
-                        android:text="@string/reload_library"
-                        android:textColor="@color/grey_3"
-                        android:textSize="@dimen/normal_text_size"
-                        app:layout_constraintBottom_toTopOf="@id/vLine"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:myFont="@string/NotoSansItalic" />
-
-                    <View
-                        android:id="@+id/vLine"
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:background="@color/grey_3"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/mtvReload" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <nhdphuong.com.manga.views.customs.MyButton
+                android:id="@+id/mbReload"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_medium"
+                android:layout_marginLeft="@dimen/space_medium"
+                android:layout_marginEnd="@dimen/space_medium"
+                android:layout_marginRight="@dimen/space_medium"
+                android:layout_marginBottom="@dimen/space_normal"
+                android:background="@drawable/button_red_all_corners_radius"
+                android:gravity="center"
+                android:paddingTop="@dimen/space_medium"
+                android:paddingBottom="@dimen/space_medium"
+                android:text="@string/reload_library"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/normal_text_size"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:myButtonFont="@string/NotoSansBold" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

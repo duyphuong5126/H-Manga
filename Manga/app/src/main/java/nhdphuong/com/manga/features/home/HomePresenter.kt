@@ -32,6 +32,7 @@ import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.SupportUtils
+import nhdphuong.com.manga.usecase.CheckRecentFavoriteMigrationNeededUseCase
 import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 import java.net.SocketTimeoutException
 import java.util.Locale
@@ -55,6 +56,7 @@ class HomePresenter @Inject constructor(
     private val masterDataRepository: MasterDataRepository,
     private val sharedPreferencesManager: SharedPreferencesManager,
     private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
+    private val checkRecentFavoriteMigrationNeededUseCase: CheckRecentFavoriteMigrationNeededUseCase,
     private val networkUtils: INetworkUtils,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
@@ -156,6 +158,17 @@ class HomePresenter @Inject constructor(
         } else {
             view.startUpdateTagsService()
         }
+        checkRecentFavoriteMigrationNeededUseCase.execute()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ migrationNeeded ->
+                Logger.d(TAG, "Need migration $migrationNeeded")
+                if (migrationNeeded) {
+                    view.startRecentFavoriteMigration()
+                }
+            }, {
+                Logger.d(TAG, "Failed to check migration needed with error $it")
+            }).addTo(compositeDisposable)
     }
 
     override fun jumpToPage(pageNumber: Long) {
@@ -175,6 +188,12 @@ class HomePresenter @Inject constructor(
 
     override fun setNewerVersionAcknowledged() {
         newerVersionAcknowledged.compareAndSet(false, true)
+    }
+
+    override fun reloadIfEmpty() {
+        if (mainList.isEmpty()) {
+            reload(true)
+        }
     }
 
     override fun refreshAppVersion() {
@@ -198,7 +217,11 @@ class HomePresenter @Inject constructor(
     }
 
     override fun reloadCurrentPage() {
+        if (!networkUtils.isNetworkConnected()) {
+            return
+        }
         if (isRefreshing.compareAndSet(false, true)) {
+            view.showLoading()
             io.launch {
                 val remoteBooks = getBooksListByPage(currentPage, true)
                 currentNumOfPages = remoteBooks?.numOfPages ?: 0L
@@ -219,6 +242,7 @@ class HomePresenter @Inject constructor(
 
                 main.launch {
                     if (view.isActive()) {
+                        view.hideLoading()
                         if (!isCurrentPageEmpty) {
                             view.refreshHomePagination(currentNumOfPages, currentPage.toInt() - 1)
                             view.refreshHomeBookList()

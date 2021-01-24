@@ -30,6 +30,7 @@ interface HomeContract {
         fun updateErrorMessage(errorEnum: ErrorEnum)
         fun finishRefreshing()
         fun showAlternativeDomainsQuestion()
+        fun startRecentFavoriteMigration()
     }
 
     interface Presenter : Base.Presenter {
@@ -37,6 +38,7 @@ interface HomeContract {
         fun jumToFirstPage()
         fun jumToLastPage()
         fun setNewerVersionAcknowledged()
+        fun reloadIfEmpty()
         fun refreshAppVersion()
         fun reloadCurrentPage()
         fun reloadLastBookListRefreshTime()

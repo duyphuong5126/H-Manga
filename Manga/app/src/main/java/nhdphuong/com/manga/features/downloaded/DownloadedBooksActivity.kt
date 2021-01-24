@@ -20,9 +20,9 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Lifecycle
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -37,6 +37,7 @@ import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import nhdphuong.com.manga.views.createLoadingDialog
+import nhdphuong.com.manga.views.customs.MyButton
 import nhdphuong.com.manga.views.customs.MyTextView
 import javax.inject.Inject
 
@@ -63,7 +64,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
     private lateinit var rvPagination: RecyclerView
     private lateinit var refreshHeader: View
     private lateinit var clNothing: ConstraintLayout
-    private lateinit var clReload: ConstraintLayout
+    private lateinit var mbReload: MyButton
     private lateinit var tvNothing: MyTextView
     private lateinit var ivRefresh: ImageView
     private lateinit var mtvLastUpdate: MyTextView
@@ -89,7 +90,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
         rvPagination = findViewById(R.id.rvPagination)
         srlPullToReload = findViewById(R.id.srlPullToReload)
         clNothing = findViewById(R.id.clNothing)
-        clReload = findViewById(R.id.clReload)
+        mbReload = findViewById(R.id.mbReload)
         tvNothing = findViewById(R.id.tvNothing)
         ivRefresh = refreshHeader.findViewById(R.id.ivRefresh)
         mtvLastUpdate = refreshHeader.findViewById(R.id.mtvLastUpdate)
@@ -135,7 +136,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
         ibBack.setOnClickListener(this)
         btnFirst.setOnClickListener(this)
         btnLast.setOnClickListener(this)
-        clReload.gone()
+        mbReload.gone()
         tvNothing.text = noDownloadedBooks
         downloadedBooksPresenter.start()
     }
@@ -195,19 +196,16 @@ class DownloadedBooksActivity : AppCompatActivity(),
         )
 
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
-        val bookListLayoutManager = object : GridLayoutManager(
-            this,
-            if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
-        ) {
+        val spanCount = if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
+        val bookListLayoutManager = object : StaggeredGridLayoutManager(spanCount, VERTICAL) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
             }
         }
+        bookListLayoutManager.gapStrategy = StaggeredGridLayoutManager.HORIZONTAL
         rvBookList.layoutManager = bookListLayoutManager
         rvBookList.adapter = bookListAdapter
-        rvBookList.doOnGlobalLayout {
-            downloadedBooksPresenter.reloadBookMarkers()
-        }
+        rvBookList.doOnGlobalLayout(downloadedBooksPresenter::reloadBookMarkers)
     }
 
     override fun refreshBookList() {

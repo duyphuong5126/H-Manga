@@ -1,12 +1,12 @@
 package nhdphuong.com.manga.data.local
 
-import com.google.gson.Gson
 import io.reactivex.Maybe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.MasterDataSource
+import nhdphuong.com.manga.data.SerializationService
 import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomain
 import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomainGroup
 import nhdphuong.com.manga.data.entity.book.tags.Artist
@@ -23,6 +23,7 @@ import javax.inject.Inject
 class MasterDataLocalDataSource @Inject constructor(
     private val mTagDAO: TagDAO,
     private val sharedPreferencesManager: SharedPreferencesManager,
+    private val serializationService: SerializationService,
     @IO private val io: CoroutineScope
 ) : MasterDataSource.Local {
     override fun insertArtistsList(artistsList: List<Artist>) {
@@ -287,12 +288,12 @@ class MasterDataLocalDataSource @Inject constructor(
         val currentData: AlternativeDomainGroup? =
             sharedPreferencesManager.alternativeDomainsRawData.takeIf { it.isNotBlank() }?.let {
                 try {
-                    Gson().fromJson(it, AlternativeDomainGroup::class.java)
+                    serializationService.deserialize(it, AlternativeDomainGroup::class.java)
                 } catch (throwable: Throwable) {
                     null
                 }
             }
-        Gson().toJson(alternativeDomainGroup).let {
+        serializationService.serialize(alternativeDomainGroup).let {
             Logger.d(
                 TAG,
                 "Alternative domains - local version ${currentData?.groupVersion} - remote version = ${alternativeDomainGroup.groupVersion}"
@@ -322,7 +323,8 @@ class MasterDataLocalDataSource @Inject constructor(
         return Maybe.create { emitter ->
             sharedPreferencesManager.alternativeDomainsRawData.takeIf { it.isNotBlank() }?.let {
                 try {
-                    Gson().fromJson(it, AlternativeDomainGroup::class.java).let(emitter::onSuccess)
+                    serializationService.deserialize(it, AlternativeDomainGroup::class.java)
+                        .let(emitter::onSuccess)
                 } catch (throwable: Throwable) {
                     emitter.onError(throwable)
                 }

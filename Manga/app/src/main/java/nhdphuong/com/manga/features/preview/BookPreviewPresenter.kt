@@ -179,6 +179,7 @@ class BookPreviewPresenter @Inject constructor(
 
                 is CommentResponse.Failure -> {
                     Logger.d(TAG, "failed to get comment list with error: ${commentResponse.error}")
+                    view.hideCommentList()
                 }
             }
         }
@@ -328,7 +329,11 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun changeBookFavorite() {
         io.launch {
-            bookRepository.saveFavoriteBook(book.bookId, !isFavoriteBook)
+            if (isFavoriteBook) {
+                bookRepository.removeFavoriteBook(book)
+            } else {
+                bookRepository.saveFavoriteBook(book)
+            }
             refreshBookFavorite()
             main.launch {
                 view.showFavoriteBookSaved(isFavoriteBook)
@@ -565,6 +570,8 @@ class BookPreviewPresenter @Inject constructor(
                         }
                     }
                 }
+            } else {
+                view.showNoRecommendBook()
             }
         }
     }

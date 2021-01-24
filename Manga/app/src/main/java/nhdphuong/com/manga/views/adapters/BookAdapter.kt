@@ -45,8 +45,7 @@ class BookAdapter(
             RECOMMEND_BOOK -> R.layout.item_recommend_list
             else -> R.layout.item_home_list
         }
-        val view = LayoutInflater.from(parent.context)
-            .inflate(layoutResId, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(layoutResId, parent, false)
         return MainListViewHolder(view, bookClickCallback)
     }
 
