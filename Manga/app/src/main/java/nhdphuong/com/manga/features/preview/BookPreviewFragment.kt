@@ -634,6 +634,7 @@ class BookPreviewFragment :
     override fun showRecommendBook(bookList: List<Book>) {
         Logger.d(TAG, "recommended books, spanCount: ${bookList.size}")
         mtvRecommendBook.becomeVisible()
+        hsvRecommendList.becomeVisible()
         val gridLayoutManager = object : MyGridLayoutManager(context!!, bookList.size) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
@@ -654,6 +655,7 @@ class BookPreviewFragment :
 
     override fun showNoRecommendBook() {
         mtvRecommendBook.gone()
+        hsvRecommendList.gone()
     }
 
     override fun showRequestStoragePermission() {

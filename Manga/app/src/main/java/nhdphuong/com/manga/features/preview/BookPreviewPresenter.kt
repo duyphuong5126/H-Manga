@@ -179,6 +179,7 @@ class BookPreviewPresenter @Inject constructor(
 
                 is CommentResponse.Failure -> {
                     Logger.d(TAG, "failed to get comment list with error: ${commentResponse.error}")
+                    view.hideCommentList()
                 }
             }
         }
@@ -565,6 +566,8 @@ class BookPreviewPresenter @Inject constructor(
                         }
                     }
                 }
+            } else {
+                view.showNoRecommendBook()
             }
         }
     }
