@@ -115,7 +115,7 @@
     <string name="recent">Recent</string>
     <string name="switch_recent_list">Switch</string>
 
-    <string name="about_us">About Us</string>
+    <string name="about_us">About This App</string>
     <string name="app_version_template">Version: %s</string>
     <string name="tag_data_version_template">Tag data version: %s</string>
     <string name="repository_url_template">See other versions at: </string>
