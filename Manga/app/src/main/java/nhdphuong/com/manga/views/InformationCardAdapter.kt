@@ -30,6 +30,7 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
 
     @SuppressLint("InflateParams")
     fun loadInfoList(viewGroup: ViewGroup) {
+        viewGroup.removeAllViews()
         if (tagList.isEmpty()) {
             return
         }

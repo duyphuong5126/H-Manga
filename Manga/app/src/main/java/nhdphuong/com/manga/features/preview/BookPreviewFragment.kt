@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
@@ -164,6 +165,15 @@ class BookPreviewFragment :
     private var isDeletingRequested = false
 
     private var commentAdapter: CommentAdapter? = null
+    private var tagsInfoAdapter: InformationCardAdapter? = null
+    private var charactersInfoAdapter: InformationCardAdapter? = null
+    private var artistsInfoAdapter: InformationCardAdapter? = null
+    private var categoriesInfoAdapter: InformationCardAdapter? = null
+    private var parodiesInfoAdapter: InformationCardAdapter? = null
+    private var groupsInfoAdapter: InformationCardAdapter? = null
+    private var languagesInfoAdapter: InformationCardAdapter? = null
+
+    private var lastOrientation = Configuration.ORIENTATION_UNDEFINED
 
     @Volatile
     private var isPresenterStarted: Boolean = false
@@ -342,6 +352,8 @@ class BookPreviewFragment :
         Logger.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
         activity?.let {
+            lastOrientation =
+                it.resources?.configuration?.orientation ?: Configuration.ORIENTATION_UNDEFINED
             refreshGalleryDialog = it.createLoadingDialog(R.string.refreshing_gallery)
         }
         presenter.start()
@@ -419,6 +431,38 @@ class BookPreviewFragment :
     override fun onDestroy() {
         presenter.stop()
         super.onDestroy()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (lastOrientation != newConfig.orientation) {
+            lastOrientation = newConfig.orientation
+            try {
+                layoutTags.doOnGlobalLayout {
+                    tagsInfoAdapter?.loadInfoList(layoutTags)
+                }
+                layoutArtists.doOnGlobalLayout {
+                    artistsInfoAdapter?.loadInfoList(layoutArtists)
+                }
+                layoutCharacters.doOnGlobalLayout {
+                    charactersInfoAdapter?.loadInfoList(layoutCharacters)
+                }
+                layoutGroups.doOnGlobalLayout {
+                    groupsInfoAdapter?.loadInfoList(layoutGroups)
+                }
+                layoutParodies.doOnGlobalLayout {
+                    parodiesInfoAdapter?.loadInfoList(layoutParodies)
+                }
+                layoutLanguages.doOnGlobalLayout {
+                    languagesInfoAdapter?.loadInfoList(layoutLanguages)
+                }
+                layoutCategories.doOnGlobalLayout {
+                    categoriesInfoAdapter?.loadInfoList(layoutCategories)
+                }
+            } catch (throwable: Throwable) {
+                Logger.d(TAG, "Failed to update info lists with error: $throwable")
+            }
+        }
     }
 
     override fun onClick(v: View?) {
@@ -518,43 +562,43 @@ class BookPreviewFragment :
     override fun showTagList(tagList: List<Tag>) {
         tvTagsLabel.becomeVisible()
         layoutTags.becomeVisible()
-        loadInfoList(layoutTags, tagList)
+        tagsInfoAdapter = loadInfoList(layoutTags, tagList)
     }
 
     override fun showArtistList(artistList: List<Tag>) {
         tvArtistsLabel.becomeVisible()
         layoutArtists.becomeVisible()
-        loadInfoList(layoutArtists, artistList)
+        artistsInfoAdapter = loadInfoList(layoutArtists, artistList)
     }
 
     override fun showLanguageList(languageList: List<Tag>) {
         tvLanguagesLabel.becomeVisible()
         layoutLanguages.becomeVisible()
-        loadInfoList(layoutLanguages, languageList)
+        languagesInfoAdapter = loadInfoList(layoutLanguages, languageList)
     }
 
     override fun showCategoryList(categoryList: List<Tag>) {
         tvCategoriesLabel.becomeVisible()
         layoutCategories.becomeVisible()
-        loadInfoList(layoutCategories, categoryList)
+        categoriesInfoAdapter = loadInfoList(layoutCategories, categoryList)
     }
 
     override fun showCharacterList(characterList: List<Tag>) {
         tvCharactersLabel.becomeVisible()
         layoutCharacters.becomeVisible()
-        loadInfoList(layoutCharacters, characterList)
+        charactersInfoAdapter = loadInfoList(layoutCharacters, characterList)
     }
 
     override fun showGroupList(groupList: List<Tag>) {
         tvGroupsLabel.becomeVisible()
         layoutGroups.becomeVisible()
-        loadInfoList(layoutGroups, groupList)
+        groupsInfoAdapter = loadInfoList(layoutGroups, groupList)
     }
 
     override fun showParodyList(parodyList: List<Tag>) {
         tvParodiesLabel.becomeVisible()
         layoutParodies.becomeVisible()
-        loadInfoList(layoutParodies, parodyList)
+        parodiesInfoAdapter = loadInfoList(layoutParodies, parodyList)
     }
 
     override fun hideTagList() {
@@ -961,10 +1005,11 @@ class BookPreviewFragment :
         vNavigation = lastVisitedPage.findViewById(R.id.vNavigation)
     }
 
-    private fun loadInfoList(layout: ViewGroup, infoList: List<Tag>) {
+    private fun loadInfoList(layout: ViewGroup, infoList: List<Tag>): InformationCardAdapter {
         val infoCardLayout = InformationCardAdapter(infoList)
         infoCardLayout.loadInfoList(layout)
         infoCardLayout.setTagSelectedListener(this)
+        return infoCardLayout
     }
 
     private fun getAnimationListener(
