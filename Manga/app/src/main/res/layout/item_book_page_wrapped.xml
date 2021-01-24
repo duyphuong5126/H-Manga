@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="300dp">
+    android:minHeight="200dp">
 
     <com.ortiz.touchview.TouchImageView
         android:id="@+id/ivPage"
