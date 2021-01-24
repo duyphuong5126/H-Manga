@@ -35,6 +35,7 @@ interface BookDataSource {
     interface Local {
         suspend fun saveRecentBook(book: Book)
         suspend fun saveFavoriteBook(book: Book)
+        suspend fun removeFavoriteBook(book: Book)
         fun getEmptyRecentBooks(): Single<List<RecentBook>>
         fun getEmptyFavoriteBooks(): Single<List<FavoriteBook>>
         fun getEmptyRecentBooksCount(): Int

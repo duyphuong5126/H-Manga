@@ -59,6 +59,10 @@ class BookLocalDataSource @Inject constructor(
         )
     }
 
+    override suspend fun removeFavoriteBook(book: Book) {
+        bookDAO.deleteFavoriteBook(book.bookId)
+    }
+
     override fun getEmptyFavoriteBooks(): Single<List<FavoriteBook>> {
         return bookDAO.getEmptyFavoriteBooks()
     }

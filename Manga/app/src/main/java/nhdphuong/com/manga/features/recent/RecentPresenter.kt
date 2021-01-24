@@ -146,29 +146,17 @@ class RecentPresenter @Inject constructor(
         val bookList = ArrayList<String>()
         io.launch {
             if (type == Constants.RECENT) {
-                for (id in 0 until recentBookList.size) {
-                    recentBookList[id].bookId.let { bookId ->
-                        when {
-                            bookRepository.isRecentBook(bookId) -> bookList.add(bookId)
-                            else -> {
-                            }
-                        }
-                    }
-                }
+                recentBookList.filter { bookRepository.isRecentBook(it.bookId) }
+                    .map(Book::bookId)
+                    .let(bookList::addAll)
 
                 main.launch {
                     view.showRecentBooks(bookList)
                 }
             } else {
-                for (id in 0 until recentBookList.size) {
-                    recentBookList[id].bookId.let { bookId ->
-                        when {
-                            bookRepository.isFavoriteBook(bookId) -> bookList.add(bookId)
-                            else -> {
-                            }
-                        }
-                    }
-                }
+                recentBookList.filter { bookRepository.isFavoriteBook(it.bookId) }
+                    .map(Book::bookId)
+                    .let(bookList::addAll)
 
                 main.launch {
                     view.showFavoriteBooks(bookList)

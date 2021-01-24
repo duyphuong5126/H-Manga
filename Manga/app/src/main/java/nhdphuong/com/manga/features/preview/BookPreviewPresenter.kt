@@ -329,7 +329,11 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun changeBookFavorite() {
         io.launch {
-            bookRepository.saveFavoriteBook(book)
+            if (isFavoriteBook) {
+                bookRepository.removeFavoriteBook(book)
+            } else {
+                bookRepository.saveFavoriteBook(book)
+            }
             refreshBookFavorite()
             main.launch {
                 view.showFavoriteBookSaved(isFavoriteBook)

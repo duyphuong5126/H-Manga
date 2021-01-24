@@ -54,6 +54,10 @@ class BookRepository @Inject constructor(
         bookLocalDataSource.saveFavoriteBook(book)
     }
 
+    override suspend fun removeFavoriteBook(book: Book) {
+        bookLocalDataSource.removeFavoriteBook(book)
+    }
+
     override suspend fun saveRecentBook(book: Book) {
         bookLocalDataSource.saveRecentBook(book)
     }
