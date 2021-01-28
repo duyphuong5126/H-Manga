@@ -141,11 +141,13 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
         )
         rvAboutList.layoutManager = object : LinearLayoutManager(this, VERTICAL, false) {
             override fun canScrollVertically(): Boolean {
-                val firstVisiblePos = findFirstVisibleItemPosition()
-                val lastVisiblePos = findLastVisibleItemPosition()
-                val visibleItems = lastVisiblePos - firstVisiblePos + 1
-                val children = aboutAdapter?.itemCount ?: 0
-                return visibleItems < children
+                val firstVisiblePos = findFirstCompletelyVisibleItemPosition()
+                val lastVisiblePos = findLastCompletelyVisibleItemPosition()
+                return if (firstVisiblePos in 0..lastVisiblePos) {
+                    val visibleItems = lastVisiblePos - firstVisiblePos + 1
+                    val children = aboutAdapter?.itemCount ?: 0
+                    visibleItems < children
+                } else true
             }
         }
     }
