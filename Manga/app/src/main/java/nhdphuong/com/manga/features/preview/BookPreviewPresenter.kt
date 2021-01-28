@@ -573,7 +573,9 @@ class BookPreviewPresenter @Inject constructor(
                     }
                 }
             } else {
-                view.showNoRecommendBook()
+                main.launch {
+                    view.showNoRecommendBook()
+                }
             }
         }
     }
