@@ -24,6 +24,7 @@ import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.IFileUtils
 import nhdphuong.com.manga.usecase.GetVersionCodeUseCase
 import java.io.File
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class AboutUsPresenter @Inject constructor(
@@ -81,16 +82,20 @@ class AboutUsPresenter @Inject constructor(
             }).addTo(compositeDisposable)
 
         masterDataRepository.getVersionHistory()
+            .timeout(10, TimeUnit.SECONDS)
             .map { versionHistory ->
-                versionHistory.filter { it.versionNumber > BuildConfig.VERSION_CODE }
+                versionHistory.filter { it.isActivated && it.versionNumber > BuildConfig.VERSION_CODE }
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                view.showLoading()
+            }
+            .doAfterTerminate {
+                view.hideLoading()
+            }
             .subscribeBy(onSuccess = { newVersions ->
-                val currentVersion = BuildConfig.VERSION_CODE
-                newVersions.filter {
-                    it.isActivated && it.versionNumber > currentVersion
-                }.takeIf { it.isNotEmpty() }?.map {
+                newVersions.takeIf { it.isNotEmpty() }?.map {
                     AvailableVersion(it.versionNumber, it.versionCode, it.whatsNew, it.downloadUrl)
                 }?.let {
                     aboutList.removeAll { item -> item is AboutUiModel.NewVersionAvailable || item is AvailableVersion }
@@ -108,7 +113,6 @@ class AboutUsPresenter @Inject constructor(
             view.showRequestStoragePermission()
             return
         }
-        view.removePendingStates()
         val downloadingSource = Single.create<AvailableVersion> {
             val targetVersion = aboutList.firstOrNull { version ->
                 version is AvailableVersion && version.versionNumber == versionNumber

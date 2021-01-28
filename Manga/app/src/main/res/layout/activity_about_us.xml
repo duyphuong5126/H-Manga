@@ -98,9 +98,9 @@
             android:layout_marginLeft="@dimen/space_medium"
             android:layout_marginEnd="@dimen/space_medium"
             android:layout_marginRight="@dimen/space_medium"
-            android:clipToPadding="true"
-            android:paddingTop="@dimen/space_medium"
-            android:paddingBottom="@dimen/space_medium"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/space_normal"
             app:layout_constraintBottom_toTopOf="@id/mbUpgradeButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -114,7 +114,7 @@
             android:layout_marginLeft="@dimen/space_medium"
             android:layout_marginEnd="@dimen/space_medium"
             android:layout_marginRight="@dimen/space_medium"
-            android:layout_marginBottom="@dimen/space_normal"
+            android:layout_marginBottom="@dimen/space_medium"
             android:background="@drawable/button_red_all_corners_radius"
             android:gravity="center"
             android:paddingTop="@dimen/space_medium"
@@ -126,7 +126,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:myButtonFont="@string/NotoSansBold" />
+            app:myButtonFont="@string/NotoSansBold"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.features.about
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -24,6 +25,7 @@ import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.supports.openEmailApp
 import nhdphuong.com.manga.supports.openUrl
 import nhdphuong.com.manga.views.becomeVisible
+import nhdphuong.com.manga.views.createLoadingDialog
 import nhdphuong.com.manga.views.showFailedToUpgradeAppDialog
 import nhdphuong.com.manga.views.showInstallationConfirmDialog
 import nhdphuong.com.manga.views.showStoragePermissionDialog
@@ -49,10 +51,14 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
     private var upgradeButtonTemplate = ""
     private var appBeingUpgradeMessage = ""
 
+    private var loadingDialog: Dialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about_us)
         NHentaiApp.instance.applicationComponent.plus(AboutUsModule(this)).inject(this)
+
+        loadingDialog = createLoadingDialog()
 
         toastStoragePermissionLabel = getString(R.string.toast_storage_permission_require)
         upgradeButtonTemplate = getString(R.string.app_upgrade_button)
@@ -218,7 +224,15 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
         })
     }
 
-    override fun removePendingStates() {
+    override fun showLoading() {
+        loadingDialog?.show()
+    }
+
+    override fun hideLoading() {
+        loadingDialog?.dismiss()
+    }
+
+    private fun removePendingStates() {
         aboutAdapter?.hideInstallationProgress(pendingVersionNumber)
         isUpgradeRequested = false
         pendingVersionNumber = -1

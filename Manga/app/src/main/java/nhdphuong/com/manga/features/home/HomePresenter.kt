@@ -192,7 +192,7 @@ class HomePresenter @Inject constructor(
 
     override fun reloadIfEmpty() {
         if (mainList.isEmpty()) {
-            reload(true)
+            reload(false)
         }
     }
 

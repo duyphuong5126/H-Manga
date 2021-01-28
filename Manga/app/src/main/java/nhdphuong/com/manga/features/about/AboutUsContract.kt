@@ -13,7 +13,8 @@ interface AboutUsContract {
         fun showUpgradeCompleted(versionNumber: Int)
         fun showUpgradeFailed(versionNumber: Int, versionCode: String)
         fun showRequestStoragePermission()
-        fun removePendingStates()
+        fun showLoading()
+        fun hideLoading()
     }
 
     interface Presenter {
