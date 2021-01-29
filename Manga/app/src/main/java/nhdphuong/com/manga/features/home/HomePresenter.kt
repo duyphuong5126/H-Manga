@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import nhdphuong.com.manga.BuildConfig
 import nhdphuong.com.manga.Constants.Companion.EVENT_SEARCH
 import nhdphuong.com.manga.Constants.Companion.MAX_PER_PAGE
-import nhdphuong.com.manga.Constants.Companion.SEARCH_DATA
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_SEARCH_DATA
 import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
@@ -306,7 +306,8 @@ class HomePresenter @Inject constructor(
         if (!searchData.equals(data, ignoreCase = true)) {
             searchData = data
             view.changeSearchResult(data)
-            logAnalyticsEventUseCase.execute(EVENT_SEARCH, AnalyticsParam(SEARCH_DATA, data))
+            val analyticsParam = AnalyticsParam(PARAM_NAME_SEARCH_DATA, data)
+            logAnalyticsEventUseCase.execute(EVENT_SEARCH, analyticsParam)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe()

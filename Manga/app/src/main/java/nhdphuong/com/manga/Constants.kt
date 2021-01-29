@@ -148,21 +148,28 @@ class Constants {
         const val ACTION_TAGS_DOWNLOADING_FAILED = "ACTION_TAGS_DOWNLOADING_FAILED"
         const val ACTION_TAGS_DOWNLOADING_COMPLETED = "ACTION_TAGS_DOWNLOADING_COMPLETED"
 
-        // Analytics
-        const val APP_VERSION_NAME = "App.VersionName"
-        const val APP_VERSION_CODE = "App.VersionCode"
-        const val EVENT_EXCEPTION = "Event.Exception"
-        const val EVENT_SEARCH = "Event.Search"
-        const val EVENT_OPEN_BOOK = "Event.OpenBook"
-        const val EXCEPTION_CANONICAL_CLASS_NAME = "Exception.CanonicalClassName"
-        const val EXCEPTION_CAUSE = "Exception.Cause"
-        const val EXCEPTION_MESSAGE = "Exception.Message"
-        const val EXCEPTION_LOCALIZED_MESSAGE = "Exception.LocalizedMessage"
-        const val EXCEPTION_STACK_TRACE = "Exception.StackTrace"
-        const val SEARCH_DATA = "Search.Data"
-        const val ANALYTICS_BOOK_ID = "Book.ID"
-        const val ANALYTICS_BOOK_NAME = "Book.Name"
-        const val ANALYTICS_BOOK_LANGUAGE = "Book.Language"
+        // Analytics events
+        const val EVENT_EXCEPTION = "Exception"
+        const val EVENT_SEARCH = "Search"
+        const val EVENT_OPEN_BOOK = "OpenBook"
+        const val EVENT_TOGGLE_FAVORITE = "ToggleFavorite"
+
+        // Analytics param name
+        const val PARAM_NAME_APP_VERSION_NAME = "App_VersionName"
+        const val PARAM_NAME_APP_VERSION_CODE = "App_VersionCode"
+        const val PARAM_NAME_EXCEPTION_CANONICAL_CLASS_NAME = "Exception_CanonicalClassName"
+        const val PARAM_NAME_EXCEPTION_CAUSE = "Exception_Cause"
+        const val PARAM_NAME_EXCEPTION_MESSAGE = "Exception_Message"
+        const val PARAM_NAME_EXCEPTION_LOCALIZED_MESSAGE = "Exception_LocalizedMessage"
+        const val PARAM_NAME_EXCEPTION_STACK_TRACE = "Exception_StackTrace"
+        const val PARAM_NAME_SEARCH_DATA = "Search_Data"
+        const val PARAM_NAME_ANALYTICS_BOOK_ID = "Book_ID"
+        const val PARAM_NAME_ANALYTICS_BOOK_LANGUAGE = "Book_Language"
+        const val PARAM_NAME_FAVORITE_STATUS = "Favorite_Status"
+
+        // Analytics param value
+        const val PARAM_VALUE_FAVORITE = "favorite"
+        const val PARAM_VALUE_UN_FAVORITE = "un_favorite"
 
         const val TOTAL = "total"
         const val PROGRESS = "progress"

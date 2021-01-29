@@ -25,10 +25,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.disposables.CompositeDisposable
-import nhdphuong.com.manga.Constants.Companion.ANALYTICS_BOOK_ID
-import nhdphuong.com.manga.Constants.Companion.ANALYTICS_BOOK_LANGUAGE
-import nhdphuong.com.manga.Constants.Companion.ANALYTICS_BOOK_NAME
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_LANGUAGE
 import nhdphuong.com.manga.Constants.Companion.EVENT_OPEN_BOOK
+import nhdphuong.com.manga.Constants.Companion.EVENT_TOGGLE_FAVORITE
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_FAVORITE_STATUS
+import nhdphuong.com.manga.Constants.Companion.PARAM_VALUE_FAVORITE
+import nhdphuong.com.manga.Constants.Companion.PARAM_VALUE_UN_FAVORITE
 import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.CommentResponse
@@ -331,11 +334,25 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun changeBookFavorite() {
         io.launch {
+            var favoriteStatus = PARAM_VALUE_FAVORITE
             if (isFavoriteBook) {
+                favoriteStatus = PARAM_VALUE_UN_FAVORITE
                 bookRepository.removeFavoriteBook(book)
             } else {
                 bookRepository.saveFavoriteBook(book)
             }
+            val favoriteParam = AnalyticsParam(PARAM_NAME_FAVORITE_STATUS, favoriteStatus)
+            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+
+            logAnalyticsEventUseCase.execute(EVENT_TOGGLE_FAVORITE, bookIdParam, favoriteParam)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    Logger.d(TAG, "Status $favoriteStatus of ")
+                }, {
+                    Logger.e(TAG, "Failed to log favorite status of book ${book.bookId}")
+                }).addTo(compositeDisposable)
+
             refreshBookFavorite()
             main.launch {
                 view.showFavoriteBookSaved(isFavoriteBook)
@@ -594,9 +611,8 @@ class BookPreviewPresenter @Inject constructor(
     private fun logBookInfo() {
         logAnalyticsEventUseCase.execute(
             EVENT_OPEN_BOOK,
-            AnalyticsParam(ANALYTICS_BOOK_ID, book.bookId),
-            AnalyticsParam(ANALYTICS_BOOK_NAME, book.usefulName),
-            AnalyticsParam(ANALYTICS_BOOK_LANGUAGE, book.language)
+            AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId),
+            AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_LANGUAGE, book.language)
         )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
