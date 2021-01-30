@@ -39,6 +39,8 @@ interface MasterDataSource {
         fun getVersionHistory(): Single<List<AppVersionInfo>>
 
         fun fetchAlternativeDomains(): Single<AlternativeDomainGroup>
+
+        fun fetchFeedbackFormUrl(): Single<String>
     }
 
     interface Local {

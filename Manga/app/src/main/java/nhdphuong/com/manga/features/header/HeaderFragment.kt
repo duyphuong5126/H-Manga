@@ -31,6 +31,7 @@ import nhdphuong.com.manga.features.tags.TagsActivity
 import nhdphuong.com.manga.features.tags.TagsContract
 import nhdphuong.com.manga.service.RecentFavoriteMigrationService
 import nhdphuong.com.manga.supports.SpaceItemDecoration
+import nhdphuong.com.manga.supports.openUrl
 import nhdphuong.com.manga.views.adapters.TabAdapter
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.showAdminEntryDialog
@@ -126,6 +127,9 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
                     Tab.PARODIES,
                     Tab.TAGS -> {
                         presenter.goToTagsList(tab)
+                    }
+                    Tab.FEEDBACK -> {
+                        presenter.requestFeedbackForm()
                     }
                     Tab.RANDOM -> {
                         presenter.processSelectedTab(tab)
@@ -299,6 +303,10 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
 
     override fun updateSuggestionList() {
         suggestionAdapter?.notifyDataSetChanged()
+    }
+
+    override fun navigateToFeedbackForm(formUrl: String) {
+        context?.openUrl(formUrl)
     }
 
     override fun showLoading() {

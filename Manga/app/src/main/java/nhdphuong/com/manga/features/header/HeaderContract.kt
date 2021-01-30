@@ -24,6 +24,7 @@ interface HeaderContract {
         fun showTagsDownloadingPopup()
         fun setUpSuggestionList(suggestionList: List<String>)
         fun updateSuggestionList()
+        fun navigateToFeedbackForm(formUrl: String)
     }
 
     interface Presenter : Base.Presenter {
@@ -31,5 +32,6 @@ interface HeaderContract {
         fun processSelectedTab(tab: Tab)
         fun saveSearchInfo(searchContent: String)
         fun refreshTagData()
+        fun requestFeedbackForm()
     }
 }

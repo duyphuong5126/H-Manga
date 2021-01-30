@@ -19,6 +19,7 @@ import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.AppVersionsCenter
 import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.SupportEmail
 import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.SupportTwitter
 import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.AvailableVersion
+import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.NewVersionAvailable
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.IFileUtils
@@ -98,8 +99,10 @@ class AboutUsPresenter @Inject constructor(
                 newVersions.takeIf { it.isNotEmpty() }?.map {
                     AvailableVersion(it.versionNumber, it.versionCode, it.whatsNew, it.downloadUrl)
                 }?.let {
-                    aboutList.removeAll { item -> item is AboutUiModel.NewVersionAvailable || item is AvailableVersion }
-                    aboutList.add(AboutUiModel.NewVersionAvailable)
+                    aboutList.removeAll { item ->
+                        item is NewVersionAvailable || item is AvailableVersion
+                    }
+                    aboutList.add(NewVersionAvailable)
                     aboutList.addAll(it)
                     view.refreshAboutList()
                 }

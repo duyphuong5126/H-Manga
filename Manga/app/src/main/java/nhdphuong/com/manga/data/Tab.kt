@@ -19,6 +19,7 @@ enum class Tab(val defaultName: String) {
     INFO(Constants.INFO),
 
     SETTINGS(Constants.SETTINGS),
+    FEEDBACK(Constants.FEEDBACK),
     ADMIN(Constants.ADMIN),
 
     NONE(Constants.RANDOM);

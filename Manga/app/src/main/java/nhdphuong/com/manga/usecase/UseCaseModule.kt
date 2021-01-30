@@ -55,4 +55,7 @@ interface UseCaseModule {
 
     @Binds
     fun checkRecentFavoriteMigrationNeededUseCase(useCaseImpl: CheckRecentFavoriteMigrationNeededUseCaseImpl): CheckRecentFavoriteMigrationNeededUseCase
+
+    @Binds
+    fun get(useCaseImpl: GetFeedbackFormUseCaseImpl): GetFeedbackFormUseCase
 }

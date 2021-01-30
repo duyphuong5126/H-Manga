@@ -234,4 +234,19 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
                 })
         }
     }
+
+    override fun fetchFeedbackFormUrl(): Single<String> {
+        return Single.create {
+            masterDataApiService.getFeedbackFormUrl().enqueue(object : Callback<String> {
+                override fun onResponse(call: Call<String>, response: Response<String>) {
+                    response.body()?.takeIf(String::isNotBlank)?.let(it::onSuccess)
+                        ?: it.onError(IllegalStateException("Null body response"))
+                }
+
+                override fun onFailure(call: Call<String>, t: Throwable) {
+                    it.onError(t)
+                }
+            })
+        }
+    }
 }

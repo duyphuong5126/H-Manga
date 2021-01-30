@@ -49,6 +49,9 @@ interface MasterDataApiService {
     @GET("${ApiConstants.NHENTAI_DB}/tags/CurrentAppVersion.json")
     fun getLatestAppVersion(): Call<LatestAppVersion>
 
+    @GET("${ApiConstants.NHENTAI_DB}/FeedbackForm.txt")
+    fun getFeedbackFormUrl(): Call<String>
+
     @GET("${ApiConstants.NHENTAI_DB}/VersionHistory.json")
     fun getVersionHistory(): Call<List<AppVersionInfo>>
 

@@ -385,4 +385,8 @@ class MasterDataRepository @Inject constructor(
     fun disableAlternativeDomain() {
         mMasterLocalDataSource.saveAlternativeDomain(null)
     }
+
+    fun fetchFeedbackFormUrl(): Single<String> {
+        return mMasterRemoteDataSource.fetchFeedbackFormUrl()
+    }
 }

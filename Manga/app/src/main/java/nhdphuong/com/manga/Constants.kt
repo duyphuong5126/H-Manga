@@ -59,6 +59,7 @@ class Constants {
         const val DOWNLOADED = "Downloaded"
 
         const val SETTINGS = "Settings"
+        const val FEEDBACK = "Feedback"
         const val ADMIN = "Admin"
 
         const val RECENT_TYPE = "Recent_type"
