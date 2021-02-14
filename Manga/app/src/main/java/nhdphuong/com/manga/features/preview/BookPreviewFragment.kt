@@ -677,24 +677,26 @@ class BookPreviewFragment :
 
     override fun showRecommendBook(bookList: List<Book>) {
         Logger.d(TAG, "recommended books, spanCount: ${bookList.size}")
-        mtvRecommendBook.becomeVisible()
-        hsvRecommendList.becomeVisible()
-        val gridLayoutManager = object : MyGridLayoutManager(context!!, bookList.size) {
-            override fun isAutoMeasureEnabled(): Boolean {
-                return true
-            }
-        }
-
-        rvRecommendList.layoutManager = gridLayoutManager
-        recommendBookAdapter = BookAdapter(
-            bookList,
-            BookAdapter.RECOMMEND_BOOK,
-            object : BookAdapter.OnBookClick {
-                override fun onItemClick(item: Book) {
-                    BookPreviewActivity.restart(item)
+        context?.let {
+            mtvRecommendBook.becomeVisible()
+            hsvRecommendList.becomeVisible()
+            val gridLayoutManager = object : MyGridLayoutManager(it, bookList.size) {
+                override fun isAutoMeasureEnabled(): Boolean {
+                    return true
                 }
-            })
-        rvRecommendList.adapter = recommendBookAdapter
+            }
+
+            rvRecommendList.layoutManager = gridLayoutManager
+            recommendBookAdapter = BookAdapter(
+                bookList,
+                BookAdapter.RECOMMEND_BOOK,
+                object : BookAdapter.OnBookClick {
+                    override fun onItemClick(item: Book) {
+                        BookPreviewActivity.restart(item)
+                    }
+                })
+            rvRecommendList.adapter = recommendBookAdapter
+        }
     }
 
     override fun showNoRecommendBook() {

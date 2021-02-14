@@ -10,29 +10,29 @@ import nhdphuong.com.manga.data.entity.book.tags.Parody
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 
 fun ITag.toTag(): Tag {
-    return Tag(id(), type(), name(), url(), count())
+    return Tag(id, type, name, url, count)
 }
 
 fun ITag.toArtist(): Artist {
-    return Artist(id(), type(), name(), url(), count())
+    return Artist(id, type, name, url, count)
 }
 
 fun ITag.toCharacter(): Character {
-    return Character(id(), type(), name(), url(), count())
+    return Character(id, type, name, url, count)
 }
 
 fun ITag.toParody(): Parody {
-    return Parody(id(), type(), name(), url(), count())
+    return Parody(id, type, name, url, count)
 }
 
 fun ITag.toGroup(): Group {
-    return Group(id(), type(), name(), url(), count())
+    return Group(id, type, name, url, count)
 }
 
 fun ITag.toLanguage(): Language {
-    return Language(id(), type(), name(), url(), count())
+    return Language(id, type, name, url, count)
 }
 
 fun ITag.toCategory(): Category {
-    return Category(id(), type(), name(), url(), count())
+    return Category(id, type, name, url, count)
 }

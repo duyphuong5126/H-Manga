@@ -39,7 +39,7 @@ import nhdphuong.com.manga.data.local.model.SearchModel
         LastVisitedPage::class,
         SearchModel::class
     ],
-    version = 7
+    version = 8
 )
 abstract class NHentaiDB : RoomDatabase() {
     abstract fun getRecentBookDAO(): BookDAO

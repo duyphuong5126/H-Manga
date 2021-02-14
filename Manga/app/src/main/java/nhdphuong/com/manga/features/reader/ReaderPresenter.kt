@@ -20,8 +20,12 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import nhdphuong.com.manga.Constants.Companion.EVENT_READ_BOOK
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.SharedPreferencesManager
+import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.supports.doInIOContext
+import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 import nhdphuong.com.manga.usecase.SaveLastVisitedPageUseCase
 import nhdphuong.com.manga.views.uimodel.ReaderType
 import org.apache.commons.collections4.queue.CircularFifoQueue
@@ -36,12 +40,14 @@ class ReaderPresenter @Inject constructor(
     private val startReadingPage: Int,
     private val getDownloadedBookPagesUseCase: GetDownloadedBookPagesUseCase,
     private val saveLastVisitedPageUseCase: SaveLastVisitedPageUseCase,
+    private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
     private val bookRepository: BookRepository,
     private val preferencesManager: SharedPreferencesManager,
     private val fileUtils: IFileUtils,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : ReaderContract.Presenter {
+    private val logger = Logger("ReaderPresenter")
 
     private lateinit var bookPages: ArrayList<String>
     private var currentPage: Int = -1
@@ -88,7 +94,7 @@ class ReaderPresenter @Inject constructor(
     }
 
     override fun start() {
-        Logger.d(TAG, "Start reading: ${book.previewTitle} from $startReadingPage")
+        logger.d("Start reading: ${book.previewTitle} from $startReadingPage")
         view.showBookTitle(book.previewTitle)
         bookPages = ArrayList()
         if (viewDownloadedData) {
@@ -96,11 +102,11 @@ class ReaderPresenter @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(onSuccess = { downloadedImages ->
-                    Logger.d(TAG, "Book ${book.bookId}: ${downloadedImages.size} page(s)")
+                    logger.d("Book ${book.bookId}: ${downloadedImages.size} page(s)")
                     bookPages.addAll(downloadedImages)
                     setUpReader()
                 }, onError = {
-                    Logger.d(TAG, "Failed to get pages of book ${book.bookId}: $it")
+                    logger.e("Failed to get pages of book ${book.bookId}: $it")
                 }).addTo(compositeDisposable)
         } else {
             saveRecentBook()
@@ -125,7 +131,7 @@ class ReaderPresenter @Inject constructor(
     }
 
     override fun updatePageIndicator(page: Int) {
-        Logger.d(TAG, "Current page: $page")
+        logger.d("Current page: $page")
         currentPage = page
         bookPages.size.let { pageCount ->
             if (page == pageCount - 1) {
@@ -135,7 +141,7 @@ class ReaderPresenter @Inject constructor(
             }
         }
         lastVisitedPageQueue.add(page)
-        Logger.d(TAG, "Last $LAST_VISITED_PAGE_LIMIT visited pages: $lastVisitedPageQueue")
+        logger.d("Last $LAST_VISITED_PAGE_LIMIT visited pages: $lastVisitedPageQueue")
     }
 
     override fun forceBackToGallery() {
@@ -184,7 +190,7 @@ class ReaderPresenter @Inject constructor(
                                 page.imageType
                             )
                         resultList.add(resultPath)
-                        Logger.d(TAG, "$fileName is saved successfully")
+                        logger.d("$fileName is saved successfully")
                     }
                     main.launch {
                         if (view.isActive()) {
@@ -192,7 +198,7 @@ class ReaderPresenter @Inject constructor(
                             view.showDownloadPopup()
                         }
                     }
-                    Logger.d(TAG, "Download page ${downloadPage + 1} completed")
+                    logger.d("Download page ${downloadPage + 1} completed")
                 }
                 fileUtils.refreshGallery(false, *resultList.toTypedArray())
                 isDownloading = false
@@ -202,7 +208,7 @@ class ReaderPresenter @Inject constructor(
                         view.hideDownloadPopup()
                     }
                 }
-                Logger.d(TAG, "All pages downloaded")
+                logger.d("All pages downloaded")
             }
         }
     }
@@ -234,24 +240,31 @@ class ReaderPresenter @Inject constructor(
     }
 
     override fun stop() {
-        Logger.d(TAG, "End reading: ${book.previewTitle}")
+        logger.d("End reading: ${book.previewTitle}")
         isDownloading = false
         compositeDisposable.clear()
         if (lastVisitedPageQueue.isNotEmpty()) {
             val lastVisitedPage = lastVisitedPage
-            Logger.d(TAG, "Saving last visited page $lastVisitedPage")
+            logger.d("Saving last visited page $lastVisitedPage")
             saveLastVisitedPageUseCase.execute(book.bookId, lastVisitedPage)
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    Logger.d(TAG, "Done saving last page $lastVisitedPage")
+                    logger.d("Done saving last page $lastVisitedPage")
                 }, {
-                    Logger.d(TAG, "Failed to save last page $lastVisitedPage with error: $it")
+                    logger.e("Failed to save last page $lastVisitedPage with error: $it")
                 }).addTo(unBoundCompositeDisposable)
         }
     }
 
     private fun setUpReader() {
         currentPage = if (startReadingPage >= 0) startReadingPage else 0
+
+        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+        logAnalyticsEventUseCase.execute(EVENT_READ_BOOK, bookIdParam)
+            .subscribeOn(Schedulers.io())
+            .subscribe()
+            .addTo(compositeDisposable)
+
         if (bookPages.isNotEmpty()) {
             view.showBookPages(bookPages, viewMode, currentPage)
         }
@@ -271,7 +284,6 @@ class ReaderPresenter @Inject constructor(
     }
 
     companion object {
-        private const val TAG = "ReaderPresenter"
         private const val LAST_VISITED_PAGE_LIMIT = 5
     }
 }

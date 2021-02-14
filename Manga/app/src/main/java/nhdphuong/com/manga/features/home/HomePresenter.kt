@@ -24,6 +24,7 @@ import nhdphuong.com.manga.data.entity.RemoteBookResponse
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.RemoteBook
 import nhdphuong.com.manga.data.entity.book.SortOption
+import nhdphuong.com.manga.data.entity.book.SortOption.Recent
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.data.repository.MasterDataRepository
 import nhdphuong.com.manga.enum.ErrorEnum
@@ -33,8 +34,11 @@ import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.usecase.CheckRecentFavoriteMigrationNeededUseCase
+import nhdphuong.com.manga.usecase.GetRecommendedBooksFromFavoriteUseCase
+import nhdphuong.com.manga.usecase.GetRecommendedBooksUseCase
 import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 import java.net.SocketTimeoutException
+import java.util.Calendar
 import java.util.Locale
 import java.util.Random
 import java.util.Collections
@@ -57,17 +61,20 @@ class HomePresenter @Inject constructor(
     private val sharedPreferencesManager: SharedPreferencesManager,
     private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
     private val checkRecentFavoriteMigrationNeededUseCase: CheckRecentFavoriteMigrationNeededUseCase,
+    private val getRecommendedBooksFromFavoriteUseCase: GetRecommendedBooksFromFavoriteUseCase,
+    private val getRecommendedBooksUseCase: GetRecommendedBooksUseCase,
     private val networkUtils: INetworkUtils,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : HomeContract.Presenter {
     companion object {
-        private const val TAG = "HomePresenter"
         private const val NUMBER_OF_PREVENTIVE_PAGES = 10
         private const val MAX_TRYING_PAGES = 10
         private const val BOOKS_PER_PAGE = MAX_PER_PAGE
         private const val TIMES_OPEN_APP_NEED_ALTERNATIVE_DOMAINS_MESSAGE = 20
     }
+
+    private val logger = Logger("HomePresenter")
 
     private var mainList = CopyOnWriteArrayList<Book>()
     private var currentNumOfPages = 0L
@@ -88,7 +95,7 @@ class HomePresenter @Inject constructor(
 
     private val tagsDownloadManager = DownloadManager.Companion.TagsDownloadManager
 
-    private var sortOption = SortOption.Recent
+    private var sortOption = Recent
         set(value) {
             val lastValue = field
             field = value
@@ -100,6 +107,8 @@ class HomePresenter @Inject constructor(
     private val remoteBookErrorSubject = PublishSubject.create<Throwable>()
 
     private val compositeDisposable = CompositeDisposable()
+
+    private val isBeingReloaded = AtomicBoolean(false)
 
     init {
         view.setPresenter(this)
@@ -121,13 +130,13 @@ class HomePresenter @Inject constructor(
     }
 
     override fun start() {
-        Logger.d(TAG, "start")
+        logger.d("start")
         sharedPreferencesManager.timesOpenApp++
         reload(true)
         if (!sharedPreferencesManager.tagsDataDownloaded) {
             tagsDownloadManager.startDownloading()
             masterDataRepository.fetchAllTagLists { isSuccess ->
-                Logger.d(TAG, "Tags fetching completed, isSuccess=$isSuccess")
+                logger.d("Tags fetching completed, isSuccess=$isSuccess")
                 if (isSuccess) {
                     sharedPreferencesManager.tagsDataDownloaded = true
                 }
@@ -140,18 +149,14 @@ class HomePresenter @Inject constructor(
                 }
                 masterDataRepository.getTagDataVersion(onSuccess = { newVersion ->
                     if (sharedPreferencesManager.currentTagVersion != newVersion) {
-                        Logger.d(
-                            TAG, "New version is available, " +
-                                    "new version: $newVersion," +
-                                    " current version: ${sharedPreferencesManager.currentTagVersion}"
-                        )
+                        logger.d("New version is available, new version: $newVersion, current version: ${sharedPreferencesManager.currentTagVersion}")
                         sharedPreferencesManager.currentTagVersion = newVersion
                     } else {
-                        Logger.d(TAG, "App is already updated to the version $newVersion")
+                        logger.d("App is already updated to the version $newVersion")
                     }
                     onVersionFetched()
                 }, onError = {
-                    Logger.d(TAG, "Version fetching failed")
+                    logger.e("Version fetching failed")
                     onVersionFetched()
                 })
             }
@@ -162,27 +167,27 @@ class HomePresenter @Inject constructor(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ migrationNeeded ->
-                Logger.d(TAG, "Need migration $migrationNeeded")
+                logger.d("Need migration $migrationNeeded")
                 if (migrationNeeded) {
                     view.startRecentFavoriteMigration()
                 }
             }, {
-                Logger.d(TAG, "Failed to check migration needed with error $it")
+                logger.e("Failed to check migration needed with error $it")
             }).addTo(compositeDisposable)
     }
 
     override fun jumpToPage(pageNumber: Long) {
-        Logger.d(TAG, "Navigate to page $pageNumber")
+        logger.d("Navigate to page $pageNumber")
         onPageChange(pageNumber)
     }
 
     override fun jumToFirstPage() {
-        Logger.d(TAG, "Navigate to first page")
+        logger.d("Navigate to first page")
         onPageChange(1)
     }
 
     override fun jumToLastPage() {
-        Logger.d(TAG, "Navigate to last page: $currentNumOfPages")
+        logger.d("Navigate to last page: $currentNumOfPages")
         onPageChange(currentNumOfPages)
     }
 
@@ -200,7 +205,7 @@ class HomePresenter @Inject constructor(
         io.launch {
             val upgradeNotificationAllowed = sharedPreferencesManager.isUpgradeNotificationAllowed
             masterDataRepository.getAppVersion(onSuccess = { latestVersion ->
-                Logger.d(TAG, "Latest version: $latestVersion")
+                logger.d("Latest version: $latestVersion")
                 val isLatestVersion = BuildConfig.VERSION_CODE == latestVersion.versionNumber
                 val versionAcknowledged = newerVersionAcknowledged.get()
                 if (!isLatestVersion && !versionAcknowledged && upgradeNotificationAllowed) {
@@ -211,7 +216,7 @@ class HomePresenter @Inject constructor(
                     }
                 }
             }, onError = { error ->
-                Logger.e(TAG, "Failed to get app version with error: $error")
+                logger.e("Failed to get app version with error: $error")
             })
         }
     }
@@ -314,7 +319,7 @@ class HomePresenter @Inject constructor(
                 .addTo(compositeDisposable)
             reload(false)
         } else {
-            Logger.d(TAG, "Search data is not changed")
+            logger.d("Search data is not changed")
         }
     }
 
@@ -328,10 +333,7 @@ class HomePresenter @Inject constructor(
             }
             val randomPage = random.nextInt(bound) + 1
             getBooksListByPage(randomPage.toLong(), false)?.bookList.let { randomBooks ->
-                Logger.d(
-                    TAG, "Randomized paged $randomPage," +
-                            " books count=${randomBooks?.size ?: 0}"
-                )
+                logger.d("Randomized paged $randomPage, books count=${randomBooks?.size ?: 0}")
                 if (randomBooks?.isEmpty() == false) {
                     val randomIndex = random.nextInt(randomBooks.size)
                     main.launch {
@@ -344,7 +346,7 @@ class HomePresenter @Inject constructor(
     }
 
     override fun updateSortOption(sortOption: SortOption) {
-        Logger.d(TAG, "sortOption $sortOption")
+        logger.d("sortOption $sortOption")
         this.sortOption = sortOption
         if (view.isActive()) {
             view.enableSortOption(sortOption)
@@ -356,7 +358,7 @@ class HomePresenter @Inject constructor(
     }
 
     override fun stop() {
-        Logger.d(TAG, "stop")
+        logger.d("stop")
         io.launch {
             while (jobList.size > 0) {
                 val job = jobList.removeAt(0)
@@ -368,64 +370,73 @@ class HomePresenter @Inject constructor(
     }
 
     private fun reload(needToAskAlternativeDomains: Boolean) {
+        if (!isBeingReloaded.compareAndSet(false, true)) {
+            return
+        }
         clearData()
 
         view.showLoading()
         view.setUpHomeBookList(mainList)
         val downloadingJob = io.launch {
-            val startTime = System.currentTimeMillis()
-            var remoteBook = getBooksListByPage(currentPage, true)
-            var triedPages = 1
-            while (remoteBook == null && triedPages < MAX_TRYING_PAGES && networkUtils.isNetworkConnected()) {
-                Logger.d(TAG, "Page $currentPage is empty, trying page ${currentPage + 1}")
-                currentPage++
-                triedPages++
-                remoteBook = getBooksListByPage(currentPage, true)
-            }
-            Logger.d(TAG, "Time spent=${System.currentTimeMillis() - startTime}")
-            currentNumOfPages = remoteBook?.numOfPages ?: 0
-            currentLimitPerPage = remoteBook?.numOfBooksPerPage ?: 0
-            Logger.d(TAG, "Remote books: $currentNumOfPages")
-            val bookList = remoteBook?.bookList ?: ArrayList()
-            mainList.addAll(bookList)
-            preventiveData[currentPage] = bookList
-            for (book in bookList) {
-                Logger.d(TAG, book.logString)
-            }
+            try {
+                val startTime = System.currentTimeMillis()
+                var remoteBook = getBooksListByPage(currentPage, true)
+                var triedPages = 1
+                while (remoteBook == null && triedPages < MAX_TRYING_PAGES && networkUtils.isNetworkConnected()) {
+                    logger.d("Page $currentPage is empty, trying page ${currentPage + 1}")
+                    currentPage++
+                    triedPages++
+                    remoteBook = getBooksListByPage(currentPage, true)
+                }
+                logger.d("Time spent=${System.currentTimeMillis() - startTime}")
+                currentNumOfPages = remoteBook?.numOfPages ?: 0
+                currentLimitPerPage = remoteBook?.numOfBooksPerPage ?: 0
+                logger.d("Remote books: $currentNumOfPages")
+                val bookList = remoteBook?.bookList ?: ArrayList()
+                mainList.addAll(bookList)
+                preventiveData[currentPage] = bookList
 
-            if (networkUtils.isNetworkConnected()) {
-                loadPreventiveData()
-            }
+                if (networkUtils.isNetworkConnected()) {
+                    loadPreventiveData()
+                }
 
-            val timesOpenApp = sharedPreferencesManager.timesOpenApp
-            val timesOpenAppMatched =
-                (timesOpenApp % TIMES_OPEN_APP_NEED_ALTERNATIVE_DOMAINS_MESSAGE == 0 || timesOpenApp == 1)
-            val checkedOutAlternativeDomains = sharedPreferencesManager.checkedOutAlternativeDomains
-            val alternativeDomainInUsed = sharedPreferencesManager.useAlternativeDomain
-            val showAlternativeDomainsQuestion = needToAskAlternativeDomains && timesOpenAppMatched
-                    && !checkedOutAlternativeDomains && !alternativeDomainInUsed
-            main.launch {
-                if (view.isActive()) {
-                    view.refreshHomeBookList()
-                    if (currentNumOfPages > 0) {
-                        view.refreshHomePagination(currentNumOfPages, currentPage.toInt() - 1)
-                        view.hideNothingView()
-                        view.enableSortOption(sortOption)
-                        if (searchData.isNotBlank()) {
-                            view.showSortOptionList()
+                val timesOpenApp = sharedPreferencesManager.timesOpenApp
+                val timesOpenAppMatched =
+                    (timesOpenApp % TIMES_OPEN_APP_NEED_ALTERNATIVE_DOMAINS_MESSAGE == 0 || timesOpenApp == 1)
+                val checkedOutAlternativeDomains =
+                    sharedPreferencesManager.checkedOutAlternativeDomains
+                val alternativeDomainInUsed = sharedPreferencesManager.useAlternativeDomain
+                val showAlternativeDomainsQuestion =
+                    needToAskAlternativeDomains && timesOpenAppMatched
+                            && !checkedOutAlternativeDomains && !alternativeDomainInUsed
+                main.launch {
+                    if (view.isActive()) {
+                        view.refreshHomeBookList()
+                        if (currentNumOfPages > 0) {
+                            view.refreshHomePagination(currentNumOfPages, currentPage.toInt() - 1)
+                            view.hideNothingView()
+                            view.enableSortOption(sortOption)
+                            if (searchData.isNotBlank()) {
+                                view.showSortOptionList()
+                            }
+                        } else {
+                            view.showNothingView()
+                            view.hideSortOptionList()
                         }
-                    } else {
-                        view.showNothingView()
-                        view.hideSortOptionList()
-                    }
-                    view.hideLoading()
-                    if (showAlternativeDomainsQuestion) {
-                        view.showAlternativeDomainsQuestion()
+                        view.hideLoading()
+                        if (showAlternativeDomainsQuestion) {
+                            view.showAlternativeDomainsQuestion()
+                        }
                     }
                 }
+            } catch (throwable: Throwable) {
+                isBeingReloaded.compareAndSet(true, false)
+            } finally {
+                isBeingReloaded.compareAndSet(true, false)
             }
         }
         jobList.add(downloadingJob)
+        syncRecommendedBooks()
     }
 
     private fun onPageChange(pageNumber: Long) {
@@ -461,7 +472,7 @@ class HomePresenter @Inject constructor(
                             preventiveData[page]?.addAll(bookList)
                         }
                     }
-                    Logger.d(TAG, "Page $page loaded")
+                    logger.d("Page $page loaded")
                 }
             }
 
@@ -470,7 +481,7 @@ class HomePresenter @Inject constructor(
                 var pageId = 0
                 logListLong("Before deleted page list: ", pageList)
                 while (preventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
-                    Logger.d(TAG, "Remove page: $pageId")
+                    logger.d("Remove page: $pageId")
                     val page = pageList[pageId++]
                     (preventiveData[page] as ArrayList).clear()
                     preventiveData.remove(page)
@@ -510,7 +521,7 @@ class HomePresenter @Inject constructor(
             message += "${listInt[i]}, "
         }
         message += "${listInt[listInt.size - 1]}]"
-        Logger.d(TAG, message)
+        logger.d(message)
     }
 
     private suspend fun loadPreventiveData() {
@@ -521,10 +532,10 @@ class HomePresenter @Inject constructor(
                 val startPage = currentPage + 1L
                 val endPage = startPage + NUMBER_OF_PREVENTIVE_PAGES.toLong()
                 for (page in startPage..endPage) {
-                    Logger.d(TAG, "Start loading page $page")
+                    logger.d("Start loading page $page")
                     io.launch {
                         val remoteBook = getBooksListByPage(page, false)
-                        Logger.d(TAG, "Done loading page $page")
+                        logger.d("Done loading page $page")
                         remoteBook?.bookList?.let { bookList ->
                             if (bookList.isNotEmpty()) {
                                 preventiveData[page] = bookList
@@ -538,7 +549,7 @@ class HomePresenter @Inject constructor(
             }
         }
 
-        Logger.d(TAG, "Load preventive data successfully")
+        logger.d("Load preventive data successfully")
         isLoadingPreventiveData = false
     }
 
@@ -586,5 +597,25 @@ class HomePresenter @Inject constructor(
             }
             else -> null
         }
+    }
+
+    private fun syncRecommendedBooks() {
+        val dayOfWeek = Calendar.getInstance(Locale.getDefault()).get(Calendar.DAY_OF_WEEK)
+        getRecommendedBooksUseCase.execute(dayOfWeek, searchData)
+            .switchIfEmpty(getRecommendedBooksFromFavoriteUseCase.execute())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                logger.d("Recommended books: ${it.size}")
+                if (it.isNotEmpty()) {
+                    view.showRecommendBook(it)
+                } else {
+                    view.hideRecommendBook()
+                }
+            }, {
+                logger.e("Failed to get recommended books with error $it")
+                view.hideRecommendBook()
+            })
+            .addTo(compositeDisposable)
     }
 }

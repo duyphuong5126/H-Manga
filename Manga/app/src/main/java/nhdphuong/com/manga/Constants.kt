@@ -126,6 +126,7 @@ class Constants {
         const val LOCAL_PATH = "localPath"
         const val LAST_VISITED_PAGE = "lastVisitedPage"
         const val SEARCH_INFO = "searchInfo"
+        const val SEARCH_TIMES = "searchTimes"
         const val RAW_BOOK = "rawBook"
 
         // Notifications
@@ -153,6 +154,10 @@ class Constants {
         const val EVENT_EXCEPTION = "Exception"
         const val EVENT_SEARCH = "Search"
         const val EVENT_OPEN_BOOK = "OpenBook"
+        const val EVENT_DOWNLOAD_BOOK = "DownloadBook"
+        const val EVENT_READ_BOOK = "ReadBook"
+        const val EVENT_BROWSE_RECENT = "BrowseRecent"
+        const val EVENT_BROWSE_FAVORITE = "BrowseFavorite"
         const val EVENT_TOGGLE_FAVORITE = "ToggleFavorite"
 
         // Analytics param name

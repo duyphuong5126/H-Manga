@@ -17,6 +17,7 @@ import nhdphuong.com.manga.Constants.Companion.LOCAL_PATH
 import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE
 import nhdphuong.com.manga.Constants.Companion.RAW_BOOK
 import nhdphuong.com.manga.Constants.Companion.TABLE_LAST_VISITED_PAGE
+import nhdphuong.com.manga.Constants.Companion.TAG_ID
 import nhdphuong.com.manga.data.entity.FavoriteBook
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.local.model.BookImageModel
@@ -52,6 +53,9 @@ interface BookDAO {
 
     @Query("select * from $BOOK_TAG where $BOOK_ID = :bookId")
     fun getAllTagsOfBook(bookId: String): Single<List<BookTagModel>>
+
+    @Query("select $TAG_ID from $BOOK_TAG group by $TAG_ID order by count($TAG_ID) limit :maximumEntries")
+    fun getMostUsedTags(maximumEntries: Int): Single<List<Long>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addImageOfBook(bookImageModel: BookImageModel): Long
@@ -93,6 +97,12 @@ interface BookDAO {
 
     @Query("select * from $FAVORITE_BOOK_TABLE where $RAW_BOOK = ''")
     fun getEmptyFavoriteBooks(): Single<List<FavoriteBook>>
+
+    @Query("select $BOOK_ID from $RECENT_BOOK_TABLE")
+    fun getRecentBookIds(): List<String>
+
+    @Query("select $BOOK_ID from $FAVORITE_BOOK_TABLE")
+    fun getFavoriteBookIds(): List<String>
 
     @Query("select count(*) from $RECENT_BOOK_TABLE where $RAW_BOOK = ''")
     fun getEmptyRecentBooksCount(): Int

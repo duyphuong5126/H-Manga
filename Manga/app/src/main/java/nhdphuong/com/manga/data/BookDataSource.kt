@@ -42,6 +42,8 @@ interface BookDataSource {
         fun getEmptyFavoriteBooksCount(): Int
         suspend fun getRecentBooks(limit: Int, offset: Int): LinkedList<RecentBook>
         suspend fun getFavoriteBooks(limit: Int, offset: Int): LinkedList<FavoriteBook>
+        suspend fun getAllRecentBookIds(): List<String>
+        suspend fun getAllFavoriteBookIds(): List<String>
         fun updateRawRecentBook(bookId: String, rawBook: String): Boolean
         fun updateRawFavoriteBook(bookId: String, rawBook: String): Boolean
         suspend fun isFavoriteBook(bookId: String): Boolean
@@ -75,5 +77,7 @@ interface BookDataSource {
         fun saveLastVisitedPage(bookId: String, lastVisitedPage: Int): Completable
 
         fun getLastVisitedPage(bookId: String): Single<Int>
+
+        fun getMostUsedTags(maximumEntries: Int): Single<List<String>>
     }
 }

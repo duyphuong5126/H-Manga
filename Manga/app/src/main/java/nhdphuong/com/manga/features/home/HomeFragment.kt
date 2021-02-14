@@ -43,6 +43,7 @@ import nhdphuong.com.manga.features.preview.BookPreviewActivity
 import nhdphuong.com.manga.features.setting.SettingsActivity
 import nhdphuong.com.manga.service.NetworkManager
 import nhdphuong.com.manga.service.RecentFavoriteMigrationService
+import nhdphuong.com.manga.views.MyGridLayoutManager
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.gone
@@ -106,6 +107,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     private lateinit var mtvLastUpdate: MyTextView
     private lateinit var mtvRefresh: MyTextView
     private lateinit var pbRefresh: ProgressBar
+    private lateinit var hsvRecommendList: HorizontalScrollView
+    private lateinit var mtvRecommendBook: MyTextView
+    private lateinit var rvRecommendList: RecyclerView
 
     @Inject
     lateinit var networkManager: NetworkManager
@@ -133,6 +137,9 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         mtvUpgradeTitle = rootView.findViewById(R.id.mtvUpgradeTitle)
         tvNothing = rootView.findViewById(R.id.tvNothing)
         upgradePopupPlaceHolder = rootView.findViewById(R.id.upgradePopupPlaceHolder)
+        hsvRecommendList = rootView.findViewById(R.id.hsvRecommendList)
+        mtvRecommendBook = rootView.findViewById(R.id.mtvRecommendBook)
+        rvRecommendList = rootView.findViewById(R.id.rvRecommendList)
         ivRefresh = refreshHeader.findViewById(R.id.ivRefresh)
         mtvLastUpdate = refreshHeader.findViewById(R.id.mtvLastUpdate)
         mtvRefresh = refreshHeader.findViewById(R.id.mtvRefresh)
@@ -352,6 +359,31 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         mainListLayoutManager.gapStrategy = StaggeredGridLayoutManager.HORIZONTAL
         mainList.layoutManager = mainListLayoutManager
         mainList.adapter = homeListAdapter
+    }
+
+    override fun showRecommendBook(bookList: List<Book>) {
+        mtvRecommendBook.becomeVisible()
+        hsvRecommendList.becomeVisible()
+        context?.let {
+            val gridLayoutManager = object : MyGridLayoutManager(it, bookList.size) {
+                override fun isAutoMeasureEnabled(): Boolean {
+                    return true
+                }
+            }
+
+            rvRecommendList.layoutManager = gridLayoutManager
+            rvRecommendList.adapter =
+                BookAdapter(bookList, BookAdapter.RECOMMEND_BOOK, object : BookAdapter.OnBookClick {
+                    override fun onItemClick(item: Book) {
+                        BookPreviewActivity.start(this@HomeFragment, item)
+                    }
+                })
+        }
+    }
+
+    override fun hideRecommendBook() {
+        mtvRecommendBook.gone()
+        hsvRecommendList.gone()
     }
 
     override fun refreshHomeBookList() {

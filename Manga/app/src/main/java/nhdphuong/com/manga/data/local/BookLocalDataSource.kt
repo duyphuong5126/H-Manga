@@ -15,6 +15,13 @@ import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.BookImages
 import nhdphuong.com.manga.data.entity.book.BookTitle
 import nhdphuong.com.manga.data.entity.book.ImageMeasurements
+import nhdphuong.com.manga.data.entity.book.tags.Artist
+import nhdphuong.com.manga.data.entity.book.tags.Category
+import nhdphuong.com.manga.data.entity.book.tags.Character
+import nhdphuong.com.manga.data.entity.book.tags.Group
+import nhdphuong.com.manga.data.entity.book.tags.ITag
+import nhdphuong.com.manga.data.entity.book.tags.Language
+import nhdphuong.com.manga.data.entity.book.tags.Parody
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.local.model.DownloadedBookModel
 import nhdphuong.com.manga.data.local.model.ImageUsageType
@@ -39,6 +46,8 @@ class BookLocalDataSource @Inject constructor(
     private val tagDAO: TagDAO,
     private val serializationService: SerializationService
 ) : BookDataSource.Local {
+    private val logger = Logger("BookLocalDataSource")
+
     override suspend fun saveRecentBook(book: Book) {
         bookDAO.insertRecentBooks(
             RecentBook(
@@ -89,6 +98,14 @@ class BookLocalDataSource @Inject constructor(
         val result = LinkedList<FavoriteBook>()
         result.addAll(bookDAO.getFavoriteBooks(limit, offset))
         return result
+    }
+
+    override suspend fun getAllFavoriteBookIds(): List<String> {
+        return bookDAO.getFavoriteBookIds()
+    }
+
+    override suspend fun getAllRecentBookIds(): List<String> {
+        return bookDAO.getRecentBookIds()
     }
 
     override fun updateRawFavoriteBook(bookId: String, rawBook: String): Boolean {
@@ -155,12 +172,12 @@ class BookLocalDataSource @Inject constructor(
 
                 val tagIds = tagList.map { it.tagId }
                 val bookTags = ArrayList<Tag>(tagDAO.getTagsByIds(tagIds))
-                bookTags.addAll(tagDAO.getArtistsByIds(tagIds).map { it.toTag() })
-                bookTags.addAll(tagDAO.getParodiesByIds(tagIds).map { it.toTag() })
-                bookTags.addAll(tagDAO.getCategoriesByIds(tagIds).map { it.toTag() })
-                bookTags.addAll(tagDAO.getLanguagesByIds(tagIds).map { it.toTag() })
-                bookTags.addAll(tagDAO.getCharactersByIds(tagIds).map { it.toTag() })
-                bookTags.addAll(tagDAO.getGroupsByIds(tagIds).map { it.toTag() })
+                bookTags.addAll(tagDAO.getArtistsByIds(tagIds).map(ITag::toTag))
+                bookTags.addAll(tagDAO.getParodiesByIds(tagIds).map(ITag::toTag))
+                bookTags.addAll(tagDAO.getCategoriesByIds(tagIds).map(ITag::toTag))
+                bookTags.addAll(tagDAO.getLanguagesByIds(tagIds).map(ITag::toTag))
+                bookTags.addAll(tagDAO.getCharactersByIds(tagIds).map(ITag::toTag))
+                bookTags.addAll(tagDAO.getGroupsByIds(tagIds).map(ITag::toTag))
 
                 val book = Book(
                     bookId = downloadedBookModel.bookId,
@@ -224,7 +241,7 @@ class BookLocalDataSource @Inject constructor(
                     numOfPages = book.numOfPages
                 )
             })
-            Logger.d(TAG, "Downloaded book saving result: $savingResult")
+            logger.d("Downloaded book saving result: $savingResult")
         }.andThen(extractAndSaveTagList(book))
     }
 
@@ -273,20 +290,20 @@ class BookLocalDataSource @Inject constructor(
     override fun clearDownloadedImagesOfBook(bookId: String): Completable {
         return Completable.fromCallable {
             val deletedRecords = bookDAO.clearDownloadedImages(bookId)
-            Logger.d(TAG, "Deleted $deletedRecords image(s) of book $bookId")
+            logger.d("Deleted $deletedRecords image(s) of book $bookId")
         }
     }
 
     override fun deleteBook(bookId: String): Completable {
         return Completable.fromCallable {
             val deletedRecords = bookDAO.deleteBook(bookId)
-            Logger.d(TAG, "Deleted $deletedRecords book(s) by id $bookId")
+            logger.d("Deleted $deletedRecords book(s) by id $bookId")
         }
     }
 
     override suspend fun unSeenBook(bookId: String): Boolean {
         val deletingResult = bookDAO.deleteRecentBook(bookId)
-        Logger.d(TAG, "Deleting result of $bookId: $deletingResult")
+        logger.d("Deleting result of $bookId: $deletingResult")
         return deletingResult > 0
     }
 
@@ -297,12 +314,27 @@ class BookLocalDataSource @Inject constructor(
     override fun saveLastVisitedPage(bookId: String, lastVisitedPage: Int): Completable {
         return Completable.fromCallable {
             val insertResult = bookDAO.addLastVisitedPage(LastVisitedPage(bookId, lastVisitedPage))
-            Logger.d(TAG, "Inserted ${insertResult.size} row(s)")
+            logger.d("Inserted ${insertResult.size} row(s)")
         }
     }
 
     override fun getLastVisitedPage(bookId: String): Single<Int> {
         return bookDAO.getLastVisitedPage(bookId)
+    }
+
+    override fun getMostUsedTags(maximumEntries: Int): Single<List<String>> {
+        return bookDAO.getMostUsedTags(maximumEntries)
+            .map {
+                val mostUsedTagNames = arrayListOf<String>()
+                mostUsedTagNames.addAll(tagDAO.getArtistsByIds(it).map(Artist::name))
+                mostUsedTagNames.addAll(tagDAO.getCharactersByIds(it).map(Character::name))
+                mostUsedTagNames.addAll(tagDAO.getParodiesByIds(it).map(Parody::name))
+                mostUsedTagNames.addAll(tagDAO.getTagsByIds(it).map(Tag::name))
+                mostUsedTagNames.addAll(tagDAO.getCategoriesByIds(it).map(Category::name))
+                mostUsedTagNames.addAll(tagDAO.getLanguagesByIds(it).map(Language::name))
+                mostUsedTagNames.addAll(tagDAO.getGroupsByIds(it).map(Group::name))
+                mostUsedTagNames
+            }
     }
 
     private fun extractAndSaveTagList(book: Book): Completable {
@@ -322,9 +354,9 @@ class BookLocalDataSource @Inject constructor(
                 .let(tagDAO::insertParodies)
         }.doOnComplete {
             val savingResult = bookDAO.addTagListOfBook(book.tags.map { tag ->
-                BookTagModel(bookId = book.bookId, tagId = tag.tagId)
+                BookTagModel(bookId = book.bookId, tagId = tag.id)
             })
-            Logger.d(TAG, "Tags saving result of book ${book.bookId}: $savingResult")
+            logger.d("Tags saving result of book ${book.bookId}: $savingResult")
         }
     }
 
@@ -341,9 +373,5 @@ class BookLocalDataSource @Inject constructor(
 
     private fun serializeBook(book: Book): String {
         return serializationService.serialize(book)
-    }
-
-    companion object {
-        private const val TAG = "BookLocalDataSource"
     }
 }

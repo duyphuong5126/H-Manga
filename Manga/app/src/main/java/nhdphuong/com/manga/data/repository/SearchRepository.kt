@@ -8,6 +8,7 @@ import javax.inject.Inject
 interface SearchRepository {
     fun saveSearchEntry(searchInfo: String): Completable
     fun getLatestSearchEntries(maximumEntries: Int): Single<List<String>>
+    fun getMostUsedSearchEntries(maximumEntries: Int): Single<List<String>>
 }
 
 class SearchRepositoryImpl @Inject constructor(
@@ -19,5 +20,9 @@ class SearchRepositoryImpl @Inject constructor(
 
     override fun getLatestSearchEntries(maximumEntries: Int): Single<List<String>> {
         return searchLocalDataSource.getLatestSearchEntries(maximumEntries)
+    }
+
+    override fun getMostUsedSearchEntries(maximumEntries: Int): Single<List<String>> {
+        return searchLocalDataSource.getMostUsedSearchEntries(maximumEntries)
     }
 }

@@ -59,6 +59,8 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
     private lateinit var listPages: RecyclerView
     private lateinit var listTags: RecyclerView
 
+    private val logger = Logger("TagsFragment")
+
     override fun setPresenter(presenter: TagsContract.Presenter) {
         mPresenter = presenter
     }
@@ -82,7 +84,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
         mCharacterAdapter.onCharacterSelectCallback =
             object : PaginationAdapter.OnCharacterSelectCallback {
                 override fun onPageSelected(character: Char) {
-                    Logger.d(TAG, "character=$character")
+                    logger.d("character=$character")
                     mPresenter.filterByCharacter(character)
                 }
             }
@@ -204,7 +206,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
         mNumberAdapter = PaginationAdapter(pageCount)
         mNumberAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
             override fun onPageSelected(page: Int) {
-                Logger.d(TAG, "Page $page is selected")
+                logger.d("Page $page is selected")
                 mPresenter.jumpToPage(page)
             }
         }
@@ -245,8 +247,8 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
         if (!this::mTagItemAdapter.isInitialized) {
             mTagItemAdapter = TagItemAdapter(source, object : TagItemAdapter.OnTagClickListener {
                 override fun onTagClick(iTag: ITag) {
-                    Logger.d(TAG, "Tag: ${iTag.name()}")
-                    mSearchContract?.onSearchInputted(iTag.name())
+                    logger.d("Tag: ${iTag.name}")
+                    mSearchContract?.onSearchInputted(iTag.name)
                 }
             })
             listTags.apply {
@@ -321,9 +323,5 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
 
     private fun toggleTagList(isEmpty: Boolean) {
         listPages.visibility = if (isEmpty) View.GONE else View.VISIBLE
-    }
-
-    companion object {
-        private const val TAG = "TagsFragment"
     }
 }

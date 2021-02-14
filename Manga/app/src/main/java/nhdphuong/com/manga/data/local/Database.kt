@@ -22,6 +22,7 @@ import nhdphuong.com.manga.Constants.Companion.IMAGE_HEIGHT
 import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE
 import nhdphuong.com.manga.Constants.Companion.RAW_BOOK
 import nhdphuong.com.manga.Constants.Companion.SEARCH_INFO
+import nhdphuong.com.manga.Constants.Companion.SEARCH_TIMES
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 
@@ -39,11 +40,17 @@ class Database {
                         NHentaiApp.instance.applicationContext, NHentaiDB::class.java, NHENTAI_DB
                     ).addMigrations(
                         MIGRATE_FROM_2_TO_3, MIGRATE_FROM_3_TO_4, MIGRATE_FROM_4_TO_5,
-                        MIGRATE_FROM_5_TO_6, MIGRATE_FROM_6_TO_7
+                        MIGRATE_FROM_5_TO_6, MIGRATE_FROM_6_TO_7, MIGRATE_FROM_7_TO_8
                     ).build()
                 }
                 return mInstance!!
             }
+
+        private val MIGRATE_FROM_7_TO_8 = object : Migration(7, 8) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE $TABLE_SEARCH ADD COLUMN $SEARCH_TIMES INTEGER NOT NULL DEFAULT 1")
+            }
+        }
 
         private val MIGRATE_FROM_6_TO_7 = object : Migration(6, 7) {
             override fun migrate(database: SupportSQLiteDatabase) {

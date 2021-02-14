@@ -56,7 +56,8 @@ class BookRemoteDataSource(
             try {
                 val url = "${ApiConstants.homeUrl}/api/gallery/$bookId/related"
                 val responseData = performGetRequest(url).orEmpty()
-                val recommendBook = serializationService.deserialize(responseData, RecommendBook::class.java)
+                val recommendBook =
+                    serializationService.deserialize(responseData, RecommendBook::class.java)
                 val recommendBookResult = RecommendBookResponse.Success(recommendBook)
                 continuation.resume(recommendBookResult)
             } catch (throwable: Throwable) {
@@ -76,7 +77,8 @@ class BookRemoteDataSource(
                         bookId
                     )
                 val responseData = performGetRequest(url).orEmpty()
-                val commentsResponse = serializationService.deserialize(responseData, Array<Comment>::class.java)
+                val commentsResponse =
+                    serializationService.deserialize(responseData, Array<Comment>::class.java)
                 val recommendBookResult = CommentResponse.Success(commentsResponse.toList())
                 continuation.resume(recommendBookResult)
             } catch (throwable: Throwable) {
@@ -156,7 +158,7 @@ class BookRemoteDataSource(
                 }
                 br.close()
                 connection.disconnect()
-                Logger.d(TAG, "Data=$sb")
+                Logger.d(TAG, "requestUrl=$requestUrl\nData=$sb")
                 return sb.toString()
             }
         }

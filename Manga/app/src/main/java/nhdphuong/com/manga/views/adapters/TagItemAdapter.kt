@@ -55,8 +55,8 @@ class TagItemAdapter(
         }
 
         fun setData(tag: ITag) {
-            mtvTagLabel.text = tag.name()
-            mtvTagCount.text = "${tag.count()}"
+            mtvTagLabel.text = tag.name
+            mtvTagCount.text = "${tag.count}"
             mTag = tag
         }
     }

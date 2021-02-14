@@ -4,7 +4,6 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.JsonObject
@@ -14,19 +13,19 @@ import nhdphuong.com.manga.Constants
 @Entity(tableName = Constants.TABLE_PARODY, indices = [Index(value = [Constants.NAME])])
 data class Parody(
     @field:SerializedName(Constants.ID)
-    @PrimaryKey @ColumnInfo(name = Constants.ID) var tagId: Long,
+    @PrimaryKey @ColumnInfo(name = Constants.ID) override val id: Long,
 
-    @field:SerializedName(Constants.TYPE) @ColumnInfo(name = Constants.TYPE) var type: String,
-    @field:SerializedName(Constants.NAME) @ColumnInfo(name = Constants.NAME) var name: String,
-    @field:SerializedName(Constants.URL) @ColumnInfo(name = Constants.URL) var url: String,
-    @field:SerializedName(Constants.COUNT) @ColumnInfo(name = Constants.COUNT) var count: Long
+    @field:SerializedName(Constants.TYPE) @ColumnInfo(name = Constants.TYPE) override val type: String,
+    @field:SerializedName(Constants.NAME) @ColumnInfo(name = Constants.NAME) override val name: String,
+    @field:SerializedName(Constants.URL) @ColumnInfo(name = Constants.URL) override val url: String,
+    @field:SerializedName(Constants.COUNT) @ColumnInfo(name = Constants.COUNT) override val count: Long
 ) : Parcelable, ITag {
 
     @Suppress("unused")
     val jsonValue: JsonObject
         get() {
             val jsonObject = JsonObject()
-            jsonObject.addProperty(Constants.ID, tagId)
+            jsonObject.addProperty(Constants.ID, id)
             jsonObject.addProperty(Constants.TYPE, type)
             jsonObject.addProperty(Constants.NAME, name)
             jsonObject.addProperty(Constants.URL, url)
@@ -42,27 +41,12 @@ data class Parody(
         parcel.readLong()
     )
 
-    @Ignore
-    override fun id(): Long = tagId
-
-    @Ignore
-    override fun type(): String = type
-
-    @Ignore
-    override fun name(): String = name
-
-    @Ignore
-    override fun url(): String = url
-
-    @Ignore
-    override fun count(): Long = count
-
     override fun toString(): String {
-        return "Tag $type - id: $tagId - name: $name"
+        return "Tag $type - id: $id - name: $name"
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeLong(tagId)
+        parcel.writeLong(id)
         parcel.writeString(type)
         parcel.writeString(name)
         parcel.writeString(url)

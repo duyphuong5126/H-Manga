@@ -9,6 +9,7 @@ import javax.inject.Inject
 interface SearchLocalDataSource {
     fun saveSearchEntry(searchInfo: String): Completable
     fun getLatestSearchEntries(maximumEntries: Int): Single<List<String>>
+    fun getMostUsedSearchEntries(maximumEntries: Int): Single<List<String>>
 }
 
 class SearchLocalDataSourceImpl @Inject constructor(
@@ -16,9 +17,12 @@ class SearchLocalDataSourceImpl @Inject constructor(
 ) : SearchLocalDataSource {
     override fun saveSearchEntry(searchInfo: String): Completable {
         return searchDAO.findSearchInfo(searchInfo)
+            .doOnSuccess {
+                searchDAO.updateSearchTimes(it.searchInfo, it.searchTimes + 1)
+            }
             .onErrorResumeNext {
                 if (it is EmptyResultSetException) {
-                    val searchEntry = SearchModel(searchInfo)
+                    val searchEntry = SearchModel(searchInfo, 1)
                     searchDAO.saveSearchInfo(searchEntry)
                     Single.just(searchEntry)
                 } else {
@@ -33,5 +37,9 @@ class SearchLocalDataSourceImpl @Inject constructor(
             .map {
                 it.map(SearchModel::searchInfo)
             }
+    }
+
+    override fun getMostUsedSearchEntries(maximumEntries: Int): Single<List<String>> {
+        return searchDAO.getMostUsedSearchEntries(maximumEntries)
     }
 }
