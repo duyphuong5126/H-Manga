@@ -23,10 +23,12 @@ class TagsPresenter @Inject constructor(
     @Main private val main: CoroutineScope
 ) : TagsContract.Presenter {
     companion object {
-        private const val TAG = "TagsPresenter"
-
         private const val TAG_PREFIXES = Constants.TAG_PREFIXES
         private const val TAGS_PER_PAGE = 25
+    }
+
+    private val logger: Logger by lazy {
+        Logger("TagsPresenter")
     }
 
     private var tagFilter = TagFilter.ALPHABET
@@ -47,7 +49,7 @@ class TagsPresenter @Inject constructor(
     }
 
     override fun changeCurrentTag(newTag: String) {
-        Logger.d(TAG, "Changed from $tagType to $newTag")
+        logger.d("Changed from $tagType to $newTag")
         tagType = newTag
         notifyTagsChanged()
     }
@@ -191,10 +193,7 @@ class TagsPresenter @Inject constructor(
                     emptyList()
                 }
             }
-            Logger.d(
-                TAG, "currentPrefixChar=$currentPrefixChar," +
-                        " currentFilteredTagsCount=$currentFilteredTagsCount, tagList=$tagList"
-            )
+            logger.d("currentPrefixChar=$currentPrefixChar, currentFilteredTagsCount=$currentFilteredTagsCount, tagList=$tagList")
             main.launch {
                 view.refreshTagsList(tagList)
             }
@@ -395,11 +394,7 @@ class TagsPresenter @Inject constructor(
                     emptyList()
                 }
             }
-            Logger.d(
-                TAG, "currentPrefixChar=$currentPrefixChar," +
-                        " currentFilteredTagsCount=$currentFilteredTagsCount," +
-                        " tagList=$tagList"
-            )
+            logger.d("currentPrefixChar=$currentPrefixChar, currentFilteredTagsCount=$currentFilteredTagsCount, tagList=$tagList")
             main.launch {
                 view.setUpTagsList(tagsList, tagList)
             }

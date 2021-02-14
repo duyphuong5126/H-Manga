@@ -20,6 +20,10 @@ class SettingsPresenter @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
     private val settingList = arrayListOf<SettingUiModel>()
 
+    private val logger: Logger by lazy {
+        Logger("SettingsPresenter")
+    }
+
     override fun start() {
         settingList.add(AllowAppUpgradeStatus(sharedPreferencesManager.isUpgradeNotificationAllowed))
         view.setUpSettings(settingList)
@@ -30,13 +34,13 @@ class SettingsPresenter @Inject constructor(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ (activeDomainId, domainGroup) ->
-                Logger.d(TAG, "Alternative domains = $domainGroup")
+                logger.d("Alternative domains = $domainGroup")
                 settingList.add(AlternativeDomainsUiModel(activeDomainId, domainGroup))
                 if (view.isActive()) {
                     view.updateSettingList()
                 }
             }, {
-                Logger.d(TAG, "Failed to get alternative domains with error $it")
+                logger.e("Failed to get alternative domains with error $it")
             }).let(compositeDisposable::add)
     }
 
@@ -56,9 +60,5 @@ class SettingsPresenter @Inject constructor(
 
     override fun stop() {
         compositeDisposable.clear()
-    }
-
-    companion object {
-        private const val TAG = "SettingsPresenter"
     }
 }

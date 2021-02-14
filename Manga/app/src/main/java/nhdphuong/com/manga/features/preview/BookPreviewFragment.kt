@@ -96,7 +96,6 @@ class BookPreviewFragment :
     InformationCardAdapter.TagSelectedListener,
     View.OnClickListener {
     companion object {
-        private const val TAG = "BookPreviewFragment"
         private const val NUM_OF_ROWS = 2
         private const val REQUEST_STORAGE_PERMISSION = 3142
         private const val COVER_IMAGE_ANIMATION_START_DELAY = 100L
@@ -109,6 +108,10 @@ class BookPreviewFragment :
         private const val SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY = 3000L
         private const val PREVIEW_CACHE_SIZE = 10
         private const val PREFETCH_COMMENTS_DISTANCE = 10
+    }
+
+    private val logger: Logger by lazy {
+        Logger("BookPreviewFragment")
     }
 
     private lateinit var buttonClearDownloadedData: MyTextView
@@ -262,24 +265,17 @@ class BookPreviewFragment :
         this.presenter = presenter
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Logger.d(TAG, "onCreate")
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Logger.d(TAG, "onCreateView")
         return inflater.inflate(R.layout.fragment_book_preview, container, false)
     }
 
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Logger.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
 
         context?.let {
@@ -349,7 +345,6 @@ class BookPreviewFragment :
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        Logger.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
         activity?.let {
             lastOrientation =
@@ -418,7 +413,7 @@ class BookPreviewFragment :
                 isDeletingRequested -> presenter.deleteBook()
             }
             val result = if (permissionGranted) "granted" else "denied"
-            Logger.d(TAG, "Storage permission is $result")
+            logger.d("Storage permission is $result")
         }
     }
 
@@ -460,7 +455,7 @@ class BookPreviewFragment :
                     categoriesInfoAdapter?.loadInfoList(layoutCategories)
                 }
             } catch (throwable: Throwable) {
-                Logger.d(TAG, "Failed to update info lists with error: $throwable")
+                logger.e("Failed to update info lists with error: $throwable")
             }
         }
     }
@@ -503,8 +498,6 @@ class BookPreviewFragment :
             R.id.buttonUnSeen -> {
                 activity?.showUnSeenBookConfirmationDialog(onOk = {
                     presenter.unSeenBook()
-                }, onDismiss = {
-                    Logger.d(TAG, "UnSeen canceled")
                 })
             }
 
@@ -676,7 +669,7 @@ class BookPreviewFragment :
     }
 
     override fun showRecommendBook(bookList: List<Book>) {
-        Logger.d(TAG, "recommended books, spanCount: ${bookList.size}")
+        logger.d("recommended books, spanCount: ${bookList.size}")
         context?.let {
             mtvRecommendBook.becomeVisible()
             hsvRecommendList.becomeVisible()
@@ -815,14 +808,12 @@ class BookPreviewFragment :
         activity?.showBookDownloadingDialog(bookId, onOk = {
             presenter.restartBookPreview(bookId)
         }, onDismiss = {
-            Logger.d(TAG, "Downloading book $bookId is aware")
+            logger.d("Downloading book $bookId is aware")
         })
     }
 
     override fun showThisBookBeingDownloaded() {
-        activity?.showThisBookDownloadingDialog(onOk = {
-            Logger.d(TAG, "Downloading this book is aware")
-        })
+        activity?.showThisBookDownloadingDialog()
     }
 
     override fun showFavoriteBookSaved(isFavorite: Boolean) {

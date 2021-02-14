@@ -36,6 +36,10 @@ class DownloadedBooksPresenter @Inject constructor(
     private var totalPages = 1
     private var currentPage: Int = 0
 
+    private val logger: Logger by lazy {
+        Logger("DownloadedBooksPresenter")
+    }
+
     override fun start() {
         totalBookList.clear()
         currentBookList.clear()
@@ -59,7 +63,7 @@ class DownloadedBooksPresenter @Inject constructor(
                 view.hideLoading()
             }
             .subscribeBy(onSuccess = { downloadedBooks ->
-                Logger.d(TAG, "Downloaded books: ${downloadedBooks.size}")
+                logger.d("Downloaded books: ${downloadedBooks.size}")
                 val bookCount = downloadedBooks.size
                 totalPages = bookCount / MAX_PER_PAGE
                 if (bookCount % MAX_PER_PAGE > 0) {
@@ -76,7 +80,7 @@ class DownloadedBooksPresenter @Inject constructor(
                     SupportUtils.getTimeElapsed(0).toLowerCase(Locale.US)
                 )
             }, onError = { error ->
-                Logger.e(TAG, "Failed to get downloaded books with error: $error")
+                logger.e("Failed to get downloaded books with error: $error")
             }).addTo(compositeDisposable)
     }
 
@@ -166,7 +170,6 @@ class DownloadedBooksPresenter @Inject constructor(
     }
 
     companion object {
-        private const val TAG = "DownloadedBooksPresenter"
         private const val MAX_PER_PAGE = 25
     }
 }

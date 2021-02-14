@@ -29,12 +29,15 @@ import nhdphuong.com.manga.views.showTagDataBeingDownloadedDialog
 
 class AdminFragment : Fragment(), AdminContract.View {
     companion object {
-        const val TAG = "AdminFragment"
         private const val REQUEST_STORAGE_PERMISSION = 3143
 
         private enum class DownloadingSwitch {
             Start, Stop
         }
+    }
+
+    private val logger: Logger by lazy {
+        Logger("AdminFragment")
     }
 
     private lateinit var mbtStartDownloading: MyButton
@@ -156,7 +159,7 @@ class AdminFragment : Fragment(), AdminContract.View {
                 showRequestStoragePermission()
             }
             val result = if (permissionGranted) "granted" else "denied"
-            Logger.d(TAG, "Storage permission is $result")
+            logger.d("Storage permission is $result")
         }
     }
 
@@ -195,7 +198,7 @@ class AdminFragment : Fragment(), AdminContract.View {
     override fun startDownloadingTagData(numberOfPage: Long) {
         currentDownloadingSwitch = DownloadingSwitch.Stop
         context?.let {
-            Logger.d(TAG, "isTagBeingDownloaded=${TagsDownloadingService.isTagBeingDownloaded}")
+            logger.d("isTagBeingDownloaded=${TagsDownloadingService.isTagBeingDownloaded}")
             TagsDownloadingService.start(it, numberOfPage)
         }
     }
@@ -259,7 +262,7 @@ class AdminFragment : Fragment(), AdminContract.View {
     }
 
     private fun changeDownloadButtonStatus(newStatus: DownloadingSwitch) {
-        Logger.d(TAG, "currentDownloadingSwitch=$newStatus")
+        logger.d("currentDownloadingSwitch=$newStatus")
         mbtStartDownloading.text = getString(
             if (newStatus == DownloadingSwitch.Start) {
                 R.string.start_downloading

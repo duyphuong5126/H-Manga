@@ -5,77 +5,11 @@ import android.util.Log
 
 class Logger(private val tag: String) {
     fun d(message: String?) {
-        if (loggable) {
-            Log.d(tag, "$message")
-        }
-    }
-
-    fun d(message: String?, throwable: Throwable?) {
-        if (loggable) {
-            Log.d(tag, message, throwable)
-        }
+        d(tag, "$message")
     }
 
     fun e(message: String?) {
-        if (loggable) {
-            Log.e(tag, "$message")
-        }
-    }
-
-    @Suppress("unused")
-    fun e(message: String?, throwable: Throwable?) {
-        if (loggable) {
-            Log.e(tag, message, throwable)
-        }
-    }
-
-    @Suppress("unused")
-    fun i(message: String?) {
-        if (loggable) {
-            Log.i(tag, "$message")
-        }
-    }
-
-    @Suppress("unused")
-    fun i(message: String?, throwable: Throwable?) {
-        if (loggable) {
-            Log.i(tag, message, throwable)
-        }
-    }
-
-    @Suppress("unused")
-    fun w(message: String?) {
-        if (loggable) {
-            Log.w(tag, "$message")
-        }
-    }
-
-    @Suppress("unused")
-    fun w(message: String?, throwable: Throwable?) {
-        if (loggable) {
-            Log.w(tag, message, throwable)
-        }
-    }
-
-    @Suppress("unused")
-    fun wtf(message: String?) {
-        if (loggable) {
-            Log.wtf(tag, message)
-        }
-    }
-
-    @Suppress("unused")
-    fun wtf(throwable: Throwable) {
-        if (loggable) {
-            Log.wtf(tag, throwable)
-        }
-    }
-
-    @Suppress("unused")
-    fun wtf(message: String?, throwable: Throwable?) {
-        if (loggable) {
-            Log.wtf(tag, message, throwable)
-        }
+        e(tag, "$message")
     }
 
     companion object {
@@ -97,62 +31,6 @@ class Logger(private val tag: String) {
         fun e(tag: String?, message: String?) {
             if (loggable) {
                 Log.e(tag, "$message")
-            }
-        }
-
-        @Suppress("unused")
-        fun e(tag: String?, message: String?, throwable: Throwable?) {
-            if (loggable) {
-                Log.e(tag, message, throwable)
-            }
-        }
-
-        @Suppress("unused")
-        fun i(tag: String?, message: String?) {
-            if (loggable) {
-                Log.i(tag, "$message")
-            }
-        }
-
-        @Suppress("unused")
-        fun i(tag: String?, message: String?, throwable: Throwable?) {
-            if (loggable) {
-                Log.i(tag, message, throwable)
-            }
-        }
-
-        @Suppress("unused")
-        fun w(tag: String?, message: String?) {
-            if (loggable) {
-                Log.w(tag, "$message")
-            }
-        }
-
-        @Suppress("unused")
-        fun w(tag: String?, message: String?, throwable: Throwable?) {
-            if (loggable) {
-                Log.w(tag, message, throwable)
-            }
-        }
-
-        @Suppress("unused")
-        fun wtf(tag: String?, message: String?) {
-            if (loggable) {
-                Log.wtf(tag, message)
-            }
-        }
-
-        @Suppress("unused")
-        fun wtf(tag: String?, throwable: Throwable) {
-            if (loggable) {
-                Log.wtf(tag, throwable)
-            }
-        }
-
-        @Suppress("unused")
-        fun wtf(tag: String?, message: String?, throwable: Throwable?) {
-            if (loggable) {
-                Log.wtf(tag, message, throwable)
             }
         }
     }

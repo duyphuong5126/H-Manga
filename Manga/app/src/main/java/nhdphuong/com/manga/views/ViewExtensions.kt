@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import androidx.recyclerview.widget.SnapHelper
-import nhdphuong.com.manga.Logger
 import kotlin.math.max
 import kotlin.math.min
 
@@ -73,10 +72,6 @@ fun NestedScrollView.doOnScrollToBottom(
     setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
         val firstVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
         val lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition()
-        Logger.d(
-            "doOnScrollToBottom",
-            "firstVisible=$firstVisible, lastVisible=$lastVisible, scrollY=$scrollY, oldScrollY=$oldScrollY"
-        )
         if (scrollY > oldScrollY && lastVisible - firstVisible >= distanceFromBottom) {
             val onScrollChangeListener: NestedScrollView.OnScrollChangeListener? = null
             this.setOnScrollChangeListener(onScrollChangeListener)

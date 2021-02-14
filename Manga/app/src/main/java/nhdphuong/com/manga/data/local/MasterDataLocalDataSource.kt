@@ -26,6 +26,10 @@ class MasterDataLocalDataSource @Inject constructor(
     private val serializationService: SerializationService,
     @IO private val io: CoroutineScope
 ) : MasterDataSource.Local {
+    private val logger: Logger by lazy {
+        Logger("MasterDataLocalDataSource")
+    }
+
     override fun insertArtistsList(artistsList: List<Artist>) {
         io.launch {
             mTagDAO.insertArtist(artistsList)
@@ -294,16 +298,13 @@ class MasterDataLocalDataSource @Inject constructor(
                 }
             }
         serializationService.serialize(alternativeDomainGroup).let {
-            Logger.d(
-                TAG,
-                "Alternative domains - local version ${currentData?.groupVersion} - remote version = ${alternativeDomainGroup.groupVersion}"
-            )
+            logger.d("Alternative domains - local version ${currentData?.groupVersion} - remote version = ${alternativeDomainGroup.groupVersion}")
             if (currentData == null || currentData.groupVersion != alternativeDomainGroup.groupVersion) {
                 sharedPreferencesManager.alternativeDomainsRawData = it
                 val activeDomainsIsNotSupported = alternativeDomainGroup.groups.none { domain ->
                     domain.domainId == sharedPreferencesManager.activeAlternativeDomainId
                 }
-                Logger.d(TAG, "activeDomainsIsNotSupported=$activeDomainsIsNotSupported")
+                logger.d("activeDomainsIsNotSupported=$activeDomainsIsNotSupported")
                 if (activeDomainsIsNotSupported) {
                     sharedPreferencesManager.clearActiveAlternativeDomain()
                 }
@@ -336,9 +337,5 @@ class MasterDataLocalDataSource @Inject constructor(
         return if (sharedPreferencesManager.useAlternativeDomain) {
             sharedPreferencesManager.activeAlternativeDomainId
         } else null
-    }
-
-    companion object {
-        private const val TAG = "MasterDataLocalDataSource"
     }
 }

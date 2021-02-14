@@ -29,7 +29,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import nhdphuong.com.manga.Constants
-import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
@@ -155,13 +154,11 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Logger.d(TAG, "onCreateView")
         return inflater.inflate(R.layout.fragment_book_list, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Logger.d(TAG, "onViewCreated")
         context?.let {
             searchResultTitle = it.getString(R.string.search_result)
             lastUpdateTemplate = it.getString(R.string.last_update)
@@ -209,7 +206,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        Logger.d(TAG, "onActivityCreated")
         homePresenter.start()
         toggleSearchResult("")
         mtvUpgradeTitle.setOnClickListener(this)
@@ -236,13 +232,11 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
     override fun onDestroy() {
         super.onDestroy()
-        Logger.d(TAG, "onDestroy")
         homePresenter.stop()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        Logger.d(TAG, "onConfigurationChanged")
         val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
         val mainListLayoutManager = object : StaggeredGridLayoutManager(
             if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS,
@@ -407,7 +401,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         homePaginationAdapter.onPageSelectCallback =
             object : PaginationAdapter.OnPageSelectCallback {
                 override fun onPageSelected(page: Int) {
-                    Logger.d(TAG, "Page $page is selected")
                     homePresenter.jumpToPage(page.toLong())
                 }
             }
@@ -582,7 +575,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     override fun isActive(): Boolean = isAdded
 
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
-        Logger.d(TAG, "onUIRefreshComplete")
         mtvRefresh.text = updated
         homePresenter.saveLastBookListRefreshTime()
         homePresenter.reloadLastBookListRefreshTime()
@@ -598,11 +590,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         status: Byte,
         ptrIndicator: PtrIndicator?
     ) {
-        Logger.d(
-            TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
-                    "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
-                    "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}"
-        )
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
             mtvRefresh.text = releaseToRefresh
             ivRefresh.rotation = REFRESH_HEADER_ANGEL
@@ -610,7 +597,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
-        Logger.d(TAG, "onUIRefreshBegin")
         ivRefresh.gone()
         pbRefresh.becomeVisible()
         mtvRefresh.text = String.format(updating, "")
@@ -619,12 +605,10 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     }
 
     override fun onUIRefreshPrepare(frame: PtrFrameLayout?) {
-        Logger.d(TAG, "onUIRefreshPrepare")
         homePresenter.reloadLastBookListRefreshTime()
     }
 
     override fun onUIReset(frame: PtrFrameLayout?) {
-        Logger.d(TAG, "onUIReset")
         mtvRefresh.text = pullDown
     }
 
@@ -640,7 +624,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         var currentPos = 0
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
-            Logger.d(TAG, "Current pos: $currentPos")
             mtvRefresh.text =
                 String.format(updating, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
@@ -662,7 +645,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     }
 
     companion object {
-        private const val TAG = "HomeFragment"
         private const val GRID_COLUMNS = 2
         private const val LANDSCAPE_GRID_COLUMNS = 3
         private const val DOTS_UPDATE_INTERVAL = 500L

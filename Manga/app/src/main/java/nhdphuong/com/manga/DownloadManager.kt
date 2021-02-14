@@ -5,7 +5,9 @@ package nhdphuong.com.manga
  */
 class DownloadManager {
     companion object {
-        private const val TAG = "DownloadManager"
+        private val logger: Logger by lazy {
+            Logger("DownloadManager")
+        }
 
         object BookDownloader {
             private var mBookId: String = ""
@@ -87,10 +89,7 @@ class DownloadManager {
                 if (!isTagDownloading) {
                     mIsTagsDownloading = true
                 } else {
-                    Logger.d(
-                        TAG,
-                        "A downloading process right now, cannot start another one"
-                    )
+                    logger.d("A downloading process right now, cannot start another one")
                 }
             }
 
@@ -98,10 +97,7 @@ class DownloadManager {
                 if (isTagDownloading) {
                     mIsTagsDownloading = false
                 } else {
-                    Logger.d(
-                        TAG,
-                        "No downloading process right now, nothing can be stopped"
-                    )
+                    logger.d("No downloading process right now, nothing can be stopped")
                 }
             }
         }

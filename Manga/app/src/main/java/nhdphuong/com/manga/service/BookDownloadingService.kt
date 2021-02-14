@@ -54,6 +54,10 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
     private var downloadingFailed = ""
     private var downloadingFailedTemplate = ""
 
+    private val logger: Logger by lazy {
+        Logger("BookDownloadingService")
+    }
+
     override fun onCreate() {
         super.onCreate()
         NHentaiApp.instance.applicationComponent.inject(this)
@@ -89,7 +93,7 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
             intent?.extras?.getParcelable<Book>(BOOK)?.let { book ->
                 downloadBookUseCase.execute(book)
                     .doOnSubscribe {
-                        Logger.d(TAG, "Start downloading book ${book.bookId}")
+                        logger.d("Start downloading book ${book.bookId}")
                         bookDownloader.setDownloadCallback(this)
                         bookDownloader.startDownloading(book.bookId, book.numOfPages)
                     }
@@ -98,23 +102,17 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
                         when (result) {
                             is DownloadingProgress -> {
                                 bookDownloader.updateProgress(book.bookId, result.progress)
-                                Logger.d(
-                                    TAG,
-                                    "Downloaded ${result.progress}/${result.total} pages of book ${book.bookId}"
-                                )
+                                logger.d("Downloaded ${result.progress}/${result.total} pages of book ${book.bookId}")
                             }
 
                             is DownloadingFailure -> {
-                                Logger.d(
-                                    TAG,
-                                    "Failed to download ${result.fileUrl} of book ${book.bookId}: ${result.error.localizedMessage}"
-                                )
+                                logger.e("Failed to download ${result.fileUrl} of book ${book.bookId}: ${result.error.localizedMessage}")
                             }
                             else -> {
                             }
                         }
                     }, onError = {
-                        Logger.e(TAG, "Failure in downloading book ${book.mediaId} with error: $it")
+                        logger.e("Failure in downloading book ${book.mediaId} with error: $it")
                         downloadingStatusMap[book.bookId] = DownloadingFailure("", it)
                         bookDownloader.endDownloadingWithError(
                             book.bookId,
@@ -122,7 +120,7 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
                             bookDownloader.total
                         )
                     }, onComplete = {
-                        Logger.d(TAG, "Finished downloading book ${book.bookId}")
+                        logger.d("Finished downloading book ${book.bookId}")
                         downloadingStatusMap[book.bookId] = DownloadingCompleted
                         bookDownloader.endDownloading(
                             book.bookId,
@@ -238,7 +236,6 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
     }
 
     companion object {
-        private const val TAG = "BookDownloadingService"
         private const val BOOK = "book"
 
         private val downloadingStatusMap = HashMap<String, DownloadingResult>()

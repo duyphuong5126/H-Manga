@@ -30,7 +30,9 @@ interface AppSupportUtils {
 
 class SupportUtils : AppSupportUtils {
     companion object {
-        private const val TAG = "SupportUtils"
+        private val logger: Logger by lazy {
+            Logger("SupportUtils")
+        }
 
         private const val MILLISECOND: Long = 1000
         private const val MINUTE: Long = MILLISECOND * 60
@@ -157,7 +159,7 @@ class SupportUtils : AppSupportUtils {
                 bufferedInputStream.close()
                 inputStream.close()
             } catch (e: Exception) {
-                Logger.e(TAG, "Downloading $urlString causes exception: $e")
+                logger.e("Downloading $urlString causes exception: $e")
                 throw e
             }
 
@@ -221,7 +223,7 @@ class SupportUtils : AppSupportUtils {
 
         @WorkerThread
         fun saveStringFile(data: String, fileName: String, filePath: String): Boolean {
-            Logger.d(TAG, "File name: $fileName, path: $filePath")
+            logger.d("File name: $fileName, path: $filePath")
             val directories = File(filePath)
             if (!directories.exists()) {
                 directories.mkdirs()
@@ -240,7 +242,7 @@ class SupportUtils : AppSupportUtils {
                 fileOutputStream.close()
                 return true
             } catch (exception: Exception) {
-                Logger.d(TAG, "String isn't saved successfully, error=$exception")
+                logger.e("String isn't saved successfully, error=$exception")
             }
             return false
         }

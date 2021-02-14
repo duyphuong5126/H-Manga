@@ -31,6 +31,10 @@ class RecentFavoriteMigrationService : JobIntentService() {
     private var migrationCompleted = ""
     private var migrationResultTemplate = ""
 
+    private val logger: Logger by lazy {
+        Logger("RecentFavoriteMigrationService")
+    }
+
     override fun onCreate() {
         super.onCreate()
         NHentaiApp.instance.applicationComponent.inject(this)
@@ -65,15 +69,12 @@ class RecentFavoriteMigrationService : JobIntentService() {
                         sendMigrationProgressNotification(progress, failed, total)
                     }
                 }
-                Logger.d(
-                    TAG,
-                    "Progress: migrated $progress item(s), failed $failed item(s), total: $total"
-                )
+                logger.d("Progress: migrated $progress item(s), failed $failed item(s), total: $total")
             }, {
-                Logger.d(TAG, "Failed to migrate books with error $it")
+                logger.e("Failed to migrate books with error $it")
                 isBooksMigrating.compareAndSet(true, false)
             }, {
-                Logger.d(TAG, "Migration completed")
+                logger.d("Migration completed")
                 sendMigrationCompletedNotification(progress, failed, total)
                 isBooksMigrating.compareAndSet(true, false)
             }).addTo(compositeDisposable)
@@ -135,8 +136,6 @@ class RecentFavoriteMigrationService : JobIntentService() {
 
         private const val MIGRATION_PROGRESS_NOTIFICATION_ID = 12345
         private const val MIGRATION_COMPLETED_NOTIFICATION_ID = 67890
-
-        private const val TAG = "RecentFavoriteMigrationService"
 
         @JvmStatic
         fun enqueueWork(context: Context) {

@@ -38,7 +38,7 @@ class MyButton(
         try {
             tf = Typeface.createFromAsset(ctx.assets, asset)
         } catch (e: Exception) {
-            Logger.e(TAG, "Could not get typeface: " + e.message)
+            Logger.e(TAG, "Could not get typeface: $e")
             return false
         }
 

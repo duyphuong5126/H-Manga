@@ -16,11 +16,14 @@ interface AnalyticsPusher {
 }
 
 class FirebaseAnalyticsPusherImpl @Inject constructor(context: Context) : AnalyticsPusher {
+    private val logger: Logger by lazy {
+        Logger("FirebaseAnalyticsPusherImpl")
+    }
 
     private val firebaseAnalytics: FirebaseAnalytics = FirebaseAnalytics.getInstance(context)
 
     override fun logEvent(eventName: String) {
-        Logger.d(TAG, "[${BuildConfig.VERSION_NAME}] logEvent $eventName")
+        logger.d("[${BuildConfig.VERSION_NAME}] logEvent $eventName")
         firebaseAnalytics.logEvent(eventName, createOrUpdateParamBundle(null))
     }
 
@@ -29,7 +32,7 @@ class FirebaseAnalyticsPusherImpl @Inject constructor(context: Context) : Analyt
         param.keySet().forEach {
             paramString += "Param $it - value: ${param.getString(it)}\n"
         }
-        Logger.d(TAG, "[${BuildConfig.VERSION_NAME}] logEvent $eventName\n$paramString")
+        logger.d("[${BuildConfig.VERSION_NAME}] logEvent $eventName\n$paramString")
         firebaseAnalytics.logEvent(eventName, createOrUpdateParamBundle(param))
     }
 

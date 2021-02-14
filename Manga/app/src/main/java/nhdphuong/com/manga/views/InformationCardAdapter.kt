@@ -22,8 +22,8 @@ import java.util.Collections
  * Created by nhdphuong on 4/15/18.
  */
 class InformationCardAdapter(private val tagList: List<Tag>) {
-    companion object {
-        private const val TAG = "InformationCardAdapter"
+    private val logger: Logger by lazy {
+        Logger("InformationCardAdapter")
     }
 
     private var countTemplate = ""
@@ -60,7 +60,7 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
         if (viewList.size >= 3) {
             sortViewList(viewList, totalWidth, totalMargin / 2)
         }
-        Logger.d(TAG, "Total width: $totalWidth")
+        logger.d("Total width: $totalWidth")
         var widthCount = 0
         for (view in viewList) {
             if (view.measuredWidth > totalWidth - totalMargin) {
@@ -68,7 +68,7 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
             }
             val itemWidth = view.measuredWidth + totalMargin
             widthCount += itemWidth
-            Logger.d(TAG, "Item: $itemWidth, widthCount: $widthCount, total: $totalWidth")
+            logger.d("Item: $itemWidth, widthCount: $widthCount, total: $totalWidth")
             if (widthCount > totalWidth) {
                 tagLine = layoutInflater.inflate(
                     R.layout.item_tag_line,

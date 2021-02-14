@@ -29,8 +29,9 @@ class AdminActivity : AppCompatActivity() {
             if (adminFragment == null) {
                 adminFragment = AdminFragment()
 
-                beginTransaction().replace(R.id.layout_root, adminFragment, AdminFragment.TAG)
-                    .addToBackStack(AdminFragment.TAG)
+                val tag = "AdminFragment"
+                beginTransaction().replace(R.id.layout_root, adminFragment, tag)
+                    .addToBackStack(tag)
                     .commitAllowingStateLoss()
             }
 

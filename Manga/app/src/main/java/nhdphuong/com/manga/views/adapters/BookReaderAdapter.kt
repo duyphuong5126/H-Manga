@@ -28,7 +28,6 @@ class BookReaderAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        Logger.d(TAG, "onCreateViewHolder viewType: $viewType")
         val layoutResId = if (readerType == VerticalScroll) {
             R.layout.item_book_page_wrapped
         } else {
@@ -39,7 +38,6 @@ class BookReaderAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        Logger.d(TAG, "onBindViewHolder position: $position")
         (holder as BookReaderViewHolder).bindTo(pageUrlList[position], position + 1)
     }
 
@@ -59,6 +57,10 @@ class BookReaderAdapter(
         private val ivPage: TouchImageView = view.findViewById(R.id.ivPage)
         private val mtvPageTitle: MyTextView = view.findViewById(R.id.mtvPageTitle)
 
+        private val logger: Logger by lazy {
+            Logger("BookReaderViewHolder")
+        }
+
         init {
             ivPage.setOnClickListener(onTapListener)
             mtvPageTitle.setOnClickListener(onTapListener)
@@ -77,7 +79,10 @@ class BookReaderAdapter(
         @SuppressLint("ClickableViewAccessibility")
         private fun setupOnTouchEvent() {
             ivPage.setOnTouchListener { _, event ->
-                if (event.pointerCount >= 2 || (ivPage.canScrollHorizontally(1) && ivPage.canScrollHorizontally(-1))) {
+                if (event.pointerCount >= 2 || (ivPage.canScrollHorizontally(1) && ivPage.canScrollHorizontally(
+                        -1
+                    ))
+                ) {
                     when (event.action) {
                         MotionEvent.ACTION_DOWN,
                         MotionEvent.ACTION_MOVE -> {
@@ -101,9 +106,9 @@ class BookReaderAdapter(
             if (readerType == VerticalScroll) {
                 ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, onLoadSuccess = {
                     mtvPageTitle.gone()
-                    Logger.d(TAG, "$pageUrl is loaded successfully")
+                    logger.d("$pageUrl is loaded successfully")
                 }, onLoadFailed = {
-                    Logger.d(TAG, "$pageUrl loading failed")
+                    logger.e("$pageUrl loading failed")
                 })
             } else {
                 ivPage.doOnGlobalLayout {
@@ -113,17 +118,13 @@ class BookReaderAdapter(
                         ivPage,
                         onLoadSuccess = {
                             mtvPageTitle.gone()
-                            Logger.d(TAG, "$pageUrl is loaded successfully")
+                            logger.d("$pageUrl is loaded successfully")
                         },
                         onLoadFailed = {
-                            Logger.d(TAG, "$pageUrl loading failed")
+                            logger.e("$pageUrl loading failed")
                         })
                 }
             }
         }
-    }
-
-    companion object {
-        private const val TAG = "BookReaderAdapter"
     }
 }

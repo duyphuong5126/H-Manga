@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import jp.shts.android.library.TriangleLabelView
 import nhdphuong.com.manga.Constants
-import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
@@ -27,7 +26,6 @@ class BookAdapter(
     private val bookClickCallback: OnBookClick
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
-        private const val TAG = "BookAdapter"
         const val HOME_PREVIEW_BOOK = 1
         const val RECOMMEND_BOOK = 2
     }
@@ -170,7 +168,6 @@ class BookAdapter(
             }
             tvLanguage.setImageResource(languageIconResId)
 
-            Logger.d(TAG, "Thumbnail: ${item.thumbnail}")
             if (!NHentaiApp.instance.isCensored) {
                 val downloadedThumbnail = downloadedThumbnails.firstOrNull {
                     it.first == item.bookId

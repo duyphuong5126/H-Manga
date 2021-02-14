@@ -31,7 +31,10 @@ import nhdphuong.com.manga.NHentaiApp
  */
 class Database {
     companion object {
-        private const val TAG = "nHentai Database"
+        private val logger: Logger by lazy {
+            Logger("nHentai Database")
+        }
+
         private var mInstance: NHentaiDB? = null
         val instance: NHentaiDB
             get() {
@@ -134,7 +137,7 @@ class Database {
 
         private val MIGRATE_FROM_2_TO_3: Migration = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                Logger.d(TAG, "Migrate DownLoadedImage table")
+                logger.d("Migrate DownLoadedImage table")
                 // Create temp table
                 val newImageTable = "${DOWNLOADED_IMAGE}_new"
                 database.execSQL(
@@ -167,7 +170,7 @@ class Database {
                 database.execSQL("CREATE INDEX IF NOT EXISTS $imageBookIdIndex ON $DOWNLOADED_IMAGE($BOOK_ID)")
                 database.execSQL("CREATE INDEX IF NOT EXISTS $imageIdIndex ON $DOWNLOADED_IMAGE($ID)")
 
-                Logger.d(TAG, "Migrate BookTag table")
+                logger.d("Migrate BookTag table")
                 // Create temp table
                 val newBookTag = "${BOOK_TAG}_new"
                 database.execSQL(

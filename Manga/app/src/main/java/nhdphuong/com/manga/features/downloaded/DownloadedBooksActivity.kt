@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import nhdphuong.com.manga.Constants
-import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
@@ -237,7 +236,6 @@ class DownloadedBooksActivity : AppCompatActivity(),
         paginationAdapter = PaginationAdapter(pageCount)
         paginationAdapter.onPageSelectCallback = object : PaginationAdapter.OnPageSelectCallback {
             override fun onPageSelected(page: Int) {
-                Logger.d(TAG, "Page $page is selected")
                 downloadedBooksPresenter.jumpToPage(page)
             }
         }
@@ -323,7 +321,6 @@ class DownloadedBooksActivity : AppCompatActivity(),
         var currentPos = 0
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
-            Logger.d("Dialog", "Current pos: $currentPos")
             mtvRefresh.text =
                 String.format(updatingTemplate, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
@@ -349,7 +346,6 @@ class DownloadedBooksActivity : AppCompatActivity(),
     }
 
     companion object {
-        private const val TAG = "DownloadedBooksActivity"
         private const val GRID_COLUMNS = 2
         private const val LANDSCAPE_GRID_COLUMNS = 3
 

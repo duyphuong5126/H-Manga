@@ -11,13 +11,11 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.customs.MyButton
 import nhdphuong.com.manga.views.customs.MyTextView
 
-private const val TAG = "DialogHelper"
 private const val DEFAULT_LOADING_INTERVAL = 700L
 
 @SuppressLint("InflateParams", "SetTextI18n")
@@ -39,7 +37,6 @@ fun Activity.createLoadingDialog(loadingStringId: Int = R.string.loading): Dialo
     ImageUtils.loadGifImage(R.raw.ic_loading_cat_transparent, ivLoading)
     val taskHandler = Handler(Looper.getMainLooper())
     val dotsUpdatingTask = Runnable {
-        Logger.d(TAG, "Current pos: $currentPos")
         tvLoading.text = loadingString + dotsArray[currentPos]
         if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
     }
