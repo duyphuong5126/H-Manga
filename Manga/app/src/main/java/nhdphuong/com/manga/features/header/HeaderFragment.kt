@@ -30,7 +30,6 @@ import nhdphuong.com.manga.features.recent.RecentActivity
 import nhdphuong.com.manga.features.setting.SettingsActivity
 import nhdphuong.com.manga.features.tags.TagsActivity
 import nhdphuong.com.manga.features.tags.TagsContract
-import nhdphuong.com.manga.service.RecentFavoriteMigrationService
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.supports.openUrl
 import nhdphuong.com.manga.views.adapters.SearchSuggestionAdapter
@@ -38,7 +37,6 @@ import nhdphuong.com.manga.views.adapters.TabAdapter
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.showAdminEntryDialog
 import nhdphuong.com.manga.views.showInternetRequiredDialog
-import nhdphuong.com.manga.views.showRecentFavoriteMigrationDialog
 import nhdphuong.com.manga.views.showSuggestionRemovalConfirmationDialog
 import nhdphuong.com.manga.views.showTagsDownloadingDialog
 import nhdphuong.com.manga.views.showTagsNotAvailable
@@ -278,19 +276,11 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener,
     }
 
     override fun goToFavoriteList() {
-        if (RecentFavoriteMigrationService.isMigrating) {
-            activity?.showRecentFavoriteMigrationDialog()
-        } else {
-            RecentActivity.start(this@HeaderFragment, Constants.FAVORITE)
-        }
+        RecentActivity.start(this@HeaderFragment, Constants.FAVORITE)
     }
 
     override fun goToRecentList() {
-        if (RecentFavoriteMigrationService.isMigrating) {
-            activity?.showRecentFavoriteMigrationDialog()
-        } else {
-            RecentActivity.start(this@HeaderFragment, Constants.RECENT)
-        }
+        RecentActivity.start(this@HeaderFragment, Constants.RECENT)
     }
 
     override fun goToRandomBook() {

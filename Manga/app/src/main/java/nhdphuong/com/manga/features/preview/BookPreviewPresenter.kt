@@ -25,14 +25,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.disposables.CompositeDisposable
-import nhdphuong.com.manga.Constants.Companion.EVENT_DOWNLOAD_BOOK
+import nhdphuong.com.manga.Constants.Companion.EVENT_ADD_FAVORITE
+import nhdphuong.com.manga.Constants.Companion.EVENT_FORGET_BOOK
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_LANGUAGE
 import nhdphuong.com.manga.Constants.Companion.EVENT_OPEN_BOOK
-import nhdphuong.com.manga.Constants.Companion.EVENT_TOGGLE_FAVORITE
-import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_FAVORITE_STATUS
-import nhdphuong.com.manga.Constants.Companion.PARAM_VALUE_FAVORITE
-import nhdphuong.com.manga.Constants.Companion.PARAM_VALUE_UN_FAVORITE
+import nhdphuong.com.manga.Constants.Companion.EVENT_REMOVE_FAVORITE
 import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.CommentResponse
@@ -310,12 +308,6 @@ class BookPreviewPresenter @Inject constructor(
                 }, onError = {
                     logger.e("Failed to start downloading book ${book.bookId}: $it")
                 }).addTo(compositeDisposable)
-
-            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
-            logAnalyticsEventUseCase.execute(EVENT_DOWNLOAD_BOOK, bookIdParam)
-                .subscribeOn(Schedulers.io())
-                .subscribe()
-                .addTo(compositeDisposable)
         } else {
             if (bookDownloader.bookId == book.bookId) {
                 view.showThisBookBeingDownloaded()
@@ -342,24 +334,18 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun changeBookFavorite() {
         io.launch {
-            var favoriteStatus = PARAM_VALUE_FAVORITE
+            var favoriteEvent = EVENT_ADD_FAVORITE
             if (isFavoriteBook) {
-                favoriteStatus = PARAM_VALUE_UN_FAVORITE
+                favoriteEvent = EVENT_REMOVE_FAVORITE
                 bookRepository.removeFavoriteBook(book)
             } else {
                 bookRepository.saveFavoriteBook(book)
             }
-            val favoriteParam = AnalyticsParam(PARAM_NAME_FAVORITE_STATUS, favoriteStatus)
-            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
 
-            logAnalyticsEventUseCase.execute(EVENT_TOGGLE_FAVORITE, bookIdParam, favoriteParam)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    logger.d("Status $favoriteStatus of ")
-                }, {
-                    logger.e("Failed to log favorite status of book ${book.bookId}")
-                }).addTo(compositeDisposable)
+            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+            logAnalyticsEventUseCase.execute(favoriteEvent, bookIdParam)
+                .subscribe()
+                .addTo(compositeDisposable)
 
             refreshBookFavorite()
             main.launch {
@@ -436,6 +422,10 @@ class BookPreviewPresenter @Inject constructor(
                 main.launch {
                     view.hideUnSeenButton()
                 }
+                val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+                logAnalyticsEventUseCase.execute(EVENT_FORGET_BOOK, bookIdParam)
+                    .subscribe()
+                    .addTo(compositeDisposable)
             } else {
                 main.launch {
                     view.showUnSeenButton()

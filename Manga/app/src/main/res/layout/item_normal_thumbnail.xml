@@ -10,7 +10,7 @@
         android:id="@+id/ivPageThumbnail"
         android:layout_width="@dimen/thumbnail_width"
         android:layout_height="@dimen/thumbnail_height"
-        android:background="@android:color/transparent"
+        android:background="@color/grey555"
         android:contentDescription="@string/page_thumbnail"
         android:scaleType="fitXY"
         android:src="@drawable/ic_404_not_found"

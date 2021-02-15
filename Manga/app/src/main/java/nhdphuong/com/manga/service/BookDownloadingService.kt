@@ -30,19 +30,29 @@ import javax.inject.Inject
 import android.app.PendingIntent
 import android.content.Intent.FILL_IN_ACTION
 import androidx.core.app.NotificationCompat
+import nhdphuong.com.manga.Constants.Companion.EVENT_DOWNLOADED_BOOK
+import nhdphuong.com.manga.Constants.Companion.EVENT_DOWNLOAD_BOOK
+import nhdphuong.com.manga.Constants.Companion.EVENT_FAILED_TO_DOWNLOAD_BOOK
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.Constants.Companion.NOTIFICATION_ID
 import nhdphuong.com.manga.Constants.Companion.NOTIFICATION_CHANNEL_ID
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ERROR
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
+import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.features.NavigationRedirectActivity
+import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 
 
 class BookDownloadingService : IntentService("BookDownloadingService"), BookDownloadCallback {
 
     @Inject
     lateinit var downloadBookUseCase: DownloadBookUseCase
+
+    @Inject
+    lateinit var logAnalyticsEventUseCase: LogAnalyticsEventUseCase
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -96,6 +106,11 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
                         logger.d("Start downloading book ${book.bookId}")
                         bookDownloader.setDownloadCallback(this)
                         bookDownloader.startDownloading(book.bookId, book.numOfPages)
+
+                        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+                        logAnalyticsEventUseCase.execute(EVENT_DOWNLOAD_BOOK, bookIdParam)
+                            .subscribe()
+                            .addTo(compositeDisposable)
                     }
                     .subscribeBy(onNext = { result ->
                         downloadingStatusMap[book.bookId] = result
@@ -119,6 +134,15 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
                             bookDownloader.progress,
                             bookDownloader.total
                         )
+
+                        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+                        val error = AnalyticsParam(PARAM_NAME_ERROR, it.javaClass.simpleName)
+                        logAnalyticsEventUseCase.execute(
+                            EVENT_FAILED_TO_DOWNLOAD_BOOK,
+                            bookIdParam,
+                            error
+                        ).subscribe()
+                            .addTo(compositeDisposable)
                     }, onComplete = {
                         logger.d("Finished downloading book ${book.bookId}")
                         downloadingStatusMap[book.bookId] = DownloadingCompleted
@@ -127,6 +151,11 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
                             bookDownloader.progress,
                             bookDownloader.total
                         )
+
+                        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+                        logAnalyticsEventUseCase.execute(EVENT_DOWNLOADED_BOOK, bookIdParam)
+                            .subscribe()
+                            .addTo(compositeDisposable)
                     }).addTo(compositeDisposable)
             }
         }
