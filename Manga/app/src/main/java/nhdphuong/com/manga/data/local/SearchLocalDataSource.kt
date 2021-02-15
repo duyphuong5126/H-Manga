@@ -10,6 +10,7 @@ interface SearchLocalDataSource {
     fun saveSearchEntry(searchInfo: String): Completable
     fun getLatestSearchEntries(maximumEntries: Int): Single<List<String>>
     fun getMostUsedSearchEntries(maximumEntries: Int): Single<List<String>>
+    fun deleteSearchInfo(searchInfo: String): Completable
 }
 
 class SearchLocalDataSourceImpl @Inject constructor(
@@ -41,5 +42,16 @@ class SearchLocalDataSourceImpl @Inject constructor(
 
     override fun getMostUsedSearchEntries(maximumEntries: Int): Single<List<String>> {
         return searchDAO.getMostUsedSearchEntries(maximumEntries)
+    }
+
+    override fun deleteSearchInfo(searchInfo: String): Completable {
+        return Completable.create {
+            try {
+                searchDAO.deleteSearchInfo(searchInfo)
+                it.onComplete()
+            } catch (throwable: Throwable) {
+                it.onError(throwable)
+            }
+        }
     }
 }

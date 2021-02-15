@@ -9,6 +9,7 @@ interface SearchRepository {
     fun saveSearchEntry(searchInfo: String): Completable
     fun getLatestSearchEntries(maximumEntries: Int): Single<List<String>>
     fun getMostUsedSearchEntries(maximumEntries: Int): Single<List<String>>
+    fun deleteSearchInfo(searchInfo: String): Completable
 }
 
 class SearchRepositoryImpl @Inject constructor(
@@ -24,5 +25,9 @@ class SearchRepositoryImpl @Inject constructor(
 
     override fun getMostUsedSearchEntries(maximumEntries: Int): Single<List<String>> {
         return searchLocalDataSource.getMostUsedSearchEntries(maximumEntries)
+    }
+
+    override fun deleteSearchInfo(searchInfo: String): Completable {
+        return searchLocalDataSource.deleteSearchInfo(searchInfo)
     }
 }

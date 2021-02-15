@@ -22,9 +22,11 @@ interface HeaderContract {
         fun goToRandomBook()
         fun showNoNetworkPopup()
         fun showTagsDownloadingPopup()
-        fun setUpSuggestionList(suggestionList: List<String>)
-        fun updateSuggestionList()
+        fun setUpSuggestionList()
+        fun updateSuggestionList(suggestionList: List<String>)
         fun navigateToFeedbackForm(formUrl: String)
+        fun showSuggestionDeletedMessage(searchContent: String)
+        fun showGeneralError()
     }
 
     interface Presenter : Base.Presenter {
@@ -33,5 +35,6 @@ interface HeaderContract {
         fun saveSearchInfo(searchContent: String)
         fun refreshTagData()
         fun requestFeedbackForm()
+        fun removeSuggestion(suggestion: String)
     }
 }

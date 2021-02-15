@@ -64,4 +64,7 @@ interface UseCaseModule {
 
     @Binds
     fun getRecommendedBooksFromFavoriteUseCase(useCaseImpl: GetRecommendedBooksFromFavoriteUseCaseImpl): GetRecommendedBooksFromFavoriteUseCase
+
+    @Binds
+    fun deleteSearchSuggestionUseCase(useCaseImpl: DeleteSearchSuggestionUseCaseImpl): DeleteSearchSuggestionUseCase
 }

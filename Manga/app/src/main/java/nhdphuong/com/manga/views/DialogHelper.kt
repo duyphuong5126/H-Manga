@@ -67,6 +67,23 @@ fun Activity.createLoadingDialog(loadingStringId: Int = R.string.loading): Dialo
     return dialog
 }
 
+fun Activity.showSuggestionRemovalConfirmationDialog(
+    suggestion: String,
+    onOk: () -> Unit,
+    onCancel: () -> Unit = {}
+) {
+    showOkDismissDialog(
+        this,
+        getString(R.string.suggestion_removal_title),
+        getString(R.string.suggestion_removal_message, suggestion),
+        getString(R.string.yes),
+        getString(R.string.no),
+        onOk,
+        onCancel,
+        false
+    )
+}
+
 fun Activity.showBookDownloadingFailureDialog(bookId: String, onOk: () -> Unit = {}) {
     showOkDialog(
         this,

@@ -261,6 +261,12 @@
 
     <string name="try_it">Try it</string>
 
+    <string name="suggestion_removal_title">Remove suggestion</string>
+    <string name="suggestion_removal_message">You want to remove\n\"%s\"\nfrom the suggestion list</string>
+    <string name="suggestion_removed_successfully">\"%s\" was removed successfully</string>
+
+    <string name="general_error_message">An error occurred</string>
+
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>
         <item>..</item>

@@ -26,4 +26,7 @@ interface SearchDAO {
 
     @Query("select $SEARCH_INFO from $TABLE_SEARCH order by $SEARCH_TIMES desc limit :maximumEntries")
     fun getMostUsedSearchEntries(maximumEntries: Int): Single<List<String>>
+
+    @Query("delete from $TABLE_SEARCH where $SEARCH_INFO = :searchInfo")
+    fun deleteSearchInfo(searchInfo: String): Int
 }
