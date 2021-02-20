@@ -49,13 +49,15 @@ class BookLocalDataSource @Inject constructor(
     private val logger = Logger("BookLocalDataSource")
 
     override suspend fun saveRecentBook(book: Book) {
-        bookDAO.insertRecentBooks(
-            RecentBook(
-                book.bookId,
-                System.currentTimeMillis(),
-                serializeBook(book)
-            )
-        )
+        val recentBook = try {
+            bookDAO.getRecentBookSynchronously(book.bookId)!!
+        } catch (throwable: Throwable) {
+            if (throwable is EmptyResultSetException || throwable is NullPointerException) {
+                RecentBook(book.bookId, System.currentTimeMillis(), serializeBook(book), 0)
+            } else throw throwable
+        }
+        recentBook.readingTimes++
+        bookDAO.insertRecentBooks(recentBook)
     }
 
     override suspend fun saveFavoriteBook(book: Book) {
@@ -195,15 +197,17 @@ class BookLocalDataSource @Inject constructor(
     }
 
     override fun addToRecentList(book: Book): Completable {
-        return Completable.fromCallable {
-            bookDAO.insertRecentBooks(
-                RecentBook(
-                    book.bookId,
-                    System.currentTimeMillis(),
-                    serializeBook(book)
-                )
-            )
-        }
+        return bookDAO.getRecentBook(book.bookId)
+            .onErrorResumeNext {
+                if (it is EmptyResultSetException) {
+                    val createdAt = System.currentTimeMillis()
+                    val recentBook = RecentBook(book.bookId, createdAt, serializeBook(book), 1)
+                    bookDAO.insertRecentBooks(recentBook)
+                    Single.just(recentBook)
+                } else {
+                    Single.error(it)
+                }
+            }.ignoreElement()
     }
 
     override fun saveImageOfBook(
@@ -335,6 +339,10 @@ class BookLocalDataSource @Inject constructor(
                 mostUsedTagNames.addAll(tagDAO.getGroupsByIds(it).map(Group::name))
                 mostUsedTagNames
             }
+    }
+
+    override fun getRecentBookIdsForRecommendation(): Single<List<String>> {
+        return bookDAO.getRecentBookIdsForRecommendation()
     }
 
     private fun extractAndSaveTagList(book: Book): Completable {

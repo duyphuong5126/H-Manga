@@ -79,5 +79,7 @@ interface BookDataSource {
         fun getLastVisitedPage(bookId: String): Single<Int>
 
         fun getMostUsedTags(maximumEntries: Int): Single<List<String>>
+
+        fun getRecentBookIdsForRecommendation(): Single<List<String>>
     }
 }

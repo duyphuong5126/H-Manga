@@ -89,9 +89,9 @@ class GetRecommendedBooksUseCaseImpl @Inject constructor(
     }
 
     private companion object {
-        private const val MAX_SEARCH_ENTRIES = 50
-        private const val MAX_USED_TAGS = 50
+        private const val MAX_SEARCH_ENTRIES = 100
+        private const val MAX_USED_TAGS = 100
         private const val MAX_RECOMMENDED_BOOKS = 5
-        private const val MAX_PAGES_PER_SEARCH_ENTRY = 10
+        private const val MAX_PAGES_PER_SEARCH_ENTRY = 100
     }
 }

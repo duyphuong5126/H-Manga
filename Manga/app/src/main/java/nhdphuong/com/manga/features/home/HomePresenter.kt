@@ -35,6 +35,7 @@ import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.usecase.CheckRecentFavoriteMigrationNeededUseCase
 import nhdphuong.com.manga.usecase.GetRecommendedBooksFromFavoriteUseCase
+import nhdphuong.com.manga.usecase.GetRecommendedBooksFromReadingHistoryUseCase
 import nhdphuong.com.manga.usecase.GetRecommendedBooksUseCase
 import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 import java.net.SocketTimeoutException
@@ -62,6 +63,7 @@ class HomePresenter @Inject constructor(
     private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
     private val checkRecentFavoriteMigrationNeededUseCase: CheckRecentFavoriteMigrationNeededUseCase,
     private val getRecommendedBooksFromFavoriteUseCase: GetRecommendedBooksFromFavoriteUseCase,
+    private val getRecommendedBooksFromReadingHistoryUseCase: GetRecommendedBooksFromReadingHistoryUseCase,
     private val getRecommendedBooksUseCase: GetRecommendedBooksUseCase,
     private val networkUtils: INetworkUtils,
     @IO private val io: CoroutineScope,
@@ -419,6 +421,7 @@ class HomePresenter @Inject constructor(
                             if (searchData.isNotBlank()) {
                                 view.showSortOptionList()
                             }
+                            syncRecommendedBooks()
                         } else {
                             view.showNothingView()
                             view.hideSortOptionList()
@@ -436,7 +439,6 @@ class HomePresenter @Inject constructor(
             }
         }
         jobList.add(downloadingJob)
-        syncRecommendedBooks()
     }
 
     private fun onPageChange(pageNumber: Long) {
@@ -602,6 +604,7 @@ class HomePresenter @Inject constructor(
     private fun syncRecommendedBooks() {
         val dayOfWeek = Calendar.getInstance(Locale.getDefault()).get(Calendar.DAY_OF_WEEK)
         getRecommendedBooksUseCase.execute(dayOfWeek, searchData)
+            .switchIfEmpty(getRecommendedBooksFromReadingHistoryUseCase.execute())
             .switchIfEmpty(getRecommendedBooksFromFavoriteUseCase.execute())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

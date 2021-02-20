@@ -120,6 +120,7 @@ class Constants {
         const val TABLE_BOOK_TAG = "BookTag"
         const val TABLE_LAST_VISITED_PAGE = "LastVisitedPage"
         const val TABLE_SEARCH = "Search"
+        const val TABLE_RECENT_BOOK = "RecentBook"
         const val BOOK_ID = "bookId"
         const val TAG_ID = "tagId"
         const val CREATED_AT = "createdAt"
@@ -127,6 +128,7 @@ class Constants {
         const val LAST_VISITED_PAGE = "lastVisitedPage"
         const val SEARCH_INFO = "searchInfo"
         const val SEARCH_TIMES = "searchTimes"
+        const val READING_TIMES = "readingTimes"
         const val RAW_BOOK = "rawBook"
 
         // Notifications

@@ -173,7 +173,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:layout_marginStart="@dimen/space_normal"
+                    android:layout_marginStart="@dimen/space_medium"
                     android:layout_marginTop="@dimen/space_large"
                     android:text="@string/maybe_you_interest"
                     android:textColor="@android:color/white"
@@ -191,7 +191,7 @@
                     android:layout_marginTop="@dimen/space_medium"
                     android:clipToPadding="false"
                     android:overScrollMode="never"
-                    android:paddingStart="@dimen/space_normal"
+                    android:paddingStart="@dimen/space_medium"
                     android:paddingEnd="@dimen/space_medium"
                     android:visibility="gone"
                     tools:visibility="visible">

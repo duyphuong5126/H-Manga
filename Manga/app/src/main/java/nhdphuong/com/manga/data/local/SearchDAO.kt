@@ -19,7 +19,7 @@ interface SearchDAO {
     fun findSearchInfo(searchInfo: String): Single<SearchModel>
 
     @Query("update $TABLE_SEARCH set $SEARCH_TIMES = :searchTimes where $SEARCH_INFO = :searchInfo")
-    fun updateSearchTimes(searchInfo: String, searchTimes: Int): Int
+    fun updateSearchTimes(searchInfo: String, searchTimes: Long): Int
 
     @Query("select * from $TABLE_SEARCH order by $ID desc limit :maximumEntries")
     fun getLatestSearchEntries(maximumEntries: Int): Single<List<SearchModel>>

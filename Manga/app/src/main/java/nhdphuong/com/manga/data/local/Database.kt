@@ -21,8 +21,10 @@ import nhdphuong.com.manga.Constants.Companion.IMAGE_WIDTH
 import nhdphuong.com.manga.Constants.Companion.IMAGE_HEIGHT
 import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE
 import nhdphuong.com.manga.Constants.Companion.RAW_BOOK
+import nhdphuong.com.manga.Constants.Companion.READING_TIMES
 import nhdphuong.com.manga.Constants.Companion.SEARCH_INFO
 import nhdphuong.com.manga.Constants.Companion.SEARCH_TIMES
+import nhdphuong.com.manga.Constants.Companion.TABLE_RECENT_BOOK
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 
@@ -52,6 +54,7 @@ class Database {
         private val MIGRATE_FROM_7_TO_8 = object : Migration(7, 8) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE $TABLE_SEARCH ADD COLUMN $SEARCH_TIMES INTEGER NOT NULL DEFAULT 1")
+                database.execSQL("ALTER TABLE $TABLE_RECENT_BOOK ADD COLUMN $READING_TIMES INTEGER NOT NULL DEFAULT 1")
             }
         }
 

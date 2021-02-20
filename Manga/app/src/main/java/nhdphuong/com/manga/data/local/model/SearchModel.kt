@@ -15,7 +15,7 @@ import nhdphuong.com.manga.Constants.Companion.SEARCH_TIMES
 )
 data class SearchModel(
     @ColumnInfo(name = SEARCH_INFO) var searchInfo: String,
-    @ColumnInfo(name = SEARCH_TIMES) var searchTimes: Int
+    @ColumnInfo(name = SEARCH_TIMES) var searchTimes: Long
 ) {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = ID)

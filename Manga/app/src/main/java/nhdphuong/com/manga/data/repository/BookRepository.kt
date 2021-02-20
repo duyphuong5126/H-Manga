@@ -182,4 +182,8 @@ class BookRepository @Inject constructor(
     override fun getMostUsedTags(maximumEntries: Int): Single<List<String>> {
         return bookLocalDataSource.getMostUsedTags(maximumEntries)
     }
+
+    override fun getRecentBookIdsForRecommendation(): Single<List<String>> {
+        return bookLocalDataSource.getRecentBookIdsForRecommendation()
+    }
 }
