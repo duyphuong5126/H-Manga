@@ -81,8 +81,8 @@
     <string name="view">View</string>
     <string name="done">Done</string>
     <string name="permission_require">Permission Required</string>
-    <string name="storage_permission_require">We need storage permission to store the downloaded data</string>
-    <string name="toast_storage_permission_require">Please allow us to store data in your device!</string>
+    <string name="storage_permission_require">App needs storage permission to store the downloaded data</string>
+    <string name="toast_storage_permission_require">Please allow app to store data in your device!</string>
     <string name="preview_download_progress">Downloaded %s/%s pages</string>
     <string name="preview_deleting_progress">Deleted %d/%d pages</string>
     <string name="cleared">Clear</string>
@@ -261,6 +261,11 @@
     <string name="suggestion_removal_title">Remove suggestion</string>
     <string name="suggestion_removal_message">You want to remove\n\"%s\"\nfrom the suggestion list</string>
     <string name="suggestion_removed_successfully">\"%s\" was removed successfully</string>
+
+    <string name="do_not_recommend_book_title">Not interested</string>
+    <string name="do_not_recommend_book_message">App won\'t recommend the book %s to you anymore.\nYou still can see this book in other places.</string>
+
+    <string name="do_not_recommend_book_accepted">Book ID %s was removed</string>
 
     <string name="general_error_message">An error occurred</string>
 

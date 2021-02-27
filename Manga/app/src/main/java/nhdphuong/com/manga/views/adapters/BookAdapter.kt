@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -23,11 +24,13 @@ import nhdphuong.com.manga.views.doOnGlobalLayout
 class BookAdapter(
     private val itemList: List<Book>,
     private val adapterType: Int,
-    private val bookClickCallback: OnBookClick
+    private val bookClickCallback: OnBookClick,
+    private val onBookBlocked: OnBookBlocked? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         const val HOME_PREVIEW_BOOK = 1
         const val RECOMMEND_BOOK = 2
+        const val REMOVABLE_RECOMMEND_BOOK = 3
     }
 
     private val recentList = ArrayList<String>()
@@ -38,13 +41,23 @@ class BookAdapter(
         parent: ViewGroup,
         viewType: Int
     ): RecyclerView.ViewHolder {
-        val layoutResId = when (viewType) {
-            HOME_PREVIEW_BOOK -> R.layout.item_home_list
-            RECOMMEND_BOOK -> R.layout.item_recommend_list
-            else -> R.layout.item_home_list
+        return when (viewType) {
+            RECOMMEND_BOOK -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_recommend_list, parent, false)
+                MainListViewHolder(view, bookClickCallback)
+            }
+            REMOVABLE_RECOMMEND_BOOK -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_removable_recommendation, parent, false)
+                RemovableRecommendedBookViewHolder(view, bookClickCallback)
+            }
+            else -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_home_list, parent, false)
+                MainListViewHolder(view, bookClickCallback)
+            }
         }
-        val view = LayoutInflater.from(parent.context).inflate(layoutResId, parent, false)
-        return MainListViewHolder(view, bookClickCallback)
     }
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
@@ -110,11 +123,11 @@ class BookAdapter(
         notifyDataSetChanged()
     }
 
-    inner class MainListViewHolder(
+    open inner class MainListViewHolder(
         itemView: View,
         private val bookClickCallback: OnBookClick
-    ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        private lateinit var bookPreview: Book
+    ) : RecyclerView.ViewHolder(itemView) {
+        protected lateinit var bookPreview: Book
         private val ivItemThumbnail: ImageView = itemView.findViewById(R.id.ivItemThumbnail)
         private val tv1stTitle: TextView = itemView.findViewById(R.id.tvItemTitle)
         private val tv2ndTitle: TextView = itemView.findViewById(R.id.tv2ndTitlePart)
@@ -134,11 +147,9 @@ class BookAdapter(
             get() = ivItemThumbnail
 
         init {
-            vNavigation.setOnClickListener(this)
-        }
-
-        override fun onClick(p0: View?) {
-            bookClickCallback.onItemClick(bookPreview)
+            vNavigation.setOnClickListener {
+                bookClickCallback.onItemClick(bookPreview)
+            }
         }
 
         fun showRecentLabel() {
@@ -196,7 +207,24 @@ class BookAdapter(
         }
     }
 
+    inner class RemovableRecommendedBookViewHolder(
+        itemView: View,
+        bookClickCallback: OnBookClick
+    ) : MainListViewHolder(itemView, bookClickCallback) {
+        private val ibDoNotRecommend: ImageButton = itemView.findViewById(R.id.ibDoNotRecommend)
+
+        init {
+            ibDoNotRecommend.setOnClickListener {
+                onBookBlocked?.onBlockingBook(bookPreview.bookId)
+            }
+        }
+    }
+
     interface OnBookClick {
         fun onItemClick(item: Book)
+    }
+
+    interface OnBookBlocked {
+        fun onBlockingBook(bookId: String)
     }
 }

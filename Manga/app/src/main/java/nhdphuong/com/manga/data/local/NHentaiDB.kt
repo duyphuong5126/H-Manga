@@ -2,6 +2,7 @@ package nhdphuong.com.manga.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import nhdphuong.com.manga.data.entity.BlockedBook
 import nhdphuong.com.manga.data.entity.FavoriteBook
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.tags.Artist
@@ -25,6 +26,7 @@ import nhdphuong.com.manga.data.local.model.SearchModel
     entities = [
         RecentBook::class,
         FavoriteBook::class,
+        BlockedBook::class,
         Tag::class,
         Artist::class,
         Character::class,

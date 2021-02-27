@@ -49,9 +49,10 @@ class GetRecommendedBooksUseCaseImpl @Inject constructor(
                             if (Random.nextInt() / 2 == 0) Recent else PopularToday
                         }
 
-                        val recentFavoriteIds = arrayListOf<String>().apply {
+                        val notRecommendedIds = arrayListOf<String>().apply {
                             addAll(bookRepository.getAllRecentBookIds())
                             addAll(bookRepository.getAllFavoriteBookIds())
+                            addAll(bookRepository.getBlockedBookIds())
                         }.distinct()
 
                         var remainSlotCount = MAX_RECOMMENDED_BOOKS
@@ -67,7 +68,7 @@ class GetRecommendedBooksUseCaseImpl @Inject constructor(
                                 )
                                 if (response is Success) {
                                     response.remoteBook.bookList.filterNot {
-                                        recentFavoriteIds.contains(it.bookId)
+                                        notRecommendedIds.contains(it.bookId)
                                     }.let(recommendedBooks::addAll)
                                     recommendedBooks.sortByDescending { it.numOfFavorites }
 

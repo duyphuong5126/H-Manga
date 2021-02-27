@@ -12,8 +12,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.BuildConfig
+import nhdphuong.com.manga.Constants.Companion.EVENT_BLOCK_RECOMMENDED_BOOK
+import nhdphuong.com.manga.Constants.Companion.EVENT_CLICK_RECOMMENDED_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_SEARCH
 import nhdphuong.com.manga.Constants.Companion.MAX_PER_PAGE
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_SEARCH_DATA
 import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
@@ -85,6 +88,8 @@ class HomePresenter @Inject constructor(
 
     @SuppressLint("UseSparseArrays")
     private var preventiveData = HashMap<Long, ArrayList<Book>>()
+
+    private var recommendedBooks = arrayListOf<Book>()
 
     private var isLoadingPreventiveData = false
     private val jobList = CopyOnWriteArrayList<Job>()
@@ -316,7 +321,6 @@ class HomePresenter @Inject constructor(
             val analyticsParam = AnalyticsParam(PARAM_NAME_SEARCH_DATA, data)
             logAnalyticsEventUseCase.execute(EVENT_SEARCH, analyticsParam)
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe()
                 .addTo(compositeDisposable)
             reload(false)
@@ -357,6 +361,34 @@ class HomePresenter @Inject constructor(
 
     override fun checkedOutAlternativeDomains() {
         sharedPreferencesManager.checkedOutAlternativeDomains = true
+    }
+
+    override fun doNoRecommendBook(bookId: String) {
+        io.launch {
+            bookRepository.addBookToBlockList(bookId)
+            recommendedBooks.removeAll { it.bookId == bookId }
+            val isNoRecommendedBook = recommendedBooks.isEmpty()
+            main.launch {
+                view.refreshRecommendBooks()
+                if (isNoRecommendedBook) {
+                    view.hideRecommendBooks()
+                }
+            }
+
+            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, bookId)
+            logAnalyticsEventUseCase.execute(EVENT_BLOCK_RECOMMENDED_BOOK, bookIdParam)
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+                .addTo(compositeDisposable)
+        }
+    }
+
+    override fun checkOutRecommendedBook(bookId: String) {
+        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, bookId)
+        logAnalyticsEventUseCase.execute(EVENT_CLICK_RECOMMENDED_BOOK, bookIdParam)
+            .subscribeOn(Schedulers.io())
+            .subscribe()
+            .addTo(compositeDisposable)
     }
 
     override fun stop() {
@@ -561,6 +593,7 @@ class HomePresenter @Inject constructor(
             entry.value.clear()
         }
         preventiveData.clear()
+        recommendedBooks.clear()
         currentNumOfPages = 0L
         currentLimitPerPage = 0
         currentPage = 1
@@ -611,13 +644,15 @@ class HomePresenter @Inject constructor(
             .subscribe({
                 logger.d("Recommended books: ${it.size}")
                 if (it.isNotEmpty()) {
-                    view.showRecommendBook(it)
+                    recommendedBooks.clear()
+                    recommendedBooks.addAll(it)
+                    view.showRecommendBooks(recommendedBooks)
                 } else {
-                    view.hideRecommendBook()
+                    view.hideRecommendBooks()
                 }
             }, {
                 logger.e("Failed to get recommended books with error $it")
-                view.hideRecommendBook()
+                view.hideRecommendBooks()
             })
             .addTo(compositeDisposable)
     }

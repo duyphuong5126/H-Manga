@@ -21,6 +21,7 @@ import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.widget.NestedScrollView
@@ -52,6 +53,7 @@ import nhdphuong.com.manga.views.createLoadingDialog
 import nhdphuong.com.manga.views.customs.MyButton
 import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.showBookListRefreshingDialog
+import nhdphuong.com.manga.views.showDoNotRecommendBookDialog
 import nhdphuong.com.manga.views.showGoToPageDialog
 import nhdphuong.com.manga.views.showTryAlternativeDomainsDialog
 import javax.inject.Inject
@@ -66,6 +68,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     private lateinit var homePresenter: HomeContract.Presenter
     private lateinit var loadingDialog: Dialog
 
+    private var recommendAdapter: BookAdapter? = null
+
     private var searchResultTitle = ""
     private var lastUpdateTemplate = ""
     private var upgradeTitleTemplate = ""
@@ -78,6 +82,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     private var releaseToRefresh = ""
     private var updating = ""
     private var pullDown = ""
+    private var doNoRecommendMessageTemplate = ""
 
     private val updateDotsHandler: Handler = Handler(Looper.getMainLooper())
     private lateinit var btnFirst: ImageView
@@ -172,6 +177,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
             releaseToRefresh = it.getString(R.string.release_to_refresh)
             updating = it.getString(R.string.updating)
             pullDown = it.getString(R.string.pull_down)
+            doNoRecommendMessageTemplate = it.getString(R.string.do_not_recommend_book_accepted)
         }
 
         setUpUI(view)
@@ -355,7 +361,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         mainList.adapter = homeListAdapter
     }
 
-    override fun showRecommendBook(bookList: List<Book>) {
+    override fun showRecommendBooks(bookList: List<Book>) {
         mtvRecommendBook.becomeVisible()
         hsvRecommendList.becomeVisible()
         context?.let {
@@ -366,16 +372,35 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
             }
 
             rvRecommendList.layoutManager = gridLayoutManager
-            rvRecommendList.adapter =
-                BookAdapter(bookList, BookAdapter.RECOMMEND_BOOK, object : BookAdapter.OnBookClick {
+
+            recommendAdapter = BookAdapter(
+                bookList,
+                BookAdapter.REMOVABLE_RECOMMEND_BOOK,
+                object : BookAdapter.OnBookClick {
                     override fun onItemClick(item: Book) {
+                        homePresenter.checkOutRecommendedBook(item.bookId)
                         BookPreviewActivity.start(this@HomeFragment, item)
                     }
-                })
+                }, object : BookAdapter.OnBookBlocked {
+                    override fun onBlockingBook(bookId: String) {
+                        activity?.showDoNotRecommendBookDialog(bookId, onOk = {
+                            homePresenter.doNoRecommendBook(bookId)
+                            val acceptedMessage =
+                                String.format(doNoRecommendMessageTemplate, bookId)
+                            Toast.makeText(it, acceptedMessage, Toast.LENGTH_LONG).show()
+                        })
+                    }
+                }
+            )
+            rvRecommendList.adapter = recommendAdapter
         }
     }
 
-    override fun hideRecommendBook() {
+    override fun refreshRecommendBooks() {
+        recommendAdapter?.notifyDataSetChanged()
+    }
+
+    override fun hideRecommendBooks() {
         mtvRecommendBook.gone()
         hsvRecommendList.gone()
     }

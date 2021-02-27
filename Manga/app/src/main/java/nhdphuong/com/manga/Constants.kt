@@ -121,6 +121,7 @@ class Constants {
         const val TABLE_LAST_VISITED_PAGE = "LastVisitedPage"
         const val TABLE_SEARCH = "Search"
         const val TABLE_RECENT_BOOK = "RecentBook"
+        const val TABLE_BLOCKED_BOOK = "BlockedBook"
         const val BOOK_ID = "bookId"
         const val TAG_ID = "tagId"
         const val CREATED_AT = "createdAt"
@@ -165,6 +166,8 @@ class Constants {
         const val EVENT_BROWSE_FAVORITE = "BrowseFavorite"
         const val EVENT_ADD_FAVORITE = "AddFavorite"
         const val EVENT_REMOVE_FAVORITE = "RemoveFavorite"
+        const val EVENT_CLICK_RECOMMENDED_BOOK = "ClickRecommendedBook"
+        const val EVENT_BLOCK_RECOMMENDED_BOOK = "BlockRecommendedBook"
 
         // Analytics param name
         const val PARAM_NAME_APP_VERSION_NAME = "App_VersionName"

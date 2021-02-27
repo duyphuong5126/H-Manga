@@ -16,8 +16,10 @@ import nhdphuong.com.manga.Constants.Companion.LOCAL_PATH
 import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE
 import nhdphuong.com.manga.Constants.Companion.RAW_BOOK
 import nhdphuong.com.manga.Constants.Companion.READING_TIMES
+import nhdphuong.com.manga.Constants.Companion.TABLE_BLOCKED_BOOK
 import nhdphuong.com.manga.Constants.Companion.TABLE_LAST_VISITED_PAGE
 import nhdphuong.com.manga.Constants.Companion.TAG_ID
+import nhdphuong.com.manga.data.entity.BlockedBook
 import nhdphuong.com.manga.data.entity.FavoriteBook
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.local.model.BookImageModel
@@ -41,6 +43,9 @@ interface BookDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertFavoriteBooks(vararg favoriteBookEntities: FavoriteBook)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertBlockedBooks(vararg blockedBookEntities: BlockedBook)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addDownloadedBook(downloadedBooks: List<DownloadedBookModel>): List<Long>
@@ -146,4 +151,7 @@ interface BookDAO {
 
     @Query("delete from $TABLE_LAST_VISITED_PAGE where $BOOK_ID = :bookId")
     fun deleteLastVisitedPage(bookId: String): Int
+
+    @Query("select $BOOK_ID from $TABLE_BLOCKED_BOOK")
+    fun getBlockedBookIds(): List<String>
 }

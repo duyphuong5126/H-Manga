@@ -9,6 +9,7 @@ import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.SerializationService
+import nhdphuong.com.manga.data.entity.BlockedBook
 import nhdphuong.com.manga.data.entity.FavoriteBook
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.Book
@@ -72,6 +73,10 @@ class BookLocalDataSource @Inject constructor(
 
     override suspend fun removeFavoriteBook(book: Book) {
         bookDAO.deleteFavoriteBook(book.bookId)
+    }
+
+    override suspend fun addBookToBlockList(bookId: String) {
+        bookDAO.insertBlockedBooks(BlockedBook(bookId))
     }
 
     override fun getEmptyFavoriteBooks(): Single<List<FavoriteBook>> {
@@ -343,6 +348,10 @@ class BookLocalDataSource @Inject constructor(
 
     override fun getRecentBookIdsForRecommendation(): Single<List<String>> {
         return bookDAO.getRecentBookIdsForRecommendation()
+    }
+
+    override suspend fun getBlockedBookIds(): List<String> {
+        return bookDAO.getBlockedBookIds()
     }
 
     private fun extractAndSaveTagList(book: Book): Completable {

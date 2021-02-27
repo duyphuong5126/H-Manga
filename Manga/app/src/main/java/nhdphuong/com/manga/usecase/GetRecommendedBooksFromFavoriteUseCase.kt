@@ -19,14 +19,17 @@ class GetRecommendedBooksFromFavoriteUseCaseImpl @Inject constructor(
             try {
                 val result = arrayListOf<Book>()
                 runBlocking {
-                    val recentIds = bookRepository.getAllRecentBookIds()
+                    val notRecommendedIds = arrayListOf<String>().apply {
+                        addAll(bookRepository.getAllRecentBookIds())
+                        addAll(bookRepository.getBlockedBookIds())
+                    }.distinct()
                     val favoriteIds = bookRepository.getAllFavoriteBookIds().shuffled()
                     if (favoriteIds.isNotEmpty()) {
                         favoriteIds.take(MAX_FAVORITES).forEach { favoriteId ->
                             val bookResponse = bookRepository.getRecommendBook(favoriteId)
                             if (bookResponse is Success) {
                                 result.addAll(bookResponse.recommendBook.bookList.filterNot {
-                                    recentIds.contains(it.bookId)
+                                    notRecommendedIds.contains(it.bookId)
                                 })
                             }
                         }

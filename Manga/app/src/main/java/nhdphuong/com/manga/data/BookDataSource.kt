@@ -36,6 +36,7 @@ interface BookDataSource {
         suspend fun saveRecentBook(book: Book)
         suspend fun saveFavoriteBook(book: Book)
         suspend fun removeFavoriteBook(book: Book)
+        suspend fun addBookToBlockList(bookId: String)
         fun getEmptyRecentBooks(): Single<List<RecentBook>>
         fun getEmptyFavoriteBooks(): Single<List<FavoriteBook>>
         fun getEmptyRecentBooksCount(): Int
@@ -81,5 +82,7 @@ interface BookDataSource {
         fun getMostUsedTags(maximumEntries: Int): Single<List<String>>
 
         fun getRecentBookIdsForRecommendation(): Single<List<String>>
+
+        suspend fun getBlockedBookIds(): List<String>
     }
 }

@@ -67,6 +67,23 @@ fun Activity.createLoadingDialog(loadingStringId: Int = R.string.loading): Dialo
     return dialog
 }
 
+fun Activity.showDoNotRecommendBookDialog(
+    bookId: String,
+    onOk: () -> Unit,
+    onCancel: () -> Unit = {}
+) {
+    showOkDismissDialog(
+        this,
+        getString(R.string.do_not_recommend_book_title),
+        getString(R.string.do_not_recommend_book_message, bookId),
+        getString(R.string.yes),
+        getString(R.string.no),
+        onOk,
+        onCancel,
+        false
+    )
+}
+
 fun Activity.showSuggestionRemovalConfirmationDialog(
     suggestion: String,
     onOk: () -> Unit,

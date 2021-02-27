@@ -32,17 +32,17 @@ class GetRecommendedBooksFromReadingHistoryUseCaseImpl @Inject constructor(
             val result = arrayListOf<Book>()
             try {
                 runBlocking {
-                    val favoriteIds = bookRepository.getAllFavoriteBookIds()
-                    val exitedIds = arrayListOf<String>().apply {
+                    val notRecommendedIds = arrayListOf<String>().apply {
                         addAll(recentIds)
-                        addAll(favoriteIds)
+                        addAll(bookRepository.getAllFavoriteBookIds())
+                        addAll(bookRepository.getBlockedBookIds())
                     }.distinct()
                     recentIds.take(MAX_RECENT_IDS).shuffled().forEach { valuableRecentId ->
                         logger.d("Load recommendation of book $valuableRecentId")
                         val bookResponse = bookRepository.getRecommendBook(valuableRecentId)
                         if (bookResponse is RecommendBookResponse.Success) {
                             result.addAll(bookResponse.recommendBook.bookList.filterNot {
-                                exitedIds.contains(it.bookId)
+                                notRecommendedIds.contains(it.bookId)
                             })
                         }
                     }

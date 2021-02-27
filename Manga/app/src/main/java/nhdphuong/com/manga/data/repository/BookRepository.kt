@@ -58,6 +58,10 @@ class BookRepository @Inject constructor(
         bookLocalDataSource.removeFavoriteBook(book)
     }
 
+    override suspend fun addBookToBlockList(bookId: String) {
+        bookLocalDataSource.addBookToBlockList(bookId)
+    }
+
     override suspend fun saveRecentBook(book: Book) {
         bookLocalDataSource.saveRecentBook(book)
     }
@@ -185,5 +189,9 @@ class BookRepository @Inject constructor(
 
     override fun getRecentBookIdsForRecommendation(): Single<List<String>> {
         return bookLocalDataSource.getRecentBookIdsForRecommendation()
+    }
+
+    override suspend fun getBlockedBookIds(): List<String> {
+        return bookLocalDataSource.getBlockedBookIds()
     }
 }
