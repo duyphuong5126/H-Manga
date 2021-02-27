@@ -20,7 +20,8 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import nhdphuong.com.manga.Constants.Companion.EVENT_READ_BOOK
+import nhdphuong.com.manga.Constants.Companion.EVENT_READ_BOOK_HORIZONTALLY
+import nhdphuong.com.manga.Constants.Companion.EVENT_READ_BOOK_VERTICALLY
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.analytics.AnalyticsParam
@@ -96,6 +97,7 @@ class ReaderPresenter @Inject constructor(
     override fun start() {
         logger.d("Start reading: ${book.previewTitle} from $startReadingPage")
         view.showBookTitle(book.previewTitle)
+        logCurrentReaderMode()
         bookPages = ArrayList()
         if (viewDownloadedData) {
             getDownloadedBookPagesUseCase.execute(book.bookId)
@@ -126,6 +128,7 @@ class ReaderPresenter @Inject constructor(
         } else {
             ReaderType.VerticalScroll
         }
+        logCurrentReaderMode()
         view.showBookPages(bookPages, viewMode, currentPage)
         view.showPageIndicator(currentPage + 1, bookPages.size)
     }
@@ -259,12 +262,6 @@ class ReaderPresenter @Inject constructor(
     private fun setUpReader() {
         currentPage = if (startReadingPage >= 0) startReadingPage else 0
 
-        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
-        logAnalyticsEventUseCase.execute(EVENT_READ_BOOK, bookIdParam)
-            .subscribeOn(Schedulers.io())
-            .subscribe()
-            .addTo(compositeDisposable)
-
         if (bookPages.isNotEmpty()) {
             view.showBookPages(bookPages, viewMode, currentPage)
         }
@@ -281,6 +278,20 @@ class ReaderPresenter @Inject constructor(
         io.launch {
             bookRepository.saveRecentBook(book)
         }
+    }
+
+    private fun logCurrentReaderMode() {
+        val eventName = if (viewMode == ReaderType.HorizontalPage) {
+            EVENT_READ_BOOK_HORIZONTALLY
+        } else {
+            EVENT_READ_BOOK_VERTICALLY
+        }
+
+        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+        logAnalyticsEventUseCase.execute(eventName, bookIdParam)
+            .subscribeOn(Schedulers.io())
+            .subscribe()
+            .addTo(compositeDisposable)
     }
 
     companion object {
