@@ -8,6 +8,7 @@ import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.data.Tab
 import nhdphuong.com.manga.supports.INetworkUtils
+import nhdphuong.com.manga.usecase.DeleteSearchSuggestionUseCase
 import nhdphuong.com.manga.usecase.GetFeedbackFormUseCase
 import nhdphuong.com.manga.usecase.GetLatestSearchEntriesUseCase
 import nhdphuong.com.manga.usecase.SaveSearchInfoUseCase
@@ -20,14 +21,18 @@ class HeaderPresenter @Inject constructor(
     private val getLatestSearchEntriesUseCase: GetLatestSearchEntriesUseCase,
     private val saveSearchInfoUseCase: SaveSearchInfoUseCase,
     private val getFeedbackFormUseCase: GetFeedbackFormUseCase,
+    private val deleteSearchSuggestionUseCase: DeleteSearchSuggestionUseCase,
     private val view: HeaderContract.View,
     private val networkUtils: INetworkUtils
 ) : HeaderContract.Presenter {
     companion object {
-        private const val TAG = "HeaderPresenter"
         private const val MAXIMUM_SUGGESTION_ENTRIES = 1000
         private const val DEFAULT_FEEDBACK_URL =
             "https://docs.google.com/forms/d/e/1FAIpQLSc6QzFWTRnnpBKMMyryaaa8WL-w9rt1wkm1g7bAvMmFLYs2og/viewform?usp=sf_link"
+    }
+
+    private val logger: Logger by lazy {
+        Logger("HeaderPresenter")
     }
 
     private val compositeDisposable = CompositeDisposable()
@@ -45,7 +50,7 @@ class HeaderPresenter @Inject constructor(
     }
 
     override fun start() {
-        view.setUpSuggestionList(searchEntries)
+        view.setUpSuggestionList()
     }
 
     override fun goToTagsList(tab: Tab) {
@@ -78,11 +83,11 @@ class HeaderPresenter @Inject constructor(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                Logger.d(TAG, "Saved entry $searchContent successfully")
+                logger.d("Saved entry $searchContent successfully")
                 searchEntries.add(searchContent)
-                view.updateSuggestionList()
+                view.updateSuggestionList(searchEntries)
             }, {
-                Logger.e(TAG, "Failed to save search info $searchContent with error: $it")
+                logger.e("Failed to save search info $searchContent with error: $it")
             })
             .addTo(compositeDisposable)
     }
@@ -101,12 +106,28 @@ class HeaderPresenter @Inject constructor(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                Logger.d(TAG, "Feedback form $it")
+                logger.d("Feedback form $it")
                 feedbackFormUrl = it
                 view.navigateToFeedbackForm(feedbackFormUrl)
             }, {
-                Logger.e(TAG, "Failed to get feedback form with error $it")
+                logger.e("Failed to get feedback form with error $it")
                 view.navigateToFeedbackForm(DEFAULT_FEEDBACK_URL)
+            }).addTo(compositeDisposable)
+    }
+
+    override fun removeSuggestion(suggestion: String) {
+        deleteSearchSuggestionUseCase.execute(suggestion)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnTerminate {
+                searchEntries.removeAll { it == suggestion }
+            }
+            .subscribe({
+                logger.d("$suggestion was deleted")
+                view.showSuggestionDeletedMessage(suggestion)
+            }, {
+                logger.e("Could not delete $suggestion with error $it")
+                view.showGeneralError()
             }).addTo(compositeDisposable)
     }
 
@@ -115,10 +136,10 @@ class HeaderPresenter @Inject constructor(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                Logger.d(TAG, "${it.size} search entries were found")
+                logger.d("${it.size} search entries were found")
                 updateSearchList(it)
             }, {
-                Logger.e(TAG, "Failed to get search entries with error: $it")
+                logger.e("Failed to get search entries with error: $it")
             })
             .addTo(compositeDisposable)
     }
@@ -138,6 +159,6 @@ class HeaderPresenter @Inject constructor(
     private fun updateSearchList(newSearchList: List<String>) {
         searchEntries.clear()
         searchEntries.addAll(newSearchList)
-        view.updateSuggestionList()
+        view.updateSuggestionList(searchEntries)
     }
 }

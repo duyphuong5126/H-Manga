@@ -25,13 +25,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.disposables.CompositeDisposable
+import nhdphuong.com.manga.Constants.Companion.EVENT_ADD_FAVORITE
+import nhdphuong.com.manga.Constants.Companion.EVENT_FORGET_BOOK
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_LANGUAGE
 import nhdphuong.com.manga.Constants.Companion.EVENT_OPEN_BOOK
-import nhdphuong.com.manga.Constants.Companion.EVENT_TOGGLE_FAVORITE
-import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_FAVORITE_STATUS
-import nhdphuong.com.manga.Constants.Companion.PARAM_VALUE_FAVORITE
-import nhdphuong.com.manga.Constants.Companion.PARAM_VALUE_UN_FAVORITE
+import nhdphuong.com.manga.Constants.Companion.EVENT_REMOVE_FAVORITE
 import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.CommentResponse
@@ -65,7 +64,6 @@ class BookPreviewPresenter @Inject constructor(
 ) : BookPreviewContract.Presenter {
 
     companion object {
-        private const val TAG = "BookPreviewPresenter"
         private const val MILLISECOND: Long = 1000
         private const val COMMENTS_PER_PAGE = 25
     }
@@ -103,6 +101,8 @@ class BookPreviewPresenter @Inject constructor(
 
     private val compositeDisposable = CompositeDisposable()
 
+    private val logger = Logger("BookPreviewPresenter")
+
     init {
         view.setPresenter(this)
     }
@@ -121,10 +121,10 @@ class BookPreviewPresenter @Inject constructor(
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(onSuccess = { coverImagePath ->
-                        Logger.d(TAG, "Downloaded cover of book ${book.bookId}: $coverImagePath")
+                        logger.d("Downloaded cover of book ${book.bookId}: $coverImagePath")
                         view.showBookCoverImage(coverImagePath)
                     }, onError = {
-                        Logger.e(TAG, "Failed to get downloaded cover of book ${book.bookId}: $it")
+                        logger.e("Failed to get downloaded cover of book ${book.bookId}: $it")
                         view.showBookCoverImage(ApiConstants.getBookCover(book.mediaId))
                     }).addTo(compositeDisposable)
             } else {
@@ -161,7 +161,7 @@ class BookPreviewPresenter @Inject constructor(
         io.launch {
             when (val commentResponse = bookRepository.getCommentList(book.bookId)) {
                 is CommentResponse.Success -> {
-                    Logger.d(TAG, "commentList=${commentResponse.commentList.size}")
+                    logger.d("commentList=${commentResponse.commentList.size}")
                     val startPosition = 0
                     val desiredEndPosition = COMMENTS_PER_PAGE
                     val endPosition = minOf(commentResponse.commentList.size, desiredEndPosition)
@@ -181,7 +181,7 @@ class BookPreviewPresenter @Inject constructor(
                 }
 
                 is CommentResponse.Failure -> {
-                    Logger.d(TAG, "failed to get comment list with error: ${commentResponse.error}")
+                    logger.d("failed to get comment list with error: ${commentResponse.error}")
                     main.launch {
                         view.hideCommentList()
                     }
@@ -285,7 +285,7 @@ class BookPreviewPresenter @Inject constructor(
     }
 
     override fun saveCurrentAvailableCoverUrl(url: String) {
-        Logger.d(TAG, "Current available url: $url")
+        logger.d("Current available url: $url")
         cacheCoverUrl = url
     }
 
@@ -304,9 +304,9 @@ class BookPreviewPresenter @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(onComplete = {
-                    Logger.d(TAG, "Started downloading book ${book.bookId}")
+                    logger.d("Started downloading book ${book.bookId}")
                 }, onError = {
-                    Logger.d(TAG, "Failed to start downloading book ${book.bookId}: $it")
+                    logger.e("Failed to start downloading book ${book.bookId}: $it")
                 }).addTo(compositeDisposable)
         } else {
             if (bookDownloader.bookId == book.bookId) {
@@ -334,24 +334,18 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun changeBookFavorite() {
         io.launch {
-            var favoriteStatus = PARAM_VALUE_FAVORITE
+            var favoriteEvent = EVENT_ADD_FAVORITE
             if (isFavoriteBook) {
-                favoriteStatus = PARAM_VALUE_UN_FAVORITE
+                favoriteEvent = EVENT_REMOVE_FAVORITE
                 bookRepository.removeFavoriteBook(book)
             } else {
                 bookRepository.saveFavoriteBook(book)
             }
-            val favoriteParam = AnalyticsParam(PARAM_NAME_FAVORITE_STATUS, favoriteStatus)
-            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
 
-            logAnalyticsEventUseCase.execute(EVENT_TOGGLE_FAVORITE, bookIdParam, favoriteParam)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    Logger.d(TAG, "Status $favoriteStatus of ")
-                }, {
-                    Logger.e(TAG, "Failed to log favorite status of book ${book.bookId}")
-                }).addTo(compositeDisposable)
+            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+            logAnalyticsEventUseCase.execute(favoriteEvent, bookIdParam)
+                .subscribe()
+                .addTo(compositeDisposable)
 
             refreshBookFavorite()
             main.launch {
@@ -424,13 +418,14 @@ class BookPreviewPresenter @Inject constructor(
             val unSubscribingSuccess = bookRepository.unSeenBook(book.bookId)
             if (unSubscribingSuccess) {
                 val deleteLastVisitedPageResult = bookRepository.deleteLastVisitedPage(book.bookId)
-                Logger.d(
-                    TAG,
-                    "Result of deleting last visited page of ${book.bookId}: $deleteLastVisitedPageResult"
-                )
+                logger.d("Result of deleting last visited page of ${book.bookId}: $deleteLastVisitedPageResult")
                 main.launch {
                     view.hideUnSeenButton()
                 }
+                val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+                logAnalyticsEventUseCase.execute(EVENT_FORGET_BOOK, bookIdParam)
+                    .subscribe()
+                    .addTo(compositeDisposable)
             } else {
                 main.launch {
                     view.showUnSeenButton()
@@ -451,19 +446,19 @@ class BookPreviewPresenter @Inject constructor(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ lastVisitedPage ->
-                Logger.d(TAG, "Last visited page of book ${book.bookId}: $lastVisitedPage")
+                logger.d("Last visited page of book ${book.bookId}: $lastVisitedPage")
                 view.showLastVisitedPage(lastVisitedPage + 1, bookThumbnailList[lastVisitedPage])
             }, {
-                Logger.e(TAG, "Failed to get last visited page of book ${book.bookId}: $it")
+                logger.e("Failed to get last visited page of book ${book.bookId}: $it")
                 view.hideLastVisitedPage()
             })
             .addTo(compositeDisposable)
     }
 
     override fun refreshLastVisitedPage(lastVisitedPage: Int) {
-        Logger.d(TAG, "refreshLastVisitedPage $lastVisitedPage")
+        logger.d("refreshLastVisitedPage $lastVisitedPage")
         if (lastVisitedPage in bookThumbnailList.indices) {
-            Logger.d(TAG, "showLastVisitedPage $lastVisitedPage")
+            logger.d("showLastVisitedPage $lastVisitedPage")
             view.showLastVisitedPage(lastVisitedPage + 1, bookThumbnailList[lastVisitedPage])
         } else {
             view.hideLastVisitedPage()
@@ -474,7 +469,7 @@ class BookPreviewPresenter @Inject constructor(
         if (currentCommentCount < COMMENTS_PER_PAGE || currentCommentCount % COMMENTS_PER_PAGE > 0) {
             return
         }
-        Logger.d(TAG, "currentCommentCount=$currentCommentCount")
+        logger.d("currentCommentCount=$currentCommentCount")
         if (currentCommentCount >= (2 * COMMENTS_PER_PAGE)) {
             val notShownComments = commentSource.size - currentCommentCount
             view.enableShowFullCommentListButton(notShownComments, book.bookId)
@@ -529,11 +524,11 @@ class BookPreviewPresenter @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(onSuccess = { downloadedImages ->
-                    Logger.d(TAG, "Book ${book.bookId}: ${downloadedImages.size} page(s)")
+                    logger.d("Book ${book.bookId}: ${downloadedImages.size} page(s)")
                     bookThumbnailList.addAll(downloadedImages)
                     view.showBookThumbnailList(bookThumbnailList)
                 }, onError = {
-                    Logger.d(TAG, "Failed to get pages of book ${book.bookId}: $it")
+                    logger.d("Failed to get pages of book ${book.bookId}: $it")
                 }).addTo(compositeDisposable)
         } else {
             val mediaId = book.mediaId
@@ -569,10 +564,7 @@ class BookPreviewPresenter @Inject constructor(
                             bookRepository.isRecentBook(bookId) -> recentList.add(bookId)
                         }
                     }
-                    Logger.d(
-                        TAG, "Number of recommend book of book ${book.bookId}:" +
-                                " ${bookList.size}"
-                    )
+                    logger.d("Number of recommend book of book ${book.bookId}: ${bookList.size}")
                     main.launch {
                         if (view.isActive()) {
                             if (!bookList.isEmpty()) {
@@ -604,16 +596,14 @@ class BookPreviewPresenter @Inject constructor(
                     continuation.resume(bookRepository.isFavoriteBook(book.bookId))
                 }
             }
-            Logger.d(TAG, "isFavoriteBook: $isFavoriteBook")
+            logger.d("isFavoriteBook: $isFavoriteBook")
         }
     }
 
     private fun logBookInfo() {
-        logAnalyticsEventUseCase.execute(
-            EVENT_OPEN_BOOK,
-            AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId),
-            AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_LANGUAGE, book.language)
-        )
+        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+        val bookLanguage = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_LANGUAGE, book.language)
+        logAnalyticsEventUseCase.execute(EVENT_OPEN_BOOK, bookIdParam, bookLanguage)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe()

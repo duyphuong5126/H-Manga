@@ -21,19 +21,19 @@ import retrofit2.Response
 
 class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApiService) :
     MasterDataSource.Remote {
-    companion object {
-        private const val TAG = "TagRemoteDataSource"
+    private val logger: Logger by lazy {
+        Logger("TagRemoteDataSource")
     }
 
     override suspend fun fetchArtistsList(onSuccess: (List<Artist>?) -> Unit, onError: () -> Unit) {
         masterDataApiService.getArtistsList().enqueue(object : Callback<List<Artist>> {
             override fun onFailure(call: Call<List<Artist>>, t: Throwable) {
-                Logger.d(TAG, "Artists list fetching failed with error=$t")
+                logger.e("Artists list fetching failed with error=$t")
                 onError()
             }
 
             override fun onResponse(call: Call<List<Artist>>, response: Response<List<Artist>>) {
-                Logger.d(TAG, "Artists list fetching completed")
+                logger.d("Artists list fetching completed")
                 onSuccess(response.body())
             }
         })
@@ -45,7 +45,7 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
     ) {
         masterDataApiService.getCharactersList().enqueue(object : Callback<List<Character>> {
             override fun onFailure(call: Call<List<Character>>, t: Throwable) {
-                Logger.d(TAG, "Characters list fetching failed with error=$t")
+                logger.e("Characters list fetching failed with error=$t")
                 onError()
             }
 
@@ -53,7 +53,7 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
                 call: Call<List<Character>>,
                 response: Response<List<Character>>
             ) {
-                Logger.d(TAG, "Characters list fetching completed")
+                logger.d("Characters list fetching completed")
                 onSuccess(response.body())
             }
         })
@@ -65,7 +65,7 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
     ) {
         masterDataApiService.getCategoriesList().enqueue(object : Callback<List<Category>> {
             override fun onFailure(call: Call<List<Category>>, t: Throwable) {
-                Logger.d(TAG, "Categories list fetching failed with error=$t")
+                logger.e("Categories list fetching failed with error=$t")
                 onError()
             }
 
@@ -73,7 +73,7 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
                 all: Call<List<Category>>,
                 response: Response<List<Category>>
             ) {
-                Logger.d(TAG, "Categories list fetching completed")
+                logger.d("Categories list fetching completed")
                 onSuccess(response.body())
             }
         })
@@ -82,12 +82,12 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
     override suspend fun fetchGroupsList(onSuccess: (List<Group>?) -> Unit, onError: () -> Unit) {
         masterDataApiService.getGroupsList().enqueue(object : Callback<List<Group>> {
             override fun onFailure(call: Call<List<Group>>, t: Throwable) {
-                Logger.d(TAG, "Groups list fetching failed with error=$t")
+                logger.e("Groups list fetching failed with error=$t")
                 onError()
             }
 
             override fun onResponse(call: Call<List<Group>>, response: Response<List<Group>>) {
-                Logger.d(TAG, "Groups list fetching completed")
+                logger.d("Groups list fetching completed")
                 onSuccess(response.body())
             }
         })
@@ -99,12 +99,12 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
     ) {
         masterDataApiService.getParodiesList().enqueue(object : Callback<List<Parody>> {
             override fun onFailure(call: Call<List<Parody>>, t: Throwable) {
-                Logger.d(TAG, "Parodies list fetching failed with error=$t")
+                logger.e("Parodies list fetching failed with error=$t")
                 onError()
             }
 
             override fun onResponse(call: Call<List<Parody>>, response: Response<List<Parody>>) {
-                Logger.d(TAG, "Parodies list fetching completed")
+                logger.d("Parodies list fetching completed")
                 onSuccess(response.body())
             }
         })
@@ -116,7 +116,7 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
     ) {
         masterDataApiService.getLanguagesList().enqueue(object : Callback<List<Language>> {
             override fun onFailure(call: Call<List<Language>>, t: Throwable) {
-                Logger.d(TAG, "Languages list fetching failed with error=$t")
+                logger.e("Languages list fetching failed with error=$t")
                 onError()
             }
 
@@ -124,7 +124,7 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
                 call: Call<List<Language>>,
                 response: Response<List<Language>>
             ) {
-                Logger.d(TAG, "Languages list fetching completed")
+                logger.d("Languages list fetching completed")
                 onSuccess(response.body())
             }
         })
@@ -133,12 +133,12 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
     override suspend fun fetchTagsList(onSuccess: (List<Tag>?) -> Unit, onError: () -> Unit) {
         masterDataApiService.getTagsList().enqueue(object : Callback<List<Tag>> {
             override fun onFailure(call: Call<List<Tag>>, t: Throwable) {
-                Logger.d(TAG, "Tags list fetching failed with error=$t")
+                logger.e("Tags list fetching failed with error=$t")
                 onError()
             }
 
             override fun onResponse(call: Call<List<Tag>>, response: Response<List<Tag>>) {
-                Logger.d(TAG, "Tags list fetching completed")
+                logger.d("Tags list fetching completed")
                 onSuccess(response.body())
             }
         })
@@ -150,7 +150,7 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
     ) {
         masterDataApiService.getUnknownTagsList().enqueue(object : Callback<List<UnknownTag>> {
             override fun onFailure(call: Call<List<UnknownTag>>, t: Throwable) {
-                Logger.d(TAG, "UnknownTag list fetching failed with error=$t")
+                logger.e("UnknownTag list fetching failed with error=$t")
                 onError()
             }
 
@@ -158,7 +158,7 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
                 call: Call<List<UnknownTag>>,
                 response: Response<List<UnknownTag>>
             ) {
-                Logger.d(TAG, "UnknownTag list fetching completed")
+                logger.d("UnknownTag list fetching completed")
                 onSuccess(response.body())
             }
         })
@@ -167,7 +167,7 @@ class MasterDataRemoteDataSource(private val masterDataApiService: MasterDataApi
     override suspend fun fetchTagDataVersion(onSuccess: (Long) -> Unit, onError: () -> Unit) {
         masterDataApiService.getTagDataVersion().enqueue(object : Callback<Long> {
             override fun onFailure(call: Call<Long>, t: Throwable) {
-                Logger.d(TAG, "Current version fetching failed with error=$t")
+                logger.e("Current version fetching failed with error=$t")
                 onError()
             }
 

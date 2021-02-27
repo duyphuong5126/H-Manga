@@ -90,6 +90,7 @@ class BookPreviewActivity : AppCompatActivity() {
             instance?.let { bookPreviewActivity ->
                 bookPreviewActivity.intent.putExtra(Constants.BOOK, book)
                 bookPreviewActivity.recreate()
+                bookPreviewActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             }
         }
     }

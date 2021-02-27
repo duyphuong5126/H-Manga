@@ -19,12 +19,16 @@ class CommentThreadPresenter @Inject constructor(
 ) : CommentThreadContract.Presenter {
     private val commentSource = ArrayList<Comment>()
 
+    private val logger: Logger by lazy {
+        Logger("CommentThreadPresenter")
+    }
+
     override fun start() {
         view.showLoading()
         io.launch {
             when (val commentResponse = bookRepository.getCommentList(bookId)) {
                 is CommentResponse.Success -> {
-                    Logger.d(TAG, "commentList=${commentResponse.commentList.size}")
+                    logger.d("commentList=${commentResponse.commentList.size}")
                     val startPosition = 0
                     val desiredEndPosition = COMMENTS_PER_PAGE
                     val endPosition = minOf(commentResponse.commentList.size, desiredEndPosition)
@@ -44,7 +48,7 @@ class CommentThreadPresenter @Inject constructor(
                 }
 
                 is CommentResponse.Failure -> {
-                    Logger.d(TAG, "failed to get comment list with error: ${commentResponse.error}")
+                    logger.e("failed to get comment list with error: ${commentResponse.error}")
                 }
             }
         }
@@ -59,7 +63,7 @@ class CommentThreadPresenter @Inject constructor(
         val desiredEndPosition = (page + 1) * COMMENTS_PER_PAGE
         val endPosition = minOf(commentSource.size, desiredEndPosition)
 
-        Logger.d(TAG, "startPosition=$startPosition, endPosition=$endPosition")
+        logger.d("startPosition=$startPosition, endPosition=$endPosition")
         if (endPosition > startPosition) {
             view.showMoreCommentList(commentSource.subList(startPosition, endPosition))
         }
@@ -71,6 +75,5 @@ class CommentThreadPresenter @Inject constructor(
 
     companion object {
         private const val COMMENTS_PER_PAGE = 25
-        private const val TAG = "CommentThreadPresenter"
     }
 }

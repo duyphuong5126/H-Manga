@@ -29,8 +29,10 @@ class BookRemoteDataSource(
     private val serializationService: SerializationService
 ) : BookDataSource.Remote {
     companion object {
-        private const val TAG = "BookRemoteDataSource"
         private const val REQUEST_TIME_OUT = 20000
+    }
+    private val logger: Logger by lazy {
+        Logger("BookRemoteDataSource")
     }
 
     override suspend fun getBookByPage(page: Long, sortOption: SortOption): RemoteBookResponse {
@@ -56,11 +58,12 @@ class BookRemoteDataSource(
             try {
                 val url = "${ApiConstants.homeUrl}/api/gallery/$bookId/related"
                 val responseData = performGetRequest(url).orEmpty()
-                val recommendBook = serializationService.deserialize(responseData, RecommendBook::class.java)
+                val recommendBook =
+                    serializationService.deserialize(responseData, RecommendBook::class.java)
                 val recommendBookResult = RecommendBookResponse.Success(recommendBook)
                 continuation.resume(recommendBookResult)
             } catch (throwable: Throwable) {
-                Logger.d(TAG, "get all recommend book of $bookId failed=$throwable")
+                logger.e("get all recommend book of $bookId failed=$throwable")
                 continuation.resume(RecommendBookResponse.Failure(throwable))
             }
         }
@@ -76,11 +79,12 @@ class BookRemoteDataSource(
                         bookId
                     )
                 val responseData = performGetRequest(url).orEmpty()
-                val commentsResponse = serializationService.deserialize(responseData, Array<Comment>::class.java)
+                val commentsResponse =
+                    serializationService.deserialize(responseData, Array<Comment>::class.java)
                 val recommendBookResult = CommentResponse.Success(commentsResponse.toList())
                 continuation.resume(recommendBookResult)
             } catch (throwable: Throwable) {
-                Logger.d(TAG, "get all recommend book of $bookId failed=$throwable")
+                logger.e("get all recommend book of $bookId failed=$throwable")
                 continuation.resume(CommentResponse.Failure(throwable))
             }
         }
@@ -95,7 +99,7 @@ class BookRemoteDataSource(
                 val bookResult = BookResponse.Success(book)
                 continuation.resume(bookResult)
             } catch (throwable: Throwable) {
-                Logger.d(TAG, "get book details of $bookId failed=$throwable")
+                logger.e("get book details of $bookId failed=$throwable")
                 continuation.resume(BookResponse.Failure(throwable))
             }
         }
@@ -130,13 +134,13 @@ class BookRemoteDataSource(
             val remoteBook = serializationService.deserialize(responseData, RemoteBook::class.java)
             RemoteBookResponse.Success(remoteBook)
         } catch (throwable: Throwable) {
-            Logger.d(TAG, "get all remote books of page $page failed=$throwable")
+            logger.e("get all remote books of page $page failed=$throwable")
             RemoteBookResponse.Failure(throwable)
         }
     }
 
     private fun performGetRequest(requestUrl: String): String? {
-        Logger.d(TAG, "Get from url $requestUrl")
+        logger.d("Get from url $requestUrl")
         val url = URL(requestUrl)
         val connection = url.openConnection() as HttpsURLConnection
         connection.requestMethod = "GET"
@@ -156,7 +160,7 @@ class BookRemoteDataSource(
                 }
                 br.close()
                 connection.disconnect()
-                Logger.d(TAG, "Data=$sb")
+                logger.d("requestUrl=$requestUrl\nData=$sb")
                 return sb.toString()
             }
         }

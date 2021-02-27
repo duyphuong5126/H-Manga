@@ -30,19 +30,29 @@ import javax.inject.Inject
 import android.app.PendingIntent
 import android.content.Intent.FILL_IN_ACTION
 import androidx.core.app.NotificationCompat
+import nhdphuong.com.manga.Constants.Companion.EVENT_DOWNLOADED_BOOK
+import nhdphuong.com.manga.Constants.Companion.EVENT_DOWNLOAD_BOOK
+import nhdphuong.com.manga.Constants.Companion.EVENT_FAILED_TO_DOWNLOAD_BOOK
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.Constants.Companion.NOTIFICATION_ID
 import nhdphuong.com.manga.Constants.Companion.NOTIFICATION_CHANNEL_ID
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ERROR
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
+import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.features.NavigationRedirectActivity
+import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 
 
 class BookDownloadingService : IntentService("BookDownloadingService"), BookDownloadCallback {
 
     @Inject
     lateinit var downloadBookUseCase: DownloadBookUseCase
+
+    @Inject
+    lateinit var logAnalyticsEventUseCase: LogAnalyticsEventUseCase
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -53,6 +63,10 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
     private var downloadingCompletedTemplate = ""
     private var downloadingFailed = ""
     private var downloadingFailedTemplate = ""
+
+    private val logger: Logger by lazy {
+        Logger("BookDownloadingService")
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -89,46 +103,59 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
             intent?.extras?.getParcelable<Book>(BOOK)?.let { book ->
                 downloadBookUseCase.execute(book)
                     .doOnSubscribe {
-                        Logger.d(TAG, "Start downloading book ${book.bookId}")
+                        logger.d("Start downloading book ${book.bookId}")
                         bookDownloader.setDownloadCallback(this)
                         bookDownloader.startDownloading(book.bookId, book.numOfPages)
+
+                        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+                        logAnalyticsEventUseCase.execute(EVENT_DOWNLOAD_BOOK, bookIdParam)
+                            .subscribe()
+                            .addTo(compositeDisposable)
                     }
                     .subscribeBy(onNext = { result ->
                         downloadingStatusMap[book.bookId] = result
                         when (result) {
                             is DownloadingProgress -> {
                                 bookDownloader.updateProgress(book.bookId, result.progress)
-                                Logger.d(
-                                    TAG,
-                                    "Downloaded ${result.progress}/${result.total} pages of book ${book.bookId}"
-                                )
+                                logger.d("Downloaded ${result.progress}/${result.total} pages of book ${book.bookId}")
                             }
 
                             is DownloadingFailure -> {
-                                Logger.d(
-                                    TAG,
-                                    "Failed to download ${result.fileUrl} of book ${book.bookId}: ${result.error.localizedMessage}"
-                                )
+                                logger.e("Failed to download ${result.fileUrl} of book ${book.bookId}: ${result.error.localizedMessage}")
                             }
                             else -> {
                             }
                         }
                     }, onError = {
-                        Logger.e(TAG, "Failure in downloading book ${book.mediaId} with error: $it")
+                        logger.e("Failure in downloading book ${book.mediaId} with error: $it")
                         downloadingStatusMap[book.bookId] = DownloadingFailure("", it)
                         bookDownloader.endDownloadingWithError(
                             book.bookId,
                             bookDownloader.progress,
                             bookDownloader.total
                         )
+
+                        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+                        val error = AnalyticsParam(PARAM_NAME_ERROR, it.javaClass.simpleName)
+                        logAnalyticsEventUseCase.execute(
+                            EVENT_FAILED_TO_DOWNLOAD_BOOK,
+                            bookIdParam,
+                            error
+                        ).subscribe()
+                            .addTo(compositeDisposable)
                     }, onComplete = {
-                        Logger.d(TAG, "Finished downloading book ${book.bookId}")
+                        logger.d("Finished downloading book ${book.bookId}")
                         downloadingStatusMap[book.bookId] = DownloadingCompleted
                         bookDownloader.endDownloading(
                             book.bookId,
                             bookDownloader.progress,
                             bookDownloader.total
                         )
+
+                        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+                        logAnalyticsEventUseCase.execute(EVENT_DOWNLOADED_BOOK, bookIdParam)
+                            .subscribe()
+                            .addTo(compositeDisposable)
                     }).addTo(compositeDisposable)
             }
         }
@@ -238,7 +265,6 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
     }
 
     companion object {
-        private const val TAG = "BookDownloadingService"
         private const val BOOK = "book"
 
         private val downloadingStatusMap = HashMap<String, DownloadingResult>()

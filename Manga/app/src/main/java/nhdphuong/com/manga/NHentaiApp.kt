@@ -23,7 +23,10 @@ class NHentaiApp : Application() {
         private lateinit var mInstance: NHentaiApp
         val instance
             get() = mInstance
-        private const val TAG = "NHentaiApp"
+    }
+
+    private val logger: Logger by lazy {
+        Logger("NHentaiApp")
     }
 
     @Inject
@@ -156,7 +159,7 @@ class NHentaiApp : Application() {
             val notificationChannel = NotificationChannel(channelId, channelName, importance)
             notificationChannel.description = channelDescription
             getSystemService(NotificationManager::class.java)?.let { notificationManager ->
-                Logger.d(TAG, "Create notification channel")
+                logger.d("Create notification channel")
                 notificationManager.createNotificationChannel(notificationChannel)
             }
         }

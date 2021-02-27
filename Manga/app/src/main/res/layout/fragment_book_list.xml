@@ -168,6 +168,48 @@
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false" />
 
+                <nhdphuong.com.manga.views.customs.MyTextView
+                    android:id="@+id/mtvRecommendBook"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="@dimen/space_medium"
+                    android:layout_marginTop="@dimen/space_large"
+                    android:text="@string/maybe_you_interest"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    app:layout_goneMarginTop="@dimen/dp10"
+                    app:myFont="@string/NotoSansBold"
+                    tools:visibility="visible" />
+
+                <HorizontalScrollView
+                    android:id="@+id/hsvRecommendList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginTop="@dimen/space_medium"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never"
+                    android:paddingStart="@dimen/space_medium"
+                    android:paddingEnd="@dimen/space_medium"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvRecommendList"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </HorizontalScrollView>
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/clNavigation"
                     android:layout_width="match_parent"

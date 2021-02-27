@@ -67,6 +67,7 @@
     <string name="last_visited_page">Continue reading from page</string>
     <string name="page_thumbnail">Page thumbnail</string>
     <string name="recommend_for_you">More like this</string>
+    <string name="maybe_you_interest">Maybe you interest</string>
     <string name="book_page">Book page</string>
     <string name="back">Back</string>
     <string name="book_title">Book title</string>
@@ -80,8 +81,8 @@
     <string name="view">View</string>
     <string name="done">Done</string>
     <string name="permission_require">Permission Required</string>
-    <string name="storage_permission_require">We need storage permission to store the downloaded data</string>
-    <string name="toast_storage_permission_require">Please allow us to store data in your device!</string>
+    <string name="storage_permission_require">App needs storage permission to store the downloaded data</string>
+    <string name="toast_storage_permission_require">Please allow app to store data in your device!</string>
     <string name="preview_download_progress">Downloaded %s/%s pages</string>
     <string name="preview_deleting_progress">Deleted %d/%d pages</string>
     <string name="cleared">Clear</string>
@@ -146,9 +147,6 @@
     <string name="migration_failure_template">Failed item(s) %d/%d books</string>
     <string name="migration_completed">Your recent/favorite books were migrated</string>
     <string name="migration_result">Migrated %d/%d book(s)\nFailed to migrate %d/%d book(s)</string>
-
-    <string name="recent_favorite_books_migrating_title">Migrating your books</string>
-    <string name="recent_favorite_books_migrating_message">Your recent/favorite books are being migrated.\nPlease try again later.</string>
 
     <string name="downloading_tags">Downloading tag data</string>
     <string name="downloading_tags_progress">Tag data is being downloaded\nCurrent page: %d/%d\nArtists: %d\nCharacters: %d\nCategories: %d\nLanguages: %d\nParodies: %d\nGroups: %d\nTags: %d\nUnknown types: %d</string>
@@ -259,6 +257,17 @@
     <string name="try_alter_native_domain_message">Have you been not able to get data in the previous versions? Is your country blocking nHentai?\nIf so, you may want to try an alternative server that can bypass that restriction.\nTry it out, or you also can do it later in: Top menu \u2192 Settings \u2192 Choose An Alternative Server.</string>
 
     <string name="try_it">Try it</string>
+
+    <string name="suggestion_removal_title">Remove suggestion</string>
+    <string name="suggestion_removal_message">You want to remove\n\"%s\"\nfrom the suggestion list</string>
+    <string name="suggestion_removed_successfully">\"%s\" was removed successfully</string>
+
+    <string name="do_not_recommend_book_title">Not interested</string>
+    <string name="do_not_recommend_book_message">App won\'t recommend the book %s to you anymore.\nYou still can see this book in other places.</string>
+
+    <string name="do_not_recommend_book_accepted">Book ID %s was removed</string>
+
+    <string name="general_error_message">An error occurred</string>
 
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>

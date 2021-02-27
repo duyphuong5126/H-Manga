@@ -28,6 +28,10 @@ class DownloadBookUseCaseImpl @Inject constructor(
     private val appSupportUtils: AppSupportUtils,
     private val bookRepository: BookRepository
 ) : DownloadBookUseCase {
+    private val logger: Logger by lazy {
+        Logger("DownloadBookUseCaseImpl")
+    }
+
     override fun execute(book: Book): Observable<DownloadingResult> {
         return bookRepository.addToRecentList(book)
             .andThen(bookRepository.saveDownloadedBook(book))
@@ -102,7 +106,7 @@ class DownloadBookUseCaseImpl @Inject constructor(
                     val resultPath =
                         saveImageAndGetOutputPath(book, index, pageUrl, imageInfo.imageType)
                     resultList.add(resultPath)
-                    Logger.d(TAG, "Downloaded page $pageUrl")
+                    logger.d("Downloaded page $pageUrl")
                     Observable.just(
                         Triple(
                             resultPath,
@@ -111,7 +115,7 @@ class DownloadBookUseCaseImpl @Inject constructor(
                         )
                     )
                 } catch (exception: Exception) {
-                    Logger.d(TAG, "Failed to download page $pageUrl")
+                    logger.e("Failed to download page $pageUrl with error $exception")
                     if (exception is FileNotFoundException) {
                         Observable.just(
                             Triple(
@@ -183,7 +187,6 @@ class DownloadBookUseCaseImpl @Inject constructor(
     }
 
     companion object {
-        private const val TAG = "DownloadBookUseCase"
         private const val TEN_PAGES = 10
     }
 }

@@ -43,6 +43,10 @@ class AboutUsPresenter @Inject constructor(
 
     private val tagDataVersion = TagDataVersion("")
 
+    private val logger: Logger by lazy {
+        Logger("AboutUsPresenter")
+    }
+
     init {
         aboutList.add(CurrentAppVersion(BuildConfig.VERSION_NAME))
         aboutList.add(tagDataVersion)
@@ -68,7 +72,7 @@ class AboutUsPresenter @Inject constructor(
                     }
                 }
             }, onError = { error ->
-                Logger.e(TAG, "Failed to check app version with error: $error")
+                logger.e("Failed to check app version with error: $error")
             })
         }
 
@@ -79,7 +83,7 @@ class AboutUsPresenter @Inject constructor(
                 tagDataVersion.versionCode = versionCode.toString()
                 view.updateAboutItem(1)
             }, onError = { error ->
-                Logger.e(TAG, "Failed to get version code with error: $error")
+                logger.e("Failed to get version code with error: $error")
             }).addTo(compositeDisposable)
 
         masterDataRepository.getVersionHistory()
@@ -107,7 +111,7 @@ class AboutUsPresenter @Inject constructor(
                     view.refreshAboutList()
                 }
             }, onError = { error ->
-                Logger.e(TAG, "Failed to get version code with error: $error")
+                logger.e("Failed to get version code with error: $error")
             }).addTo(compositeDisposable)
     }
 
@@ -124,11 +128,11 @@ class AboutUsPresenter @Inject constructor(
         }.flatMap {
             val targetPath = "$outputDirectory/v${it.versionCode}.apk"
             val targetApkExisted = File(targetPath).exists()
-            Logger.d(TAG, "Target path $targetPath existed: $targetApkExisted")
+            logger.d("Target path $targetPath existed: $targetApkExisted")
             if (targetApkExisted) {
                 Single.just(targetPath)
             } else {
-                Logger.d(TAG, "Downloading apk from ${it.apkUrl}")
+                logger.d("Downloading apk from ${it.apkUrl}")
                 installationRepository.downloadFile(it.apkUrl, outputDirectory, it.versionCode)
             }
         }
@@ -136,11 +140,11 @@ class AboutUsPresenter @Inject constructor(
         downloadingSource.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onSuccess = {
-                Logger.d(TAG, "Downloaded and saved file $it")
+                logger.d("Downloaded and saved file $it")
                 view.showUpgradeCompleted(versionNumber)
                 view.startInstallApk(it)
             }, onError = {
-                Logger.d(TAG, "Failed to download version $versionNumber with error $it")
+                logger.e("Failed to download version $versionNumber with error $it")
                 view.showUpgradeFailed(versionNumber, versionCode)
             }).addTo(compositeDisposable)
     }
@@ -150,7 +154,6 @@ class AboutUsPresenter @Inject constructor(
     }
 
     companion object {
-        private const val TAG = "AboutUsPresenter"
         private const val REPOSITORY_URL = "https://github.com/duyphuong5126/H-Manga/releases"
         private const val EMAIL = "kanade5126@gmail.com"
         private const val TWITTER_NAME = "Nonoka (@Nonoka5126)"

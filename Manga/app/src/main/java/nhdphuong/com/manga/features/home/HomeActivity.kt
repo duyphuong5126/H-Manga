@@ -46,7 +46,6 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Logger.e(TAG, "onCreate")
         setContentView(R.layout.activity_home)
         showFragments()
     }
@@ -54,7 +53,6 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onResume() {
         super.onResume()
-        Logger.e(TAG, "onResume")
         window?.statusBarColor = ContextCompat.getColor(this@HomeActivity, R.color.colorPrimary)
     }
 
@@ -76,7 +74,6 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        Logger.e(TAG, "onKeyDown keyCode=$keyCode, event=${event.action}")
         when (keyCode) {
             KeyEvent.KEYCODE_BACK -> {
                 return if (isTaskRoot) {

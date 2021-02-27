@@ -116,19 +116,19 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
                         }
 
                         is RemoteBookResponse.Failure -> {
-                            Logger.e(TAG, "Failed to download with error ${response.error}")
+                            logger.e("Failed to download with error ${response.error}")
                             postDownloadingErrorMessages(currentPageTracker.get())
                         }
                     }
                 }
                 .subscribe({ (currentPage, _) ->
-                    Logger.d(TAG, "Downloaded page $currentPage")
+                    logger.d("Downloaded page $currentPage")
                     postProgressMessages(currentPage.toInt(), tagResult.exportCurrentStatus())
                 }, {
-                    Logger.e(TAG, "Failed to download book list with error $it")
+                    logger.e("Failed to download book list with error $it")
                     postDownloadingErrorMessages(currentPageTracker.get())
                 }, {
-                    Logger.d(TAG, "Tag data is already downloaded")
+                    logger.d("Tag data is already downloaded")
                     postDownloadingCompletedMessages()
                     tagResult.exportTags()
                     isRunning.compareAndSet(true, false)
@@ -237,7 +237,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
     }
 
     companion object {
-        private const val TAG = "TagsDownloadingService"
+        private val logger = Logger("TagsDownloadingService")
         private const val NUMBER_OF_PAGES = "numberOfPages"
 
         private val isForcedStopping = AtomicBoolean(false)
@@ -316,60 +316,36 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
             private fun addTag(tag: Tag) {
                 when (tag.type.toLowerCase(Locale.US)) {
                     Constants.ARTIST -> {
-                        Logger.d(
-                            TAG, "Artist - id: ${tag.tagId}," +
-                                    " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
-                        )
-                        artists[tag.tagId] = tag
+                        logger.d("Artist - id: ${tag.id}, name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}")
+                        artists[tag.id] = tag
                     }
                     Constants.CHARACTER -> {
-                        Logger.d(
-                            TAG, "Character - id: ${tag.tagId}," +
-                                    " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
-                        )
-                        characters[tag.tagId] = tag
+                        logger.d("Character - id: ${tag.id}, name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}")
+                        characters[tag.id] = tag
                     }
                     Constants.CATEGORY -> {
-                        Logger.d(
-                            TAG, "Category - id: ${tag.tagId}," +
-                                    " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
-                        )
-                        categories[tag.tagId] = tag
+                        logger.d("Category - id: ${tag.id}, name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}")
+                        categories[tag.id] = tag
                     }
                     Constants.LANGUAGE -> {
-                        Logger.d(
-                            TAG, "Language - id: ${tag.tagId}," +
-                                    " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
-                        )
-                        languages[tag.tagId] = tag
+                        logger.d("Language - id: ${tag.id}, name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}")
+                        languages[tag.id] = tag
                     }
                     Constants.PARODY -> {
-                        Logger.d(
-                            TAG, "Parody - id: ${tag.tagId}," +
-                                    " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
-                        )
-                        parodies[tag.tagId] = tag
+                        logger.d("Parody - id: ${tag.id}, name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}")
+                        parodies[tag.id] = tag
                     }
                     Constants.GROUP -> {
-                        Logger.d(
-                            TAG, "Group - id: ${tag.tagId}," +
-                                    " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
-                        )
-                        groups[tag.tagId] = tag
+                        logger.d("Group - id: ${tag.id}, name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}")
+                        groups[tag.id] = tag
                     }
                     Constants.TAG -> {
-                        Logger.d(
-                            TAG, "Tag - id: ${tag.tagId}," +
-                                    " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
-                        )
-                        tags[tag.tagId] = tag
+                        logger.d("Tag - id: ${tag.id}, name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}")
+                        tags[tag.id] = tag
                     }
                     else -> {
-                        Logger.d(
-                            TAG, "Unknown tag - id: ${tag.tagId}," +
-                                    " name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}"
-                        )
-                        unknownTypes[tag.tagId] = tag
+                        logger.d("Unknown tag - id: ${tag.id}, name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}")
+                        unknownTypes[tag.id] = tag
                     }
                 }
             }
@@ -384,7 +360,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
                     tagName,
                     fileUtils.getTagDirectory()
                 )
-                Logger.d(TAG, "$tagName list saving result=$saveResult")
+                logger.d("$tagName list saving result=$saveResult")
             }
 
             private fun saveChangeSummaryData() {
@@ -393,7 +369,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
                     "CurrentVersion",
                     fileUtils.getTagDirectory()
                 )
-                Logger.d(TAG, "Current id saving result=$saveResult")
+                logger.d("Current id saving result=$saveResult")
             }
 
             private fun saveChangeLogsFile() {
@@ -431,7 +407,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
                     "ChangeLogs",
                     fileUtils.getTagDirectory()
                 )
-                Logger.d(TAG, "NHentai.txt list saving result=$saveResult")
+                logger.d("NHentai.txt list saving result=$saveResult")
                 sharedPreferencesManager.lastCategoriesCount = categories.size
                 sharedPreferencesManager.lastCharactersCount = characters.size
                 sharedPreferencesManager.lastLanguagesCount = languages.size

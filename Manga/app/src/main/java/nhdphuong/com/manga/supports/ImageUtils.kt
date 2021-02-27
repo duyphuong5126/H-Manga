@@ -18,11 +18,14 @@ import nhdphuong.com.manga.NHentaiApp
 class ImageUtils {
     companion object {
         private const val TIME_OUT = 10000
-        private const val TAG = "ImageUtils"
+
+        private val logger: Logger by lazy {
+            Logger("NHentaiApp")
+        }
 
         @SuppressLint("CheckResult")
         fun <IV : ImageView> loadFitImage(url: String, defaultResource: Int, imageView: IV) {
-            Logger.d(TAG, "Get from url $url")
+            logger.d("Get from url $url")
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(defaultResource)
                 .override(imageView.measuredWidth, imageView.measuredHeight)
@@ -33,7 +36,7 @@ class ImageUtils {
 
         @SuppressLint("CheckResult")
         fun <IV : ImageView> loadImage(url: String, defaultResource: Int, imageView: IV) {
-            Logger.d(TAG, "Get from url $url")
+            logger.d("Get from url $url")
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(defaultResource)
                 .timeout(TIME_OUT)
@@ -43,7 +46,7 @@ class ImageUtils {
 
         @SuppressLint("CheckResult")
         fun <IV : ImageView> loadCircularImage(url: String, defaultResource: Int, imageView: IV) {
-            Logger.d(TAG, "Get from url $url")
+            logger.d("Get from url $url")
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(defaultResource)
                 .circleCrop()
@@ -59,7 +62,7 @@ class ImageUtils {
             onLoadSuccess: () -> Unit,
             onLoadFailed: () -> Unit
         ) {
-            Logger.d(TAG, "Get from url $url")
+            logger.d("Get from url $url")
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(defaultResource)
                 .timeout(TIME_OUT)
@@ -99,7 +102,7 @@ class ImageUtils {
         }
 
         fun downloadImage(url: String, width: Int, height: Int): Bitmap {
-            Logger.d(TAG, "Get from url $url")
+            logger.d("Get from url $url")
             val context = NHentaiApp.instance.applicationContext
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
                 .timeout(TIME_OUT)

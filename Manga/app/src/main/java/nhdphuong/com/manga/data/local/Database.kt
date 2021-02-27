@@ -21,7 +21,11 @@ import nhdphuong.com.manga.Constants.Companion.IMAGE_WIDTH
 import nhdphuong.com.manga.Constants.Companion.IMAGE_HEIGHT
 import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE
 import nhdphuong.com.manga.Constants.Companion.RAW_BOOK
+import nhdphuong.com.manga.Constants.Companion.READING_TIMES
 import nhdphuong.com.manga.Constants.Companion.SEARCH_INFO
+import nhdphuong.com.manga.Constants.Companion.SEARCH_TIMES
+import nhdphuong.com.manga.Constants.Companion.TABLE_BLOCKED_BOOK
+import nhdphuong.com.manga.Constants.Companion.TABLE_RECENT_BOOK
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 
@@ -30,7 +34,10 @@ import nhdphuong.com.manga.NHentaiApp
  */
 class Database {
     companion object {
-        private const val TAG = "nHentai Database"
+        private val logger: Logger by lazy {
+            Logger("nHentai Database")
+        }
+
         private var mInstance: NHentaiDB? = null
         val instance: NHentaiDB
             get() {
@@ -39,11 +46,19 @@ class Database {
                         NHentaiApp.instance.applicationContext, NHentaiDB::class.java, NHENTAI_DB
                     ).addMigrations(
                         MIGRATE_FROM_2_TO_3, MIGRATE_FROM_3_TO_4, MIGRATE_FROM_4_TO_5,
-                        MIGRATE_FROM_5_TO_6, MIGRATE_FROM_6_TO_7
+                        MIGRATE_FROM_5_TO_6, MIGRATE_FROM_6_TO_7, MIGRATE_FROM_7_TO_8
                     ).build()
                 }
                 return mInstance!!
             }
+
+        private val MIGRATE_FROM_7_TO_8 = object : Migration(7, 8) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE $TABLE_SEARCH ADD COLUMN $SEARCH_TIMES INTEGER NOT NULL DEFAULT 1")
+                database.execSQL("ALTER TABLE $TABLE_RECENT_BOOK ADD COLUMN $READING_TIMES INTEGER NOT NULL DEFAULT 1")
+                database.execSQL("CREATE TABLE IF NOT EXISTS $TABLE_BLOCKED_BOOK ($BOOK_ID TEXT NOT NULL PRIMARY KEY)")
+            }
+        }
 
         private val MIGRATE_FROM_6_TO_7 = object : Migration(6, 7) {
             override fun migrate(database: SupportSQLiteDatabase) {
@@ -127,7 +142,7 @@ class Database {
 
         private val MIGRATE_FROM_2_TO_3: Migration = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                Logger.d(TAG, "Migrate DownLoadedImage table")
+                logger.d("Migrate DownLoadedImage table")
                 // Create temp table
                 val newImageTable = "${DOWNLOADED_IMAGE}_new"
                 database.execSQL(
@@ -160,7 +175,7 @@ class Database {
                 database.execSQL("CREATE INDEX IF NOT EXISTS $imageBookIdIndex ON $DOWNLOADED_IMAGE($BOOK_ID)")
                 database.execSQL("CREATE INDEX IF NOT EXISTS $imageIdIndex ON $DOWNLOADED_IMAGE($ID)")
 
-                Logger.d(TAG, "Migrate BookTag table")
+                logger.d("Migrate BookTag table")
                 // Create temp table
                 val newBookTag = "${BOOK_TAG}_new"
                 database.execSQL(

@@ -12,6 +12,9 @@ interface HomeContract {
     interface View : Base.View<Presenter> {
         fun setPresenter(presenter: Presenter)
         fun setUpHomeBookList(homeBookList: List<Book>)
+        fun showRecommendBooks(bookList: List<Book>)
+        fun hideRecommendBooks()
+        fun refreshRecommendBooks()
         fun refreshHomeBookList()
         fun refreshHomePagination(pageCount: Long, currentFocusedIndex: Int)
         fun showNothingView()
@@ -48,5 +51,7 @@ interface HomeContract {
         fun pickBookRandomly()
         fun updateSortOption(sortOption: SortOption)
         fun checkedOutAlternativeDomains()
+        fun doNoRecommendBook(bookId: String)
+        fun checkOutRecommendedBook(bookId: String)
     }
 }

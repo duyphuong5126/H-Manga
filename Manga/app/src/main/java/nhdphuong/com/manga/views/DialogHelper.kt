@@ -11,13 +11,11 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.views.customs.MyButton
 import nhdphuong.com.manga.views.customs.MyTextView
 
-private const val TAG = "DialogHelper"
 private const val DEFAULT_LOADING_INTERVAL = 700L
 
 @SuppressLint("InflateParams", "SetTextI18n")
@@ -39,7 +37,6 @@ fun Activity.createLoadingDialog(loadingStringId: Int = R.string.loading): Dialo
     ImageUtils.loadGifImage(R.raw.ic_loading_cat_transparent, ivLoading)
     val taskHandler = Handler(Looper.getMainLooper())
     val dotsUpdatingTask = Runnable {
-        Logger.d(TAG, "Current pos: $currentPos")
         tvLoading.text = loadingString + dotsArray[currentPos]
         if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0
     }
@@ -68,6 +65,40 @@ fun Activity.createLoadingDialog(loadingStringId: Int = R.string.loading): Dialo
     }
 
     return dialog
+}
+
+fun Activity.showDoNotRecommendBookDialog(
+    bookId: String,
+    onOk: () -> Unit,
+    onCancel: () -> Unit = {}
+) {
+    showOkDismissDialog(
+        this,
+        getString(R.string.do_not_recommend_book_title),
+        getString(R.string.do_not_recommend_book_message, bookId),
+        getString(R.string.yes),
+        getString(R.string.no),
+        onOk,
+        onCancel,
+        false
+    )
+}
+
+fun Activity.showSuggestionRemovalConfirmationDialog(
+    suggestion: String,
+    onOk: () -> Unit,
+    onCancel: () -> Unit = {}
+) {
+    showOkDismissDialog(
+        this,
+        getString(R.string.suggestion_removal_title),
+        getString(R.string.suggestion_removal_message, suggestion),
+        getString(R.string.yes),
+        getString(R.string.no),
+        onOk,
+        onCancel,
+        false
+    )
 }
 
 fun Activity.showBookDownloadingFailureDialog(bookId: String, onOk: () -> Unit = {}) {
@@ -122,15 +153,6 @@ fun Activity.showInternetRequiredDialog(onOk: () -> Unit = {}) {
         this,
         getString(R.string.no_network_title),
         getString(R.string.no_network_description),
-        onOk
-    )
-}
-
-fun Activity.showRecentFavoriteMigrationDialog(onOk: () -> Unit = {}) {
-    showOkDialog(
-        this,
-        getString(R.string.recent_favorite_books_migrating_title),
-        getString(R.string.recent_favorite_books_migrating_message),
         onOk
     )
 }

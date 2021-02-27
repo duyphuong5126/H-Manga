@@ -11,13 +11,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
 import nhdphuong.com.manga.features.RandomContract
@@ -29,21 +30,22 @@ import nhdphuong.com.manga.features.recent.RecentActivity
 import nhdphuong.com.manga.features.setting.SettingsActivity
 import nhdphuong.com.manga.features.tags.TagsActivity
 import nhdphuong.com.manga.features.tags.TagsContract
-import nhdphuong.com.manga.service.RecentFavoriteMigrationService
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.supports.openUrl
+import nhdphuong.com.manga.views.adapters.SearchSuggestionAdapter
 import nhdphuong.com.manga.views.adapters.TabAdapter
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.showAdminEntryDialog
 import nhdphuong.com.manga.views.showInternetRequiredDialog
-import nhdphuong.com.manga.views.showRecentFavoriteMigrationDialog
+import nhdphuong.com.manga.views.showSuggestionRemovalConfirmationDialog
 import nhdphuong.com.manga.views.showTagsDownloadingDialog
 import nhdphuong.com.manga.views.showTagsNotAvailable
 
 /*
  * Created by nhdphuong on 4/10/18.
  */
-class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
+class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener,
+    SearchSuggestionAdapter.SuggestionCallback {
     companion object {
         private const val TAG_REQUEST_CODE = 10007
         const val ICON_TYPE_CODE = "IconTypeCode"
@@ -57,7 +59,7 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
 
     private var iconType: HeaderIconType = HeaderIconType.Logo
 
-    private var suggestionAdapter: ArrayAdapter<String>? = null
+    private var suggestionAdapter: SearchSuggestionAdapter? = null
 
     private lateinit var edtSearch: AutoCompleteTextView
     private lateinit var ibHamburger: ImageButton
@@ -65,6 +67,9 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
     private lateinit var ibClearSearch: ImageButton
     private lateinit var ibMainLogo: ImageButton
     private lateinit var rvMainTabs: RecyclerView
+
+    private var suggestionRemovedTemplate = ""
+    private var generalError = ""
 
     override fun setPresenter(presenter: HeaderContract.Presenter) {
         this.presenter = presenter
@@ -86,7 +91,10 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpUI(view)
-        val context: Context = context!!
+        val context: Context = context ?: return
+        suggestionRemovedTemplate = getString(R.string.suggestion_removed_successfully)
+        generalError = getString(R.string.general_error_message)
+
         iconType = arguments?.run {
             HeaderIconType.fromTypeCode(getInt(ICON_TYPE_CODE, HeaderIconType.Logo.typeCode))
         } ?: HeaderIconType.Logo
@@ -229,9 +237,7 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
             }
 
             R.id.ibSearch -> {
-                val searchContent = edtSearch.text.toString()
-                presenter.saveSearchInfo(searchContent)
-                searchContract?.onSearchInputted(searchContent)
+                performSearch(edtSearch.text.toString())
             }
 
             R.id.ibClearSearch -> {
@@ -270,19 +276,11 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
     }
 
     override fun goToFavoriteList() {
-        if (RecentFavoriteMigrationService.isMigrating) {
-            activity?.showRecentFavoriteMigrationDialog()
-        } else {
-            RecentActivity.start(this@HeaderFragment, Constants.FAVORITE)
-        }
+        RecentActivity.start(this@HeaderFragment, Constants.FAVORITE)
     }
 
     override fun goToRecentList() {
-        if (RecentFavoriteMigrationService.isMigrating) {
-            activity?.showRecentFavoriteMigrationDialog()
-        } else {
-            RecentActivity.start(this@HeaderFragment, Constants.RECENT)
-        }
+        RecentActivity.start(this@HeaderFragment, Constants.RECENT)
     }
 
     override fun goToRandomBook() {
@@ -293,20 +291,51 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
         activity?.showInternetRequiredDialog(this::resetTabBar)
     }
 
-    override fun setUpSuggestionList(suggestionList: List<String>) {
+    override fun setUpSuggestionList() {
         context?.let {
-            suggestionAdapter =
-                ArrayAdapter(it, android.R.layout.simple_dropdown_item_1line, suggestionList)
+            suggestionAdapter = SearchSuggestionAdapter(it, arrayListOf(), this)
             edtSearch.setAdapter(suggestionAdapter)
         }
     }
 
-    override fun updateSuggestionList() {
-        suggestionAdapter?.notifyDataSetChanged()
+    override fun updateSuggestionList(suggestionList: List<String>) {
+        suggestionAdapter?.updateList(suggestionList)
     }
 
     override fun navigateToFeedbackForm(formUrl: String) {
         context?.openUrl(formUrl)
+    }
+
+    override fun onSuggestionRemoved(position: Int, suggestionValue: String) {
+        Logger.d("HeaderFragment", "Remove position $position")
+        edtSearch.performCompletion()
+        activity?.showSuggestionRemovalConfirmationDialog(suggestionValue, onOk = {
+            suggestionAdapter?.apply {
+                removeItemAt(position)
+                filter.filter(edtSearch.text.toString(), null)
+            }
+            presenter.removeSuggestion(suggestionValue)
+        })
+    }
+
+    override fun onSuggestionSelected(suggestion: String) {
+        edtSearch.setText("")
+        edtSearch.performCompletion()
+        suggestionAdapter?.reset()
+        performSearch(suggestion)
+    }
+
+    override fun showSuggestionDeletedMessage(searchContent: String) {
+        context?.let {
+            val message = String.format(suggestionRemovedTemplate, searchContent)
+            Toast.makeText(it, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun showGeneralError() {
+        context?.let {
+            Toast.makeText(it, generalError, Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun showLoading() {
@@ -337,5 +366,10 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener {
             val isTabHidden = tabSelector.visibility == View.GONE
             tabSelector.visibility = if (!isTabHidden) View.GONE else View.VISIBLE
         }
+    }
+
+    private fun performSearch(searchContent: String) {
+        presenter.saveSearchInfo(searchContent)
+        searchContract?.onSearchInputted(searchContent)
     }
 }

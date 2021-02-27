@@ -3,8 +3,8 @@ package nhdphuong.com.manga.usecase
 import io.reactivex.Completable
 import nhdphuong.com.manga.Constants.Companion.EVENT_EXCEPTION
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_EXCEPTION_CANONICAL_CLASS_NAME
-import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_EXCEPTION_CAUSE
-import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_EXCEPTION_MESSAGE
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ERROR
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ERROR_MESSAGE
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_EXCEPTION_LOCALIZED_MESSAGE
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_EXCEPTION_STACK_TRACE
 import nhdphuong.com.manga.analytics.AnalyticsEvent
@@ -30,9 +30,12 @@ class LogAnalyticsErrorUseCaseImpl @Inject constructor(
                     PARAM_NAME_EXCEPTION_CANONICAL_CLASS_NAME,
                     throwable.javaClass.canonicalName.orEmpty()
                 )
-                .putParam(PARAM_NAME_EXCEPTION_CAUSE, throwable.cause.toString())
-                .putParam(PARAM_NAME_EXCEPTION_MESSAGE, throwable.message.orEmpty())
-                .putParam(PARAM_NAME_EXCEPTION_LOCALIZED_MESSAGE, throwable.localizedMessage.orEmpty())
+                .putParam(PARAM_NAME_ERROR, throwable.cause.toString())
+                .putParam(PARAM_NAME_ERROR_MESSAGE, throwable.message.orEmpty())
+                .putParam(
+                    PARAM_NAME_EXCEPTION_LOCALIZED_MESSAGE,
+                    throwable.localizedMessage.orEmpty()
+                )
                 .putParam(PARAM_NAME_EXCEPTION_STACK_TRACE, stackTraceString)
                 .build()
                 .push()

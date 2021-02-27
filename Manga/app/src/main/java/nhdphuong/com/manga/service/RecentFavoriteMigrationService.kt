@@ -15,7 +15,6 @@ import nhdphuong.com.manga.data.entity.RecentFavoriteMigrationResult.MigratedBoo
 import nhdphuong.com.manga.data.entity.RecentFavoriteMigrationResult.BookMigrationError
 import nhdphuong.com.manga.features.NavigationRedirectActivity
 import nhdphuong.com.manga.usecase.RecentFavoriteMigrationUseCase
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 class RecentFavoriteMigrationService : JobIntentService() {
@@ -30,6 +29,10 @@ class RecentFavoriteMigrationService : JobIntentService() {
     private var migrationFailureTemplate = ""
     private var migrationCompleted = ""
     private var migrationResultTemplate = ""
+
+    private val logger: Logger by lazy {
+        Logger("RecentFavoriteMigrationService")
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -49,9 +52,6 @@ class RecentFavoriteMigrationService : JobIntentService() {
         var failed = 0
         var total = 0
         recentFavoriteMigrationUseCase.execute()
-            .doOnSubscribe {
-                isBooksMigrating.compareAndSet(false, true)
-            }
             .subscribe({
                 when (it) {
                     is MigratedBook -> {
@@ -65,17 +65,12 @@ class RecentFavoriteMigrationService : JobIntentService() {
                         sendMigrationProgressNotification(progress, failed, total)
                     }
                 }
-                Logger.d(
-                    TAG,
-                    "Progress: migrated $progress item(s), failed $failed item(s), total: $total"
-                )
+                logger.d("Progress: migrated $progress item(s), failed $failed item(s), total: $total")
             }, {
-                Logger.d(TAG, "Failed to migrate books with error $it")
-                isBooksMigrating.compareAndSet(true, false)
+                logger.e("Failed to migrate books with error $it")
             }, {
-                Logger.d(TAG, "Migration completed")
+                logger.d("Migration completed")
                 sendMigrationCompletedNotification(progress, failed, total)
-                isBooksMigrating.compareAndSet(true, false)
             }).addTo(compositeDisposable)
     }
 
@@ -130,13 +125,8 @@ class RecentFavoriteMigrationService : JobIntentService() {
     companion object {
         private const val JOB_ID = 7126
 
-        private val isBooksMigrating = AtomicBoolean(false)
-        val isMigrating: Boolean get() = isBooksMigrating.get()
-
         private const val MIGRATION_PROGRESS_NOTIFICATION_ID = 12345
         private const val MIGRATION_COMPLETED_NOTIFICATION_ID = 67890
-
-        private const val TAG = "RecentFavoriteMigrationService"
 
         @JvmStatic
         fun enqueueWork(context: Context) {

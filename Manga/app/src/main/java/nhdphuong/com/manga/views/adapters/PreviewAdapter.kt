@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.supports.ImageUtils
@@ -75,7 +74,6 @@ class PreviewAdapter(
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
-        Logger.d(TAG, "View is recycled")
         when (holder) {
             is PreviewViewHolder -> {
                 ImageUtils.clear(holder.ivPageThumbnail)

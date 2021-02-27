@@ -57,5 +57,17 @@ interface UseCaseModule {
     fun checkRecentFavoriteMigrationNeededUseCase(useCaseImpl: CheckRecentFavoriteMigrationNeededUseCaseImpl): CheckRecentFavoriteMigrationNeededUseCase
 
     @Binds
-    fun get(useCaseImpl: GetFeedbackFormUseCaseImpl): GetFeedbackFormUseCase
+    fun getFeedbackFormUseCase(useCaseImpl: GetFeedbackFormUseCaseImpl): GetFeedbackFormUseCase
+
+    @Binds
+    fun getRecommendedSearchUseCase(useCaseImpl: GetRecommendedBooksUseCaseImpl): GetRecommendedBooksUseCase
+
+    @Binds
+    fun getRecommendedBooksFromFavoriteUseCase(useCaseImpl: GetRecommendedBooksFromFavoriteUseCaseImpl): GetRecommendedBooksFromFavoriteUseCase
+
+    @Binds
+    fun get(useCaseImpl: GetRecommendedBooksFromReadingHistoryUseCaseImpl): GetRecommendedBooksFromReadingHistoryUseCase
+
+    @Binds
+    fun deleteSearchSuggestionUseCase(useCaseImpl: DeleteSearchSuggestionUseCaseImpl): DeleteSearchSuggestionUseCase
 }

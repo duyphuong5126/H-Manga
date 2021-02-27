@@ -12,6 +12,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.EVENT_BROWSE_FAVORITE
+import nhdphuong.com.manga.Constants.Companion.EVENT_BROWSE_RECENT
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.data.entity.FavoriteBook
@@ -24,6 +26,7 @@ import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.usecase.LogAnalyticsErrorUseCase
+import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 import java.net.SocketTimeoutException
 import java.util.Collections
 import java.util.Locale
@@ -44,11 +47,11 @@ class RecentPresenter @Inject constructor(
     private val bookRepository: BookRepository,
     private val sharedPreferencesManager: SharedPreferencesManager,
     private val logAnalyticsErrorUseCase: LogAnalyticsErrorUseCase,
+    private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : RecentContract.Presenter {
     companion object {
-        private const val TAG = "RecentPresenter"
         private const val MAX_PER_PAGE = 25
         private const val NUMBER_OF_PREVENTIVE_PAGES = 5
     }
@@ -75,6 +78,8 @@ class RecentPresenter @Inject constructor(
     private val remoteBookErrorSubject = PublishSubject.create<Throwable>()
 
     private val compositeDisposable = CompositeDisposable()
+
+    private val logger = Logger("RecentPresenter")
 
     init {
         remoteBookErrorSubject
@@ -136,6 +141,11 @@ class RecentPresenter @Inject constructor(
             }
             jobList.add(job)
         }
+        val eventName = if (type == Constants.RECENT) EVENT_BROWSE_RECENT else EVENT_BROWSE_FAVORITE
+        logAnalyticsEventUseCase.execute(eventName)
+            .subscribeOn(Schedulers.io())
+            .subscribe()
+            .addTo(compositeDisposable)
     }
 
     override fun setType(recentType: String) {
@@ -249,7 +259,7 @@ class RecentPresenter @Inject constructor(
 
     private suspend fun loadPreventiveData() {
         if (currentPageCount <= currentPage) {
-            Logger.d(TAG, "No more preventive page left")
+            logger.d("No more preventive page left")
             return
         }
         val toLoadPages = min(currentPageCount, NUMBER_OF_PREVENTIVE_PAGES)
@@ -257,13 +267,13 @@ class RecentPresenter @Inject constructor(
         suspendCoroutine<Boolean> { continuation ->
             runBlocking {
                 for (page in currentPage + 1..toLoadPages) {
-                    Logger.d(TAG, "Start loading page $page")
+                    logger.d("Start loading page $page")
                     preventiveData[page] = getRecentBook(page - 1)
                 }
             }
             continuation.resume(true)
         }
-        Logger.d(TAG, "Load preventive data successfully")
+        logger.d("Load preventive data successfully")
         isLoadingPreventiveData.compareAndSet(true, false)
     }
 
@@ -311,6 +321,6 @@ class RecentPresenter @Inject constructor(
             message += "${listInt[i]}, "
         }
         message += "${listInt[listInt.size - 1]}]"
-        Logger.d(TAG, message)
+        logger.d(message)
     }
 }

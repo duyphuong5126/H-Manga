@@ -317,7 +317,6 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
     override fun isActive(): Boolean = isAdded
 
     override fun onUIRefreshComplete(frame: PtrFrameLayout?) {
-        Logger.d(TAG, "onUIRefreshComplete")
         endUpdateDotsTask()
         mtvRefresh.text = getString(R.string.updated)
         presenter.saveLastBookListRefreshTime()
@@ -333,11 +332,6 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         status: Byte,
         ptrIndicator: PtrIndicator?
     ) {
-        Logger.d(
-            TAG, "onUIPositionChange isUnderTouch: $isUnderTouch, status: $status, " +
-                    "over keep header: ${ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading}, " +
-                    "over refresh: ${ptrIndicator?.isOverOffsetToRefresh}"
-        )
         if (ptrIndicator?.isOverOffsetToKeepHeaderWhileLoading == true) {
             mtvRefresh.text = getString(R.string.release_to_refresh)
             ivRefresh.rotation = REFRESHING_ROTATION
@@ -345,7 +339,6 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
     }
 
     override fun onUIRefreshBegin(frame: PtrFrameLayout?) {
-        Logger.d(TAG, "onUIRefreshBegin")
         ivRefresh.gone()
         pbRefresh.becomeVisible()
         mtvRefresh.text = String.format(getString(R.string.updating), "")
@@ -353,12 +346,10 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
     }
 
     override fun onUIRefreshPrepare(frame: PtrFrameLayout?) {
-        Logger.d(TAG, "onUIRefreshPrepare")
         presenter.reloadLastBookListRefreshTime()
     }
 
     override fun onUIReset(frame: PtrFrameLayout?) {
-        Logger.d(TAG, "onUIReset")
         mtvRefresh.text = getString(R.string.pull_down)
     }
 
@@ -388,7 +379,6 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         val updateDotsTask = {
             val dotsArray = resources.getStringArray(R.array.dots)
             val loadingString = getString(R.string.updating)
-            Logger.d("Dialog", "Current pos: $currentPos")
             mtvRefresh.text =
                 String.format(loadingString, dotsArray[currentPos])
             if (currentPos < dotsArray.size - 1) currentPos++ else currentPos = 0

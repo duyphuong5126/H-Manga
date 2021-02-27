@@ -11,12 +11,15 @@ import nhdphuong.com.manga.Constants.Companion.TABLE_DOWNLOADED_IMAGE as DOWNLOA
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.CREATED_AT
 import nhdphuong.com.manga.Constants.Companion.ID
-import nhdphuong.com.manga.Constants.Companion.UPLOAD_DATE
 import nhdphuong.com.manga.Constants.Companion.TYPE
 import nhdphuong.com.manga.Constants.Companion.LOCAL_PATH
 import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE
 import nhdphuong.com.manga.Constants.Companion.RAW_BOOK
+import nhdphuong.com.manga.Constants.Companion.READING_TIMES
+import nhdphuong.com.manga.Constants.Companion.TABLE_BLOCKED_BOOK
 import nhdphuong.com.manga.Constants.Companion.TABLE_LAST_VISITED_PAGE
+import nhdphuong.com.manga.Constants.Companion.TAG_ID
+import nhdphuong.com.manga.data.entity.BlockedBook
 import nhdphuong.com.manga.data.entity.FavoriteBook
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.local.model.BookImageModel
@@ -42,9 +45,12 @@ interface BookDAO {
     fun insertFavoriteBooks(vararg favoriteBookEntities: FavoriteBook)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertBlockedBooks(vararg blockedBookEntities: BlockedBook)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addDownloadedBook(downloadedBooks: List<DownloadedBookModel>): List<Long>
 
-    @Query("select * from $DOWNLOADED_BOOK order by $UPLOAD_DATE")
+    @Query("select * from $DOWNLOADED_BOOK order by rowid desc")
     fun getAllDownloadedBooks(): Single<List<DownloadedBookModel>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -52,6 +58,12 @@ interface BookDAO {
 
     @Query("select * from $BOOK_TAG where $BOOK_ID = :bookId")
     fun getAllTagsOfBook(bookId: String): Single<List<BookTagModel>>
+
+    @Query("select $TAG_ID from $BOOK_TAG group by $TAG_ID order by count($TAG_ID) desc limit :maximumEntries")
+    fun getMostUsedTags(maximumEntries: Int): Single<List<Long>>
+
+    @Query("select $BOOK_ID from $RECENT_BOOK_TABLE order by $READING_TIMES desc")
+    fun getRecentBookIdsForRecommendation(): Single<List<String>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addImageOfBook(bookImageModel: BookImageModel): Long
@@ -85,6 +97,12 @@ interface BookDAO {
     @Query("select * from $RECENT_BOOK_TABLE order by $CREATED_AT desc limit :limit offset :offset")
     fun getRecentBooks(limit: Int, offset: Int): List<RecentBook>
 
+    @Query("select * from $RECENT_BOOK_TABLE where $BOOK_ID = :bookId")
+    fun getRecentBook(bookId: String): Single<RecentBook>
+
+    @Query("select * from $RECENT_BOOK_TABLE where $BOOK_ID = :bookId")
+    fun getRecentBookSynchronously(bookId: String): RecentBook?
+
     @Query("select * from $FAVORITE_BOOK_TABLE order by $CREATED_AT desc limit :limit offset :offset")
     fun getFavoriteBooks(limit: Int, offset: Int): List<FavoriteBook>
 
@@ -93,6 +111,12 @@ interface BookDAO {
 
     @Query("select * from $FAVORITE_BOOK_TABLE where $RAW_BOOK = ''")
     fun getEmptyFavoriteBooks(): Single<List<FavoriteBook>>
+
+    @Query("select $BOOK_ID from $RECENT_BOOK_TABLE")
+    fun getRecentBookIds(): List<String>
+
+    @Query("select $BOOK_ID from $FAVORITE_BOOK_TABLE")
+    fun getFavoriteBookIds(): List<String>
 
     @Query("select count(*) from $RECENT_BOOK_TABLE where $RAW_BOOK = ''")
     fun getEmptyRecentBooksCount(): Int
@@ -127,4 +151,7 @@ interface BookDAO {
 
     @Query("delete from $TABLE_LAST_VISITED_PAGE where $BOOK_ID = :bookId")
     fun deleteLastVisitedPage(bookId: String): Int
+
+    @Query("select $BOOK_ID from $TABLE_BLOCKED_BOOK")
+    fun getBlockedBookIds(): List<String>
 }

@@ -181,6 +181,7 @@
             android:layout_height="wrap_content"
             android:background="#96000000"
             android:orientation="vertical"
+            android:paddingTop="@dimen/space_medium"
             android:paddingBottom="@dimen/space_medium">
 
             <androidx.recyclerview.widget.RecyclerView

@@ -58,6 +58,10 @@ class BookRepository @Inject constructor(
         bookLocalDataSource.removeFavoriteBook(book)
     }
 
+    override suspend fun addBookToBlockList(bookId: String) {
+        bookLocalDataSource.addBookToBlockList(bookId)
+    }
+
     override suspend fun saveRecentBook(book: Book) {
         bookLocalDataSource.saveRecentBook(book)
     }
@@ -84,6 +88,14 @@ class BookRepository @Inject constructor(
 
     override suspend fun getRecentBooks(limit: Int, offset: Int): LinkedList<RecentBook> {
         return bookLocalDataSource.getRecentBooks(limit, offset)
+    }
+
+    override suspend fun getAllFavoriteBookIds(): List<String> {
+        return bookLocalDataSource.getAllFavoriteBookIds()
+    }
+
+    override suspend fun getAllRecentBookIds(): List<String> {
+        return bookLocalDataSource.getAllRecentBookIds()
     }
 
     override fun updateRawFavoriteBook(bookId: String, rawBook: String): Boolean {
@@ -169,5 +181,17 @@ class BookRepository @Inject constructor(
 
     override suspend fun getCommentList(bookId: String): CommentResponse {
         return bookRemoteDataSource.getCommentList(bookId)
+    }
+
+    override fun getMostUsedTags(maximumEntries: Int): Single<List<String>> {
+        return bookLocalDataSource.getMostUsedTags(maximumEntries)
+    }
+
+    override fun getRecentBookIdsForRecommendation(): Single<List<String>> {
+        return bookLocalDataSource.getRecentBookIdsForRecommendation()
+    }
+
+    override suspend fun getBlockedBookIds(): List<String> {
+        return bookLocalDataSource.getBlockedBookIds()
     }
 }

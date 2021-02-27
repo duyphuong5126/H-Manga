@@ -28,15 +28,18 @@ class MasterDataRepository @Inject constructor(
     @IO private val io: CoroutineScope
 ) {
     companion object {
-        private const val TAG = "MasterDataRepository"
         private const val TOTAL_TAG_TYPES = 8
+    }
+
+    private val logger: Logger by lazy {
+        Logger("MasterDataRepository")
     }
 
     @Volatile
     private var isDownloading: Boolean = false
 
     fun fetchAllTagLists(onComplete: (Boolean) -> Unit) {
-        Logger.d(TAG, "fetchAllTagLists, is downloading started=$isDownloading")
+        logger.d("fetchAllTagLists, is downloading started=$isDownloading")
         if (isDownloading) {
             return
         }
@@ -56,7 +59,7 @@ class MasterDataRepository @Inject constructor(
         io.launch {
             launch {
                 mMasterRemoteDataSource.fetchArtistsList(onSuccess = { artists ->
-                    Logger.d(TAG, "artists=${artists?.size ?: 0}")
+                    logger.d("artists=${artists?.size ?: 0}")
                     handleResponse(artists != null)
                     artists?.let {
                         mMasterLocalDataSource.insertArtistsList(artists)
@@ -67,7 +70,7 @@ class MasterDataRepository @Inject constructor(
             }
             launch {
                 mMasterRemoteDataSource.fetchCategoriesList(onSuccess = { categories ->
-                    Logger.d(TAG, "categories=${categories?.size ?: 0}")
+                    logger.d("categories=${categories?.size ?: 0}")
                     handleResponse(categories != null)
                     categories?.let {
                         mMasterLocalDataSource.insertCategoriesList(categories)
@@ -79,7 +82,7 @@ class MasterDataRepository @Inject constructor(
             }
             launch {
                 mMasterRemoteDataSource.fetchCharactersList(onSuccess = { characters ->
-                    Logger.d(TAG, "characters=${characters?.size ?: 0}")
+                    logger.d("characters=${characters?.size ?: 0}")
                     handleResponse(characters != null)
                     characters?.let {
                         mMasterLocalDataSource.insertCharactersList(characters)
@@ -91,7 +94,7 @@ class MasterDataRepository @Inject constructor(
             }
             launch {
                 mMasterRemoteDataSource.fetchGroupsList(onSuccess = { groups ->
-                    Logger.d(TAG, "groups=${groups?.size ?: 0}")
+                    logger.d("groups=${groups?.size ?: 0}")
                     handleResponse(groups != null)
                     groups?.let {
                         mMasterLocalDataSource.insertGroupsList(groups)
@@ -103,7 +106,7 @@ class MasterDataRepository @Inject constructor(
             }
             launch {
                 mMasterRemoteDataSource.fetchLanguagesList(onSuccess = { languages ->
-                    Logger.d(TAG, "languages=${languages?.size ?: 0}")
+                    logger.d("languages=${languages?.size ?: 0}")
                     handleResponse(languages != null)
                     languages?.let {
                         mMasterLocalDataSource.insertLanguagesList(languages)
@@ -115,7 +118,7 @@ class MasterDataRepository @Inject constructor(
             }
             launch {
                 mMasterRemoteDataSource.fetchParodiesList(onSuccess = { parodies ->
-                    Logger.d(TAG, "parodies=${parodies?.size ?: 0}")
+                    logger.d("parodies=${parodies?.size ?: 0}")
                     handleResponse(parodies != null)
                     parodies?.let {
                         mMasterLocalDataSource.insertParodiesList(parodies)
@@ -127,7 +130,7 @@ class MasterDataRepository @Inject constructor(
             }
             launch {
                 mMasterRemoteDataSource.fetchTagsList(onSuccess = { tags ->
-                    Logger.d(TAG, "tags=${tags?.size ?: 0}")
+                    logger.d("tags=${tags?.size ?: 0}")
                     handleResponse(tags != null)
                     tags?.let {
                         mMasterLocalDataSource.insertTagsList(tags)
@@ -139,7 +142,7 @@ class MasterDataRepository @Inject constructor(
             }
             launch {
                 mMasterRemoteDataSource.fetchUnknownTypesList(onSuccess = { unknownTypes ->
-                    Logger.d(TAG, "unknownTypes=${unknownTypes?.size ?: 0}")
+                    logger.d("unknownTypes=${unknownTypes?.size ?: 0}")
                     handleResponse(unknownTypes != null)
                     unknownTypes?.let {
                         mMasterLocalDataSource.insertUnknownTypesList(unknownTypes)
@@ -354,23 +357,17 @@ class MasterDataRepository @Inject constructor(
     fun getAlternativeDomains(): Single<AlternativeDomainGroup> {
         return mMasterRemoteDataSource.fetchAlternativeDomains()
             .doOnSuccess {
-                Logger.d(
-                    TAG,
-                    "Fetched Alternative Domains from remote - version = ${it.groupVersion}"
-                )
+                logger.d("Fetched Alternative Domains from remote - version = ${it.groupVersion}")
                 mMasterLocalDataSource.saveAlternativeDomains(it)
             }.doOnError {
-                Logger.d(TAG, "Failed to fetch Alternative Domains from remote with error $it")
+                logger.e("Failed to fetch Alternative Domains from remote with error $it")
             }
             .onErrorResumeNext(
                 mMasterLocalDataSource.getAlternativeDomains().toSingle()
                     .doOnSuccess {
-                        Logger.d(
-                            TAG,
-                            "Got Alternative Domains from local - version = ${it.groupVersion}"
-                        )
+                        logger.d("Got Alternative Domains from local - version = ${it.groupVersion}")
                     }.doOnError {
-                        Logger.d(TAG, "Failed to get Alternative Domains from local with error $it")
+                        logger.e("Failed to get Alternative Domains from local with error $it")
                     }
             )
     }
