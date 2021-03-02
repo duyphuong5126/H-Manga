@@ -141,12 +141,12 @@
     <string name="deleting_failed_template">Failed to delete book ID %s</string>
     <string name="book_progress_template">Book ID: %s, progress: %d/%d</string>
     <string name="downloading_book_failed_message">Failed to download book ID %s\nPlease try it again</string>
-    <string name="migrating_books">Migrating your recent/favorite books</string>
-    <string name="migration_progress_template">Migrated %d/%d books</string>
-    <string name="migration_progress_with_failure_template">Migrated %d books, failed on %d items, total: %d</string>
-    <string name="migration_failure_template">Failed item(s) %d/%d books</string>
-    <string name="migration_completed">Your recent/favorite books were migrated</string>
-    <string name="migration_result">Migrated %d/%d book(s)\nFailed to migrate %d/%d book(s)</string>
+    <string name="migrating_books">Updating your recent/favorite books</string>
+    <string name="migration_progress_template">Updated %d/%d books</string>
+    <string name="migration_progress_with_failure_template">Updated %d books, failed %d books, total: %d</string>
+    <string name="migration_failure_template">Could not update %d/%d books</string>
+    <string name="migration_completed">Your recent/favorite books were updated</string>
+    <string name="migration_result">Updated %d/%d books\nFailed to update %d/%d books</string>
 
     <string name="downloading_tags">Downloading tag data</string>
     <string name="downloading_tags_progress">Tag data is being downloaded\nCurrent page: %d/%d\nArtists: %d\nCharacters: %d\nCategories: %d\nLanguages: %d\nParodies: %d\nGroups: %d\nTags: %d\nUnknown types: %d</string>

@@ -399,7 +399,7 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
                 stringBuffer.append("Parodies: ${parodies.size} items, number of old items: ${sharedPreferencesManager.lastParodiesCount}\n")
                 stringBuffer.append("Artists: ${artists.size} items, number of old items: ${sharedPreferencesManager.lastArtistsCount}\n")
                 stringBuffer.append("Groups: ${groups.size} items, number of old items: ${sharedPreferencesManager.lastGroupsCount}\n")
-                stringBuffer.append("mTags: ${tags.size} items, number of old items: ${sharedPreferencesManager.lastTagsCount}\n")
+                stringBuffer.append("Tags: ${tags.size} items, number of old items: ${sharedPreferencesManager.lastTagsCount}\n")
                 stringBuffer.append("UnknownTypes: ${unknownTypes.size} items, number of old items: ${sharedPreferencesManager.lastUnknownTypesCount}\n")
                 stringBuffer.append("==================================================================")
                 val saveResult = SupportUtils.saveStringFile(
