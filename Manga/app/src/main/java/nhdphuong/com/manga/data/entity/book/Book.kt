@@ -17,10 +17,10 @@ data class Book(
     @field:SerializedName(Constants.TITLE) val title: BookTitle,
     @field:SerializedName(Constants.IMAGES) val bookImages: BookImages,
     @field:SerializedName(Constants.SCANLATOR) val scanlator: String,
-    @field:SerializedName(Constants.UPLOAD_DATE) val updateAt: Long,
+    @field:SerializedName(Constants.UPLOAD_DATE) var updateAt: Long,
     @field:SerializedName(Constants.TAGS_LIST) val tags: List<Tag>,
-    @field:SerializedName(Constants.NUM_PAGES) val numOfPages: Int,
-    @field:SerializedName(Constants.NUM_FAVORITES) val numOfFavorites: Int
+    @field:SerializedName(Constants.NUM_PAGES) var numOfPages: Int,
+    @field:SerializedName(Constants.NUM_FAVORITES) var numOfFavorites: Int
 ) : Parcelable {
 
     val thumbnail: String
@@ -102,6 +102,18 @@ data class Book(
 
     override fun describeContents(): Int {
         return 0
+    }
+
+    fun correctData() {
+        if (numOfPages != bookImages.pages.size) {
+            numOfPages = bookImages.pages.size
+        }
+        if (numOfFavorites < 0) {
+            numOfFavorites = 0
+        }
+        if (updateAt < 0) {
+            updateAt = System.currentTimeMillis()
+        }
     }
 
     companion object CREATOR : Parcelable.Creator<Book> {

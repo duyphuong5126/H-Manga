@@ -83,7 +83,6 @@ class HomePresenter @Inject constructor(
 
     private var mainList = CopyOnWriteArrayList<Book>()
     private var currentNumOfPages = 0L
-    private var currentLimitPerPage = 0
     private var currentPage = 1L
 
     @SuppressLint("UseSparseArrays")
@@ -424,7 +423,6 @@ class HomePresenter @Inject constructor(
                 }
                 logger.d("Time spent=${System.currentTimeMillis() - startTime}")
                 currentNumOfPages = remoteBook?.numOfPages ?: 0
-                currentLimitPerPage = remoteBook?.numOfBooksPerPage ?: 0
                 logger.d("Remote books: $currentNumOfPages")
                 val bookList = remoteBook?.bookList ?: ArrayList()
                 mainList.addAll(bookList)
@@ -595,7 +593,6 @@ class HomePresenter @Inject constructor(
         preventiveData.clear()
         recommendedBooks.clear()
         currentNumOfPages = 0L
-        currentLimitPerPage = 0
         currentPage = 1
         isLoadingPreventiveData = false
         isRefreshing.compareAndSet(true, false)

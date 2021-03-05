@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.data.remote
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.BookDataSource
@@ -31,8 +32,12 @@ class BookRemoteDataSource(
     companion object {
         private const val REQUEST_TIME_OUT = 20000
     }
+
     private val logger: Logger by lazy {
         Logger("BookRemoteDataSource")
+    }
+    private val firebaseCrashlytics: FirebaseCrashlytics by lazy {
+        FirebaseCrashlytics.getInstance()
     }
 
     override suspend fun getBookByPage(page: Long, sortOption: SortOption): RemoteBookResponse {
@@ -121,8 +126,9 @@ class BookRemoteDataSource(
         searchContent: String,
         sortOption: SortOption
     ): RemoteBookResponse {
+        var url = ""
         return try {
-            var url = if (searchContent.isNotBlank()) {
+            url = if (searchContent.isNotBlank()) {
                 "${ApiConstants.homeUrl}/api/galleries/search?query=$searchContent&page=$page"
             } else {
                 "${ApiConstants.homeUrl}/api/galleries/all?page=$page"
@@ -135,6 +141,8 @@ class BookRemoteDataSource(
             RemoteBookResponse.Success(remoteBook)
         } catch (throwable: Throwable) {
             logger.e("get all remote books of page $page failed=$throwable")
+            firebaseCrashlytics.setCustomKey("library_page_url", url)
+            firebaseCrashlytics.recordException(throwable)
             RemoteBookResponse.Failure(throwable)
         }
     }
@@ -162,6 +170,12 @@ class BookRemoteDataSource(
                 connection.disconnect()
                 logger.d("requestUrl=$requestUrl\nData=$sb")
                 return sb.toString()
+            }
+
+            else -> {
+                firebaseCrashlytics.setCustomKey("http_code", connection.responseCode)
+                firebaseCrashlytics.setCustomKey("url", requestUrl)
+                firebaseCrashlytics.recordException(Throwable("response_code : ${connection.responseCode}"))
             }
         }
         connection.disconnect()

@@ -92,8 +92,9 @@ class InformationCardAdapter(private val tagList: List<Tag>) {
         init {
             val context = view.context
             val label = if (NHentaiApp.instance.isCensored) "Censored" else tag.name
-            val count = String.format(countTemplate, SupportUtils.formatBigNumber(tag.count))
-            val finalText = "$label $count"
+            val count = if (tag.count > 0) tag.count else 0
+            val countText = String.format(countTemplate, SupportUtils.formatBigNumber(count))
+            val finalText = "$label $countText"
             val spannableText = SpannableString(finalText)
             spannableText.setSpan(
                 TextAppearanceSpan(context, R.style.InfoCardLabel),

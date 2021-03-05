@@ -172,11 +172,7 @@ class ReaderPresenter @Inject constructor(
                 while (!downloadQueue.isEmpty()) {
                     val downloadPage = downloadQueue.take()
                     book.bookImages.pages[downloadPage].let { page ->
-                        val result = ImageUtils.downloadImage(
-                            bookPages[downloadPage],
-                            page.width,
-                            page.height
-                        )
+                        val result = ImageUtils.downloadImage(bookPages[downloadPage])
 
                         val resultFilePath = fileUtils.getImageDirectory(
                             book.usefulName.replace(

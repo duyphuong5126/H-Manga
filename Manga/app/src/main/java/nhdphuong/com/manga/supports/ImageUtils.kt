@@ -101,7 +101,7 @@ class ImageUtils {
             Glide.with(imageView.context).clear(imageView)
         }
 
-        fun downloadImage(url: String, width: Int, height: Int): Bitmap {
+        fun downloadImage(url: String): Bitmap {
             logger.d("Get from url $url")
             val context = NHentaiApp.instance.applicationContext
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -111,7 +111,7 @@ class ImageUtils {
                 .asBitmap()
                 .load(url)
                 .apply(requestOptions)
-                .submit(width, height)
+                .submit()
             val bitmap = future.get()
             future.cancel(true)
             return bitmap
