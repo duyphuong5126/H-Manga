@@ -4,11 +4,11 @@ import androidx.room.PrimaryKey
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
-import com.google.gson.Gson
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.CREATED_AT
 import nhdphuong.com.manga.Constants.Companion.RAW_BOOK
 import nhdphuong.com.manga.Constants.Companion.READING_TIMES
+import nhdphuong.com.manga.data.SerializationServiceImpl
 import nhdphuong.com.manga.data.entity.book.Book
 
 /*
@@ -23,7 +23,8 @@ open class RecentBook(
 ) {
     @Ignore
     val rawBook: Book? = try {
-        Gson().fromJson(_rawBook, Book::class.java)
+        val serializationService = SerializationServiceImpl()
+        serializationService.deserialize(_rawBook, Book::class.java).apply(Book::correctData)
     } catch (throwable: Throwable) {
         null
     }
