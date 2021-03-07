@@ -482,6 +482,15 @@ class HomePresenter @Inject constructor(
             }
             mainList.addAll(currentList)
 
+            main.launch {
+                if (view.isActive()) {
+                    view.refreshHomeBookList()
+                    if (newPage) {
+                        view.hideLoading()
+                    }
+                }
+            }
+
             val toLoadList: List<Long> = when (currentPage) {
                 1L -> listOf(2L)
                 currentNumOfPages -> listOf(currentNumOfPages - 1)
@@ -492,10 +501,8 @@ class HomePresenter @Inject constructor(
             for (page in toLoadList.iterator()) {
                 if (!preventiveData.containsKey(page)) {
                     preventiveData[page] = ArrayList()
-                    launch {
-                        getBooksListByPage(page, false)?.bookList?.let { bookList ->
-                            preventiveData[page]?.addAll(bookList)
-                        }
+                    getBooksListByPage(page, false)?.bookList?.let { bookList ->
+                        preventiveData[page]?.addAll(bookList)
                     }
                     logger.d("Page $page loaded")
                 }
@@ -513,15 +520,6 @@ class HomePresenter @Inject constructor(
                 }
             }
             logListLong("Final page list: ", ArrayList(preventiveData.keys))
-
-            main.launch {
-                if (view.isActive()) {
-                    view.refreshHomeBookList()
-                    if (newPage) {
-                        view.hideLoading()
-                    }
-                }
-            }
         }
     }
 
