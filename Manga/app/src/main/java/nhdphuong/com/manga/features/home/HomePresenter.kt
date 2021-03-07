@@ -50,8 +50,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.collections.HashMap
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.math.abs
 
 /*
@@ -90,7 +88,6 @@ class HomePresenter @Inject constructor(
 
     private var recommendedBooks = arrayListOf<Book>()
 
-    private var isLoadingPreventiveData = false
     private val jobList = CopyOnWriteArrayList<Job>()
     private var isRefreshing = AtomicBoolean(false)
 
@@ -428,10 +425,6 @@ class HomePresenter @Inject constructor(
                 mainList.addAll(bookList)
                 preventiveData[currentPage] = bookList
 
-                if (networkUtils.isNetworkConnected()) {
-                    loadPreventiveData()
-                }
-
                 val timesOpenApp = sharedPreferencesManager.timesOpenApp
                 val timesOpenAppMatched =
                     (timesOpenApp % TIMES_OPEN_APP_NEED_ALTERNATIVE_DOMAINS_MESSAGE == 0 || timesOpenApp == 1)
@@ -556,35 +549,6 @@ class HomePresenter @Inject constructor(
         logger.d(message)
     }
 
-    private suspend fun loadPreventiveData() {
-        isLoadingPreventiveData = true
-
-        suspendCoroutine<Boolean> { continuation ->
-            NUMBER_OF_PREVENTIVE_PAGES.toLong().let {
-                val startPage = currentPage + 1L
-                val endPage = startPage + NUMBER_OF_PREVENTIVE_PAGES.toLong()
-                for (page in startPage..endPage) {
-                    logger.d("Start loading page $page")
-                    io.launch {
-                        val remoteBook = getBooksListByPage(page, false)
-                        logger.d("Done loading page $page")
-                        remoteBook?.bookList?.let { bookList ->
-                            if (bookList.isNotEmpty()) {
-                                preventiveData[page] = bookList
-                            }
-                        }
-                        if (page == endPage) {
-                            continuation.resume(true)
-                        }
-                    }
-                }
-            }
-        }
-
-        logger.d("Load preventive data successfully")
-        isLoadingPreventiveData = false
-    }
-
     private fun clearData() {
         mainList.clear()
         for (entry in preventiveData.entries) {
@@ -594,7 +558,6 @@ class HomePresenter @Inject constructor(
         recommendedBooks.clear()
         currentNumOfPages = 0L
         currentPage = 1
-        isLoadingPreventiveData = false
         isRefreshing.compareAndSet(true, false)
     }
 
