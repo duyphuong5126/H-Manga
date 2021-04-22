@@ -496,7 +496,6 @@ class HomePresenter @Inject constructor(
                 currentNumOfPages -> listOf(currentNumOfPages - 1)
                 else -> listOf(currentPage - 1, currentPage + 1)
             }
-            logListLong("To load list: ", toLoadList)
 
             for (page in toLoadList.iterator()) {
                 if (!preventiveData.containsKey(page)) {
@@ -511,7 +510,6 @@ class HomePresenter @Inject constructor(
             if (preventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
                 val pageList = sortListPage(currentPage, ArrayList(preventiveData.keys))
                 var pageId = 0
-                logListLong("Before deleted page list: ", pageList)
                 while (preventiveData.size > NUMBER_OF_PREVENTIVE_PAGES) {
                     logger.d("Remove page: $pageId")
                     val page = pageList[pageId++]
@@ -519,7 +517,6 @@ class HomePresenter @Inject constructor(
                     preventiveData.remove(page)
                 }
             }
-            logListLong("Final page list: ", ArrayList(preventiveData.keys))
         }
     }
 
@@ -536,15 +533,6 @@ class HomePresenter @Inject constructor(
             }
         }
         return pageList
-    }
-
-    private fun logListLong(messageString: String, listInt: List<Long>) {
-        var message = "$messageString["
-        for (i in 0 until listInt.size - 1) {
-            message += "${listInt[i]}, "
-        }
-        message += "${listInt[listInt.size - 1]}]"
-        logger.d(message)
     }
 
     private fun clearData() {

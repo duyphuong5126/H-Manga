@@ -317,6 +317,10 @@ class BookPreviewPresenter @Inject constructor(
         }
     }
 
+    override fun requestBookDeleting() {
+        view.showBookDeletingConfirmationMessage(book.bookId)
+    }
+
     override fun deleteBook() {
         startBookDeletingUseCase.execute(book.bookId)
     }
@@ -369,7 +373,7 @@ class BookPreviewPresenter @Inject constructor(
     override fun finishDownloading(bookId: String) {
         if (view.isActive() && book.bookId == bookId) {
             view.finishDownloading()
-            view.showOpenFolderView()
+            view.showBookDownloadedMessage(bookId)
         }
     }
 

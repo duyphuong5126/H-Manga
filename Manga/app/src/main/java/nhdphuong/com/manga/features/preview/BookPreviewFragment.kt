@@ -80,6 +80,7 @@ import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.doOnScrollToBottom
 import nhdphuong.com.manga.views.gone
+import nhdphuong.com.manga.views.showBookDeletingConfirmationDialog
 import nhdphuong.com.manga.views.showBookDownloadingDialog
 import nhdphuong.com.manga.views.showBookDownloadingFailureDialog
 import nhdphuong.com.manga.views.showDownloadingFinishedDialog
@@ -410,7 +411,7 @@ class BookPreviewFragment :
             when {
                 !permissionGranted -> showRequestStoragePermission()
                 isDownloadingRequested -> presenter.downloadBook()
-                isDeletingRequested -> presenter.deleteBook()
+                isDeletingRequested -> presenter.requestBookDeleting()
             }
             val result = if (permissionGranted) "granted" else "denied"
             logger.d("Storage permission is $result")
@@ -469,7 +470,7 @@ class BookPreviewFragment :
 
             R.id.buttonClearDownloadedData -> {
                 isDeletingRequested = true
-                presenter.deleteBook()
+                presenter.requestBookDeleting()
             }
 
             R.id.mtvFavorite,
@@ -834,16 +835,9 @@ class BookPreviewFragment :
         recommendBookAdapter.setRecentList(recentList)
     }
 
-    override fun showOpenFolderView() {
+    override fun showBookDownloadedMessage(bookId: String) {
         Handler(Looper.getMainLooper()).postDelayed({
-            activity?.showDownloadingFinishedDialog(onOk = {
-                val viewGalleryIntent = Intent(Intent.ACTION_VIEW)
-                viewGalleryIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                viewGalleryIntent.type = "image/*"
-                startActivity(
-                    Intent.createChooser(viewGalleryIntent, openWithLabel)
-                )
-            })
+            activity?.showDownloadingFinishedDialog(bookId)
         }, if (refreshGalleryDialog.isShowing) SHOW_DOWNLOADING_COMPLETE_DIALOG_DELAY else 0)
     }
 
@@ -923,6 +917,12 @@ class BookPreviewFragment :
                 CommentThreadActivity.start(it, bookId)
             }
         }
+    }
+
+    override fun showBookDeletingConfirmationMessage(bookId: String) {
+        activity?.showBookDeletingConfirmationDialog(bookId, onOk = {
+            presenter.deleteBook()
+        })
     }
 
     override fun showLoading() {

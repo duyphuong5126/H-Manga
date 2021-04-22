@@ -48,7 +48,7 @@ interface BookPreviewContract {
         fun showFavoriteBookSaved(isFavorite: Boolean)
         fun showRecentBooks(recentList: List<String>)
         fun showFavoriteBooks(favoriteList: List<String>)
-        fun showOpenFolderView()
+        fun showBookDownloadedMessage(bookId: String)
         fun startReadingFromPage(page: Int, book: Book)
         fun showUnSeenButton()
         fun hideUnSeenButton()
@@ -58,6 +58,7 @@ interface BookPreviewContract {
         fun showMoreCommentList(commentList: List<Comment>)
         fun hideCommentList()
         fun enableShowFullCommentListButton(notShownComments: Int, bookId: String)
+        fun showBookDeletingConfirmationMessage(bookId: String)
     }
 
     interface Presenter : Base.Presenter {
@@ -67,6 +68,7 @@ interface BookPreviewContract {
         fun saveCurrentAvailableCoverUrl(url: String)
         fun startReadingFrom(startReadingPage: Int)
         fun downloadBook()
+        fun requestBookDeleting()
         fun deleteBook()
         fun restartBookPreview(bookId: String)
         fun changeBookFavorite()

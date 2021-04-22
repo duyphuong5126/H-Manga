@@ -189,8 +189,11 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
-    <string name="book_downloading_finished">Book downloading finished</string>
-    <string name="is_want_to_open_folder">Do you want to open downloaded folder?</string>
+    <string name="book_downloading_finished_title">Downloaded book</string>
+    <string name="book_downloading_finished_message">Book number %s was downloaded.\nNow you can read it offline.</string>
+
+    <string name="book_deleting_confirmation_title">Delete this book</string>
+    <string name="book_deleting_confirmation_message">Are you sure you want to delete book number %s?</string>
 
     <string name="open_with">Open with</string>
 

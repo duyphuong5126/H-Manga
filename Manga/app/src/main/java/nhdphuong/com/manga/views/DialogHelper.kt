@@ -158,34 +158,19 @@ fun Activity.showInternetRequiredDialog(onOk: () -> Unit = {}) {
 }
 
 fun Activity.showTagDataBeingDownloadedDialog(onOk: () -> Unit = {}, onDismiss: () -> Unit = {}) {
+    val title = getString(R.string.downloading_tags_already_started_title)
     val message = getString(R.string.downloading_tags_already_started_message)
-    val cancel = getString(R.string.ok)
-    val ok = getString(R.string.stop_downloading_tags)
-    showOkDismissDialog(
-        this,
-        getString(R.string.downloading_tags_already_started_title),
-        message,
-        ok,
-        cancel,
-        onOk,
-        onDismiss
-    )
+    val cancelButton = getString(R.string.ok)
+    val okButton = getString(R.string.stop_downloading_tags)
+    showOkDismissDialog(this, title, message, okButton, cancelButton, onOk, onDismiss)
 }
 
 fun Activity.showUnSeenBookConfirmationDialog(onOk: () -> Unit = {}, onDismiss: () -> Unit = {}) {
     val title = getString(R.string.un_seen_book_title)
     val message = getString(R.string.un_seen_book_description)
-    val okString = getString(R.string.yes)
-    val dismissString = getString(R.string.no)
-    showOkDismissDialog(
-        this,
-        title,
-        message,
-        okString,
-        dismissString,
-        onOk,
-        onDismiss
-    )
+    val okButton = getString(R.string.yes)
+    val cancelButton = getString(R.string.no)
+    showOkDismissDialog(this, title, message, okButton, cancelButton, onOk, onDismiss)
 }
 
 fun Activity.showAdminEntryDialog(onOk: () -> Unit = {}, onDismiss: () -> Unit = {}) {
@@ -193,15 +178,7 @@ fun Activity.showAdminEntryDialog(onOk: () -> Unit = {}, onDismiss: () -> Unit =
     val message = getString(R.string.enter_admin_page_description)
     val okString = getString(R.string._continue)
     val dismissString = getString(R.string.exit)
-    showOkDismissDialog(
-        this,
-        title,
-        message,
-        okString,
-        dismissString,
-        onOk,
-        onDismiss
-    )
+    showOkDismissDialog(this, title, message, okString, dismissString, onOk, onDismiss)
 }
 
 fun Activity.showBookDownloadingDialog(
@@ -214,52 +191,38 @@ fun Activity.showBookDownloadingDialog(
         getString(R.string.is_downloading_another_book),
         mediaId
     )
-    val okString = getString(R.string.view)
-    val dismissString = getString(R.string.ok)
-    showOkDismissDialog(
-        this,
-        title,
-        message,
-        okString,
-        dismissString,
-        onOk,
-        onDismiss
-    )
+    val okButton = getString(R.string.view)
+    val cancelButton = getString(R.string.ok)
+    showOkDismissDialog(this, title, message, okButton, cancelButton, onOk, onDismiss)
 }
 
 fun Activity.showDownloadingFinishedDialog(
-    onOk: () -> Unit = {},
-    onDismiss: () -> Unit = {}
+    bookId: String,
+    onOk: () -> Unit = {}
 ) {
-    val permissionTitle = getString(R.string.book_downloading_finished)
-    val permissionDescription = getString(R.string.is_want_to_open_folder)
-    val okString = getString(R.string.yes)
-    val dismissString = getString(R.string.no)
-    showOkDismissDialog(
-        this,
-        permissionTitle,
-        permissionDescription,
-        okString,
-        dismissString,
-        onOk,
-        onDismiss
-    )
+    val title = getString(R.string.book_downloading_finished_title)
+    val message = getString(R.string.book_downloading_finished_message, bookId)
+    showOkDialog(this, title, message, onOk)
+}
+
+fun Activity.showBookDeletingConfirmationDialog(
+    bookId: String,
+    onOk: () -> Unit = {},
+    onCancel: () -> Unit = {}
+) {
+    val title = getString(R.string.book_deleting_confirmation_title)
+    val message = getString(R.string.book_deleting_confirmation_message, bookId)
+    val okButton = getString(R.string.yes)
+    val cancelButton = getString(R.string.no)
+    showOkDismissDialog(this, title, message, okButton, cancelButton, onOk, onCancel, true)
 }
 
 fun Activity.showStoragePermissionDialog(onOk: () -> Unit = {}, onDismiss: () -> Unit = {}) {
-    val permissionTitle = getString(R.string.permission_require)
-    val permissionDescription = getString(R.string.storage_permission_require)
-    val okString = getString(R.string.ok)
-    val dismissString = getString(R.string.cancel)
-    showOkDismissDialog(
-        this,
-        permissionTitle,
-        permissionDescription,
-        okString,
-        dismissString,
-        onOk,
-        onDismiss
-    )
+    val title = getString(R.string.permission_require)
+    val message = getString(R.string.storage_permission_require)
+    val okButton = getString(R.string.ok)
+    val cancelButton = getString(R.string.cancel)
+    showOkDismissDialog(this, title, message, okButton, cancelButton, onOk, onDismiss)
 }
 
 fun Activity.showGoToPageDialog(
@@ -270,8 +233,8 @@ fun Activity.showGoToPageDialog(
 ) {
     val title = getString(R.string.jump_to_page)
     val errorMessage = getString(R.string.invalid_page)
-    val okString = getString(R.string.ok)
-    val dismissString = getString(R.string.cancel)
+    val okButton = getString(R.string.ok)
+    val cancelButton = getString(R.string.cancel)
     val inputHint = getString(R.string.page_number_hint) + " ($minimum - $maximum)"
     showOkDismissInputNumberDialog(
         this,
@@ -279,8 +242,8 @@ fun Activity.showGoToPageDialog(
         errorMessage,
         minimum,
         maximum,
-        okString,
-        dismissString,
+        okButton,
+        cancelButton,
         inputHint,
         onOk,
         onDismiss
@@ -294,9 +257,9 @@ fun Activity.showInstallationConfirmDialog(
 ) {
     val title = getString(R.string.installation_confirm_title)
     val message = getString(R.string.installation_confirm_message, versionCode)
-    val okText = getString(R.string.ok)
-    val cancelText = getString(R.string.cancel)
-    showOkDismissDialog(this, title, message, okText, cancelText, onOk, onDismiss)
+    val okButton = getString(R.string.ok)
+    val cancelButton = getString(R.string.cancel)
+    showOkDismissDialog(this, title, message, okButton, cancelButton, onOk, onDismiss)
 }
 
 fun Activity.showFailedToUpgradeAppDialog(
