@@ -9,7 +9,6 @@ import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -84,7 +83,6 @@ import nhdphuong.com.manga.views.showBookDeletingConfirmationDialog
 import nhdphuong.com.manga.views.showBookDownloadingDialog
 import nhdphuong.com.manga.views.showBookDownloadingFailureDialog
 import nhdphuong.com.manga.views.showDownloadingFinishedDialog
-import nhdphuong.com.manga.views.showStoragePermissionDialog
 import nhdphuong.com.manga.views.showThisBookDownloadingDialog
 import nhdphuong.com.manga.views.showUnSeenBookConfirmationDialog
 
@@ -98,7 +96,6 @@ class BookPreviewFragment :
     View.OnClickListener {
     companion object {
         private const val NUM_OF_ROWS = 2
-        private const val REQUEST_STORAGE_PERMISSION = 3142
         private const val COVER_IMAGE_ANIMATION_START_DELAY = 100L
         private const val COVER_IMAGE_ANIMATION_DURATION = 6500L
         private const val COVER_IMAGE_ANIMATION_UP_OFFSET = -1000
@@ -165,8 +162,6 @@ class BookPreviewFragment :
     private lateinit var recommendBookAdapter: BookAdapter
     private lateinit var animatorSet: AnimatorSet
     private lateinit var refreshGalleryDialog: Dialog
-    private var isDownloadingRequested = false
-    private var isDeletingRequested = false
 
     private var commentAdapter: CommentAdapter? = null
     private var tagsInfoAdapter: InformationCardAdapter? = null
@@ -207,19 +202,16 @@ class BookPreviewFragment :
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
                     val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
                     presenter.initDownloading(bookId, totalBookPages)
-                    isDownloadingRequested = false
                 }
                 ACTION_DOWNLOADING_PROGRESS -> {
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
                     val totalBookPages = intent.extras?.getInt(TOTAL) ?: 0
                     val progress = intent.extras?.getInt(PROGRESS) ?: 0
                     presenter.updateDownloadingProgress(bookId, progress, totalBookPages)
-                    isDownloadingRequested = false
                 }
                 ACTION_DOWNLOADING_COMPLETED -> {
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
                     presenter.finishDownloading(bookId)
-                    isDownloadingRequested = false
                 }
                 ACTION_DOWNLOADING_FAILED -> {
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
@@ -227,12 +219,10 @@ class BookPreviewFragment :
                     val downloadingFailedCount =
                         intent.extras?.getInt(DOWNLOADING_FAILED_COUNT) ?: 0
                     presenter.finishDownloading(bookId, downloadingFailedCount, totalBookPages)
-                    isDownloadingRequested = false
                 }
                 ACTION_DELETING_STARTED -> {
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
                     presenter.initDeleting(bookId)
-                    isDeletingRequested = false
                 }
                 ACTION_DELETING_PROGRESS -> {
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
@@ -244,12 +234,10 @@ class BookPreviewFragment :
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
                     val deletingFailedCount = intent.extras?.getInt(DELETING_FAILED_COUNT) ?: 0
                     presenter.finishDeleting(bookId, deletingFailedCount)
-                    isDeletingRequested = false
                 }
                 ACTION_DELETING_COMPLETED -> {
                     val bookId = intent.extras?.getString(BOOK_ID).orEmpty()
                     presenter.finishDeleting(bookId)
-                    isDeletingRequested = false
                 }
                 ACTION_SHOW_GALLERY_REFRESHING_DIALOG -> {
                     refreshGalleryDialog.show()
@@ -400,24 +388,6 @@ class BookPreviewFragment :
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_STORAGE_PERMISSION) {
-            val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
-            when {
-                !permissionGranted -> showRequestStoragePermission()
-                isDownloadingRequested -> presenter.downloadBook()
-                isDeletingRequested -> presenter.requestBookDeleting()
-            }
-            val result = if (permissionGranted) "granted" else "denied"
-            logger.d("Storage permission is $result")
-        }
-    }
-
     override fun onStop() {
         super.onStop()
         isPresenterStarted = false
@@ -464,12 +434,10 @@ class BookPreviewFragment :
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.mtvDownload -> {
-                isDownloadingRequested = true
                 presenter.downloadBook()
             }
 
             R.id.buttonClearDownloadedData -> {
-                isDeletingRequested = true
                 presenter.requestBookDeleting()
             }
 
@@ -696,16 +664,6 @@ class BookPreviewFragment :
     override fun showNoRecommendBook() {
         mtvRecommendBook.gone()
         hsvRecommendList.gone()
-    }
-
-    override fun showRequestStoragePermission() {
-        activity?.showStoragePermissionDialog(onOk = {
-            requestStoragePermission()
-        }, onDismiss = {
-            Toast.makeText(context, toastStoragePermissionLabel, LENGTH_SHORT).show()
-            isDownloadingRequested = false
-            isDeletingRequested = false
-        })
     }
 
     override fun initDownloading(total: Int) {
@@ -1025,11 +983,6 @@ class BookPreviewFragment :
 
             }
         }
-    }
-
-    private fun requestStoragePermission() {
-        val storagePermission = arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        requestPermissions(storagePermission, REQUEST_STORAGE_PERMISSION)
     }
 
     private fun updateProgressDrawable(progress: Int, max: Int) {

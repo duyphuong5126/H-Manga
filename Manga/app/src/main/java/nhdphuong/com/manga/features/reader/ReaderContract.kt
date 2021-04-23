@@ -14,7 +14,6 @@ interface ReaderContract {
         fun showPageIndicator(currentPage: Int, total: Int)
         fun showBackToGallery()
         fun navigateToGallery(lastVisitedPage: Int)
-        fun showRequestStoragePermission()
         fun showDownloadPopup()
         fun hideDownloadPopup()
         fun updateDownloadPopupTitle(downloadPage: Int)

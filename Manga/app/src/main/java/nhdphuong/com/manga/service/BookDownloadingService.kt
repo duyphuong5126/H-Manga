@@ -1,6 +1,5 @@
 package nhdphuong.com.manga.service
 
-import android.app.IntentService
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -29,6 +28,7 @@ import nhdphuong.com.manga.usecase.DownloadBookUseCase
 import javax.inject.Inject
 import android.app.PendingIntent
 import android.content.Intent.FILL_IN_ACTION
+import androidx.core.app.JobIntentService
 import androidx.core.app.NotificationCompat
 import nhdphuong.com.manga.Constants.Companion.EVENT_DOWNLOADED_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_DOWNLOAD_BOOK
@@ -45,8 +45,7 @@ import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.features.NavigationRedirectActivity
 import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 
-
-class BookDownloadingService : IntentService("BookDownloadingService"), BookDownloadCallback {
+class BookDownloadingService : JobIntentService(), BookDownloadCallback {
 
     @Inject
     lateinit var downloadBookUseCase: DownloadBookUseCase
@@ -98,9 +97,13 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
         }
     }
 
-    override fun onHandleIntent(intent: Intent?) {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY
+    }
+
+    override fun onHandleWork(intent: Intent) {
         if (!bookDownloader.isDownloading) {
-            intent?.extras?.getParcelable<Book>(BOOK)?.let { book ->
+            intent.extras?.getParcelable<Book>(BOOK)?.let { book ->
                 downloadBookUseCase.execute(book)
                     .doOnSubscribe {
                         logger.d("Start downloading book ${book.bookId}")
@@ -279,17 +282,15 @@ class BookDownloadingService : IntentService("BookDownloadingService"), BookDown
             } else null
         }
 
+        private const val JOB_ID = 7125
+
         @JvmStatic
         fun start(fromContext: Context, book: Book) {
             val intent = Intent(fromContext, BookDownloadingService::class.java)
             intent.putExtras(Bundle().apply {
                 putParcelable(BOOK, book)
             })
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                fromContext.startForegroundService(intent)
-            } else {
-                fromContext.startService(intent)
-            }
+            enqueueWork(fromContext, BookDownloadingService::class.java, JOB_ID, intent)
         }
     }
 }

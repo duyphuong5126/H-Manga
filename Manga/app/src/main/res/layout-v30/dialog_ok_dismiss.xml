@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/space_large"
@@ -15,14 +16,14 @@
         android:layout_marginTop="@dimen/space_normal"
         android:layout_marginEnd="@dimen/space_medium"
         android:gravity="center_horizontal"
-        android:text="@string/permission_require"
         android:textAllCaps="true"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="@dimen/dialog_header_title_size"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:myFont="@string/NotoSansBold" />
+        app:myFont="@string/NotoSansBold"
+        tools:text="Dialog title" />
 
     <nhdphuong.com.manga.views.customs.MyTextView
         android:id="@+id/mtvDialogDescription"
@@ -33,13 +34,13 @@
         android:layout_marginEnd="@dimen/space_medium"
         android:layout_marginBottom="@dimen/space_normal"
         android:gravity="center_horizontal"
-        android:text="@string/permission_require"
         android:textColor="@color/grey555"
         android:textSize="@dimen/header_title_size"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mtvDialogTitle"
-        app:myFont="@string/NotoSansRegular" />
+        app:myFont="@string/NotoSansRegular"
+        tools:text="Dialog's full message" />
 
     <nhdphuong.com.manga.views.customs.MyButton
         android:id="@+id/mbOkButton"

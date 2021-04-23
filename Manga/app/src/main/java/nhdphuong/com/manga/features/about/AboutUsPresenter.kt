@@ -22,7 +22,6 @@ import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.AvailableVersion
 import nhdphuong.com.manga.features.about.uimodel.AboutUiModel.NewVersionAvailable
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
-import nhdphuong.com.manga.supports.IFileUtils
 import nhdphuong.com.manga.usecase.GetVersionCodeUseCase
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -33,7 +32,6 @@ class AboutUsPresenter @Inject constructor(
     private val getVersionCodeUseCase: GetVersionCodeUseCase,
     private val masterDataRepository: MasterDataRepository,
     private val installationRepository: InstallationRepository,
-    private val fileUtils: IFileUtils,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : AboutUsContract.Presenter {
@@ -116,10 +114,6 @@ class AboutUsPresenter @Inject constructor(
     }
 
     override fun downloadApk(versionNumber: Int, versionCode: String, outputDirectory: String) {
-        if (!fileUtils.isStoragePermissionAccepted()) {
-            view.showRequestStoragePermission()
-            return
-        }
         val downloadingSource = Single.create<AvailableVersion> {
             val targetVersion = aboutList.firstOrNull { version ->
                 version is AvailableVersion && version.versionNumber == versionNumber

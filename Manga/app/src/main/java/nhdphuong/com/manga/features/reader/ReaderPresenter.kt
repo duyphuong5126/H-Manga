@@ -158,11 +158,6 @@ class ReaderPresenter @Inject constructor(
     }
 
     override fun downloadCurrentPage() {
-        if (!fileUtils.isStoragePermissionAccepted()) {
-            view.showRequestStoragePermission()
-            return
-        }
-
         downloadQueue.add(currentPage)
         if (!isDownloading) {
             isDownloading = true

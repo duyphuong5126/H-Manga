@@ -1,15 +1,19 @@
 package nhdphuong.com.manga.service
 
-import android.app.IntentService
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import androidx.core.app.JobIntentService
 import androidx.core.app.NotificationCompat
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
-import nhdphuong.com.manga.*
+import nhdphuong.com.manga.R
+import nhdphuong.com.manga.NHentaiApp
+import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.NotificationHelper
+import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_COMPLETED
 import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_FAILED
 import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_PROGRESS
@@ -23,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
-class BookDeletingService : IntentService("BookDeletingService") {
+class BookDeletingService : JobIntentService() {
     @Inject
     lateinit var bookDeleteBookUseCase: DeleteBookUseCase
 
@@ -67,8 +71,12 @@ class BookDeletingService : IntentService("BookDeletingService") {
         }
     }
 
-    override fun onHandleIntent(intent: Intent?) {
-        intent?.extras?.getString(BOOK_ID)?.takeIf { it.isNotBlank() }?.let { bookId ->
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY
+    }
+
+    override fun onHandleWork(intent: Intent) {
+        intent.extras?.getString(BOOK_ID)?.takeIf { it.isNotBlank() }?.let { bookId ->
             while (isDeletingBook.get()) {
                 Logger.d(TAG, "Another book is being deleted")
             }
@@ -78,12 +86,10 @@ class BookDeletingService : IntentService("BookDeletingService") {
                     .doOnSubscribe {
                         onDeletingStarted(bookId)
                     }
-                    .subscribe({ deletingResult ->
-                        when (deletingResult) {
+                    .subscribe({ result ->
+                        when (result) {
                             is DeletingProgress -> {
-                                updateProgress(
-                                    bookId, deletingResult.progress, deletingResult.total
-                                )
+                                updateProgress(bookId, result.progress, result.total)
                             }
 
                             is DeletingFailure -> {
@@ -203,17 +209,15 @@ class BookDeletingService : IntentService("BookDeletingService") {
 
         private val isDeletingBook = AtomicBoolean(false)
 
+        private const val JOB_ID = 7124
+
         @JvmStatic
         fun start(fromContext: Context, bookId: String) {
             val intent = Intent(fromContext, BookDeletingService::class.java)
             intent.putExtras(Bundle().apply {
                 putString(BOOK_ID, bookId)
             })
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                fromContext.startForegroundService(intent)
-            } else {
-                fromContext.startService(intent)
-            }
+            enqueueWork(fromContext, BookDeletingService::class.java, JOB_ID, intent)
         }
     }
 }

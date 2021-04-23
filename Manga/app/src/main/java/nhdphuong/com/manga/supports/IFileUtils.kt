@@ -1,8 +1,6 @@
 package nhdphuong.com.manga.supports
 
-import android.content.pm.PackageManager
 import android.media.MediaScannerConnection
-import android.os.Build
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
@@ -12,8 +10,6 @@ import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
 
 interface IFileUtils {
-    fun isStoragePermissionAccepted(): Boolean
-
     fun getImageDirectory(bookName: String): String
 
     fun refreshGallery(needToShowRefreshDialog: Boolean, vararg galleryPaths: String)
@@ -26,15 +22,6 @@ interface IFileUtils {
 }
 
 class FileUtils : IFileUtils {
-    override fun isStoragePermissionAccepted(): Boolean {
-        val context = NHentaiApp.instance.applicationContext
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            context.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                    PackageManager.PERMISSION_GRANTED
-        } else {
-            true
-        }
-    }
 
     override fun getImageDirectory(bookName: String): String {
         return NHentaiApp.instance.getImageDirectory(bookName)

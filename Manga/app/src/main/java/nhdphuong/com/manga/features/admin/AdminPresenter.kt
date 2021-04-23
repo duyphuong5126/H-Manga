@@ -9,14 +9,12 @@ import nhdphuong.com.manga.data.entity.book.SortOption
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
-import nhdphuong.com.manga.supports.IFileUtils
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 
 class AdminPresenter @Inject constructor(
     private val view: AdminContract.View,
     private val bookRepository: BookRepository,
-    private val fileUtils: IFileUtils,
     private val sharedPreferencesManager: SharedPreferencesManager,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
@@ -52,14 +50,8 @@ class AdminPresenter @Inject constructor(
     }
 
     override fun startDownloading() {
-        when {
-            fileUtils.isStoragePermissionAccepted() -> {
-                if (numberOfPage.get() > 0) {
-                    view.startDownloadingTagData(numberOfPage.get())
-                }
-            }
-
-            else -> view.showRequestStoragePermission()
+        if (numberOfPage.get() > 0) {
+            view.startDownloadingTagData(numberOfPage.get())
         }
     }
 

@@ -12,7 +12,6 @@ interface AboutUsContract {
         fun startInstallApk(apkPath: String)
         fun showUpgradeCompleted(versionNumber: Int)
         fun showUpgradeFailed(versionNumber: Int, versionCode: String)
-        fun showRequestStoragePermission()
         fun showLoading()
         fun hideLoading()
     }

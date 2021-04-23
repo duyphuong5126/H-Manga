@@ -39,6 +39,10 @@ class RecentFavoriteMigrationService : JobIntentService() {
         NHentaiApp.instance.applicationComponent.inject(this)
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY
+    }
+
     override fun onHandleWork(intent: Intent) {
         migratingBook = getString(R.string.migrating_books)
         migrationProgressTemplate = getString(R.string.migration_progress_template)

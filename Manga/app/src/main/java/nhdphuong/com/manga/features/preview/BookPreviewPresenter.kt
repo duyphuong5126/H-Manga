@@ -12,7 +12,6 @@ import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
-import nhdphuong.com.manga.supports.IFileUtils
 import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.SupportUtils
 import java.util.LinkedList
@@ -58,7 +57,6 @@ class BookPreviewPresenter @Inject constructor(
     private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
     private val bookRepository: BookRepository,
     private val networkUtils: INetworkUtils,
-    private val fileUtils: IFileUtils,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : BookPreviewContract.Presenter {
@@ -294,11 +292,6 @@ class BookPreviewPresenter @Inject constructor(
     }
 
     override fun downloadBook() {
-        if (!fileUtils.isStoragePermissionAccepted()) {
-            view.showRequestStoragePermission()
-            return
-        }
-
         if (!bookDownloader.isDownloading) {
             startBookDownloadingUseCase.execute(book)
                 .subscribeOn(Schedulers.io())

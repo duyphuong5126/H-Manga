@@ -3,7 +3,6 @@ package nhdphuong.com.manga.features.about
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,13 +10,11 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_about_us.mbUpgradeButton
 import nhdphuong.com.manga.BuildConfig
-import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.features.about.uimodel.AboutUiModel
@@ -28,7 +25,6 @@ import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.createLoadingDialog
 import nhdphuong.com.manga.views.showFailedToUpgradeAppDialog
 import nhdphuong.com.manga.views.showInstallationConfirmDialog
-import nhdphuong.com.manga.views.showStoragePermissionDialog
 import java.io.File
 import javax.inject.Inject
 
@@ -42,10 +38,6 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
     private lateinit var rvAboutList: RecyclerView
 
     private var aboutAdapter: AboutAdapter? = null
-
-    private var isUpgradeRequested = false
-    private var pendingVersionCode = ""
-    private var pendingVersionNumber = -1
 
     private var toastStoragePermissionLabel: String = ""
     private var upgradeButtonTemplate = ""
@@ -84,31 +76,6 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
             R.id.ibBack -> {
                 onBackPressed()
             }
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_STORAGE_PERMISSION) {
-            val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
-            when {
-                !permissionGranted -> showRequestStoragePermission()
-                isUpgradeRequested -> {
-                    if (pendingVersionCode.isNotBlank() && pendingVersionNumber != -1) {
-                        presenter.downloadApk(
-                            pendingVersionNumber,
-                            pendingVersionCode,
-                            NHentaiApp.instance.installationDirectory
-                        )
-                    }
-                }
-            }
-            val result = if (permissionGranted) "granted" else "denied"
-            Logger.d(TAG, "Storage permission is $result")
         }
     }
 
@@ -167,27 +134,8 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
     override fun installVersion(versionCode: String, versionNumber: Int) {
         showInstallationConfirmDialog(versionCode, onOk = {
             aboutAdapter?.showInstallationProgress(versionNumber)
-            isUpgradeRequested = true
-            pendingVersionCode = versionCode
-            pendingVersionNumber = versionNumber
-            presenter.downloadApk(
-                versionNumber,
-                versionCode,
-                NHentaiApp.instance.installationDirectory
-            )
-        })
-    }
-
-    override fun showRequestStoragePermission() {
-        showStoragePermissionDialog(onOk = {
-            requestStoragePermission()
-        }, onDismiss = {
-            Toast.makeText(
-                this,
-                toastStoragePermissionLabel,
-                Toast.LENGTH_SHORT
-            ).show()
-            removePendingStates()
+            val installationDirectory = NHentaiApp.instance.installationDirectory
+            presenter.downloadApk(versionNumber, versionCode, installationDirectory)
         })
     }
 
@@ -234,13 +182,6 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
         loadingDialog?.dismiss()
     }
 
-    private fun removePendingStates() {
-        aboutAdapter?.hideInstallationProgress(pendingVersionNumber)
-        isUpgradeRequested = false
-        pendingVersionNumber = -1
-        pendingVersionCode = ""
-    }
-
     private fun uriFromFile(file: File): Uri {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file)
@@ -254,15 +195,8 @@ class AboutUsActivity : AppCompatActivity(), AboutUsContract.View, View.OnClickL
         rvAboutList = findViewById(R.id.rvAboutList)
     }
 
-    private fun requestStoragePermission() {
-        val storagePermission = arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        ActivityCompat.requestPermissions(this, storagePermission, REQUEST_STORAGE_PERMISSION)
-    }
-
     companion object {
-        private const val TAG = "AboutUsActivity"
         private const val REPOSITORY_URL = "https://github.com/duyphuong5126/H-Manga/releases"
-        private const val REQUEST_STORAGE_PERMISSION = 3143
 
         @JvmStatic
         fun start(fromContext: Context) {

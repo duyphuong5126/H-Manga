@@ -3,12 +3,10 @@ package nhdphuong.com.manga.features.admin
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import nhdphuong.com.manga.Constants.Companion.ACTION_TAGS_DOWNLOADING_COMPLETED
@@ -24,13 +22,10 @@ import nhdphuong.com.manga.service.TagsDownloadingService
 import nhdphuong.com.manga.service.TagsDownloadingService.Companion.TagDownloadingResult
 import nhdphuong.com.manga.views.customs.MyButton
 import nhdphuong.com.manga.views.customs.MyTextView
-import nhdphuong.com.manga.views.showStoragePermissionDialog
 import nhdphuong.com.manga.views.showTagDataBeingDownloadedDialog
 
 class AdminFragment : Fragment(), AdminContract.View {
     companion object {
-        private const val REQUEST_STORAGE_PERMISSION = 3143
-
         private enum class DownloadingSwitch {
             Start, Stop
         }
@@ -147,22 +142,6 @@ class AdminFragment : Fragment(), AdminContract.View {
         BroadCastReceiverHelper.unRegisterBroadcastReceiver(context, tagDownloadingReceiver)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_STORAGE_PERMISSION) {
-            val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
-            if (!permissionGranted) {
-                showRequestStoragePermission()
-            }
-            val result = if (permissionGranted) "granted" else "denied"
-            logger.d("Storage permission is $result")
-        }
-    }
-
     override fun setPresenter(presenter: AdminContract.Presenter) {
         this.presenter = presenter
     }
@@ -203,18 +182,6 @@ class AdminFragment : Fragment(), AdminContract.View {
         }
     }
 
-    override fun showRequestStoragePermission() {
-        activity?.showStoragePermissionDialog(onOk = {
-            requestStoragePermission()
-        }, onDismiss = {
-            Toast.makeText(
-                context,
-                getString(R.string.toast_storage_permission_require),
-                Toast.LENGTH_SHORT
-            ).show()
-        })
-    }
-
     override fun restartApp() {
         NHentaiApp.instance.restartApp()
     }
@@ -242,11 +209,6 @@ class AdminFragment : Fragment(), AdminContract.View {
         mtvTagsCount = rootView.findViewById(R.id.mtv_tags_count)
         mtvUnknownTagsCount = rootView.findViewById(R.id.mtv_unknown_tags_count)
         spCensored = rootView.findViewById(R.id.sp_censored)
-    }
-
-    private fun requestStoragePermission() {
-        val storagePermission = arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        requestPermissions(storagePermission, REQUEST_STORAGE_PERMISSION)
     }
 
     private fun clearAllData() {

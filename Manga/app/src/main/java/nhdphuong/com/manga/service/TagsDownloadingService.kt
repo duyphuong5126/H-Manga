@@ -1,12 +1,12 @@
 package nhdphuong.com.manga.service
 
-import android.app.IntentService
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.core.app.JobIntentService
 import androidx.core.app.NotificationCompat
 import com.google.gson.JsonArray
 import io.reactivex.Observable
@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
-class TagsDownloadingService : IntentService("TagsDownloadingService") {
+class TagsDownloadingService : JobIntentService() {
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
@@ -89,8 +89,12 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
         }
     }
 
-    override fun onHandleIntent(intent: Intent?) {
-        intent?.getLongExtra(NUMBER_OF_PAGES, 0)?.takeIf { it > 0 }?.let { numberOfPages ->
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY
+    }
+
+    override fun onHandleWork(intent: Intent) {
+        intent.getLongExtra(NUMBER_OF_PAGES, 0).takeIf { it > 0 }?.let { numberOfPages ->
             val pages = arrayListOf<Long>()
             (1..numberOfPages).toCollection(pages)
 
@@ -245,10 +249,13 @@ class TagsDownloadingService : IntentService("TagsDownloadingService") {
         private val isRunning = AtomicBoolean(false)
         val isTagBeingDownloaded: Boolean get() = isRunning.get()
 
+        private const val JOB_ID = 7123
+
         fun start(fromContext: Context, numberOfPage: Long) {
-            Intent(fromContext, TagsDownloadingService::class.java).apply {
+            val intent = Intent(fromContext, TagsDownloadingService::class.java).apply {
                 putExtra(NUMBER_OF_PAGES, numberOfPage)
-            }.let(fromContext::startService)
+            }
+            enqueueWork(fromContext, TagsDownloadingService::class.java, JOB_ID, intent)
         }
 
         fun stopCurrentTask() {

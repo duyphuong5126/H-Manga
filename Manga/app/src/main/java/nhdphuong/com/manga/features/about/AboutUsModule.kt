@@ -11,7 +11,6 @@ import nhdphuong.com.manga.data.repository.installation.InstallationRepository
 import nhdphuong.com.manga.data.repository.installation.InstallationRepositoryImpl
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
-import nhdphuong.com.manga.supports.IFileUtils
 import nhdphuong.com.manga.usecase.GetVersionCodeUseCase
 
 @Module
@@ -36,7 +35,6 @@ class AboutUsModule(private val aboutView: AboutUsContract.View) {
         aboutView: AboutUsContract.View,
         masterDataRepository: MasterDataRepository,
         installationRepository: InstallationRepository,
-        fileUtils: IFileUtils,
         @IO io: CoroutineScope,
         @Main main: CoroutineScope
     ): AboutUsContract.Presenter {
@@ -45,7 +43,6 @@ class AboutUsModule(private val aboutView: AboutUsContract.View) {
             getVersionCodeUseCase,
             masterDataRepository,
             installationRepository,
-            fileUtils,
             io,
             main
         )

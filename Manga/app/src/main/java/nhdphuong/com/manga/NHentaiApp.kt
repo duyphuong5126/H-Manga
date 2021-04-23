@@ -12,6 +12,8 @@ import android.os.IBinder
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.alternativedomain.AlternativeDomain
 import nhdphuong.com.manga.service.TagsUpdateService
+import nhdphuong.com.manga.usecase.DownloadBookUseCase
+import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 import java.util.Locale
 import javax.inject.Inject
 
@@ -31,6 +33,12 @@ class NHentaiApp : Application() {
 
     @Inject
     lateinit var mSharedPreferencesManager: SharedPreferencesManager
+
+    @Inject
+    lateinit var downloadBookUseCase: DownloadBookUseCase
+
+    @Inject
+    lateinit var logAnalyticsEventUseCase: LogAnalyticsEventUseCase
 
     private lateinit var mApplicationComponent: ApplicationComponent
 

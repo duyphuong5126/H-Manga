@@ -34,7 +34,6 @@ interface BookPreviewContract {
         fun showBookThumbnailList(thumbnailList: List<String>)
         fun showRecommendBook(bookList: List<Book>)
         fun showNoRecommendBook()
-        fun showRequestStoragePermission()
         fun initDownloading(total: Int)
         fun updateDownloadProgress(progress: Int, total: Int)
         fun finishDownloading()

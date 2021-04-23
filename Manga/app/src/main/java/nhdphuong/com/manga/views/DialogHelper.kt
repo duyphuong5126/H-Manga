@@ -217,14 +217,6 @@ fun Activity.showBookDeletingConfirmationDialog(
     showOkDismissDialog(this, title, message, okButton, cancelButton, onOk, onCancel, true)
 }
 
-fun Activity.showStoragePermissionDialog(onOk: () -> Unit = {}, onDismiss: () -> Unit = {}) {
-    val title = getString(R.string.permission_require)
-    val message = getString(R.string.storage_permission_require)
-    val okButton = getString(R.string.ok)
-    val cancelButton = getString(R.string.cancel)
-    showOkDismissDialog(this, title, message, okButton, cancelButton, onOk, onDismiss)
-}
-
 fun Activity.showGoToPageDialog(
     minimum: Int,
     maximum: Int,

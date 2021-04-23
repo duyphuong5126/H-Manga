@@ -3,7 +3,6 @@ package nhdphuong.com.manga.features.reader
 import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -12,7 +11,6 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
@@ -23,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager.VERTICAL
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Constants
-import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.features.NavigationRedirectActivity
@@ -41,7 +38,6 @@ import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.doOnScrolled
 import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.scrollToAroundPosition
-import nhdphuong.com.manga.views.showStoragePermissionDialog
 import nhdphuong.com.manga.views.uimodel.ReaderType
 import nhdphuong.com.manga.views.uimodel.ReaderType.HorizontalPage
 import nhdphuong.com.manga.views.uimodel.ReaderType.VerticalScroll
@@ -171,22 +167,6 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                 presenter.forceBackToGallery()
             }
         })
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_STORAGE_PERMISSION) {
-            val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
-            if (!permissionGranted) {
-                showRequestStoragePermission()
-            }
-            val result = if (permissionGranted) "granted" else "denied"
-            Logger.d(TAG, "Storage permission is $result")
-        }
     }
 
     override fun onStop() {
@@ -320,18 +300,6 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
             setResult(Activity.RESULT_OK, result)
             finish()
         }
-    }
-
-    override fun showRequestStoragePermission() {
-        activity?.showStoragePermissionDialog(onOk = {
-            requestStoragePermission()
-        }, onDismiss = {
-            Toast.makeText(
-                activity,
-                toastStoragePermissionLabel,
-                Toast.LENGTH_SHORT
-            ).show()
-        })
     }
 
     override fun showDownloadPopup() {
@@ -475,19 +443,12 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         viewModeButton.setOnClickListener(this)
     }
 
-    private fun requestStoragePermission() {
-        val storagePermission = arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        requestPermissions(storagePermission, REQUEST_STORAGE_PERMISSION)
-    }
-
     private fun onPageChanged(position: Int) {
         rvQuickNavigation.scrollToAroundPosition(position, ADDITIONAL_STEPS)
         updatePageInfo(position)
     }
 
     companion object {
-        private const val TAG = "ReaderFragment"
-        private const val REQUEST_STORAGE_PERMISSION = 2364
         private const val PRELOAD_SIZE = 5
         private const val ADDITIONAL_STEPS = 2
     }
