@@ -12,6 +12,7 @@ interface BookPreviewContract {
     interface View : Base.View<Presenter> {
         fun setPresenter(presenter: Presenter)
         fun showBookId(bookId: String)
+        fun showFavoriteCount(favoriteCount: Int)
         fun showBookCoverImage(coverUrl: String)
         fun show1stTitle(firstTitle: String)
         fun show2ndTitle(secondTitle: String)

@@ -64,6 +64,7 @@ import nhdphuong.com.manga.service.BookDownloadingService
 import nhdphuong.com.manga.supports.AnimationHelper
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SpaceItemDecoration
+import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.supports.copyToClipBoard
 import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
@@ -194,6 +195,7 @@ class BookPreviewFragment :
     private var clearedLabel: String = ""
     private var openWithLabel: String = ""
     private var showFullCommentThreadTemplate: String = ""
+    private var favoriteWithCountTemplate: String = ""
 
     private val bookDownloadingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -279,6 +281,7 @@ class BookPreviewFragment :
             clearedLabel = it.getString(R.string.cleared)
             openWithLabel = it.getString(R.string.open_with)
             showFullCommentThreadTemplate = it.getString(R.string.show_full_comment_list)
+            favoriteWithCountTemplate = it.getString(R.string.favorite_with_count)
         }
 
         setUpUI(view)
@@ -519,6 +522,17 @@ class BookPreviewFragment :
         tvBookId.text = bookId
         clBookIdClickableArea.setOnClickListener(this)
         this.bookId = bookId
+    }
+
+    override fun showFavoriteCount(favoriteCount: Int) {
+        try {
+            val favorites = SupportUtils.formatFavoriteNumber(favoriteCount.toLong())
+            val favoriteWithCount = String.format(favoriteWithCountTemplate, favorites)
+            mtvFavorite.text = favoriteWithCount
+            mtvNotFavorite.text = favoriteWithCount
+        } catch (throwable: Throwable) {
+            logger.d(throwable.localizedMessage)
+        }
     }
 
     override fun showTagList(tagList: List<Tag>) {

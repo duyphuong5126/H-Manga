@@ -112,6 +112,9 @@ class BookPreviewPresenter @Inject constructor(
     override fun start() {
         logBookInfo()
         view.showBookId(book.bookId)
+        if (book.numOfFavorites > 0) {
+            view.showFavoriteCount(book.numOfFavorites)
+        }
         bookThumbnailList.clear()
         if (cacheCoverUrl.isBlank()) {
             if (viewDownloadedData) {

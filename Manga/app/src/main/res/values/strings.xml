@@ -25,6 +25,7 @@
     <string name="parodies_label">Parodies:</string>
     <string name="characters_label">Characters:</string>
     <string name="groups_label">Groups:</string>
+    <string name="favorite_label">Favorites:</string>
 
     <string name="count">(%s)</string>
 
@@ -61,8 +62,9 @@
     <string name="NotoSansItalic" translatable="false">fonts/NotoSans-Italic.ttf</string>
     <string name="NotoSansBoldItalic" translatable="false">fonts/NotoSans-BoldItalic.ttf</string>
     <string name="favorite">Favorite</string>
+    <string name="favorite_with_count">Favorite (%s)</string>
     <string name="download">Download</string>
-    <string name="clear_downloaded_data">Clear All Data</string>
+    <string name="clear_downloaded_data">Delete downloaded data</string>
     <string name="preview">Preview</string>
     <string name="last_visited_page">Continue reading from page</string>
     <string name="page_thumbnail">Page thumbnail</string>

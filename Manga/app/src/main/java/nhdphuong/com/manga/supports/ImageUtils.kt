@@ -60,13 +60,14 @@ class ImageUtils {
             defaultResource: Int,
             imageView: IV,
             onLoadSuccess: () -> Unit,
-            onLoadFailed: () -> Unit
+            onLoadFailed: () -> Unit,
+            skipMemoryCache: Boolean = false
         ) {
             logger.d("Get from url $url")
             val requestOptions = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(defaultResource)
                 .timeout(TIME_OUT)
-                .skipMemoryCache(true)
+                .skipMemoryCache(skipMemoryCache)
             Glide.with(imageView).load(url).apply(requestOptions).listener(
                 object : RequestListener<Drawable> {
                     override fun onLoadFailed(

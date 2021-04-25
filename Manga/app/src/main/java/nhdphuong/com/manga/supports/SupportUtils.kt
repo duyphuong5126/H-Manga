@@ -52,6 +52,32 @@ class SupportUtils : AppSupportUtils {
             return NumberFormat.getNumberInstance(Locale.US).format(number)
         }
 
+        fun formatFavoriteNumber(favoriteNumber: Long): String {
+            return when {
+                favoriteNumber > 1000000000 -> {
+                    val result = favoriteNumber / 1000000000.0
+                    val resultLabel = if (result > 2) "bils" else "bil"
+                    if (result % result.toLong() == 0.0) {
+                        String.format("%d%s", result.toLong(), resultLabel)
+                    } else {
+                        String.format("%.2f%s", result, resultLabel)
+                    }
+                }
+                favoriteNumber > 1000000 -> {
+                    val result = favoriteNumber / 1000000.0
+                    val resultLabel = if (result > 2) "mils" else "mil"
+                    if (result % result.toLong() == 0.0) {
+                        String.format("%d%s", result.toLong(), resultLabel)
+                    } else {
+                        String.format("%.2f%s", result, resultLabel)
+                    }
+                }
+                else -> {
+                    NumberFormat.getNumberInstance(Locale.US).format(favoriteNumber)
+                }
+            }
+        }
+
         fun getEllipsizedText(textView: TextView): String {
             val text = textView.text.toString()
             val lines = textView.lineCount
