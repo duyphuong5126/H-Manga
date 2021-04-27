@@ -50,15 +50,7 @@ class NHentaiApp : Application() {
     private val imagesDirectory: String
         get() {
             val rootDirectory = if (isExternalStorageWritable) {
-                val apiVersion = Build.VERSION.SDK_INT
-                when {
-                    apiVersion >= Build.VERSION_CODES.Q -> {
-                        applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-                    }
-                    else -> {
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                    }
-                }
+                applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
             } else {
                 applicationContext.filesDir
             }.toString()
@@ -67,14 +59,10 @@ class NHentaiApp : Application() {
 
     private val downloadDirectory: String
         get() {
-            val apiVersion = Build.VERSION.SDK_INT
-            return when {
-                apiVersion >= Build.VERSION_CODES.Q -> {
-                    applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-                }
-                else -> {
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                }
+            return if (isExternalStorageWritable) {
+                applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            } else {
+                applicationContext.filesDir
             }.toString()
         }
 
