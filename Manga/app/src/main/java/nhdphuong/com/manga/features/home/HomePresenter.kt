@@ -313,7 +313,7 @@ class HomePresenter @Inject constructor(
     override fun updateSearchData(data: String) {
         if (!searchData.equals(data, ignoreCase = true)) {
             searchData = data
-            view.changeSearchResult(data)
+            view.changeSearchInfo(searchData)
             val analyticsParam = AnalyticsParam(PARAM_NAME_SEARCH_DATA, data)
             logAnalyticsEventUseCase.execute(EVENT_SEARCH, analyticsParam)
                 .subscribeOn(Schedulers.io())

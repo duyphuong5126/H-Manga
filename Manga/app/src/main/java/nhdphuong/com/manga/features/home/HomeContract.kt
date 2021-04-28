@@ -26,7 +26,7 @@ interface HomeContract {
         fun showRefreshingDialog()
         fun showRecentBooks(recentList: List<String>)
         fun showFavoriteBooks(favoriteList: List<String>)
-        fun changeSearchResult(data: String)
+        fun changeSearchInfo(data: String)
         fun showBookPreview(book: Book)
         fun startUpdateTagsService()
         fun showUpgradeNotification(latestVersionCode: String)

@@ -122,7 +122,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         })
 
         mtvTitle.text = getString(
-            if (recentType == Constants.RECENT) R.string.recent else R.string.favorite
+            if (recentType == Constants.RECENT) R.string.recent_screen_title else R.string.favorite
         )
 
         ibSwitch.setImageResource(

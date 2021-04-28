@@ -5,8 +5,8 @@
     android:id="@+id/container"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:layout_marginStart="5dp"
-    android:layout_marginEnd="5dp"
+    android:layout_marginStart="@dimen/space_small"
+    android:layout_marginEnd="@dimen/space_small"
     android:minWidth="70dp"
     tools:targetApi="jelly_bean">
 
@@ -16,10 +16,10 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:paddingTop="3dp"
+        android:paddingTop="@dimen/space_small"
         android:text="@string/groups"
         android:textColor="@color/redED2553"
-        android:textSize="14sp"
+        android:textSize="@dimen/medium_text_size"
         app:layout_constraintBottom_toTopOf="@id/vTabIndicator"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -213,7 +213,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         homePresenter.start()
-        toggleSearchResult("")
+        updateSearchInfo("")
         mtvUpgradeTitle.setOnClickListener(this)
         ibUpgradePopupClose.setOnClickListener(this)
     }
@@ -504,8 +504,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         homeListAdapter.setRecentList(recentList)
     }
 
-    override fun changeSearchResult(data: String) {
-        toggleSearchResult(data)
+    override fun changeSearchInfo(data: String) {
+        updateSearchInfo(data)
     }
 
     override fun showBookPreview(book: Book) {
@@ -662,7 +662,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         updateDotsHandler.post(runnable)
     }
 
-    private fun toggleSearchResult(data: String) {
+    private fun updateSearchInfo(data: String) {
         mtvSearchResult.run {
             text = String.format(searchResultTitle, data)
             becomeVisibleIf(data.isNotBlank())

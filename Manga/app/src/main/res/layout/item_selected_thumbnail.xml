@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_dark_red_rounded_all_corners"
-    android:padding="2dp">
+    android:padding="@dimen/space_tiny">
 
     <ImageView
         android:id="@+id/ivPageThumbnail"
@@ -25,8 +25,8 @@
         android:layout_height="@dimen/thumbnail_index_height"
         android:background="@drawable/bg_gradient_transparent_grey"
         android:gravity="center"
-        android:textColor="@android:color/white"
-        android:textSize="12sp"
+        android:textColor="@color/white"
+        android:textSize="@dimen/small_text_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

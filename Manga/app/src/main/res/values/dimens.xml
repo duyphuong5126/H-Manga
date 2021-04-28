@@ -11,7 +11,7 @@
     <dimen name="normal_box_size">32dp</dimen>
     <dimen name="big_box_size">48dp</dimen>
 
-    <dimen name="normal_icon_size">16dp</dimen>
+    <dimen name="large_icon_size">20dp</dimen>
     <dimen name="small_icon_size">12dp</dimen>
 
     <dimen name="search_width">40dp</dimen>
@@ -22,7 +22,9 @@
     <dimen name="space_large">24dp</dimen>
     <dimen name="space_normal">16dp</dimen>
     <dimen name="space_medium">8dp</dimen>
+    <dimen name="space_medium_extra">12dp</dimen>
     <dimen name="space_small">4dp</dimen>
+    <dimen name="space_tiny">2dp</dimen>
 
     <dimen name="dialog_single_button_width">200dp</dimen>
 
@@ -34,10 +36,11 @@
     <dimen name="normal_text_size">16sp</dimen>
     <dimen name="medium_text_size">14sp</dimen>
     <dimen name="small_text_size">12sp</dimen>
+    <dimen name="info_card_text_size">14sp</dimen>
 
     <dimen name="preview_thumbnail_width">150dp</dimen>
     <dimen name="preview_thumbnail_height">200dp</dimen>
-    
+
     <dimen name="thumbnail_width">60dp</dimen>
     <dimen name="thumbnail_height">80dp</dimen>
     <dimen name="thumbnail_index_height">20dp</dimen>

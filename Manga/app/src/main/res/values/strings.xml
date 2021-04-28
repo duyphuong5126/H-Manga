@@ -69,7 +69,7 @@
     <string name="last_visited_page">Continue reading from page</string>
     <string name="page_thumbnail">Page thumbnail</string>
     <string name="recommend_for_you">More like this</string>
-    <string name="maybe_you_interest">Maybe you interest</string>
+    <string name="maybe_you_interest">Books you may like</string>
     <string name="book_page">Book page</string>
     <string name="back">Back</string>
     <string name="book_title">Book title</string>
@@ -113,7 +113,8 @@
     <string name="under_construction_title">Not available</string>
     <string name="feature_under_construction_description">Under construction feature.\nPlease try again later</string>
     <string name="refresh">Refresh</string>
-    <string name="recent">Recent</string>
+    <string name="recent">Viewed</string>
+    <string name="recent_screen_title">Recently read</string>
     <string name="switch_recent_list">Switch</string>
 
     <string name="about_us">About This App</string>

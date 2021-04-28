@@ -53,9 +53,9 @@
                     android:id="@+id/mtv_search_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_marginStart="@dimen/space_small"
+                    android:layout_marginTop="@dimen/space_medium"
+                    android:layout_marginEnd="@dimen/space_small"
                     android:gravity="center"
                     android:text="@string/title_1"
                     android:textColor="@android:color/white"
@@ -75,13 +75,10 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginBottom="10dp"
+                        android:layout_marginTop="@dimen/space_medium_extra"
+                        android:layout_marginBottom="@dimen/space_medium_extra"
                         android:gravity="center"
-                        android:paddingStart="8dp"
-                        android:paddingLeft="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingRight="8dp">
+                        android:padding="@dimen/space_medium">
 
                         <nhdphuong.com.manga.views.customs.MyTextView
                             android:id="@+id/mtvRecentOption"
@@ -91,24 +88,23 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center"
-                            android:padding="8dp"
+                            android:padding="@dimen/space_medium"
                             android:text="@string/sort_recent"
                             android:textColor="@android:color/white"
-                            android:textSize="16sp"
+                            android:textSize="@dimen/normal_text_size"
                             app:myFont="@string/NotoSansBold" />
 
                         <nhdphuong.com.manga.views.customs.MyTextView
                             android:id="@+id/mtvPopularLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_marginLeft="12dp"
+                            android:layout_marginStart="@dimen/space_medium_extra"
                             android:background="@drawable/bg_sort_option_rounded_left"
                             android:gravity="center"
-                            android:padding="8dp"
+                            android:padding="@dimen/space_medium"
                             android:text="@string/sort_popular_label"
                             android:textColor="@android:color/white"
-                            android:textSize="16sp"
+                            android:textSize="@dimen/normal_text_size"
                             app:myFont="@string/NotoSansBold" />
 
                         <nhdphuong.com.manga.views.customs.MyTextView
@@ -116,15 +112,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="1dp"
-                            android:layout_marginLeft="1dp"
                             android:background="@drawable/bg_sort_option"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center"
-                            android:padding="8dp"
+                            android:padding="@dimen/space_medium"
                             android:text="@string/sort_popular_today"
                             android:textColor="@android:color/white"
-                            android:textSize="16sp"
+                            android:textSize="@dimen/normal_text_size"
                             app:myFont="@string/NotoSansBold" />
 
                         <nhdphuong.com.manga.views.customs.MyTextView
@@ -132,15 +127,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="1dp"
-                            android:layout_marginLeft="1dp"
                             android:background="@drawable/bg_sort_option"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center"
-                            android:padding="8dp"
+                            android:padding="@dimen/space_medium"
                             android:text="@string/sort_popular_week"
                             android:textColor="@android:color/white"
-                            android:textSize="16sp"
+                            android:textSize="@dimen/normal_text_size"
                             app:myFont="@string/NotoSansBold" />
 
                         <nhdphuong.com.manga.views.customs.MyTextView
@@ -148,15 +142,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="1dp"
-                            android:layout_marginLeft="1dp"
                             android:background="@drawable/bg_sort_option_rounded_right"
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center"
-                            android:padding="8dp"
+                            android:padding="@dimen/space_medium"
                             android:text="@string/sort_popular_all_time"
                             android:textColor="@android:color/white"
-                            android:textSize="16sp"
+                            android:textSize="@dimen/normal_text_size"
                             app:myFont="@string/NotoSansBold" />
 
                     </LinearLayout>
@@ -177,9 +170,9 @@
                     android:layout_marginTop="@dimen/space_large"
                     android:text="@string/maybe_you_interest"
                     android:textColor="@android:color/white"
-                    android:textSize="18sp"
+                    android:textSize="@dimen/header_title_size"
                     android:visibility="gone"
-                    app:layout_goneMarginTop="@dimen/dp10"
+                    app:layout_goneMarginTop="@dimen/space_medium_extra"
                     app:myFont="@string/NotoSansBold"
                     tools:visibility="visible" />
 
@@ -263,10 +256,7 @@
                         android:clickable="true"
                         android:contentDescription="@string/next"
                         android:focusable="true"
-                        android:paddingStart="@dimen/space_small"
-                        android:paddingTop="@dimen/space_small"
-                        android:paddingEnd="@dimen/space_small"
-                        android:paddingBottom="@dimen/space_small"
+                        android:padding="@dimen/space_small"
                         android:rotation="180"
                         android:scaleX="0.8"
                         android:scaleY="0.8"
@@ -304,7 +294,7 @@
             android:id="@+id/ibUpgradePopupClose"
             android:layout_width="@dimen/small_icon_size"
             android:layout_height="@dimen/small_icon_size"
-            android:layout_marginEnd="@dimen/dp20"
+            android:layout_marginEnd="@dimen/space_normal"
             android:background="@android:color/transparent"
             android:contentDescription="@string/close"
             android:src="@drawable/ic_close"
@@ -316,8 +306,8 @@
             android:id="@+id/mtvUpgradeTitle"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="@dimen/dp10"
-            android:layout_marginEnd="@dimen/dp10"
+            android:layout_marginStart="@dimen/space_medium_extra"
+            android:layout_marginEnd="@dimen/space_medium_extra"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_vertical|start"
