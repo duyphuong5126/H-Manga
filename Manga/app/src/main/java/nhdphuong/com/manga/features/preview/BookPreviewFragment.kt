@@ -9,6 +9,7 @@ import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -29,7 +30,9 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.app.ActivityCompat.getDrawable
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -186,7 +189,6 @@ class BookPreviewFragment :
 
     private var pageCountTemplate: String = ""
     private var uploadedTimeTemplate: String = ""
-    private var toastStoragePermissionLabel: String = ""
     private var previewDownloadProgressTemplate: String = ""
     private var previewDeleteProgressTemplate: String = ""
     private var failedToDownloadTemplate: String = ""
@@ -272,7 +274,6 @@ class BookPreviewFragment :
         context?.let {
             pageCountTemplate = it.getString(R.string.page_count)
             uploadedTimeTemplate = it.getString(R.string.uploaded)
-            toastStoragePermissionLabel = it.getString(R.string.toast_storage_permission_require)
             previewDownloadProgressTemplate = it.getString(R.string.preview_download_progress)
             previewDeleteProgressTemplate = it.getString(R.string.preview_deleting_progress)
             failedToDownloadTemplate = it.getString(R.string.fail_to_download)
@@ -344,6 +345,7 @@ class BookPreviewFragment :
             refreshGalleryDialog = it.createLoadingDialog(R.string.refreshing_gallery)
         }
         presenter.start()
+        checkAndRequestStoragePermissionIfNecessary()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -1007,7 +1009,7 @@ class BookPreviewFragment :
 
     private fun getProgressDrawableId(context: Context, progress: Int, max: Int): Drawable? {
         val percentage = (progress * 1f) / (max * 1f)
-        return ActivityCompat.getDrawable(
+        return getDrawable(
             context, when {
                 percentage >= Constants.DOWNLOAD_GREEN_LEVEL -> R.drawable.bg_download_green
                 percentage >= Constants.DOWNLOAD_YELLOW_LEVEL -> R.drawable.bg_download_yellow
@@ -1029,5 +1031,19 @@ class BookPreviewFragment :
 
     private fun prefetchCommentList() {
         presenter.syncNextPageOfCommentList(commentAdapter?.itemCount ?: 0)
+    }
+
+    private fun checkAndRequestStoragePermissionIfNecessary() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && viewDownloadedData) {
+            activity?.let {
+                val readExternalStoragePer = android.Manifest.permission.READ_EXTERNAL_STORAGE
+                val permissionGranted = checkSelfPermission(
+                    it, readExternalStoragePer
+                ) == PackageManager.PERMISSION_GRANTED
+                if (!permissionGranted) {
+                    requestPermissions(it, arrayOf(readExternalStoragePer), 53498)
+                }
+            }
+        }
     }
 }
