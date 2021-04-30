@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import nhdphuong.com.manga.BuildConfig
 import nhdphuong.com.manga.Constants.Companion.EVENT_BLOCK_RECOMMENDED_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_CLICK_RECOMMENDED_BOOK
+import nhdphuong.com.manga.Constants.Companion.EVENT_FAILED_TO_LOAD_HOME
+import nhdphuong.com.manga.Constants.Companion.EVENT_FAILED_TO_SEARCH
 import nhdphuong.com.manga.Constants.Companion.EVENT_SEARCH
 import nhdphuong.com.manga.Constants.Companion.MAX_PER_PAGE
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
@@ -72,7 +74,7 @@ class HomePresenter @Inject constructor(
 ) : HomeContract.Presenter {
     companion object {
         private const val NUMBER_OF_PREVENTIVE_PAGES = 10
-        private const val MAX_TRYING_PAGES = 10
+        private const val MAX_TRYING_PAGES = 5
         private const val BOOKS_PER_PAGE = MAX_PER_PAGE
         private const val TIMES_OPEN_APP_NEED_ALTERNATIVE_DOMAINS_MESSAGE = 20
     }
@@ -258,6 +260,7 @@ class HomePresenter @Inject constructor(
                         view.finishRefreshing()
                         if (isCurrentPageEmpty) {
                             view.showNothingView()
+                            logFailedToLoadHomeEvent()
                         } else {
                             view.hideNothingView()
                         }
@@ -448,6 +451,7 @@ class HomePresenter @Inject constructor(
                         } else {
                             view.showNothingView()
                             view.hideSortOptionList()
+                            logFailedToLoadHomeEvent()
                         }
                         view.hideLoading()
                         if (showAlternativeDomainsQuestion) {
@@ -600,6 +604,19 @@ class HomePresenter @Inject constructor(
                 logger.e("Failed to get recommended books with error $it")
                 view.hideRecommendBooks()
             })
+            .addTo(compositeDisposable)
+    }
+
+    private fun logFailedToLoadHomeEvent() {
+        if (searchData.isNotBlank()) {
+            logger.d("FailedToSearch event was logged")
+            val searchParam = AnalyticsParam(PARAM_NAME_SEARCH_DATA, searchData)
+            logAnalyticsEventUseCase.execute(EVENT_FAILED_TO_SEARCH, searchParam)
+        } else {
+            logger.d("FailedToLoadHome event was logged")
+            logAnalyticsEventUseCase.execute(EVENT_FAILED_TO_LOAD_HOME)
+        }.subscribeOn(Schedulers.io())
+            .subscribe()
             .addTo(compositeDisposable)
     }
 }

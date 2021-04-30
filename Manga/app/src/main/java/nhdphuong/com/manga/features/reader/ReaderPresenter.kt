@@ -14,7 +14,8 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import nhdphuong.com.manga.Constants.Companion.EVENT_READ_BOOK_HORIZONTALLY
+import nhdphuong.com.manga.Constants.Companion.EVENT_READ_BOOK_LEFT_TO_RIGHT
+import nhdphuong.com.manga.Constants.Companion.EVENT_READ_BOOK_RIGHT_TO_LEFT
 import nhdphuong.com.manga.Constants.Companion.EVENT_READ_BOOK_VERTICALLY
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.SharedPreferencesManager
@@ -233,10 +234,10 @@ class ReaderPresenter @Inject constructor(
     }
 
     private fun logCurrentReaderMode() {
-        val eventName = if (viewMode == ReaderType.HorizontalPage) {
-            EVENT_READ_BOOK_HORIZONTALLY
-        } else {
-            EVENT_READ_BOOK_VERTICALLY
+        val eventName = when (viewMode) {
+            ReaderType.HorizontalPage -> EVENT_READ_BOOK_LEFT_TO_RIGHT
+            ReaderType.VerticalScroll -> EVENT_READ_BOOK_VERTICALLY
+            ReaderType.ReversedHorizontalPage -> EVENT_READ_BOOK_RIGHT_TO_LEFT
         }
 
         val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)

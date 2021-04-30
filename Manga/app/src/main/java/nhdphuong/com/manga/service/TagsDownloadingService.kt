@@ -19,6 +19,7 @@ import nhdphuong.com.manga.Constants.Companion.ACTION_TAGS_DOWNLOADING_FAILED
 import nhdphuong.com.manga.Constants.Companion.ACTION_TAGS_DOWNLOADING_PROGRESS
 import nhdphuong.com.manga.Constants.Companion.DOWNLOADED_PAGES
 import nhdphuong.com.manga.Constants.Companion.TAGS_DOWNLOADING_RESULT
+import nhdphuong.com.manga.Constants.Companion.TAG_DOWNLOADING_NOTIFICATION_ID
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.NotificationHelper
@@ -83,9 +84,9 @@ class TagsDownloadingService : JobIntentService() {
             .setContentIntent(pendingIntent)
             .build()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForeground(Constants.NOTIFICATION_ID, notification)
+            startForeground(TAG_DOWNLOADING_NOTIFICATION_ID, notification)
         } else {
-            NotificationHelper.sendNotification(notification, Constants.NOTIFICATION_ID)
+            NotificationHelper.sendNotification(notification, TAG_DOWNLOADING_NOTIFICATION_ID)
         }
     }
 
@@ -148,7 +149,6 @@ class TagsDownloadingService : JobIntentService() {
     }
 
     private fun postProgressMessages(currentPage: Int, tagDownloadingResult: TagDownloadingResult) {
-        NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
         val progressTitle = downloadingInProgress
         val notificationDescription = String.format(
             downloadingTagProgressTemplate,
@@ -173,7 +173,7 @@ class TagsDownloadingService : JobIntentService() {
             NotificationCompat.PRIORITY_DEFAULT,
             notificationDescription,
             true,
-            Constants.NOTIFICATION_ID,
+            TAG_DOWNLOADING_NOTIFICATION_ID,
             pendingIntent
         )
 
@@ -186,7 +186,6 @@ class TagsDownloadingService : JobIntentService() {
     }
 
     private fun postDownloadingErrorMessages(currentPage: Int) {
-        NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
         val progressTitle = downloadingFailed
         val notificationDescription = String.format(downloadingTagsFailedTemplate, currentPage)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
@@ -199,14 +198,13 @@ class TagsDownloadingService : JobIntentService() {
             NotificationCompat.PRIORITY_DEFAULT,
             notificationDescription,
             true,
-            Constants.NOTIFICATION_ID,
+            TAG_DOWNLOADING_NOTIFICATION_ID,
             pendingIntent
         )
         BroadCastReceiverHelper.sendBroadCast(this, ACTION_TAGS_DOWNLOADING_FAILED)
     }
 
     private fun postDownloadingCompletedMessages() {
-        NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
         val progressTitle = downloadingCompleted
         val notificationDescription = downloadingTagsCompleted
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
@@ -219,7 +217,7 @@ class TagsDownloadingService : JobIntentService() {
             NotificationCompat.PRIORITY_DEFAULT,
             notificationDescription,
             true,
-            Constants.NOTIFICATION_ID,
+            TAG_DOWNLOADING_NOTIFICATION_ID,
             pendingIntent
         )
         BroadCastReceiverHelper.sendBroadCast(this, ACTION_TAGS_DOWNLOADING_COMPLETED)

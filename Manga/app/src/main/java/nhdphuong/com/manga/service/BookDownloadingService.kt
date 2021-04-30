@@ -35,7 +35,7 @@ import nhdphuong.com.manga.Constants.Companion.EVENT_DOWNLOAD_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_FAILED_TO_DOWNLOAD_BOOK
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.NHentaiApp
-import nhdphuong.com.manga.Constants.Companion.NOTIFICATION_ID
+import nhdphuong.com.manga.Constants.Companion.BOOK_DOWNLOADING_NOTIFICATION_ID
 import nhdphuong.com.manga.Constants.Companion.NOTIFICATION_CHANNEL_ID
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ERROR
@@ -91,9 +91,9 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
             .setContentIntent(pendingIntent)
             .build()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForeground(NOTIFICATION_ID, notification)
+            startForeground(BOOK_DOWNLOADING_NOTIFICATION_ID, notification)
         } else {
-            NotificationHelper.sendNotification(notification, NOTIFICATION_ID)
+            NotificationHelper.sendNotification(notification, BOOK_DOWNLOADING_NOTIFICATION_ID)
         }
     }
 
@@ -197,7 +197,6 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
         downloadingFailedCount: Int,
         total: Int
     ) {
-        NotificationHelper.cancelNotification(NOTIFICATION_ID)
         val data = Bundle().apply {
             putString(BOOK_ID, bookId)
             putInt(DOWNLOADING_FAILED_COUNT, downloadingFailedCount)
@@ -208,7 +207,6 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
     }
 
     private fun sendDownloadingProgressNotification(bookId: String, progress: Int, total: Int) {
-        NotificationHelper.cancelNotification(NOTIFICATION_ID)
         val progressTitle = downloadingInProgress
         val notificationDescription = String.format(bookProgressTemplate, bookId, progress, total)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
@@ -221,13 +219,12 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
             NotificationCompat.PRIORITY_DEFAULT,
             notificationDescription,
             true,
-            NOTIFICATION_ID,
+            BOOK_DOWNLOADING_NOTIFICATION_ID,
             pendingIntent
         )
     }
 
     private fun sendDownloadingCompletedNotification(bookId: String) {
-        NotificationHelper.cancelNotification(NOTIFICATION_ID)
         val successTitle = downloadingCompleted
         val successMessage = String.format(downloadingCompletedTemplate, bookId)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
@@ -248,7 +245,6 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
     private fun sendDownloadingFailedNotification(
         bookId: String, downloadingFailedCount: Int, total: Int
     ) {
-        NotificationHelper.cancelNotification(NOTIFICATION_ID)
         val failureTitle = downloadingFailed
         val failureMessage =
             String.format(downloadingFailedTemplate, downloadingFailedCount, total, bookId)

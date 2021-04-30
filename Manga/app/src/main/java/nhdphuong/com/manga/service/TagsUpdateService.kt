@@ -6,9 +6,9 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import nhdphuong.com.manga.Constants.Companion.TAG_UPDATING_NOTIFICATION_ID
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.SharedPreferencesManager
-import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.DownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
@@ -104,7 +104,6 @@ class TagsUpdateService : Service() {
     }
 
     private fun sendDownloadingCompletedNotification(newVersion: Long) {
-        NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
         val successTitle = getString(R.string.downloading_completed)
         val successMessage = getString(R.string.tags_downloading_completed, newVersion)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
@@ -117,13 +116,12 @@ class TagsUpdateService : Service() {
             NotificationCompat.PRIORITY_DEFAULT,
             successMessage,
             true,
-            System.currentTimeMillis().toInt(),
+            TAG_UPDATING_NOTIFICATION_ID,
             pendingIntent
         )
     }
 
     private fun sendDownloadingFailedNotification() {
-        NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
         val failureTitle = getString(R.string.downloading_failure)
         val failureMessage = getString(R.string.tags_downloading_failed)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
@@ -136,7 +134,7 @@ class TagsUpdateService : Service() {
             NotificationCompat.PRIORITY_DEFAULT,
             failureMessage,
             true,
-            System.currentTimeMillis().toInt(),
+            TAG_UPDATING_NOTIFICATION_ID,
             pendingIntent
         )
     }

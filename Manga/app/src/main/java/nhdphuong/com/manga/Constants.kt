@@ -134,8 +134,11 @@ class Constants {
 
         // Notifications
         const val NOTIFICATION_CHANNEL_ID = "nHentaiApp"
-        const val NOTIFICATION_ID = 22545
         const val APP_UPGRADE_NOTIFICATION_ID = 22546
+        const val BOOK_DOWNLOADING_NOTIFICATION_ID = 22547
+        const val BOOK_DELETING_NOTIFICATION_ID = 22548
+        const val TAG_DOWNLOADING_NOTIFICATION_ID = 22549
+        const val TAG_UPDATING_NOTIFICATION_ID = 22550
 
         // Broadcast receiver
         const val ACTION_DOWNLOADING_STARTED = "ACTION_DOWNLOADING_STARTED"
@@ -161,7 +164,8 @@ class Constants {
         const val EVENT_FAILED_TO_DOWNLOAD_BOOK = "FailedToDownloadBook"
         const val EVENT_DOWNLOADED_BOOK = "DownloadedBook"
         const val EVENT_READ_BOOK_VERTICALLY = "ReadBookVertically"
-        const val EVENT_READ_BOOK_HORIZONTALLY = "ReadBookHorizontally"
+        const val EVENT_READ_BOOK_LEFT_TO_RIGHT = "ReadBookLeftToRight"
+        const val EVENT_READ_BOOK_RIGHT_TO_LEFT = "ReadBookRightToLeft"
         const val EVENT_FORGET_BOOK = "ForgetBook"
         const val EVENT_BROWSE_RECENT = "BrowseRecent"
         const val EVENT_BROWSE_FAVORITE = "BrowseFavorite"
@@ -169,6 +173,8 @@ class Constants {
         const val EVENT_REMOVE_FAVORITE = "RemoveFavorite"
         const val EVENT_CLICK_RECOMMENDED_BOOK = "ClickRecommendedBook"
         const val EVENT_BLOCK_RECOMMENDED_BOOK = "BlockRecommendedBook"
+        const val EVENT_FAILED_TO_LOAD_HOME = "FailedToLoadHome"
+        const val EVENT_FAILED_TO_SEARCH = "FailedToSearch"
 
         // Analytics param name
         const val PARAM_NAME_APP_VERSION_NAME = "App_VersionName"

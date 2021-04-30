@@ -18,6 +18,7 @@ import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_COMPLETED
 import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_FAILED
 import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_PROGRESS
 import nhdphuong.com.manga.Constants.Companion.ACTION_DELETING_STARTED
+import nhdphuong.com.manga.Constants.Companion.BOOK_DELETING_NOTIFICATION_ID
 import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.data.entity.DeletingResult.DeletingProgress
 import nhdphuong.com.manga.data.entity.DeletingResult.DeletingFailure
@@ -65,9 +66,9 @@ class BookDeletingService : JobIntentService() {
             .setContentIntent(pendingIntent)
             .build()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForeground(Constants.NOTIFICATION_ID, notification)
+            startForeground(BOOK_DELETING_NOTIFICATION_ID, notification)
         } else {
-            NotificationHelper.sendNotification(notification, Constants.NOTIFICATION_ID)
+            NotificationHelper.sendNotification(notification, BOOK_DELETING_NOTIFICATION_ID)
         }
     }
 
@@ -160,13 +161,12 @@ class BookDeletingService : JobIntentService() {
             NotificationCompat.PRIORITY_DEFAULT,
             notificationDescription,
             true,
-            Constants.NOTIFICATION_ID,
+            BOOK_DELETING_NOTIFICATION_ID,
             pendingIntent
         )
     }
 
     private fun sendDeletingCompletedNotification(bookId: String) {
-        NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
         val successTitle = deletingCompleted
         val successMessage = String.format(deletingCompletedTemplate, bookId)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
@@ -179,13 +179,12 @@ class BookDeletingService : JobIntentService() {
             NotificationCompat.PRIORITY_DEFAULT,
             successMessage,
             true,
-            System.currentTimeMillis().toInt(),
+            BOOK_DELETING_NOTIFICATION_ID,
             pendingIntent
         )
     }
 
     private fun sendDeletingFailedNotification(bookId: String) {
-        NotificationHelper.cancelNotification(Constants.NOTIFICATION_ID)
         val failureTitle = deletingFailed
         val failureMessage = String.format(deletingFailedTemplate, bookId)
         val notificationIntent = Intent(this, NavigationRedirectActivity::class.java)
@@ -198,7 +197,7 @@ class BookDeletingService : JobIntentService() {
             NotificationCompat.PRIORITY_DEFAULT,
             failureMessage,
             true,
-            System.currentTimeMillis().toInt(),
+            BOOK_DELETING_NOTIFICATION_ID,
             pendingIntent
         )
     }
