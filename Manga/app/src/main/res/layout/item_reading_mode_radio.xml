@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <nhdphuong.com.manga.views.customs.MyTextView
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="@dimen/space_normal"
+        android:paddingEnd="0dp"
+        android:text="@string/reading_modes_title"
+        android:textColor="@color/white"
+        android:textSize="@dimen/medium_text_size"
+        app:myFont="@string/NotoSansBold" />
 
-        <nhdphuong.com.manga.views.customs.MyTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_normal"
-            android:text="@string/reading_modes_title"
-            android:textColor="@color/white"
-            android:textSize="@dimen/medium_text_size"
-            app:myFont="@string/NotoSansBold" />
+    <HorizontalScrollView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
 
         <RadioGroup
             android:id="@+id/readerTypeGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_normal"
             android:orientation="horizontal">
 
             <RadioButton
@@ -57,7 +61,6 @@
                 android:gravity="center"
                 android:padding="@dimen/space_medium" />
         </RadioGroup>
+    </HorizontalScrollView>
 
-    </LinearLayout>
-
-</HorizontalScrollView>
+</LinearLayout>

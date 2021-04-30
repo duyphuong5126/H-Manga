@@ -145,11 +145,11 @@
 
             <ImageButton
                 android:id="@+id/ibCloseSettingLayout"
-                android:layout_width="@dimen/normal_button_size"
-                android:layout_height="@dimen/normal_button_size"
+                android:layout_width="@dimen/medium_button_size"
+                android:layout_height="@dimen/medium_button_size"
                 android:layout_marginTop="@dimen/space_small"
                 android:layout_marginEnd="@dimen/space_normal"
-                android:layout_marginBottom="@dimen/space_small"
+                android:layout_marginBottom="@dimen/space_medium"
                 android:background="@drawable/button_transparent_rect_rounded_all_corners"
                 android:contentDescription="@string/close"
                 android:padding="@dimen/space_small"
