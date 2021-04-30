@@ -265,7 +265,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
             readerSettingsAdapter = ReaderSettingsAdapter(readerType, this, isTapNavigationEnabled)
             rvSettings.adapter = readerSettingsAdapter
             rvSettings.layoutManager = LinearLayoutManager(it, VERTICAL, false)
-            rvSettings.addItemDecoration(SpaceItemDecoration(it, R.dimen.space_medium))
+            rvSettings.addItemDecoration(SpaceItemDecoration(it, R.dimen.space_normal))
         }
         changeDirectionLabel(readerType)
         navigatorLeft.becomeVisibleIf(isTapNavigationEnabled)
