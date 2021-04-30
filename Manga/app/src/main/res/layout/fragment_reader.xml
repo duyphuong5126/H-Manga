@@ -19,12 +19,13 @@
 
     <nhdphuong.com.manga.views.customs.MyTextView
         android:id="@+id/navigatorLeft"
-        android:layout_width="100dp"
+        android:layout_width="80dp"
         android:layout_height="0dp"
         android:background="@color/transparent"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
+        android:maxLines="2"
         android:textColor="@color/white"
         android:textSize="@dimen/medium_text_size"
         android:visibility="gone"
@@ -35,12 +36,13 @@
 
     <nhdphuong.com.manga.views.customs.MyTextView
         android:id="@+id/navigatorRight"
-        android:layout_width="100dp"
+        android:layout_width="80dp"
         android:layout_height="0dp"
         android:background="@color/transparent"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
+        android:maxLines="2"
         android:textColor="@color/white"
         android:textSize="@dimen/medium_text_size"
         android:visibility="gone"
