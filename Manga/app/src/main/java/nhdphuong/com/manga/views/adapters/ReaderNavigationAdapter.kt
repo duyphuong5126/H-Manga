@@ -65,7 +65,7 @@ class ReaderNavigationAdapter(
 
         init {
             vNavigation.setOnClickListener {
-                thumbnailSelectListener.onItemSelected(adapterPosition)
+                thumbnailSelectListener.onItemSelected(bindingAdapterPosition)
             }
         }
 
@@ -82,7 +82,7 @@ class ReaderNavigationAdapter(
 
         init {
             vNavigation.setOnClickListener {
-                thumbnailSelectListener.onItemSelected(adapterPosition)
+                thumbnailSelectListener.onItemSelected(bindingAdapterPosition)
             }
         }
 

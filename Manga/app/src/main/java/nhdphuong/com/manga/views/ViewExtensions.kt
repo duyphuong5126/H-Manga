@@ -54,7 +54,7 @@ fun RecyclerView.doOnScrollToBottom(distanceFromBottom: Int = 0, task: () -> Uni
             if (scrolledDown && layoutManager != null && adapter != null) {
                 layoutManager.getChildAt(layoutManager.childCount - 1)?.let { lastChild ->
                     val lastChildPosition =
-                        recyclerView.getChildViewHolder(lastChild).adapterPosition
+                        recyclerView.getChildViewHolder(lastChild).absoluteAdapterPosition
                     if (lastChildPosition >= adapter.itemCount - distanceFromBottom - 1) {
                         post(task)
                     }
