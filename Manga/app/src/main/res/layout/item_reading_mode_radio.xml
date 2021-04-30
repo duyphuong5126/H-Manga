@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <nhdphuong.com.manga.views.customs.MyTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_normal"
+            android:text="@string/reading_modes_title"
+            android:textColor="@color/white"
+            android:textSize="@dimen/medium_text_size"
+            app:myFont="@string/NotoSansBold" />
+
+        <RadioGroup
+            android:id="@+id/readerTypeGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_normal"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/modeReversedHorizontal"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="@dimen/space_medium"
+                android:background="@drawable/ripple_rounded_transparent"
+                android:button="@drawable/ic_arrow_left"
+                android:gravity="center"
+                android:padding="@dimen/space_medium" />
+
+            <RadioButton
+                android:id="@+id/modeVertical"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="@dimen/space_normal"
+                android:layout_marginEnd="@dimen/space_medium"
+                android:background="@drawable/ripple_rounded_transparent"
+                android:button="@drawable/ic_arrow_down"
+                android:gravity="center"
+                android:padding="@dimen/space_medium" />
+
+            <RadioButton
+                android:id="@+id/modeHorizontal"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="@dimen/space_normal"
+                android:background="@drawable/ripple_rounded_transparent"
+                android:button="@drawable/ic_arrow_right"
+                android:gravity="center"
+                android:padding="@dimen/space_medium" />
+        </RadioGroup>
+
+    </LinearLayout>
+
+</HorizontalScrollView>

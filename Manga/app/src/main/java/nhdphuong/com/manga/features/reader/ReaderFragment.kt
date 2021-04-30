@@ -11,9 +11,10 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL
@@ -30,6 +31,7 @@ import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.views.PreLoadingLinearLayoutManager
 import nhdphuong.com.manga.views.adapters.BookReaderAdapter
 import nhdphuong.com.manga.views.adapters.ReaderNavigationAdapter
+import nhdphuong.com.manga.views.adapters.ReaderSettingsAdapter
 import nhdphuong.com.manga.views.addSnapPositionChangedListener
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
@@ -40,6 +42,7 @@ import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.scrollToAroundPosition
 import nhdphuong.com.manga.views.uimodel.ReaderType
 import nhdphuong.com.manga.views.uimodel.ReaderType.HorizontalPage
+import nhdphuong.com.manga.views.uimodel.ReaderType.ReversedHorizontalPage
 import nhdphuong.com.manga.views.uimodel.ReaderType.VerticalScroll
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -47,30 +50,35 @@ import javax.inject.Inject
 /*
  * Created by nhdphuong on 5/5/18.
  */
-class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
+class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
+    ReaderSettingsAdapter.SettingsChangeListener {
 
     private lateinit var presenter: ReaderContract.Presenter
     private lateinit var rotationAnimation: Animation
     private lateinit var bookReaderAdapter: BookReaderAdapter
     private lateinit var navigationAdapter: ReaderNavigationAdapter
 
-    private lateinit var clDownloadedPopup: ConstraintLayout
     private lateinit var llReaderTop: LinearLayout
     private lateinit var ibBack: ImageButton
-    private lateinit var ibDownload: ImageButton
-    private lateinit var ibDownloadPopupClose: ImageButton
     private lateinit var ibRefresh: ImageButton
     private lateinit var ibShare: ImageButton
     private lateinit var layoutReaderBottom: LinearLayout
     private lateinit var mtvBookTitle: MyTextView
     private lateinit var mtvCurrentPage: MyTextView
-    private lateinit var mtvDownloadTitle: MyTextView
     private lateinit var rvQuickNavigation: RecyclerView
     private lateinit var rvBookPages: RecyclerView
-    private lateinit var viewModeButton: ImageButton
     private lateinit var noNetworkLabel: MyTextView
+    private lateinit var ibSettings: ImageButton
+    private lateinit var layoutSettings: LinearLayout
+    private lateinit var ibCloseSettingLayout: ImageButton
+    private lateinit var rvSettings: RecyclerView
+    private lateinit var mtvCurrentDirection: MyTextView
+    private lateinit var navigatorLeft: MyTextView
+    private lateinit var navigatorRight: MyTextView
 
     private var viewDownloadedData = false
+
+    private var readerSettingsAdapter: ReaderSettingsAdapter? = null
 
     @Inject
     lateinit var networkManager: NetworkManager
@@ -113,6 +121,15 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     private var nowReading = ""
     private var pageSharingTitleTemplate = ""
     private var pageSharingChooserTemplate = ""
+    private var currentDirectionTemplate = ""
+    private var rightToLeft = ""
+    private var leftToRight = ""
+    private var topDown = ""
+    private var previousLabel = ""
+    private var nextLabel = ""
+
+    private var transparentColor = -1
+    private var primaryColor = -1
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -125,11 +142,16 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
             nowReading = it.getString(R.string.now_reading)
             pageSharingTitleTemplate = it.getString(R.string.page_sharing_title)
             pageSharingChooserTemplate = it.getString(R.string.page_sharing_chooser_title)
-        }
+            currentDirectionTemplate = it.getString(R.string.current_direction_template)
+            rightToLeft = it.getString(R.string.right_to_left)
+            leftToRight = it.getString(R.string.left_to_right)
+            topDown = it.getString(R.string.top_down)
+            previousLabel = it.getString(R.string.previous_label)
+            nextLabel = it.getString(R.string.next_label)
 
-        setUpUI(view)
+            transparentColor = ContextCompat.getColor(it, R.color.transparent)
+            primaryColor = ContextCompat.getColor(it, R.color.colorPrimary)
 
-        context?.let {
             spaceItemDecoration = SpaceItemDecoration(
                 it,
                 R.dimen.space_normal,
@@ -138,12 +160,24 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
             )
         }
 
+        setUpUI(view)
+
+        activity?.let {
+            rvQuickNavigation.addItemDecoration(
+                SpaceItemDecoration(
+                    it,
+                    R.dimen.space_medium,
+                    showFirstDivider = true,
+                    showLastDivider = true
+                )
+            )
+        }
+
         viewDownloadedData = arguments?.getBoolean(Constants.VIEW_DOWNLOADED_DATA) ?: false
         if (viewDownloadedData) {
             presenter.enableViewDownloadedDataMode()
         }
 
-        ibDownload.becomeVisibleIf(!viewDownloadedData, otherWiseVisibility = View.INVISIBLE)
         ibShare.becomeVisibleIf(!viewDownloadedData)
         context?.let { context ->
             rotationAnimation = AnimationHelper.getRotationAnimation(context)
@@ -189,12 +223,16 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                 presenter.backToGallery()
             }
 
-            R.id.ibDownload -> {
-                presenter.downloadCurrentPage()
+            R.id.ibSettings -> {
+                if (layoutSettings.visibility == View.GONE) {
+                    layoutSettings.visibility = View.VISIBLE
+                } else {
+                    layoutSettings.visibility = View.GONE
+                }
             }
 
-            R.id.ibDownloadPopupClose -> {
-                hideDownloadPopup()
+            R.id.ibCloseSettingLayout -> {
+                layoutSettings.visibility = View.GONE
             }
 
             R.id.ibRefresh -> {
@@ -205,8 +243,12 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                 }
             }
 
-            R.id.ib_view_mode -> {
-                presenter.toggleViewMode()
+            R.id.navigatorLeft -> {
+                presenter.requestLeftPage()
+            }
+
+            R.id.navigatorRight -> {
+                presenter.requestRightPage()
             }
         }
     }
@@ -218,15 +260,21 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
         }
     }
 
+    override fun setUpSettingList(readerType: ReaderType, isTapNavigationEnabled: Boolean) {
+        context?.let {
+            readerSettingsAdapter = ReaderSettingsAdapter(readerType, this, isTapNavigationEnabled)
+            rvSettings.adapter = readerSettingsAdapter
+            rvSettings.layoutManager = LinearLayoutManager(it, VERTICAL, false)
+            rvSettings.addItemDecoration(SpaceItemDecoration(it, R.dimen.space_medium))
+        }
+        changeDirectionLabel(readerType)
+        navigatorLeft.becomeVisibleIf(isTapNavigationEnabled)
+        navigatorRight.becomeVisibleIf(isTapNavigationEnabled)
+    }
+
     override fun showBookPages(pageList: List<String>, readerType: ReaderType, startPage: Int) {
-        viewModeButton.setImageResource(
-            if (readerType == HorizontalPage) {
-                R.drawable.ic_horizontal_view_white
-            } else {
-                R.drawable.ic_vertical_view_white
-            }
-        )
         activity?.let { activity ->
+            val reverseLayout = readerType == ReversedHorizontalPage
             navigationAdapter = ReaderNavigationAdapter(
                 pageList,
                 object : ReaderNavigationAdapter.ThumbnailSelectListener {
@@ -238,15 +286,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                 })
             rvQuickNavigation.adapter = navigationAdapter
             rvQuickNavigation.layoutManager =
-                LinearLayoutManager(activity, HORIZONTAL, false)
-            rvQuickNavigation.addItemDecoration(
-                SpaceItemDecoration(
-                    activity,
-                    R.dimen.space_medium,
-                    showFirstDivider = false,
-                    showLastDivider = true
-                )
-            )
+                LinearLayoutManager(activity, HORIZONTAL, reverseLayout)
 
             bookReaderAdapter = BookReaderAdapter(pageList, readerType) {
                 if (layoutReaderBottom.visibility == View.VISIBLE) {
@@ -269,7 +309,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
             rvBookPages.setItemViewCacheSize(PRELOAD_SIZE)
             val orientation = if (readerType == VerticalScroll) VERTICAL else HORIZONTAL
             val layoutManager =
-                PreLoadingLinearLayoutManager(activity, orientation, false, PRELOAD_SIZE)
+                PreLoadingLinearLayoutManager(activity, orientation, reverseLayout, PRELOAD_SIZE)
             rvBookPages.layoutManager = layoutManager
             when (readerType) {
                 VerticalScroll -> {
@@ -300,20 +340,6 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
             setResult(Activity.RESULT_OK, result)
             finish()
         }
-    }
-
-    override fun showDownloadPopup() {
-        clDownloadedPopup.visibility = View.VISIBLE
-    }
-
-    override fun hideDownloadPopup() {
-        clDownloadedPopup.postDelayed({
-            clDownloadedPopup.gone()
-        }, 3000)
-    }
-
-    override fun updateDownloadPopupTitle(downloadPage: Int) {
-        mtvDownloadTitle.text = String.format(downloadProgressTemplate, downloadPage.toString())
     }
 
     override fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int) {
@@ -353,6 +379,42 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
                 pageSharingChooserTemplate
             )
         )
+    }
+
+    override fun onTypeChanged(newType: ReaderType) {
+        changeDirectionLabel(newType)
+        presenter.changeViewMode(newType)
+        context?.let {
+            Toast.makeText(it, mtvCurrentDirection.text, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onTapNavigationSettingChanged(isEnabled: Boolean, currentReaderType: ReaderType) {
+        presenter.changeTapNavigationSetting(isEnabled)
+        navigatorLeft.becomeVisibleIf(isEnabled)
+        navigatorRight.becomeVisibleIf(isEnabled)
+        if (isEnabled) {
+            navigatorLeft.text =
+                if (currentReaderType == HorizontalPage) previousLabel else nextLabel
+            navigatorRight.text =
+                if (currentReaderType == HorizontalPage) nextLabel else previousLabel
+            navigatorLeft.setBackgroundColor(primaryColor)
+            navigatorRight.setBackgroundColor(primaryColor)
+
+            navigatorLeft.postDelayed({
+                navigatorLeft.text = ""
+                navigatorRight.text = ""
+
+                navigatorLeft.setBackgroundColor(transparentColor)
+                navigatorRight.setBackgroundColor(transparentColor)
+            }, 3000)
+        }
+    }
+
+    override fun goToPage(page: Int) {
+        rvBookPages.scrollToPosition(page)
+        rvQuickNavigation.scrollToAroundPosition(page, ADDITIONAL_STEPS)
+        updatePageInfo(page)
     }
 
     override fun showLoading() {
@@ -418,34 +480,47 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener {
     }
 
     private fun setUpUI(rootView: View) {
-        clDownloadedPopup = rootView.findViewById(R.id.clDownloadedPopup)
         llReaderTop = rootView.findViewById(R.id.llReaderTop)
         ibBack = rootView.findViewById(R.id.ibBack)
-        ibDownload = rootView.findViewById(R.id.ibDownload)
-        ibDownloadPopupClose = rootView.findViewById(R.id.ibDownloadPopupClose)
         ibRefresh = rootView.findViewById(R.id.ibRefresh)
         ibShare = rootView.findViewById(R.id.ibShare)
         layoutReaderBottom = rootView.findViewById(R.id.layoutReaderBottom)
         mtvBookTitle = rootView.findViewById(R.id.mtvBookTitle)
         mtvCurrentPage = rootView.findViewById(R.id.mtvCurrentPage)
-        mtvDownloadTitle = rootView.findViewById(R.id.mtvDownloadTitle)
         rvQuickNavigation = rootView.findViewById(R.id.rvQuickNavigation)
         rvBookPages = rootView.findViewById(R.id.book_pages)
-        viewModeButton = rootView.findViewById(R.id.ib_view_mode)
         noNetworkLabel = rootView.findViewById(R.id.no_network_label)
+        ibSettings = rootView.findViewById(R.id.ibSettings)
+        layoutSettings = rootView.findViewById(R.id.llSettings)
+        ibCloseSettingLayout = rootView.findViewById(R.id.ibCloseSettingLayout)
+        rvSettings = rootView.findViewById(R.id.rvSettings)
+        mtvCurrentDirection = rootView.findViewById(R.id.mtvCurrentDirection)
+        navigatorLeft = rootView.findViewById(R.id.navigatorLeft)
+        navigatorRight = rootView.findViewById(R.id.navigatorRight)
 
         ibBack.setOnClickListener(this)
         mtvCurrentPage.setOnClickListener(this)
-        ibDownload.setOnClickListener(this)
-        ibDownloadPopupClose.setOnClickListener(this)
+        ibSettings.setOnClickListener(this)
+        ibCloseSettingLayout.setOnClickListener(this)
         ibShare.setOnClickListener(this)
         ibRefresh.setOnClickListener(this)
-        viewModeButton.setOnClickListener(this)
+        navigatorLeft.setOnClickListener(this)
+        navigatorRight.setOnClickListener(this)
     }
 
     private fun onPageChanged(position: Int) {
         rvQuickNavigation.scrollToAroundPosition(position, ADDITIONAL_STEPS)
         updatePageInfo(position)
+    }
+
+    private fun changeDirectionLabel(readerType: ReaderType) {
+        val directionLabel = when (readerType) {
+            HorizontalPage -> leftToRight
+            VerticalScroll -> topDown
+            ReversedHorizontalPage -> rightToLeft
+        }
+        val currentDirectionLabel = String.format(currentDirectionTemplate, directionLabel)
+        mtvCurrentDirection.text = currentDirectionLabel
     }
 
     companion object {

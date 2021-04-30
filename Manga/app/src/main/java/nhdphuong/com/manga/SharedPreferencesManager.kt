@@ -31,6 +31,7 @@ class SharedPreferencesManager private constructor() {
         private const val KEY_CENSORED = "KEY_CENSORED"
         private const val KEY_UPGRADE_NOTIFICATION_ALLOWED = "KEY_UPGRADE_NOTIFICATION_ALLOWED"
         private const val CURRENT_READER_MODE = "CURRENT_READER_MODE"
+        private const val IS_TAP_NAVIGATION_ENABLED = "IS_TAP_NAVIGATION_ENABLED"
         private const val IS_USE_ALTERNATIVE_DOMAIN = "IS_USE_ALTERNATIVE_DOMAIN"
         private const val ALTERNATIVE_DOMAIN_ID = "ALTERNATIVE_DOMAIN_ID"
         private const val ALTERNATIVE_HOME_URL = "ALTERNATIVE_HOME_URL"
@@ -181,6 +182,14 @@ class SharedPreferencesManager private constructor() {
         get() {
             val typeCode = mBookPreferences.getInt(CURRENT_READER_MODE, HorizontalPage.typeCode)
             return ReaderType.fromTypeCode(typeCode)
+        }
+
+    var isTapNavigationEnabled: Boolean
+        set(value) {
+            mBookPreferences.edit().putBoolean(IS_TAP_NAVIGATION_ENABLED, value).apply()
+        }
+        get() {
+            return mBookPreferences.getBoolean(IS_TAP_NAVIGATION_ENABLED, false)
         }
 
     fun saveActiveAlternativeDomain(alternativeDomain: AlternativeDomain) {

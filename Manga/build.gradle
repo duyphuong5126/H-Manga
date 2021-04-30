@@ -5,6 +5,7 @@ buildscript {
         kotlin_version = '1.4.32'
         retrofit = '2.9.0'
         room = '1.1.1'
+        androidx_room = '2.3.0'
         dagger = '2.28'
     }
     repositories {

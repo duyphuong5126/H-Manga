@@ -2,7 +2,8 @@ package nhdphuong.com.manga.views.uimodel
 
 enum class ReaderType(val typeCode: Int) {
     HorizontalPage(1),
-    VerticalScroll(2);
+    VerticalScroll(2),
+    ReversedHorizontalPage(3);
 
     companion object {
         @JvmStatic

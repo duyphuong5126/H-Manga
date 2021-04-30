@@ -5,13 +5,7 @@ import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.repository.BookRepository
 import nhdphuong.com.manga.scope.corountine.IO
-import nhdphuong.com.manga.scope.corountine.Main
-import nhdphuong.com.manga.supports.IFileUtils
-import nhdphuong.com.manga.supports.ImageUtils
-import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.usecase.GetDownloadedBookPagesUseCase
-import java.util.LinkedList
-import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -25,12 +19,10 @@ import nhdphuong.com.manga.Constants.Companion.EVENT_READ_BOOK_VERTICALLY
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.analytics.AnalyticsParam
-import nhdphuong.com.manga.supports.doInIOContext
 import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
 import nhdphuong.com.manga.usecase.SaveLastVisitedPageUseCase
 import nhdphuong.com.manga.views.uimodel.ReaderType
 import org.apache.commons.collections4.queue.CircularFifoQueue
-import java.io.File
 
 /*
  * Created by nhdphuong on 5/5/18.
@@ -44,15 +36,12 @@ class ReaderPresenter @Inject constructor(
     private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
     private val bookRepository: BookRepository,
     private val preferencesManager: SharedPreferencesManager,
-    private val fileUtils: IFileUtils,
-    @IO private val io: CoroutineScope,
-    @Main private val main: CoroutineScope
+    @IO private val io: CoroutineScope
 ) : ReaderContract.Presenter {
     private val logger = Logger("ReaderPresenter")
 
     private lateinit var bookPages: ArrayList<String>
     private var currentPage: Int = -1
-    private val downloadQueue = LinkedBlockingQueue<Int>()
     private var isDownloading = false
     private var notificationId: Int = -1
 
@@ -60,17 +49,6 @@ class ReaderPresenter @Inject constructor(
         set(value) {
             field = value
             preferencesManager.currentReaderType = value
-        }
-
-    private val prefixNumber: Int
-        get() {
-            var totalPages = book.numOfPages
-            var prefixCount = 1
-            while (totalPages / 10 > 0) {
-                totalPages /= 10
-                prefixCount++
-            }
-            return prefixCount
         }
 
     private var viewDownloadedData: Boolean = false
@@ -97,6 +75,7 @@ class ReaderPresenter @Inject constructor(
     override fun start() {
         logger.d("Start reading: ${book.previewTitle} from $startReadingPage")
         view.showBookTitle(book.previewTitle)
+        view.setUpSettingList(viewMode, preferencesManager.isTapNavigationEnabled)
         logCurrentReaderMode()
         bookPages = ArrayList()
         if (viewDownloadedData) {
@@ -122,15 +101,47 @@ class ReaderPresenter @Inject constructor(
         }
     }
 
-    override fun toggleViewMode() {
-        viewMode = if (viewMode == ReaderType.VerticalScroll) {
-            ReaderType.HorizontalPage
-        } else {
-            ReaderType.VerticalScroll
-        }
+    override fun changeViewMode(readerType: ReaderType) {
+        viewMode = readerType
         logCurrentReaderMode()
         view.showBookPages(bookPages, viewMode, currentPage)
         view.showPageIndicator(currentPage + 1, bookPages.size)
+    }
+
+    override fun changeTapNavigationSetting(isEnabled: Boolean) {
+        preferencesManager.isTapNavigationEnabled = isEnabled
+    }
+
+    override fun requestRightPage() {
+        when (viewMode) {
+            ReaderType.HorizontalPage -> requestNextPage()
+            ReaderType.ReversedHorizontalPage -> requestPreviousPage()
+            else -> {
+            }
+        }
+    }
+
+    override fun requestLeftPage() {
+        when (viewMode) {
+            ReaderType.HorizontalPage -> requestPreviousPage()
+            ReaderType.ReversedHorizontalPage -> requestNextPage()
+            else -> {
+            }
+        }
+    }
+
+    private fun requestNextPage() {
+        logger.d("Current page: $currentPage, book pages: ${bookPages.size}")
+        if (currentPage < bookPages.size - 1) {
+            view.goToPage(++currentPage)
+        }
+    }
+
+    private fun requestPreviousPage() {
+        logger.d("Current page: $currentPage, book pages: ${bookPages.size}")
+        if (currentPage > 0) {
+            view.goToPage(--currentPage)
+        }
     }
 
     override fun updatePageIndicator(page: Int) {
@@ -154,56 +165,6 @@ class ReaderPresenter @Inject constructor(
     override fun backToGallery() {
         if (currentPage == bookPages.size - 1) {
             view.navigateToGallery(lastVisitedPage)
-        }
-    }
-
-    override fun downloadCurrentPage() {
-        downloadQueue.add(currentPage)
-        if (!isDownloading) {
-            isDownloading = true
-            view.showLoading()
-            io.doInIOContext {
-                val resultList = LinkedList<String>()
-                while (!downloadQueue.isEmpty()) {
-                    val downloadPage = downloadQueue.take()
-                    book.bookImages.pages[downloadPage].let { page ->
-                        val result = ImageUtils.downloadImage(bookPages[downloadPage])
-
-                        val resultFilePath = fileUtils.getImageDirectory(
-                            book.usefulName.replace(
-                                File.separator, "_"
-                            )
-                        )
-
-                        val fileName = String.format("%0${prefixNumber}d", downloadPage + 1)
-                        val resultPath =
-                            SupportUtils.saveImage(
-                                result,
-                                resultFilePath,
-                                fileName,
-                                page.imageType
-                            )
-                        resultList.add(resultPath)
-                        logger.d("$fileName is saved successfully")
-                    }
-                    main.launch {
-                        if (view.isActive()) {
-                            view.updateDownloadPopupTitle(downloadPage + 1)
-                            view.showDownloadPopup()
-                        }
-                    }
-                    logger.d("Download page ${downloadPage + 1} completed")
-                }
-                fileUtils.refreshGallery(false, *resultList.toTypedArray())
-                isDownloading = false
-                main.launch {
-                    if (view.isActive()) {
-                        view.hideLoading()
-                        view.hideDownloadPopup()
-                    }
-                }
-                logger.d("All pages downloaded")
-            }
         }
     }
 

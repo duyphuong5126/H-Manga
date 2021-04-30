@@ -24,9 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/space_small"
-        android:layout_marginLeft="@dimen/space_small"
         android:layout_marginEnd="@dimen/space_medium"
-        android:layout_marginRight="@dimen/space_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/mtvLabel" />
 

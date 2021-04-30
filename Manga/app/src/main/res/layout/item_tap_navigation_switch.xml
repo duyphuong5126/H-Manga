@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/space_small"
+        android:paddingBottom="@dimen/space_small">
+
+        <nhdphuong.com.manga.views.customs.MyTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_normal"
+            android:text="@string/tap_to_navigate_label"
+            android:textColor="@color/white"
+            android:textSize="@dimen/medium_text_size"
+            app:myFont="@string/NotoSansBold" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/scEnabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/mtvLabel" />
+
+    </LinearLayout>
+
+</HorizontalScrollView>

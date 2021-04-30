@@ -14,12 +14,11 @@ interface ReaderContract {
         fun showPageIndicator(currentPage: Int, total: Int)
         fun showBackToGallery()
         fun navigateToGallery(lastVisitedPage: Int)
-        fun showDownloadPopup()
-        fun hideDownloadPopup()
-        fun updateDownloadPopupTitle(downloadPage: Int)
         fun removeNotification(notificationId: Int)
         fun pushNowReadingNotification(readingTitle: String, page: Int, total: Int)
         fun processSharingCurrentPage(bookId: String, bookTitle: String, url: String)
+        fun setUpSettingList(readerType: ReaderType, isTapNavigationEnabled: Boolean)
+        fun goToPage(page: Int)
     }
 
     interface Presenter : Base.Presenter {
@@ -27,11 +26,13 @@ interface ReaderContract {
         fun updatePageIndicator(page: Int)
         fun forceBackToGallery()
         fun backToGallery()
-        fun downloadCurrentPage()
         fun reloadCurrentPage(onForceReload: (Int) -> Unit)
         fun updateNotificationId(notificationId: Int)
         fun endReading()
         fun generateSharableLink()
-        fun toggleViewMode()
+        fun changeViewMode(readerType: ReaderType)
+        fun changeTapNavigationSetting(isEnabled: Boolean)
+        fun requestRightPage()
+        fun requestLeftPage()
     }
 }

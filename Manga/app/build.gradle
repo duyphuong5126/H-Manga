@@ -42,6 +42,10 @@ android {
             applicationIdSuffix ".debug"
         }
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
@@ -72,12 +76,12 @@ dependencies {
     annotationProcessor "android.arch.persistence.room:compiler:$room"
     implementation "android.arch.lifecycle:extensions:$room"
     implementation "android.arch.lifecycle:viewmodel:$room"
-    implementation "androidx.room:room-rxjava2:2.2.6"
+    implementation "androidx.room:room-rxjava2:$androidx_room"
     implementation "androidx.appcompat:appcompat:1.2.0"
     annotationProcessor "android.arch.persistence.room:compiler:$room"
     annotationProcessor "androidx.room:room-compiler:$room"
-    implementation "androidx.room:room-runtime:2.2.6"
-    kapt "androidx.room:room-compiler:2.2.6"
+    implementation "androidx.room:room-runtime:$androidx_room"
+    kapt "androidx.room:room-compiler:$androidx_room"
 
     implementation "com.google.dagger:dagger:$dagger"
     kapt "com.google.dagger:dagger-compiler:$dagger"

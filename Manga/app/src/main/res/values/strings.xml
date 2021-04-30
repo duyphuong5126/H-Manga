@@ -17,6 +17,9 @@
     <string name="previous">\f054</string>
     <string name="next">Next</string>
 
+    <string name="previous_label">Previous</string>
+    <string name="next_label">Next</string>
+
     <string name="book_id_label">Book ID:</string>
     <string name="tags_label">Tags:</string>
     <string name="artists_label">Artists:</string>
@@ -272,6 +275,13 @@
     <string name="do_not_recommend_book_accepted">Book ID %s was removed</string>
 
     <string name="general_error_message">An error occurred</string>
+    <string name="reading_modes_title">Reading direction:</string>
+    <string name="current_direction_template">Current direction: %s</string>
+    <string name="right_to_left">right to left</string>
+    <string name="left_to_right">left to right</string>
+    <string name="top_down">top down</string>
+    <string name="tap_to_navigate_label">Tap to navigate:</string>
+
 
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>
