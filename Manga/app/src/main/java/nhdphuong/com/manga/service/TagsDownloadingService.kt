@@ -198,7 +198,7 @@ class TagsDownloadingService : JobIntentService() {
             NotificationCompat.PRIORITY_DEFAULT,
             notificationDescription,
             true,
-            TAG_DOWNLOADING_NOTIFICATION_ID,
+            System.currentTimeMillis().toInt(),
             pendingIntent
         )
         BroadCastReceiverHelper.sendBroadCast(this, ACTION_TAGS_DOWNLOADING_FAILED)
@@ -217,7 +217,7 @@ class TagsDownloadingService : JobIntentService() {
             NotificationCompat.PRIORITY_DEFAULT,
             notificationDescription,
             true,
-            TAG_DOWNLOADING_NOTIFICATION_ID,
+            System.currentTimeMillis().toInt(),
             pendingIntent
         )
         BroadCastReceiverHelper.sendBroadCast(this, ACTION_TAGS_DOWNLOADING_COMPLETED)

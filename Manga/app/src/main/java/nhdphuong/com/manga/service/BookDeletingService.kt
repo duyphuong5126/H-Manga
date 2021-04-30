@@ -179,7 +179,7 @@ class BookDeletingService : JobIntentService() {
             NotificationCompat.PRIORITY_DEFAULT,
             successMessage,
             true,
-            BOOK_DELETING_NOTIFICATION_ID,
+            System.currentTimeMillis().toInt(),
             pendingIntent
         )
     }
@@ -197,7 +197,7 @@ class BookDeletingService : JobIntentService() {
             NotificationCompat.PRIORITY_DEFAULT,
             failureMessage,
             true,
-            BOOK_DELETING_NOTIFICATION_ID,
+            System.currentTimeMillis().toInt(),
             pendingIntent
         )
     }
