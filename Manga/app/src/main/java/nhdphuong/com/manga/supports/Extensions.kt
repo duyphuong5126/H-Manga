@@ -11,10 +11,6 @@ import android.text.TextPaint
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.view.View
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import nhdphuong.com.manga.views.customs.MyTextView
 
 fun Context.openUrl(url: String) {
@@ -44,6 +40,17 @@ fun Context.copyToClipBoard(label: String, text: String) {
     }
 }
 
+fun Context.isFirstTimeInstall(): Boolean {
+    return try {
+        val packageManager = packageManager
+        val packageName = packageName
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        return packageInfo.firstInstallTime == packageInfo.lastUpdateTime
+    } catch (throwable: Throwable) {
+        false
+    }
+}
+
 fun MyTextView.addClickAbleText(url: String, alias: String, onClick: (url: String) -> Unit) {
     this.text = url.toClickableLink(alias, onClick)
     this.movementMethod = LinkMovementMethod()
@@ -63,12 +70,4 @@ fun String.toClickableLink(alias: String, onClick: (url: String) -> Unit): Spann
     val spannableString = SpannableString(alias)
     spannableString.setSpan(clickableSpan, 0, alias.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     return spannableString
-}
-
-fun CoroutineScope.doInIOContext(task: () -> Unit) {
-    launch {
-        withContext(Dispatchers.IO) {
-            task.invoke()
-        }
-    }
 }

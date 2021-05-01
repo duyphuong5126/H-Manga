@@ -69,6 +69,7 @@ import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.supports.copyToClipBoard
+import nhdphuong.com.manga.supports.isFirstTimeInstall
 import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
 import nhdphuong.com.manga.views.adapters.BookAdapter
@@ -1035,6 +1036,9 @@ class BookPreviewFragment :
 
     private fun checkAndRequestStoragePermissionIfNecessary() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && viewDownloadedData) {
+            if (context?.isFirstTimeInstall() == true) {
+                return
+            }
             activity?.let {
                 val readExternalStoragePer = android.Manifest.permission.READ_EXTERNAL_STORAGE
                 val permissionGranted = checkSelfPermission(
