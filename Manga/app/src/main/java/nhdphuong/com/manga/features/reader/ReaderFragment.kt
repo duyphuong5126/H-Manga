@@ -306,7 +306,8 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
                 }
             }
             rvBookPages.adapter = bookReaderAdapter
-            rvBookPages.setItemViewCacheSize(PRELOAD_SIZE)
+            val cacheSize = if (CACHE_SIZE <= pageList.size) CACHE_SIZE else pageList.size
+            rvBookPages.setItemViewCacheSize(cacheSize)
             val orientation = if (readerType == VerticalScroll) VERTICAL else HORIZONTAL
             val layoutManager =
                 PreLoadingLinearLayoutManager(activity, orientation, reverseLayout, PRELOAD_SIZE)
@@ -524,6 +525,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
     }
 
     companion object {
+        private const val CACHE_SIZE = 15
         private const val PRELOAD_SIZE = 5
         private const val ADDITIONAL_STEPS = 2
     }
