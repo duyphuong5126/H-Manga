@@ -10,6 +10,11 @@ import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.features.downloading.uimodel.PendingDownloadItemUiModel
 import nhdphuong.com.manga.features.downloading.uimodel.PendingDownloadItemUiModel.PendingItemUiModel
 import nhdphuong.com.manga.features.downloading.uimodel.PendingDownloadItemUiModel.TotalCountItem
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus.DownloadingStarted
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus.DownloadingProgress
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus.DownloadingCompleted
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus.DownloadingFailed
 import nhdphuong.com.manga.scope.corountine.IO
 import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.usecase.GetPendingDownloadBookCountUseCase
@@ -28,6 +33,8 @@ class DownloadingBooksPresenter @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
     private val pendingList = arrayListOf<PendingDownloadItemUiModel>()
     private val logger = Logger("DownloadingBooksPresenter")
+
+    private val statusMap = HashMap<String, PendingItemStatus>()
 
     override fun start() {
         getPendingDownloadBookListUseCase.execute(PENDING_LIST_LIMIT)
@@ -94,8 +101,12 @@ class DownloadingBooksPresenter @Inject constructor(
             pendingList.indexOfFirst {
                 it is PendingItemUiModel && it.bookId == bookId
             }.takeIf { it >= 0 }?.let { updatePosition ->
-                main.launch {
-                    view.updateDownloadingStarted(updatePosition)
+                if (view.isReady) {
+                    main.launch {
+                        view.updateStatus(DownloadingStarted(updatePosition))
+                    }
+                } else {
+                    statusMap[bookId] = DownloadingStarted(updatePosition)
                 }
             }
         }
@@ -106,8 +117,12 @@ class DownloadingBooksPresenter @Inject constructor(
             pendingList.indexOfFirst {
                 it is PendingItemUiModel && it.bookId == bookId
             }.takeIf { it >= 0 }?.let { updatePosition ->
-                main.launch {
-                    view.updateProgress(updatePosition, progress, total)
+                if (view.isReady) {
+                    main.launch {
+                        view.updateStatus(DownloadingProgress(updatePosition, progress, total))
+                    }
+                } else {
+                    statusMap[bookId] = DownloadingProgress(updatePosition, progress, total)
                 }
             }
         }
@@ -119,7 +134,11 @@ class DownloadingBooksPresenter @Inject constructor(
                 it is PendingItemUiModel && it.bookId == bookId
             }.takeIf { it >= 0 }?.let { updatePosition ->
                 main.launch {
-                    view.updateCompletion(updatePosition)
+                    if (view.isReady) {
+                        view.updateStatus(DownloadingCompleted(updatePosition))
+                    } else {
+                        statusMap[bookId] = DownloadingCompleted(updatePosition)
+                    }
                 }
             }
         }
@@ -130,11 +149,20 @@ class DownloadingBooksPresenter @Inject constructor(
             pendingList.indexOfFirst {
                 it is PendingItemUiModel && it.bookId == bookId
             }.takeIf { it >= 0 }?.let { updatePosition ->
-                main.launch {
-                    view.updateFailure(updatePosition, failureCount, total)
+                if (view.isReady) {
+                    main.launch {
+                        view.updateStatus(DownloadingFailed(updatePosition, failureCount, total))
+                    }
+                } else {
+                    statusMap[bookId] = DownloadingFailed(updatePosition, failureCount, total)
                 }
             }
         }
+    }
+
+    override fun cleanUpPendingStatuses() {
+        statusMap.values.forEach(view::updateStatus)
+        statusMap.clear()
     }
 
     override fun stop() {

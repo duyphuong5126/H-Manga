@@ -20,6 +20,7 @@ import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.databinding.ActivityDownloadingBooksBinding
 import nhdphuong.com.manga.features.downloaded.DownloadedBooksActivity
 import nhdphuong.com.manga.features.downloading.uimodel.PendingDownloadItemUiModel
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus
 import nhdphuong.com.manga.features.downloading.view.PendingListAdapter
 import nhdphuong.com.manga.supports.SpaceItemDecoration
 import nhdphuong.com.manga.views.becomeVisible
@@ -81,6 +82,15 @@ class DownloadingBooksActivity : AppCompatActivity(), DownloadingBooksContract.V
         viewBinding = ActivityDownloadingBooksBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
 
+        BroadCastReceiverHelper.registerBroadcastReceiver(
+            this,
+            bookDownloadingReceiver,
+            Constants.ACTION_DOWNLOADING_STARTED,
+            Constants.ACTION_DOWNLOADING_PROGRESS,
+            Constants.ACTION_DOWNLOADING_COMPLETED,
+            Constants.ACTION_DOWNLOADING_FAILED
+        )
+
         ibBack.setOnClickListener(this)
         buttonGoToDownloadedList.setOnClickListener(this)
 
@@ -91,18 +101,11 @@ class DownloadingBooksActivity : AppCompatActivity(), DownloadingBooksContract.V
 
     override fun onResume() {
         super.onResume()
-        BroadCastReceiverHelper.registerBroadcastReceiver(
-            this,
-            bookDownloadingReceiver,
-            Constants.ACTION_DOWNLOADING_STARTED,
-            Constants.ACTION_DOWNLOADING_PROGRESS,
-            Constants.ACTION_DOWNLOADING_COMPLETED,
-            Constants.ACTION_DOWNLOADING_FAILED
-        )
+        presenter.cleanUpPendingStatuses()
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onDestroy() {
+        super.onDestroy()
         BroadCastReceiverHelper.unRegisterBroadcastReceiver(this, bookDownloadingReceiver)
     }
 
@@ -133,20 +136,8 @@ class DownloadingBooksActivity : AppCompatActivity(), DownloadingBooksContract.V
         pendingListAdapter?.updateList(newPendingDownloadList)
     }
 
-    override fun updateDownloadingStarted(position: Int) {
-        pendingListAdapter?.updateStartedStatus(position)
-    }
-
-    override fun updateProgress(position: Int, progress: Int, total: Int) {
-        pendingListAdapter?.updateProgress(position, progress, total)
-    }
-
-    override fun updateCompletion(position: Int) {
-        pendingListAdapter?.updateCompletion(position)
-    }
-
-    override fun updateFailure(position: Int, failureCount: Int, total: Int) {
-        pendingListAdapter?.updateFailureMessage(position, failureCount, total)
+    override fun updateStatus(itemStatus: PendingItemStatus) {
+        pendingListAdapter?.updatePendingItemStatus(itemStatus)
     }
 
     override fun hideNothingView() {
@@ -179,6 +170,9 @@ class DownloadingBooksActivity : AppCompatActivity(), DownloadingBooksContract.V
     override fun isActive(): Boolean {
         return lifecycle.currentState != Lifecycle.State.DESTROYED
     }
+
+    override val isReady: Boolean
+        get() = lifecycle.currentState == Lifecycle.State.RESUMED
 
     companion object {
         @JvmStatic

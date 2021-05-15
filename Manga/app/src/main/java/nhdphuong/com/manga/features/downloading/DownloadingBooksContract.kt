@@ -2,6 +2,7 @@ package nhdphuong.com.manga.features.downloading
 
 import nhdphuong.com.manga.Base
 import nhdphuong.com.manga.features.downloading.uimodel.PendingDownloadItemUiModel
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus
 
 interface DownloadingBooksContract {
     interface View : Base.View<Presenter> {
@@ -9,10 +10,8 @@ interface DownloadingBooksContract {
         fun updatePendingList(newPendingDownloadList: List<PendingDownloadItemUiModel>)
         fun showNothingView()
         fun hideNothingView()
-        fun updateDownloadingStarted(position: Int)
-        fun updateProgress(position: Int, progress: Int, total: Int)
-        fun updateCompletion(position: Int)
-        fun updateFailure(position: Int, failureCount: Int, total: Int)
+        fun updateStatus(itemStatus: PendingItemStatus)
+        val isReady: Boolean
     }
 
     interface Presenter : Base.Presenter {
@@ -21,5 +20,6 @@ interface DownloadingBooksContract {
         fun updateDownloadingProgress(bookId: String, progress: Int, total: Int)
         fun updateDownloadingCompleted(bookId: String)
         fun updateDownloadFailure(bookId: String, failureCount: Int, total: Int)
+        fun cleanUpPendingStatuses()
     }
 }

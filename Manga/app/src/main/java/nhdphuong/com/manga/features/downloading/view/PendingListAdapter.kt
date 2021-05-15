@@ -14,6 +14,11 @@ import nhdphuong.com.manga.databinding.ItemPendingItemCountBinding
 import nhdphuong.com.manga.features.downloading.uimodel.PendingDownloadItemUiModel
 import nhdphuong.com.manga.features.downloading.uimodel.PendingDownloadItemUiModel.PendingItemUiModel
 import nhdphuong.com.manga.features.downloading.uimodel.PendingDownloadItemUiModel.TotalCountItem
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus.DownloadingStarted
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus.DownloadingProgress
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus.DownloadingCompleted
+import nhdphuong.com.manga.features.downloading.uimodel.PendingItemStatus.DownloadingFailed
 import nhdphuong.com.manga.views.becomeInvisible
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.customs.MyTextView
@@ -69,8 +74,24 @@ class PendingListAdapter(
             if (holder is PendingItemViewHolder) {
                 when (payload) {
                     is DownloadingStarted -> holder.updateStartedStatus()
-                    is ProgressMessage -> holder.updateProgress(payload.progressText)
-                    is DownloadFailureMessage -> holder.updateFailureMessage(payload.failureMessage)
+                    is DownloadingProgress -> {
+                        holder.updateProgress(
+                            String.format(
+                                downloadingProgressTemplate,
+                                payload.progress,
+                                payload.total
+                            )
+                        )
+                    }
+                    is DownloadingFailed -> {
+                        holder.updateFailureMessage(
+                            String.format(
+                                downloadingFailureTemplate,
+                                payload.failureCount,
+                                payload.total
+                            )
+                        )
+                    }
                     is DownloadingCompleted -> holder.updateCompletionStatus()
                 }
             }
@@ -88,24 +109,8 @@ class PendingListAdapter(
         }
     }
 
-    fun updateStartedStatus(position: Int) {
-        notifyItemChanged(position, DownloadingStarted())
-    }
-
-    fun updateProgress(position: Int, progress: Int, total: Int) {
-        val progressMessage =
-            ProgressMessage(String.format(downloadingProgressTemplate, progress, total))
-        notifyItemChanged(position, progressMessage)
-    }
-
-    fun updateCompletion(position: Int) {
-        notifyItemChanged(position, DownloadingCompleted())
-    }
-
-    fun updateFailureMessage(position: Int, failureCount: Int, total: Int) {
-        val failureMessage =
-            DownloadFailureMessage(String.format(downloadingFailureTemplate, failureCount, total))
-        notifyItemChanged(position, failureMessage)
+    fun updatePendingItemStatus(pendingItemStatus: PendingItemStatus) {
+        notifyItemChanged(pendingItemStatus.position, pendingItemStatus)
     }
 
     fun updateList(newPendingList: List<PendingDownloadItemUiModel>) {
@@ -200,14 +205,6 @@ class PendingListAdapter(
             totalTextView.text = totalText
         }
     }
-
-    private class DownloadingStarted
-
-    private data class ProgressMessage(val progressText: String)
-
-    private data class DownloadFailureMessage(val failureMessage: String)
-
-    private class DownloadingCompleted
 
     interface PendingListActionListener {
         fun removeBook(bookId: String)
