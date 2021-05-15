@@ -20,7 +20,7 @@ import nhdphuong.com.manga.Constants.Companion.EVENT_SEARCH
 import nhdphuong.com.manga.Constants.Companion.MAX_PER_PAGE
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_SEARCH_DATA
-import nhdphuong.com.manga.DownloadManager
+import nhdphuong.com.manga.DownloadManager.Companion.TagsDownloadManager as tagsDownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.analytics.AnalyticsParam
@@ -39,10 +39,12 @@ import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.INetworkUtils
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.usecase.CheckRecentFavoriteMigrationNeededUseCase
+import nhdphuong.com.manga.usecase.GetOldestPendingDownloadBookUseCase
 import nhdphuong.com.manga.usecase.GetRecommendedBooksFromFavoriteUseCase
 import nhdphuong.com.manga.usecase.GetRecommendedBooksFromReadingHistoryUseCase
 import nhdphuong.com.manga.usecase.GetRecommendedBooksUseCase
 import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
+import nhdphuong.com.manga.usecase.StartBookDownloadingUseCase
 import java.net.SocketTimeoutException
 import java.util.Calendar
 import java.util.Locale
@@ -68,6 +70,8 @@ class HomePresenter @Inject constructor(
     private val getRecommendedBooksFromFavoriteUseCase: GetRecommendedBooksFromFavoriteUseCase,
     private val getRecommendedBooksFromReadingHistoryUseCase: GetRecommendedBooksFromReadingHistoryUseCase,
     private val getRecommendedBooksUseCase: GetRecommendedBooksUseCase,
+    private val getOldestPendingDownloadBookUseCase: GetOldestPendingDownloadBookUseCase,
+    private val startBookDownloadingUseCase: StartBookDownloadingUseCase,
     private val networkUtils: INetworkUtils,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
@@ -97,8 +101,6 @@ class HomePresenter @Inject constructor(
     private val isSearching: Boolean get() = !TextUtils.isEmpty(searchData)
 
     private val newerVersionAcknowledged = AtomicBoolean(false)
-
-    private val tagsDownloadManager = DownloadManager.Companion.TagsDownloadManager
 
     private var sortOption = Recent
         set(value) {
@@ -179,6 +181,8 @@ class HomePresenter @Inject constructor(
             }, {
                 logger.e("Failed to check migration needed with error $it")
             }).addTo(compositeDisposable)
+
+        checkAndResumeBookDownloading()
     }
 
     override fun jumpToPage(pageNumber: Long) {
@@ -388,6 +392,17 @@ class HomePresenter @Inject constructor(
             .subscribeOn(Schedulers.io())
             .subscribe()
             .addTo(compositeDisposable)
+    }
+
+    override fun checkAndResumeBookDownloading() {
+        getOldestPendingDownloadBookUseCase.execute()
+            .flatMapCompletable(startBookDownloadingUseCase::execute)
+            .subscribeOn(Schedulers.io())
+            .subscribe({
+                logger.d("Pending list checking completed")
+            }, {
+                logger.d("Pending list checking failed with error $it")
+            }).addTo(compositeDisposable)
     }
 
     override fun stop() {

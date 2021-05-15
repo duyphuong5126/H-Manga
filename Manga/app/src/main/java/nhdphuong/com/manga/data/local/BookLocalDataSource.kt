@@ -2,6 +2,7 @@ package nhdphuong.com.manga.data.local
 
 import androidx.room.EmptyResultSetException
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.zipWith
@@ -11,6 +12,7 @@ import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.SerializationService
 import nhdphuong.com.manga.data.entity.BlockedBook
 import nhdphuong.com.manga.data.entity.FavoriteBook
+import nhdphuong.com.manga.data.entity.PendingDownloadBookPreview
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.BookImages
@@ -29,6 +31,7 @@ import nhdphuong.com.manga.data.local.model.ImageUsageType
 import nhdphuong.com.manga.data.local.model.BookImageModel
 import nhdphuong.com.manga.data.local.model.BookTagModel
 import nhdphuong.com.manga.data.local.model.LastVisitedPage
+import nhdphuong.com.manga.data.local.model.PendingDownloadBook
 import nhdphuong.com.manga.data.toArtist
 import nhdphuong.com.manga.data.toCategory
 import nhdphuong.com.manga.data.toCharacter
@@ -54,10 +57,11 @@ class BookLocalDataSource @Inject constructor(
             bookDAO.getRecentBookSynchronously(book.bookId)!!
         } catch (throwable: Throwable) {
             if (throwable is EmptyResultSetException || throwable is NullPointerException) {
-                RecentBook(book.bookId, System.currentTimeMillis(), serializeBook(book), 0)
+                RecentBook(book.bookId, 0, serializeBook(book), 0)
             } else throw throwable
         }
         recentBook.readingTimes++
+        recentBook.createdAt = System.currentTimeMillis()
         bookDAO.insertRecentBooks(recentBook)
     }
 
@@ -352,6 +356,39 @@ class BookLocalDataSource @Inject constructor(
 
     override suspend fun getBlockedBookIds(): List<String> {
         return bookDAO.getBlockedBookIds()
+    }
+
+    override fun putBookIntoPendingDownloadList(book: Book) {
+        val pendingItem = PendingDownloadBook(
+            book.bookId,
+            book.title.pretty,
+            serializationService.serialize(book)
+        )
+        val insertionResult = bookDAO.addPendingDownloadBook(pendingItem)
+        logger.d("Pending item ${book.bookId}'s insertion result: $insertionResult")
+    }
+
+    override fun removeBookFromPendingDownloadList(bookId: String) {
+        val removalResult = bookDAO.removeBookFromPendingDownloadList(bookId)
+        logger.d("Pending item $bookId's removal result: $removalResult")
+    }
+
+    override fun getOldestPendingDownloadBook(): Maybe<Book> {
+        return bookDAO.getOldestPendingDownloadBook().map {
+            serializationService.deserialize(it, Book::class.java)
+        }
+    }
+
+    override fun getPendingDownloadBooks(limit: Int): Single<List<PendingDownloadBookPreview>> {
+        return bookDAO.getPendingDownloadBooks(limit).map {
+            it.map { pendingBook ->
+                PendingDownloadBookPreview(pendingBook.bookId, pendingBook.titlePretty)
+            }
+        }
+    }
+
+    override fun getPendingDownloadBookCount(): Single<Int> {
+        return bookDAO.getPendingDownloadBookCount()
     }
 
     private fun extractAndSaveTagList(book: Book): Completable {

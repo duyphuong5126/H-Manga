@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nhdphuong.com.manga.views.customs.MyTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:padding="@dimen/space_medium"
+    android:textColor="@color/white"
+    android:textSize="@dimen/header_title_size"
+    app:myFont="@string/NotoSansRegular"
+    tools:text="Total 10,000 item" />

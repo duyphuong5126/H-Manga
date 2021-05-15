@@ -1,10 +1,12 @@
 package nhdphuong.com.manga.data
 
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Single
 import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.CommentResponse
 import nhdphuong.com.manga.data.entity.FavoriteBook
+import nhdphuong.com.manga.data.entity.PendingDownloadBookPreview
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.RecommendBookResponse
 import nhdphuong.com.manga.data.entity.RemoteBookResponse
@@ -84,5 +86,15 @@ interface BookDataSource {
         fun getRecentBookIdsForRecommendation(): Single<List<String>>
 
         suspend fun getBlockedBookIds(): List<String>
+
+        fun putBookIntoPendingDownloadList(book: Book)
+
+        fun removeBookFromPendingDownloadList(bookId: String)
+
+        fun getOldestPendingDownloadBook(): Maybe<Book>
+
+        fun getPendingDownloadBooks(limit: Int): Single<List<PendingDownloadBookPreview>>
+
+        fun getPendingDownloadBookCount(): Single<Int>
     }
 }

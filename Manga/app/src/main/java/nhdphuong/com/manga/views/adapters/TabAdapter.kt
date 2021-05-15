@@ -32,6 +32,7 @@ class TabAdapter(
     private val recentTitle = context.getString(R.string.recent)
     private val favoriteTitle = context.getString(R.string.favorite)
     private val downloadedTitle = context.getString(R.string.downloaded)
+    private val downloadingTitle = context.getString(R.string.downloading)
     private val randomTitle = context.getString(R.string.random)
     private val artistsTitle = context.getString(R.string.artists)
     private val tagsTitle = context.getString(R.string.tags)
@@ -101,6 +102,7 @@ class TabAdapter(
                 Tab.RECENT -> recentTitle
                 Tab.FAVORITE -> favoriteTitle
                 Tab.DOWNLOADED -> downloadedTitle
+                Tab.DOWNLOADING -> downloadingTitle
                 Tab.RANDOM -> randomTitle
                 Tab.ARTISTS -> artistsTitle
                 Tab.TAGS -> tagsTitle

@@ -93,7 +93,7 @@
     <string name="fail_to_delete">Could not delete %d items</string>
     <string name="is_book_being_downloaded">Book downloading</string>
     <string name="is_downloading_this_book">This book is being downloaded.\nPlease wait until it completes.</string>
-    <string name="is_downloading_another_book">Book ID %s is being downloaded, please try again later.</string>
+    <string name="is_downloading_another_book">This book was added into downloading queue. It will be downloaded after the book %s.</string>
     <string name="reload_library">Reload Library</string>
     <string name="book_list_refreshing_title">Book list is refreshing</string>
     <string name="book_list_refreshing_description">Book list is now refreshing.\nPlease try again later.</string>
@@ -130,6 +130,13 @@
 
     <string name="downloaded">Downloaded</string>
     <string name="downloaded_books">Downloaded Books</string>
+
+    <string name="downloading">Downloading</string>
+    <string name="downloading_books">Downloading books</string>
+
+    <string name="pending_download_failure_template">Failed to download %d/%d pages</string>
+
+    <string name="no_pending_item">You\'re not downloading any book</string>
 
     <string name="downloading_book">Downloading your book</string>
     <string name="deleting_book">Deleting your book</string>
@@ -188,7 +195,10 @@
     <string name="number_of_unknown">Unknown: %d</string>
 
     <string name="un_seen_book_title">Forget This Book</string>
-    <string name="un_seen_book_description">This book is on your reading list. \nAre you sure you want to remove it?</string>
+    <string name="un_seen_book_description">This book is in your reading list. \nAre you sure you want to remove it?</string>
+
+    <string name="cancel_downloading">Cancel downloading</string>
+    <string name="cancel_downloading_message">Do you want to stop downloading book number %s?</string>
 
     <string name="yes">Yes</string>
     <string name="no">No</string>
@@ -282,6 +292,9 @@
     <string name="top_down">top down</string>
     <string name="tap_to_navigate_label">Tap to navigate:</string>
 
+    <string name="book_id_template">Book ID: %s</string>
+    <string name="total_item_count_template">Total: %d items</string>
+    <string name="total_one_item">Total: 1 item</string>
 
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>

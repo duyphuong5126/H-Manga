@@ -23,6 +23,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:allowBackup">
+
+        <activity
+            android:name=".features.downloading.DownloadingBooksActivity"
+            android:theme="@style/AppTheme.GreyStatusBar.BlackBackground" />
+
         <activity android:name=".features.setting.SettingsActivity" />
 
         <provider

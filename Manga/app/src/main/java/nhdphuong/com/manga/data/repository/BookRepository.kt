@@ -1,11 +1,13 @@
 package nhdphuong.com.manga.data.repository
 
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Single
 import nhdphuong.com.manga.data.BookDataSource
 import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.CommentResponse
 import nhdphuong.com.manga.data.entity.FavoriteBook
+import nhdphuong.com.manga.data.entity.PendingDownloadBookPreview
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.RecommendBookResponse
 import nhdphuong.com.manga.data.entity.RemoteBookResponse
@@ -193,5 +195,25 @@ class BookRepository @Inject constructor(
 
     override suspend fun getBlockedBookIds(): List<String> {
         return bookLocalDataSource.getBlockedBookIds()
+    }
+
+    override fun putBookIntoPendingDownloadList(book: Book) {
+        bookLocalDataSource.putBookIntoPendingDownloadList(book)
+    }
+
+    override fun removeBookFromPendingDownloadList(bookId: String) {
+        bookLocalDataSource.removeBookFromPendingDownloadList(bookId)
+    }
+
+    override fun getOldestPendingDownloadBook(): Maybe<Book> {
+        return bookLocalDataSource.getOldestPendingDownloadBook()
+    }
+
+    override fun getPendingDownloadBooks(limit: Int): Single<List<PendingDownloadBookPreview>> {
+        return bookLocalDataSource.getPendingDownloadBooks(limit)
+    }
+
+    override fun getPendingDownloadBookCount(): Single<Int> {
+        return bookLocalDataSource.getPendingDownloadBookCount()
     }
 }

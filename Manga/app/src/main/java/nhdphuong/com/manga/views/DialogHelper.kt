@@ -173,6 +173,18 @@ fun Activity.showUnSeenBookConfirmationDialog(onOk: () -> Unit = {}, onDismiss: 
     showOkDismissDialog(this, title, message, okButton, cancelButton, onOk, onDismiss)
 }
 
+fun Activity.showCancelDownloadingBookConfirmationDialog(
+    bookId: String,
+    onOk: () -> Unit = {},
+    onDismiss: () -> Unit = {}
+) {
+    val title = getString(R.string.cancel_downloading)
+    val message = getString(R.string.cancel_downloading_message, bookId)
+    val okButton = getString(R.string.yes)
+    val cancelButton = getString(R.string.no)
+    showOkDismissDialog(this, title, message, okButton, cancelButton, onOk, onDismiss)
+}
+
 fun Activity.showAdminEntryDialog(onOk: () -> Unit = {}, onDismiss: () -> Unit = {}) {
     val title = getString(R.string.enter_admin_page_title)
     val message = getString(R.string.enter_admin_page_description)
@@ -182,18 +194,15 @@ fun Activity.showAdminEntryDialog(onOk: () -> Unit = {}, onDismiss: () -> Unit =
 }
 
 fun Activity.showBookDownloadingDialog(
-    mediaId: String,
-    onOk: () -> Unit = {},
-    onDismiss: () -> Unit = {}
+    bookId: String,
+    onOk: () -> Unit = {}
 ) {
     val title = getString(R.string.is_book_being_downloaded)
     val message = String.format(
         getString(R.string.is_downloading_another_book),
-        mediaId
+        bookId
     )
-    val okButton = getString(R.string.view)
-    val cancelButton = getString(R.string.ok)
-    showOkDismissDialog(this, title, message, okButton, cancelButton, onOk, onDismiss)
+    showOkDialog(this, title, message, onOk)
 }
 
 fun Activity.showDownloadingFinishedDialog(

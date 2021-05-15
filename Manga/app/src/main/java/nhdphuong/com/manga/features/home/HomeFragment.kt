@@ -222,7 +222,10 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         super.onStart()
         context?.let(networkManager::attach)
         networkManager.addNetworkAvailableTask {
-            activity?.runOnUiThread(homePresenter::reloadIfEmpty)
+            activity?.runOnUiThread {
+                homePresenter.reloadIfEmpty()
+                homePresenter.checkAndResumeBookDownloading()
+            }
         }
     }
 

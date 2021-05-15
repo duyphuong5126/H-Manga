@@ -10,6 +10,7 @@ import nhdphuong.com.manga.Constants.Companion.TABLE_BOOK_TAG as BOOK_TAG
 import nhdphuong.com.manga.Constants.Companion.TABLE_LAST_VISITED_PAGE
 import nhdphuong.com.manga.Constants.Companion.TABLE_SEARCH
 import nhdphuong.com.manga.Constants.Companion.TABLE_TAG
+import nhdphuong.com.manga.Constants.Companion.TABLE_PENDING_DOWNLOAD_BOOK as PENDING_DOWNLOAD_BOOK
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.CREATED_AT
 import nhdphuong.com.manga.Constants.Companion.TAG_ID
@@ -26,6 +27,7 @@ import nhdphuong.com.manga.Constants.Companion.SEARCH_INFO
 import nhdphuong.com.manga.Constants.Companion.SEARCH_TIMES
 import nhdphuong.com.manga.Constants.Companion.TABLE_BLOCKED_BOOK
 import nhdphuong.com.manga.Constants.Companion.TABLE_RECENT_BOOK
+import nhdphuong.com.manga.Constants.Companion.TITLE_PRETTY
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NHentaiApp
 
@@ -46,11 +48,18 @@ class Database {
                         NHentaiApp.instance.applicationContext, NHentaiDB::class.java, NHENTAI_DB
                     ).addMigrations(
                         MIGRATE_FROM_2_TO_3, MIGRATE_FROM_3_TO_4, MIGRATE_FROM_4_TO_5,
-                        MIGRATE_FROM_5_TO_6, MIGRATE_FROM_6_TO_7, MIGRATE_FROM_7_TO_8
+                        MIGRATE_FROM_5_TO_6, MIGRATE_FROM_6_TO_7, MIGRATE_FROM_7_TO_8,
+                        MIGRATE_FROM_8_TO_9
                     ).build()
                 }
                 return mInstance!!
             }
+
+        private val MIGRATE_FROM_8_TO_9 = object : Migration(8, 9) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS $PENDING_DOWNLOAD_BOOK ($BOOK_ID TEXT NOT NULL PRIMARY KEY, $TITLE_PRETTY TEXT NOT NULL, $RAW_BOOK TEXT NOT NULL)")
+            }
+        }
 
         private val MIGRATE_FROM_7_TO_8 = object : Migration(7, 8) {
             override fun migrate(database: SupportSQLiteDatabase) {

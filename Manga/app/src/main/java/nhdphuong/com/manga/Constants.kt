@@ -57,6 +57,7 @@ class Constants {
         const val INFO = "Info"
         const val ARTISTS = "Artists"
         const val DOWNLOADED = "Downloaded"
+        const val DOWNLOADING = "Downloading"
 
         const val SETTINGS = "Settings"
         const val FEEDBACK = "Feedback"
@@ -122,6 +123,7 @@ class Constants {
         const val TABLE_SEARCH = "Search"
         const val TABLE_RECENT_BOOK = "RecentBook"
         const val TABLE_BLOCKED_BOOK = "BlockedBook"
+        const val TABLE_PENDING_DOWNLOAD_BOOK = "PendingDownloadBook"
         const val BOOK_ID = "bookId"
         const val TAG_ID = "tagId"
         const val CREATED_AT = "createdAt"

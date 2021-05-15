@@ -26,6 +26,7 @@ import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.features.about.AboutUsActivity
 import nhdphuong.com.manga.features.admin.AdminActivity
 import nhdphuong.com.manga.features.downloaded.DownloadedBooksActivity
+import nhdphuong.com.manga.features.downloading.DownloadingBooksActivity
 import nhdphuong.com.manga.features.recent.RecentActivity
 import nhdphuong.com.manga.features.setting.SettingsActivity
 import nhdphuong.com.manga.features.tags.TagsActivity
@@ -115,6 +116,11 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener,
                     }
                     Tab.DOWNLOADED -> {
                         DownloadedBooksActivity.start(context)
+                        resetTabBar()
+                        return
+                    }
+                    Tab.DOWNLOADING -> {
+                        DownloadingBooksActivity.start(context)
                         resetTabBar()
                         return
                     }

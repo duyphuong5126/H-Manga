@@ -10,6 +10,8 @@ import nhdphuong.com.manga.features.comment.CommentThreadComponent
 import nhdphuong.com.manga.features.comment.CommentThreadModule
 import nhdphuong.com.manga.features.downloaded.DownloadedBooksComponent
 import nhdphuong.com.manga.features.downloaded.DownloadedBooksModule
+import nhdphuong.com.manga.features.downloading.DownloadingBooksComponent
+import nhdphuong.com.manga.features.downloading.DownloadingBooksModule
 import nhdphuong.com.manga.features.header.HeaderModule
 import nhdphuong.com.manga.features.home.HomeComponent
 import nhdphuong.com.manga.features.home.HomeModule
@@ -44,6 +46,7 @@ interface ApplicationComponent {
     fun plus(recentModule: RecentModule): RecentComponent
     fun plus(adminModule: AdminModule): AdminComponent
     fun plus(downloadedBooksModule: DownloadedBooksModule): DownloadedBooksComponent
+    fun plus(downloadedBooksModule: DownloadingBooksModule): DownloadingBooksComponent
     fun plus(commentThreadModule: CommentThreadModule): CommentThreadComponent
     fun plus(settingsModule: SettingsModule): SettingsComponent
     fun plus(aboutUsModule: AboutUsModule): AboutUsComponent

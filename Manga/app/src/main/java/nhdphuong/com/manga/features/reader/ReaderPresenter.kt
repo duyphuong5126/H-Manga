@@ -78,6 +78,7 @@ class ReaderPresenter @Inject constructor(
         view.showBookTitle(book.previewTitle)
         view.setUpSettingList(viewMode, preferencesManager.isTapNavigationEnabled)
         logCurrentReaderMode()
+        saveRecentBook()
         bookPages = ArrayList()
         if (viewDownloadedData) {
             getDownloadedBookPagesUseCase.execute(book.bookId)
@@ -91,7 +92,6 @@ class ReaderPresenter @Inject constructor(
                     logger.e("Failed to get pages of book ${book.bookId}: $it")
                 }).addTo(compositeDisposable)
         } else {
-            saveRecentBook()
             for (pageId in book.bookImages.pages.indices) {
                 val page = book.bookImages.pages[pageId]
                 bookPages.add(

@@ -53,5 +53,6 @@ interface HomeContract {
         fun checkedOutAlternativeDomains()
         fun doNoRecommendBook(bookId: String)
         fun checkOutRecommendedBook(bookId: String)
+        fun checkAndResumeBookDownloading()
     }
 }

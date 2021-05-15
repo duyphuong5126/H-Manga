@@ -1,5 +1,6 @@
 package nhdphuong.com.manga.features.preview
 
+import io.reactivex.Completable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -40,6 +41,7 @@ import nhdphuong.com.manga.usecase.GetDownloadedBookCoverUseCase
 import nhdphuong.com.manga.usecase.GetDownloadedBookPagesUseCase
 import nhdphuong.com.manga.usecase.GetLastVisitedPageUseCase
 import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
+import nhdphuong.com.manga.usecase.PutBookIntoPendingDownloadListUseCase
 import nhdphuong.com.manga.usecase.StartBookDeletingUseCase
 import nhdphuong.com.manga.usecase.StartBookDownloadingUseCase
 
@@ -54,6 +56,7 @@ class BookPreviewPresenter @Inject constructor(
     private val startBookDownloadingUseCase: StartBookDownloadingUseCase,
     private val startBookDeletingUseCase: StartBookDeletingUseCase,
     private val getLastVisitedPageUseCase: GetLastVisitedPageUseCase,
+    private val putBookIntoPendingDownloadListUseCase: PutBookIntoPendingDownloadListUseCase,
     private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
     private val bookRepository: BookRepository,
     private val networkUtils: INetworkUtils,
@@ -295,22 +298,33 @@ class BookPreviewPresenter @Inject constructor(
     }
 
     override fun downloadBook() {
-        if (!bookDownloader.isDownloading) {
-            startBookDownloadingUseCase.execute(book)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(onComplete = {
-                    logger.d("Started downloading book ${book.bookId}")
-                }, onError = {
-                    logger.e("Failed to start downloading book ${book.bookId}: $it")
-                }).addTo(compositeDisposable)
-        } else {
-            if (bookDownloader.bookId == book.bookId) {
-                view.showThisBookBeingDownloaded()
-            } else {
-                view.showBookBeingDownloaded(bookDownloader.bookId)
+        putBookIntoPendingDownloadListUseCase.execute(book)
+            .andThen(
+                if (!bookDownloader.isDownloading) {
+                    logger.d("Test>>> start downloading book ${book.bookId}")
+                    startBookDownloadingUseCase.execute(book)
+                } else Completable.complete()
+            )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                logger.d("Downloading ${bookDownloader.isDownloading}")
+                if (bookDownloader.isDownloading) {
+                    logger.d("Downloading book: ${bookDownloader.bookId}, current book: ${book.bookId}")
+                    if (view.isActive()) {
+                        if (book.bookId == bookDownloader.bookId) {
+                            view.showThisBookBeingDownloaded()
+                        } else {
+                            view.showThisBookWasAddedIntoQueue(bookDownloader.bookId)
+                        }
+                    }
+                }
             }
-        }
+            .subscribeBy(onComplete = {
+                logger.d("Started downloading book ${book.bookId}")
+            }, onError = {
+                logger.e("Failed to start downloading book ${book.bookId}: $it")
+            }).addTo(compositeDisposable)
     }
 
     override fun requestBookDeleting() {

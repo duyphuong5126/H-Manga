@@ -17,6 +17,7 @@ import nhdphuong.com.manga.data.local.model.BookImageModel
 import nhdphuong.com.manga.data.local.model.BookTagModel
 import nhdphuong.com.manga.data.local.model.DownloadedBookModel
 import nhdphuong.com.manga.data.local.model.LastVisitedPage
+import nhdphuong.com.manga.data.local.model.PendingDownloadBook
 import nhdphuong.com.manga.data.local.model.SearchModel
 
 /*
@@ -39,9 +40,10 @@ import nhdphuong.com.manga.data.local.model.SearchModel
         BookImageModel::class,
         BookTagModel::class,
         LastVisitedPage::class,
-        SearchModel::class
+        SearchModel::class,
+        PendingDownloadBook::class
     ],
-    version = 8
+    version = 9
 )
 abstract class NHentaiDB : RoomDatabase() {
     abstract fun getRecentBookDAO(): BookDAO

@@ -66,8 +66,23 @@ interface UseCaseModule {
     fun getRecommendedBooksFromFavoriteUseCase(useCaseImpl: GetRecommendedBooksFromFavoriteUseCaseImpl): GetRecommendedBooksFromFavoriteUseCase
 
     @Binds
-    fun get(useCaseImpl: GetRecommendedBooksFromReadingHistoryUseCaseImpl): GetRecommendedBooksFromReadingHistoryUseCase
+    fun getRecommendedBooksFromReadingHistoryUseCase(useCaseImpl: GetRecommendedBooksFromReadingHistoryUseCaseImpl): GetRecommendedBooksFromReadingHistoryUseCase
 
     @Binds
     fun deleteSearchSuggestionUseCase(useCaseImpl: DeleteSearchSuggestionUseCaseImpl): DeleteSearchSuggestionUseCase
+
+    @Binds
+    fun removeBookFromPendingDownloadListUseCase(useCaseImpl: RemoveBookFromPendingDownloadListUseCaseImpl): RemoveBookFromPendingDownloadListUseCase
+
+    @Binds
+    fun getOldestPendingDownloadBookUseCase(useCaseImpl: GetOldestPendingDownloadBookUseCaseImpl): GetOldestPendingDownloadBookUseCase
+
+    @Binds
+    fun putBookIntoPendingDownloadListUseCase(useCaseImpl: PutBookIntoPendingDownloadListUseCaseImpl): PutBookIntoPendingDownloadListUseCase
+
+    @Binds
+    fun getPendingDownloadBookCountUseCase(useCaseImpl: GetPendingDownloadBookCountUseCaseImpl): GetPendingDownloadBookCountUseCase
+
+    @Binds
+    fun getPendingDownloadBookListUseCase(useCaseImpl: GetPendingDownloadBookListUseCaseImpl): GetPendingDownloadBookListUseCase
 }

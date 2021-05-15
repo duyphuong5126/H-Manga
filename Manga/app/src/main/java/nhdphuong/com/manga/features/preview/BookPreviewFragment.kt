@@ -687,6 +687,7 @@ class BookPreviewFragment :
         clDownloadProgress.becomeVisible()
         pbDownloading.max = total
         mtvDownloaded.text = String.format(previewDownloadProgressTemplate, 0, total)
+        buttonClearDownloadedData.gone()
     }
 
     override fun updateDownloadProgress(progress: Int, total: Int) {
@@ -696,6 +697,7 @@ class BookPreviewFragment :
         pbDownloading.progress = progress
         mtvDownloaded.text =
             String.format(previewDownloadProgressTemplate, progress, total)
+        buttonClearDownloadedData.gone()
         BookDownloadingService.clearStatus(bookId)
     }
 
@@ -709,6 +711,7 @@ class BookPreviewFragment :
                 mtvDownloaded.text = previewDownloadProgressTemplate
             }, DOWNLOADING_BAR_HIDING_DELAY)
         }
+        buttonClearDownloadedData.becomeVisibleIf(viewDownloadedData)
         BookDownloadingService.clearStatus(bookId)
     }
 
@@ -723,6 +726,7 @@ class BookPreviewFragment :
                 mtvDownloaded.text = previewDownloadProgressTemplate
             }, DOWNLOADING_BAR_HIDING_DELAY)
         }
+        buttonClearDownloadedData.becomeVisibleIf(viewDownloadedData)
         BookDownloadingService.clearStatus(bookId)
     }
 
@@ -736,6 +740,7 @@ class BookPreviewFragment :
                 mtvDownloaded.text = previewDownloadProgressTemplate
             }, DOWNLOADING_BAR_HIDING_DELAY)
         }
+        buttonClearDownloadedData.becomeVisibleIf(viewDownloadedData)
         BookDownloadingService.clearStatus(bookId)
     }
 
@@ -780,16 +785,12 @@ class BookPreviewFragment :
         closePreviewAfterRemovedBook(bookId)
     }
 
-    override fun showBookBeingDownloaded(bookId: String) {
-        activity?.showBookDownloadingDialog(bookId, onOk = {
-            presenter.restartBookPreview(bookId)
-        }, onDismiss = {
-            logger.d("Downloading book $bookId is aware")
-        })
-    }
-
     override fun showThisBookBeingDownloaded() {
         activity?.showThisBookDownloadingDialog()
+    }
+
+    override fun showThisBookWasAddedIntoQueue(currentBookId: String) {
+        activity?.showBookDownloadingDialog(currentBookId)
     }
 
     override fun showFavoriteBookSaved(isFavorite: Boolean) {

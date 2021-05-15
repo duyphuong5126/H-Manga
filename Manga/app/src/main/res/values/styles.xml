@@ -12,6 +12,10 @@
         <item name="colorPrimaryDark">@color/grey_1</item>
     </style>
 
+    <style name="AppTheme.GreyStatusBar.BlackBackground" parent="AppTheme.GreyStatusBar">
+        <item name="android:windowBackground">@color/black</item>
+    </style>
+
     <style name="PageNotSelected">
         <item name="android:textStyle">normal</item>
     </style>

@@ -33,8 +33,7 @@ class DownloadBookUseCaseImpl @Inject constructor(
     }
 
     override fun execute(book: Book): Observable<DownloadingResult> {
-        return bookRepository.addToRecentList(book)
-            .andThen(bookRepository.saveDownloadedBook(book))
+        return bookRepository.saveDownloadedBook(book)
             .andThen(bookRepository.clearDownloadedImagesOfBook(book.bookId))
             .andThen(saveBookCover(book))
             .andThen(saveBookThumbnail(book))

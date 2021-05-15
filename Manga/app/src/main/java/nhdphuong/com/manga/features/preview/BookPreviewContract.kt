@@ -44,7 +44,7 @@ interface BookPreviewContract {
         fun finishDeleting(bookId: String)
         fun finishDeleting(bookId: String, deletingFailedCount: Int)
         fun showThisBookBeingDownloaded()
-        fun showBookBeingDownloaded(bookId: String)
+        fun showThisBookWasAddedIntoQueue(currentBookId: String)
         fun showFavoriteBookSaved(isFavorite: Boolean)
         fun showRecentBooks(recentList: List<String>)
         fun showFavoriteBooks(favoriteList: List<String>)

@@ -9,6 +9,7 @@ enum class Tab(val defaultName: String) {
     RECENT(Constants.RECENT),
     FAVORITE(Constants.FAVORITE),
     DOWNLOADED(Constants.DOWNLOADED),
+    DOWNLOADING(Constants.DOWNLOADING),
 
     RANDOM(Constants.RANDOM),
     ARTISTS(Constants.ARTISTS),

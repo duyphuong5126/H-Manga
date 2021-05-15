@@ -43,12 +43,24 @@ import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.features.NavigationRedirectActivity
+import nhdphuong.com.manga.usecase.GetOldestPendingDownloadBookUseCase
 import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
+import nhdphuong.com.manga.usecase.RemoveBookFromPendingDownloadListUseCase
+import nhdphuong.com.manga.usecase.StartBookDownloadingUseCase
 
 class BookDownloadingService : JobIntentService(), BookDownloadCallback {
 
     @Inject
     lateinit var downloadBookUseCase: DownloadBookUseCase
+
+    @Inject
+    lateinit var removeBookFromPendingDownloadListUseCase: RemoveBookFromPendingDownloadListUseCase
+
+    @Inject
+    lateinit var getOldestPendingDownloadBookUseCase: GetOldestPendingDownloadBookUseCase
+
+    @Inject
+    lateinit var startBookDownloadingUseCase: StartBookDownloadingUseCase
 
     @Inject
     lateinit var logAnalyticsEventUseCase: LogAnalyticsEventUseCase
@@ -159,6 +171,16 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
                         logAnalyticsEventUseCase.execute(EVENT_DOWNLOADED_BOOK, bookIdParam)
                             .subscribe()
                             .addTo(compositeDisposable)
+
+                        removeBookFromPendingDownloadListUseCase.execute(book.bookId)
+                            .andThen(getOldestPendingDownloadBookUseCase.execute())
+                            .flatMapCompletable(startBookDownloadingUseCase::execute)
+                            .subscribe({
+                                logger.d("Pending list checking completed")
+                            }, {
+                                logger.d("Pending list checking failed with error $it")
+                            }).addTo(compositeDisposable)
+
                     }).addTo(compositeDisposable)
             }
         }

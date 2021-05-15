@@ -4,10 +4,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import io.reactivex.Maybe
 import io.reactivex.Single
 import nhdphuong.com.manga.Constants.Companion.TABLE_DOWNLOADED_BOOK as DOWNLOADED_BOOK
 import nhdphuong.com.manga.Constants.Companion.TABLE_BOOK_TAG as BOOK_TAG
 import nhdphuong.com.manga.Constants.Companion.TABLE_DOWNLOADED_IMAGE as DOWNLOADED_IMAGE
+import nhdphuong.com.manga.Constants.Companion.TABLE_PENDING_DOWNLOAD_BOOK as PENDING_DOWNLOAD_BOOK
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.CREATED_AT
 import nhdphuong.com.manga.Constants.Companion.ID
@@ -27,6 +29,7 @@ import nhdphuong.com.manga.data.local.model.BookTagModel
 import nhdphuong.com.manga.data.local.model.DownloadedBookModel
 import nhdphuong.com.manga.data.local.model.LastVisitedPage
 import nhdphuong.com.manga.data.local.model.ImageUsageType
+import nhdphuong.com.manga.data.local.model.PendingDownloadBook
 
 /*
  * Created by nhdphuong on 6/8/18.
@@ -154,4 +157,19 @@ interface BookDAO {
 
     @Query("select $BOOK_ID from $TABLE_BLOCKED_BOOK")
     fun getBlockedBookIds(): List<String>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun addPendingDownloadBook(pendingDownloadBook: PendingDownloadBook): Long
+
+    @Query("delete from $PENDING_DOWNLOAD_BOOK where $BOOK_ID = :bookId")
+    fun removeBookFromPendingDownloadList(bookId: String): Int
+
+    @Query("select $RAW_BOOK from $PENDING_DOWNLOAD_BOOK order by RowId asc limit 1 offset 0")
+    fun getOldestPendingDownloadBook(): Maybe<String>
+
+    @Query("select * from $PENDING_DOWNLOAD_BOOK order by RowId asc limit :limit offset 0")
+    fun getPendingDownloadBooks(limit: Int): Single<List<PendingDownloadBook>>
+
+    @Query("select count($BOOK_ID) from $PENDING_DOWNLOAD_BOOK")
+    fun getPendingDownloadBookCount(): Single<Int>
 }
