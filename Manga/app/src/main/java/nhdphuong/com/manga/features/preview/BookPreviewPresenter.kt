@@ -30,6 +30,7 @@ import nhdphuong.com.manga.Constants.Companion.EVENT_FORGET_BOOK
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_LANGUAGE
 import nhdphuong.com.manga.Constants.Companion.EVENT_OPEN_BOOK
+import nhdphuong.com.manga.Constants.Companion.EVENT_OPEN_DOWNLOADED_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_REMOVE_FAVORITE
 import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.data.entity.BookResponse
@@ -617,7 +618,8 @@ class BookPreviewPresenter @Inject constructor(
     private fun logBookInfo() {
         val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
         val bookLanguage = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_LANGUAGE, book.language)
-        logAnalyticsEventUseCase.execute(EVENT_OPEN_BOOK, bookIdParam, bookLanguage)
+        val event = if (viewDownloadedData) EVENT_OPEN_DOWNLOADED_BOOK else EVENT_OPEN_BOOK
+        logAnalyticsEventUseCase.execute(event, bookIdParam, bookLanguage)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe()

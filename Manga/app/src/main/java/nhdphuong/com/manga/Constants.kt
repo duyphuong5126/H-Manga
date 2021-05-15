@@ -162,6 +162,7 @@ class Constants {
         const val EVENT_EXCEPTION = "Exception"
         const val EVENT_SEARCH = "Search"
         const val EVENT_OPEN_BOOK = "OpenBook"
+        const val EVENT_OPEN_DOWNLOADED_BOOK = "OpenDownloadedBook"
         const val EVENT_DOWNLOAD_BOOK = "DownloadBook"
         const val EVENT_FAILED_TO_DOWNLOAD_BOOK = "FailedToDownloadBook"
         const val EVENT_DOWNLOADED_BOOK = "DownloadedBook"
