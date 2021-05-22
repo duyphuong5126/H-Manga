@@ -166,6 +166,8 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
 
         setUpUI(view)
 
+        verticalBookList.addItemDecoration(spaceItemDecoration)
+
         activity?.let {
             rvQuickNavigation.addItemDecoration(
                 SpaceItemDecoration(
@@ -451,11 +453,9 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
         rvBookPages.gone()
         rvBookPages.layoutManager = null
         rvBookPages.adapter = null
-        rvBookPages.removeItemDecoration(spaceItemDecoration)
 
         verticalBookList.adapter = adapter
         verticalBookList.layoutManager = layoutManager
-        verticalBookList.addItemDecoration(spaceItemDecoration)
         verticalBookList.tapListener = {
             toggleMenu()
         }
@@ -495,12 +495,10 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
         verticalBookLayout.gone()
         verticalBookList.layoutManager = null
         verticalBookList.adapter = null
-        verticalBookList.removeItemDecoration(spaceItemDecoration)
         verticalBookList.tapListener = null
 
         rvBookPages.adapter = adapter
         rvBookPages.layoutManager = layoutManager
-        rvBookPages.addItemDecoration(spaceItemDecoration)
 
         snapHelper.attachToRecyclerView(rvBookPages)
 
