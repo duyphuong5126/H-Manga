@@ -62,7 +62,7 @@ class SearchSuggestionAdapter(
 
     private fun getAutoComplete(constraint: String): List<String> {
         return suggestions.filter {
-            it.toLowerCase(locale).startsWith(constraint.toLowerCase(locale))
+            it.lowercase(locale).startsWith(constraint.lowercase(locale))
         }
     }
 

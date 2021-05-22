@@ -319,7 +319,7 @@ class TagsDownloadingService : JobIntentService() {
             }
 
             private fun addTag(tag: Tag) {
-                when (tag.type.toLowerCase(Locale.US)) {
+                when (tag.type.lowercase(Locale.US)) {
                     Constants.ARTIST -> {
                         logger.d("Artist - id: ${tag.id}, name: ${tag.name}, imageType: ${tag.type}, url: ${tag.url}")
                         artists[tag.id] = tag

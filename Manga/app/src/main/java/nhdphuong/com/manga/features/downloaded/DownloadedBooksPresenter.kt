@@ -77,7 +77,7 @@ class DownloadedBooksPresenter @Inject constructor(
                 updateCurrentPage()
                 view.refreshRecentPagination(totalPages)
                 view.showLastBookListRefreshTime(
-                    SupportUtils.getTimeElapsed(0).toLowerCase(Locale.US)
+                    SupportUtils.getTimeElapsed(0).lowercase(Locale.US)
                 )
             }, onError = { error ->
                 logger.e("Failed to get downloaded books with error: $error")
@@ -86,7 +86,7 @@ class DownloadedBooksPresenter @Inject constructor(
 
     override fun reloadLastBookListRefreshTime() {
         view.showLastBookListRefreshTime(
-            SupportUtils.getTimeElapsed(0).toLowerCase(Locale.US)
+            SupportUtils.getTimeElapsed(0).lowercase(Locale.US)
         )
     }
 

@@ -192,11 +192,9 @@ class RecentPresenter @Inject constructor(
 
     override fun reloadLastBookListRefreshTime() {
         sharedPreferencesManager.getLastBookListRefreshTime().let { lastRefreshTime ->
-            view.showLastBookListRefreshTime(
-                SupportUtils.getTimeElapsed(
-                    System.currentTimeMillis() - lastRefreshTime
-                ).toLowerCase(Locale.US)
-            )
+            val elapsedTime = System.currentTimeMillis() - lastRefreshTime
+            val elapsedTimeLabel = SupportUtils.getTimeElapsed(elapsedTime).lowercase(Locale.US)
+            view.showLastBookListRefreshTime(elapsedTimeLabel)
         }
     }
 

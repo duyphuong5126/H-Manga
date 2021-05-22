@@ -2,7 +2,6 @@ package nhdphuong.com.manga.supports
 
 import android.content.Context
 import android.graphics.Rect
-import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
@@ -18,21 +17,6 @@ class SpaceItemDecoration() : RecyclerView.ItemDecoration() {
     private var mShowLastDivider = false
 
     private var mOrientation = -1
-
-    constructor(context: Context, attributeSet: AttributeSet) : this() {
-        mSpace = 0
-    }
-
-    @Suppress("unused")
-    constructor(
-        context: Context,
-        attributeSet: AttributeSet,
-        showFirstDivider: Boolean,
-        showLastDivider: Boolean
-    ) : this(context, attributeSet) {
-        mShowFirstDivider = showFirstDivider
-        mShowLastDivider = showLastDivider
-    }
 
     constructor(spaceInDp: Int, context: Context) : this() {
         val r = context.resources

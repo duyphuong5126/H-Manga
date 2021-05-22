@@ -77,7 +77,7 @@ class NHentaiApp : Application() {
         }
 
     fun getImageDirectory(bookName: String): String = "$imagesDirectory/$bookName"
-    fun getTagDirectory(): String = "$tagsDirectory/${Constants.TAGS.toLowerCase(Locale.US)}"
+    fun getTagDirectory(): String = "$tagsDirectory/${Constants.TAGS.lowercase(Locale.US)}"
 
     /**
      * Debug mode only

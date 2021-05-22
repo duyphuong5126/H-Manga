@@ -52,7 +52,7 @@ class FileUtils : IFileUtils {
 
 
     override fun getTagDirectory(): String =
-        "${NHentaiApp.instance.getTagDirectory()}/${Constants.TAGS.toLowerCase(Locale.US)}"
+        "${NHentaiApp.instance.getTagDirectory()}/${Constants.TAGS.lowercase(Locale.US)}"
 
     override fun deleteFile(path: String): Boolean = File(path).delete()
 
