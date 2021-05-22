@@ -109,10 +109,13 @@ class DownloadedBooksPresenter @Inject constructor(
 
     override fun reloadBookThumbnails() {
         val fromIndex = currentPage * MAX_PER_PAGE
-        val toIndex = if ((currentPage + 1) * MAX_PER_PAGE < totalBookList.size) {
+        var toIndex = if ((currentPage + 1) * MAX_PER_PAGE < totalBookList.size) {
             (currentPage + 1) * MAX_PER_PAGE
-        } else totalBookList.size - 1
+        } else totalBookList.size
         if (fromIndex == toIndex) {
+            if (toIndex > 0) {
+                toIndex--
+            }
             view.refreshThumbnailList(listOf(downloadedThumbnails[toIndex]))
         } else {
             view.refreshThumbnailList(downloadedThumbnails.subList(fromIndex, toIndex))
@@ -153,10 +156,13 @@ class DownloadedBooksPresenter @Inject constructor(
                 return@launch
             }
             val fromIndex = currentPage * MAX_PER_PAGE
-            val toIndex = if ((currentPage + 1) * MAX_PER_PAGE < totalBookList.size) {
+            var toIndex = if ((currentPage + 1) * MAX_PER_PAGE < totalBookList.size) {
                 (currentPage + 1) * MAX_PER_PAGE
-            } else totalBookList.size - 1
+            } else totalBookList.size
             if (fromIndex == toIndex) {
+                if (toIndex > 0) {
+                    toIndex--
+                }
                 currentBookList.add(totalBookList[toIndex])
             } else {
                 currentBookList.addAll(totalBookList.subList(fromIndex, toIndex))

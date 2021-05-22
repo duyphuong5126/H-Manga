@@ -158,6 +158,13 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
                             error
                         ).subscribe()
                             .addTo(compositeDisposable)
+
+                        removeBookFromPendingDownloadListUseCase.execute(book.bookId)
+                            .subscribe({
+                                logger.d("Book ${book.bookId} was removed from pending list")
+                            }, { removalError ->
+                                logger.d("Could not remove book ${book.bookId} with error $removalError")
+                            }).addTo(compositeDisposable)
                     }, onComplete = {
                         logger.d("Finished downloading book ${book.bookId}")
                         downloadingStatusMap[book.bookId] = DownloadingCompleted
