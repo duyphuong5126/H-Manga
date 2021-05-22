@@ -84,11 +84,6 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener,
         return inflater.inflate(R.layout.fragment_header, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        presenter.start()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpUI(view)
@@ -202,8 +197,9 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener,
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
 
             }
-
         })
+
+        presenter.start()
     }
 
     override fun onResume() {

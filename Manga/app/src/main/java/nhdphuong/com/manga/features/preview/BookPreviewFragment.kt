@@ -336,10 +336,7 @@ class BookPreviewFragment :
                 presenter.loadInfoLists()
             }
         }
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         activity?.let {
             lastOrientation =
                 it.resources?.configuration?.orientation ?: Configuration.ORIENTATION_UNDEFINED
@@ -641,12 +638,14 @@ class BookPreviewFragment :
             if (previewAdapter.itemCount % NUM_OF_ROWS != 0) {
                 spanCount++
             }
-            previewLayoutManager = object : MyGridLayoutManager(context!!, spanCount) {
-                override fun isAutoMeasureEnabled(): Boolean {
-                    return true
+            context?.let {
+                previewLayoutManager = object : MyGridLayoutManager(it, spanCount) {
+                    override fun isAutoMeasureEnabled(): Boolean {
+                        return true
+                    }
                 }
+                layoutManager = previewLayoutManager
             }
-            layoutManager = previewLayoutManager
             adapter = previewAdapter
 
             setItemViewCacheSize(PREVIEW_CACHE_SIZE)

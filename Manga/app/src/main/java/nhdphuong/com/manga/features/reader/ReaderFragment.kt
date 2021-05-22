@@ -195,10 +195,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
             }
             return@OnKeyListener false
         })
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         presenter.start()
         activity?.onBackPressedDispatcher?.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {

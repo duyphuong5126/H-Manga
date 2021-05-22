@@ -129,10 +129,7 @@ class TagsFragment : Fragment(), TagsContract, TagsContract.View, View.OnClickLi
         buttonLastCharacter.setOnClickListener(this)
         buttonFirstPage.setOnClickListener(this)
         buttonLastPage.setOnClickListener(this)
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         mPresenter.start()
     }
 

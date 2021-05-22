@@ -138,15 +138,11 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         btnFirst.setOnClickListener(this)
         btnLast.setOnClickListener(this)
         mbReload.gone()
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         activity?.let {
             loadingDialog = it.createLoadingDialog()
         }
 
-        val recentType = currentRecentType
         tvNothing.text = if (recentType == Constants.RECENT) {
             getString(R.string.no_recent_book)
         } else {
