@@ -44,6 +44,8 @@ import nhdphuong.com.manga.views.uimodel.ReaderType
 import nhdphuong.com.manga.views.uimodel.ReaderType.HorizontalPage
 import nhdphuong.com.manga.views.uimodel.ReaderType.ReversedHorizontalPage
 import nhdphuong.com.manga.views.uimodel.ReaderType.VerticalScroll
+import nhdphuong.com.manga.views.zoomable.ZoomableBookLayout
+import nhdphuong.com.manga.views.zoomable.ZoomableRecyclerView
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -75,6 +77,8 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
     private lateinit var mtvCurrentDirection: MyTextView
     private lateinit var navigatorLeft: MyTextView
     private lateinit var navigatorRight: MyTextView
+    private lateinit var verticalBookLayout: ZoomableBookLayout
+    private lateinit var verticalBookList: ZoomableRecyclerView
 
     private var viewDownloadedData = false
 
@@ -236,11 +240,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
             }
 
             R.id.ibRefresh -> {
-                ibRefresh.startAnimation(rotationAnimation)
-                presenter.reloadCurrentPage { currentPage: Int ->
-                    bookReaderAdapter.resetPage(currentPage)
-                    ibRefresh.postDelayed(ibRefresh::clearAnimation, 3000)
-                }
+                presenter.requestVisiblePageRefreshing()
             }
 
             R.id.navigatorLeft -> {
@@ -279,7 +279,11 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
                 pageList,
                 object : ReaderNavigationAdapter.ThumbnailSelectListener {
                     override fun onItemSelected(position: Int) {
-                        rvBookPages.scrollToPosition(position)
+                        if (readerType == VerticalScroll) {
+                            verticalBookList.scrollToPosition(position)
+                        } else {
+                            rvBookPages.scrollToPosition(position)
+                        }
                         updatePageInfo(position)
                         rvQuickNavigation.scrollToAroundPosition(position, ADDITIONAL_STEPS)
                     }
@@ -289,36 +293,20 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
                 LinearLayoutManager(activity, HORIZONTAL, reverseLayout)
 
             bookReaderAdapter = BookReaderAdapter(pageList, readerType) {
-                if (layoutReaderBottom.visibility == View.VISIBLE) {
-                    AnimationHelper.startSlideOutTop(activity, llReaderTop) {
-                        llReaderTop.visibility = View.GONE
-                    }
-                    AnimationHelper.startSlideOutBottom(activity, layoutReaderBottom) {
-                        layoutReaderBottom.visibility = View.GONE
-                    }
-                } else {
-                    AnimationHelper.startSlideInTop(activity, llReaderTop) {
-                        llReaderTop.visibility = View.VISIBLE
-                    }
-                    AnimationHelper.startSlideInBottom(activity, layoutReaderBottom) {
-                        layoutReaderBottom.visibility = View.VISIBLE
-                    }
-                }
+                toggleMenu()
             }
-            rvBookPages.adapter = bookReaderAdapter
             val cacheSize = if (CACHE_SIZE <= pageList.size) CACHE_SIZE else pageList.size
             rvBookPages.setItemViewCacheSize(cacheSize)
             val orientation = if (readerType == VerticalScroll) VERTICAL else HORIZONTAL
             val layoutManager =
                 PreLoadingLinearLayoutManager(activity, orientation, reverseLayout, PRELOAD_SIZE)
-            rvBookPages.layoutManager = layoutManager
             when (readerType) {
                 VerticalScroll -> {
-                    changeToVerticalMode(layoutManager, startPage)
+                    changeToVerticalMode(bookReaderAdapter, layoutManager, startPage)
                 }
 
                 else -> {
-                    changeToHorizontalMode(startPage)
+                    changeToHorizontalMode(bookReaderAdapter, layoutManager, startPage)
                 }
             }
         }
@@ -418,6 +406,32 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
         updatePageInfo(page)
     }
 
+    override fun refreshVisiblePages(readerType: ReaderType) {
+        ibRefresh.startAnimation(rotationAnimation)
+        ibRefresh.postDelayed(ibRefresh::clearAnimation, 4000)
+
+        if (readerType == VerticalScroll) {
+            verticalBookList.layoutManager
+        } else {
+            rvBookPages.layoutManager
+        }.let {
+            it as? LinearLayoutManager
+        }?.let {
+            if (bookReaderAdapter.itemCount > 0) {
+                var firstVisible = it.findFirstCompletelyVisibleItemPosition()
+                var lastVisible = it.findLastCompletelyVisibleItemPosition()
+                if (firstVisible < 0) {
+                    firstVisible = 0
+                }
+                if (lastVisible >= bookReaderAdapter.itemCount) {
+                    lastVisible = bookReaderAdapter.itemCount - 1
+                }
+
+                (firstVisible..lastVisible).forEach(bookReaderAdapter::notifyItemChanged)
+            }
+        }
+    }
+
     override fun showLoading() {
         if (isAdded) {
             ibRefresh.startAnimation(rotationAnimation)
@@ -432,18 +446,33 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
 
     override fun isActive(): Boolean = isAdded
 
-    private fun changeToVerticalMode(layoutManager: LinearLayoutManager, startPage: Int) {
-        rvBookPages.addItemDecoration(spaceItemDecoration)
+    private fun changeToVerticalMode(
+        adapter: BookReaderAdapter,
+        layoutManager: LinearLayoutManager,
+        startPage: Int
+    ) {
+        rvBookPages.gone()
+        rvBookPages.layoutManager = null
+        rvBookPages.adapter = null
+        rvBookPages.removeItemDecoration(spaceItemDecoration)
+
+        verticalBookList.adapter = adapter
+        verticalBookList.layoutManager = layoutManager
+        verticalBookList.addItemDecoration(spaceItemDecoration)
+        verticalBookList.tapListener = {
+            toggleMenu()
+        }
+
         snapHelper.attachToRecyclerView(null)
 
-        rvBookPages.clearOnScrollListeners()
+        verticalBookList.clearOnScrollListeners()
 
         updatePageInfo(startPage)
         rvQuickNavigation.doOnGlobalLayout {
             rvQuickNavigation.scrollToAroundPosition(startPage, ADDITIONAL_STEPS)
         }
         val initialScrollingSetUp = AtomicBoolean(false)
-        rvBookPages.doOnScrolled {
+        verticalBookList.doOnScrolled {
             if (initialScrollingSetUp.compareAndSet(false, true)) {
                 return@doOnScrolled
             }
@@ -458,10 +487,24 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
         }
 
         navigationAdapter.forceNavigate(startPage)
+        verticalBookLayout.becomeVisible()
     }
 
-    private fun changeToHorizontalMode(startPage: Int) {
-        rvBookPages.removeItemDecoration(spaceItemDecoration)
+    private fun changeToHorizontalMode(
+        adapter: BookReaderAdapter,
+        layoutManager: LinearLayoutManager,
+        startPage: Int
+    ) {
+        verticalBookLayout.gone()
+        verticalBookList.layoutManager = null
+        verticalBookList.adapter = null
+        verticalBookList.removeItemDecoration(spaceItemDecoration)
+        verticalBookList.tapListener = null
+
+        rvBookPages.adapter = adapter
+        rvBookPages.layoutManager = layoutManager
+        rvBookPages.addItemDecoration(spaceItemDecoration)
+
         snapHelper.attachToRecyclerView(rvBookPages)
 
         rvBookPages.clearOnScrollListeners()
@@ -473,6 +516,7 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
         rvQuickNavigation.doOnGlobalLayout {
             rvQuickNavigation.scrollToAroundPosition(startPage, ADDITIONAL_STEPS)
         }
+        rvBookPages.becomeVisible()
     }
 
     private fun updatePageInfo(page: Int) {
@@ -498,6 +542,8 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
         mtvCurrentDirection = rootView.findViewById(R.id.mtvCurrentDirection)
         navigatorLeft = rootView.findViewById(R.id.navigatorLeft)
         navigatorRight = rootView.findViewById(R.id.navigatorRight)
+        verticalBookLayout = rootView.findViewById(R.id.vertical_book_layout)
+        verticalBookList = rootView.findViewById(R.id.vertical_list)
 
         ibBack.setOnClickListener(this)
         mtvCurrentPage.setOnClickListener(this)
@@ -522,6 +568,26 @@ class ReaderFragment : Fragment(), ReaderContract.View, View.OnClickListener,
         }
         val currentDirectionLabel = String.format(currentDirectionTemplate, directionLabel)
         mtvCurrentDirection.text = currentDirectionLabel
+    }
+
+    private fun toggleMenu() {
+        activity?.let { activity ->
+            if (layoutReaderBottom.visibility == View.VISIBLE) {
+                AnimationHelper.startSlideOutTop(activity, llReaderTop) {
+                    llReaderTop.visibility = View.GONE
+                }
+                AnimationHelper.startSlideOutBottom(activity, layoutReaderBottom) {
+                    layoutReaderBottom.visibility = View.GONE
+                }
+            } else {
+                AnimationHelper.startSlideInTop(activity, llReaderTop) {
+                    llReaderTop.visibility = View.VISIBLE
+                }
+                AnimationHelper.startSlideInBottom(activity, layoutReaderBottom) {
+                    layoutReaderBottom.visibility = View.VISIBLE
+                }
+            }
+        }
     }
 
     companion object {

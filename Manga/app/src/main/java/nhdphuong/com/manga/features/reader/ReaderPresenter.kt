@@ -169,8 +169,8 @@ class ReaderPresenter @Inject constructor(
         }
     }
 
-    override fun reloadCurrentPage(onForceReload: (Int) -> Unit) {
-        onForceReload(currentPage)
+    override fun requestVisiblePageRefreshing() {
+        view.refreshVisiblePages(viewMode)
     }
 
     override fun updateNotificationId(notificationId: Int) {

@@ -19,6 +19,7 @@ interface ReaderContract {
         fun processSharingCurrentPage(bookId: String, bookTitle: String, url: String)
         fun setUpSettingList(readerType: ReaderType, isTapNavigationEnabled: Boolean)
         fun goToPage(page: Int)
+        fun refreshVisiblePages(readerType: ReaderType)
     }
 
     interface Presenter : Base.Presenter {
@@ -26,7 +27,7 @@ interface ReaderContract {
         fun updatePageIndicator(page: Int)
         fun forceBackToGallery()
         fun backToGallery()
-        fun reloadCurrentPage(onForceReload: (Int) -> Unit)
+        fun requestVisiblePageRefreshing()
         fun updateNotificationId(notificationId: Int)
         fun endReading()
         fun generateSharableLink()

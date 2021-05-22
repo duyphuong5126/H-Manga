@@ -17,6 +17,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <nhdphuong.com.manga.views.zoomable.ZoomableBookLayout
+        android:id="@+id/vertical_book_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <nhdphuong.com.manga.views.zoomable.ZoomableRecyclerView
+            android:id="@+id/vertical_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </nhdphuong.com.manga.views.zoomable.ZoomableBookLayout>
+
     <nhdphuong.com.manga.views.customs.MyTextView
         android:id="@+id/navigatorLeft"
         android:layout_width="80dp"

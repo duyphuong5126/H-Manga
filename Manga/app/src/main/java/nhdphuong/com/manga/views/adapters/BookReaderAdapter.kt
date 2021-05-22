@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.ortiz.touchview.TouchImageView
 import nhdphuong.com.manga.Logger
@@ -15,7 +16,6 @@ import nhdphuong.com.manga.views.customs.MyTextView
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.uimodel.ReaderType
-import nhdphuong.com.manga.views.uimodel.ReaderType.HorizontalPage
 import nhdphuong.com.manga.views.uimodel.ReaderType.VerticalScroll
 
 /*
@@ -28,17 +28,21 @@ class BookReaderAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val layoutResId = if (readerType == VerticalScroll) {
-            R.layout.item_book_page_wrapped
+        val layoutInflater = LayoutInflater.from(parent.context)
+        return if (readerType == VerticalScroll) {
+            val view = layoutInflater.inflate(R.layout.item_book_page_wrapped, parent, false)
+            WrapContentPageViewHolder(view)
         } else {
-            R.layout.item_book_page
+            val view = layoutInflater.inflate(R.layout.item_book_page, parent, false)
+            FullScreenPageViewHolder(view, onTapListener)
         }
-        val view = LayoutInflater.from(parent.context).inflate(layoutResId, parent, false)
-        return BookReaderViewHolder(view, onTapListener, readerType)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as BookReaderViewHolder).bindTo(pageUrlList[position], position + 1)
+        when (holder) {
+            is FullScreenPageViewHolder -> holder.bindTo(pageUrlList[position], position + 1)
+            is WrapContentPageViewHolder -> holder.bindTo(pageUrlList[position], position + 1)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -49,16 +53,15 @@ class BookReaderAdapter(
         notifyItemChanged(page)
     }
 
-    private class BookReaderViewHolder(
+    private class FullScreenPageViewHolder(
         view: View,
-        onTapListener: View.OnClickListener,
-        private val readerType: ReaderType
+        onTapListener: View.OnClickListener
     ) : RecyclerView.ViewHolder(view) {
         private val ivPage: TouchImageView = view.findViewById(R.id.ivPage)
         private val mtvPageTitle: MyTextView = view.findViewById(R.id.mtvPageTitle)
 
         private val logger: Logger by lazy {
-            Logger("BookReaderViewHolder")
+            Logger("FullScreenPageViewHolder")
         }
 
         init {
@@ -71,9 +74,7 @@ class BookReaderAdapter(
             mtvPageTitle.text = page.toString()
             mtvPageTitle.becomeVisible()
             reloadImage(pageUrl)
-            if (readerType == HorizontalPage) {
-                ivPage.resetZoom()
-            }
+            ivPage.resetZoom()
         }
 
         @SuppressLint("ClickableViewAccessibility")
@@ -103,28 +104,43 @@ class BookReaderAdapter(
         }
 
         private fun reloadImage(pageUrl: String) {
-            if (readerType == VerticalScroll) {
-                ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, onLoadSuccess = {
-                    mtvPageTitle.gone()
-                    logger.d("$pageUrl is loaded successfully")
-                }, onLoadFailed = {
-                    logger.e("$pageUrl loading failed")
-                })
-            } else {
-                ivPage.doOnGlobalLayout {
-                    ImageUtils.loadImage(
-                        pageUrl,
-                        R.drawable.ic_404_not_found,
-                        ivPage,
-                        onLoadSuccess = {
-                            mtvPageTitle.gone()
-                            logger.d("$pageUrl is loaded successfully")
-                        },
-                        onLoadFailed = {
-                            logger.e("$pageUrl loading failed")
-                        })
-                }
+            ivPage.doOnGlobalLayout {
+                ImageUtils.loadImage(
+                    pageUrl,
+                    R.drawable.ic_404_not_found,
+                    ivPage,
+                    onLoadSuccess = {
+                        mtvPageTitle.gone()
+                        logger.d("$pageUrl is loaded successfully")
+                    },
+                    onLoadFailed = {
+                        logger.e("$pageUrl loading failed")
+                    })
             }
+        }
+    }
+
+    private class WrapContentPageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val ivPage: ImageView = view.findViewById(R.id.ivPage)
+        private val mtvPageTitle: MyTextView = view.findViewById(R.id.mtvPageTitle)
+
+        private val logger: Logger by lazy {
+            Logger("WrapContentPageViewHolder")
+        }
+
+        fun bindTo(pageUrl: String, page: Int) {
+            mtvPageTitle.text = page.toString()
+            mtvPageTitle.becomeVisible()
+            reloadImage(pageUrl)
+        }
+
+        private fun reloadImage(pageUrl: String) {
+            ImageUtils.loadImage(pageUrl, R.drawable.ic_404_not_found, ivPage, onLoadSuccess = {
+                mtvPageTitle.gone()
+                logger.d("$pageUrl is loaded successfully")
+            }, onLoadFailed = {
+                logger.e("$pageUrl loading failed")
+            })
         }
     }
 }

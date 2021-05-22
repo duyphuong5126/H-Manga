@@ -3,13 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:clickable="false"
+    android:focusable="false"
     android:minHeight="200dp">
 
-    <com.ortiz.touchview.TouchImageView
+    <ImageView
         android:id="@+id/ivPage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:clickable="false"
         android:contentDescription="@string/book_page"
+        android:focusable="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -19,6 +23,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/greyAAA"
+        android:clickable="false"
+        android:focusable="false"
         android:gravity="center"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="50sp"
