@@ -208,10 +208,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         btnJumpToPage.setOnClickListener(this)
         btnFirst.setOnClickListener(this)
         btnLast.setOnClickListener(this)
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         homePresenter.start()
         updateSearchInfo("")
         mtvUpgradeTitle.setOnClickListener(this)

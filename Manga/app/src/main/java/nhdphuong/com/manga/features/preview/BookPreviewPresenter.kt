@@ -302,7 +302,7 @@ class BookPreviewPresenter @Inject constructor(
         putBookIntoPendingDownloadListUseCase.execute(book)
             .andThen(
                 if (!bookDownloader.isDownloading) {
-                    logger.d("Test>>> start downloading book ${book.bookId}")
+                    logger.d("Start downloading book ${book.bookId}")
                     startBookDownloadingUseCase.execute(book)
                 } else Completable.complete()
             )

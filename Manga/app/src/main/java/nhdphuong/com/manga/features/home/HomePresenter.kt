@@ -20,6 +20,7 @@ import nhdphuong.com.manga.Constants.Companion.EVENT_SEARCH
 import nhdphuong.com.manga.Constants.Companion.MAX_PER_PAGE
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_SEARCH_DATA
+import nhdphuong.com.manga.DownloadManager.Companion.BookDownloader as bookDownloader
 import nhdphuong.com.manga.DownloadManager.Companion.TagsDownloadManager as tagsDownloadManager
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
@@ -393,14 +394,18 @@ class HomePresenter @Inject constructor(
     }
 
     override fun checkAndResumeBookDownloading() {
-        getOldestPendingDownloadBookUseCase.execute()
-            .flatMapCompletable(startBookDownloadingUseCase::execute)
-            .subscribeOn(Schedulers.io())
-            .subscribe({
-                logger.d("Pending list checking completed")
-            }, {
-                logger.d("Pending list checking failed with error $it")
-            }).addTo(compositeDisposable)
+        if (!bookDownloader.isDownloading) {
+            getOldestPendingDownloadBookUseCase.execute()
+                .flatMapCompletable(startBookDownloadingUseCase::execute)
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    logger.d("Pending list checking completed")
+                }, {
+                    logger.d("Pending list checking failed with error $it")
+                }).addTo(compositeDisposable)
+        } else {
+            logger.d("Book ${bookDownloader.bookId} is being downloaded")
+        }
     }
 
     override fun stop() {
