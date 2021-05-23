@@ -58,6 +58,8 @@ class Database {
         private val MIGRATE_FROM_8_TO_9 = object : Migration(8, 9) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE IF NOT EXISTS $PENDING_DOWNLOAD_BOOK ($BOOK_ID TEXT NOT NULL PRIMARY KEY, $TITLE_PRETTY TEXT NOT NULL, $RAW_BOOK TEXT NOT NULL)")
+                val pendingBookIdIndex = "index_${PENDING_DOWNLOAD_BOOK}_$BOOK_ID"
+                database.execSQL("CREATE INDEX IF NOT EXISTS $pendingBookIdIndex ON $PENDING_DOWNLOAD_BOOK($BOOK_ID)")
             }
         }
 
