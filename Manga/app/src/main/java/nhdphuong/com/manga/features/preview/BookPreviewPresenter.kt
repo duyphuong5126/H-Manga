@@ -311,12 +311,13 @@ class BookPreviewPresenter @Inject constructor(
             .doOnSubscribe {
                 logger.d("Downloading ${bookDownloader.isDownloading}")
                 if (bookDownloader.isDownloading) {
-                    logger.d("Downloading book: ${bookDownloader.bookId}, current book: ${book.bookId}")
-                    if (view.isActive()) {
-                        if (book.bookId == bookDownloader.bookId) {
+                    val downloadingBookId = bookDownloader.downloadingBookId
+                    logger.d("Downloading book: $downloadingBookId, current book: ${book.bookId}")
+                    if (view.isActive() && downloadingBookId != null) {
+                        if (book.bookId == downloadingBookId) {
                             view.showThisBookBeingDownloaded()
                         } else {
-                            view.showThisBookWasAddedIntoQueue(bookDownloader.bookId)
+                            view.showThisBookWasAddedIntoQueue(downloadingBookId)
                         }
                     }
                 }

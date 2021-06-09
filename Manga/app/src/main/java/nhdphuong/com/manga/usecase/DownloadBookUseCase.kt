@@ -182,7 +182,8 @@ class DownloadBookUseCaseImpl @Inject constructor(
     }
 
     private fun getBookDirectory(book: Book): String {
-        return fileUtils.getImageDirectory(book.usefulName.replace(File.separator, "_"))
+        val bookFolderName = book.usefulName.replace(File.separator, "_")
+        return fileUtils.getImageDirectory(book.bookId, bookFolderName)
     }
 
     companion object {

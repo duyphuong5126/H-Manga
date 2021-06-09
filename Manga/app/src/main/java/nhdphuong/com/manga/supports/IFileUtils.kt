@@ -10,7 +10,7 @@ import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
 
 interface IFileUtils {
-    fun getImageDirectory(bookName: String): String
+    fun getImageDirectory(bookId: String, bookFolderName: String): String
 
     fun refreshGallery(needToShowRefreshDialog: Boolean, vararg galleryPaths: String)
 
@@ -23,8 +23,8 @@ interface IFileUtils {
 
 class FileUtils : IFileUtils {
 
-    override fun getImageDirectory(bookName: String): String {
-        return NHentaiApp.instance.getImageDirectory(bookName)
+    override fun getImageDirectory(bookId: String, bookFolderName: String): String {
+        return NHentaiApp.instance.getImageDirectory(bookId, bookFolderName)
     }
 
     override fun refreshGallery(needToShowRefreshDialog: Boolean, vararg galleryPaths: String) {

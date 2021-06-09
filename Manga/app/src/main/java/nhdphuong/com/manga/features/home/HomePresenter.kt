@@ -404,7 +404,7 @@ class HomePresenter @Inject constructor(
                     logger.d("Pending list checking failed with error $it")
                 }).addTo(compositeDisposable)
         } else {
-            logger.d("Book ${bookDownloader.bookId} is being downloaded")
+            logger.d("Book ${bookDownloader.downloadingBookId} is being downloaded")
         }
     }
 

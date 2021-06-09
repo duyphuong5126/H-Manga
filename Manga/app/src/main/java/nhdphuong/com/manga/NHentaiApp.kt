@@ -76,7 +76,9 @@ class NHentaiApp : Application() {
             return "$downloadDirectory/${Constants.NHENTAI_DIRECTORY}/apk"
         }
 
-    fun getImageDirectory(bookName: String): String = "$imagesDirectory/$bookName"
+    fun getImageDirectory(bookId: String, bookFolderName: String): String =
+        "$imagesDirectory/$bookId/$bookFolderName"
+
     fun getTagDirectory(): String = "$tagsDirectory/${Constants.TAGS.lowercase(Locale.US)}"
 
     /**

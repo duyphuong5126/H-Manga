@@ -178,6 +178,7 @@ class Constants {
         const val EVENT_BLOCK_RECOMMENDED_BOOK = "BlockRecommendedBook"
         const val EVENT_FAILED_TO_LOAD_HOME = "FailedToLoadHome"
         const val EVENT_FAILED_TO_SEARCH = "FailedToSearch"
+        const val EVENT_FORCE_STOP_DOWNLOADING = "ForceStopDownloading"
 
         // Analytics param name
         const val PARAM_NAME_APP_VERSION_NAME = "App_VersionName"
@@ -190,6 +191,7 @@ class Constants {
         const val PARAM_NAME_SEARCH_DATA = "Search_Data"
         const val PARAM_NAME_ANALYTICS_BOOK_ID = "Book_ID"
         const val PARAM_NAME_ANALYTICS_BOOK_LANGUAGE = "Book_Language"
+        const val PARAM_NAME_PROGRESS_PERCENTAGE = "ProgressPercentage"
 
         const val TOTAL = "total"
         const val PROGRESS = "progress"

@@ -30,15 +30,18 @@ import android.app.PendingIntent
 import android.content.Intent.FILL_IN_ACTION
 import androidx.core.app.JobIntentService
 import androidx.core.app.NotificationCompat
+import io.reactivex.schedulers.Schedulers
 import nhdphuong.com.manga.Constants.Companion.EVENT_DOWNLOADED_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_DOWNLOAD_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_FAILED_TO_DOWNLOAD_BOOK
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.Constants.Companion.BOOK_DOWNLOADING_NOTIFICATION_ID
+import nhdphuong.com.manga.Constants.Companion.EVENT_FORCE_STOP_DOWNLOADING
 import nhdphuong.com.manga.Constants.Companion.NOTIFICATION_CHANNEL_ID
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ERROR
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_PROGRESS_PERCENTAGE
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.analytics.AnalyticsParam
@@ -107,6 +110,7 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
         } else {
             NotificationHelper.sendNotification(notification, BOOK_DOWNLOADING_NOTIFICATION_ID)
         }
+        bookDownloader.addDownloadCallback(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -119,7 +123,6 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
                 downloadBookUseCase.execute(book)
                     .doOnSubscribe {
                         logger.d("Start downloading book ${book.bookId}")
-                        bookDownloader.setDownloadCallback(this)
                         bookDownloader.startDownloading(book.bookId, book.numOfPages)
 
                         val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
@@ -144,11 +147,7 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
                     }, onError = {
                         logger.e("Failure in downloading book ${book.mediaId} with error: $it")
                         downloadingStatusMap[book.bookId] = DownloadingFailure("", it)
-                        bookDownloader.endDownloadingWithError(
-                            book.bookId,
-                            bookDownloader.progress,
-                            bookDownloader.total
-                        )
+                        bookDownloader.endDownloadingWithError(book.bookId)
 
                         val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
                         val error = AnalyticsParam(PARAM_NAME_ERROR, it.javaClass.simpleName)
@@ -156,8 +155,7 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
                             EVENT_FAILED_TO_DOWNLOAD_BOOK,
                             bookIdParam,
                             error
-                        ).subscribe()
-                            .addTo(compositeDisposable)
+                        ).subscribe().addTo(compositeDisposable)
 
                         removeBookFromPendingDownloadListUseCase.execute(book.bookId)
                             .subscribe({
@@ -168,11 +166,7 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
                     }, onComplete = {
                         logger.d("Finished downloading book ${book.bookId}")
                         downloadingStatusMap[book.bookId] = DownloadingCompleted
-                        bookDownloader.endDownloading(
-                            book.bookId,
-                            bookDownloader.progress,
-                            bookDownloader.total
-                        )
+                        bookDownloader.endDownloading(book.bookId)
 
                         val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
                         logAnalyticsEventUseCase.execute(EVENT_DOWNLOADED_BOOK, bookIdParam)
@@ -191,6 +185,17 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
                     }).addTo(compositeDisposable)
             }
         }
+    }
+
+    override fun onStopCurrentWork(): Boolean {
+        logForceStopEvent()
+        return super.onStopCurrentWork()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        bookDownloader.removeDownloadCallback(this)
+        logForceStopEvent()
     }
 
     override fun onDownloadingStarted(bookId: String, total: Int) {
@@ -290,6 +295,17 @@ class BookDownloadingService : JobIntentService(), BookDownloadCallback {
             System.currentTimeMillis().toInt(),
             pendingIntent
         )
+    }
+
+    private fun logForceStopEvent() {
+        if (bookDownloader.isDownloading) {
+            bookDownloader.currentProgressStatus?.let {
+                val param = AnalyticsParam(PARAM_NAME_PROGRESS_PERCENTAGE, it.percentageLabel)
+                logAnalyticsEventUseCase.execute(EVENT_FORCE_STOP_DOWNLOADING, param)
+            } ?: logAnalyticsEventUseCase.execute(EVENT_FORCE_STOP_DOWNLOADING)
+                .subscribeOn(Schedulers.io())
+                .subscribe().addTo(compositeDisposable)
+        }
     }
 
     companion object {

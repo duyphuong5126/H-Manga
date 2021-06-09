@@ -1,5 +1,7 @@
 package nhdphuong.com.manga
 
+import java.util.concurrent.atomic.AtomicBoolean
+
 /*
  * Created by nhdphuong on 6/2/18.
  */
@@ -9,73 +11,84 @@ class DownloadManager {
             Logger("DownloadManager")
         }
 
+        data class BookDownloadingProgress(var progress: Int, val total: Int) {
+            val percentageLabel: String
+                get() {
+                    val percentage = if (total <= 0) 0.0 else (progress * 1.0) / total
+                    return (percentage * 100).toInt().toString()
+                }
+        }
+
         object BookDownloader {
-            private var mBookId: String = ""
-                set(value) {
-                    if (!isDownloading) {
-                        field = value
-                    }
-                }
-            val bookId: String
-                get() = mBookId
+            private val progressMap = HashMap<String, BookDownloadingProgress>()
 
-
-            private var mTotal: Int = 0
-                set(value) {
-                    if (value >= 0) {
-                        field = value
-                    }
-                }
-            val total: Int
-                get() = mTotal
-
-            private var mProgress: Int = 0
-                set(value) {
-                    if (value >= 0) {
-                        field = value
-                    }
-                }
-            val progress: Int
-                get() = mProgress
-
+            private val hasDownloadingBook = AtomicBoolean(false)
             val isDownloading: Boolean
-                get() = mTotal > 0 && ((mProgress * 1f) / (mTotal * 1f)) < 1.0
+                get() = hasDownloadingBook.get()
 
-            private var mDownloadCallback: BookDownloadCallback? = null
+            private val callbacks = arrayListOf<BookDownloadCallback>()
+
+            private var beingDownloadedBookId: String? = null
+            val downloadingBookId: String? get() = beingDownloadedBookId
+
+            val currentProgressStatus: BookDownloadingProgress?
+                get() = if (beingDownloadedBookId != null) {
+                    progressMap[beingDownloadedBookId]?.let {
+                        BookDownloadingProgress(it.progress, it.total)
+                    }
+                } else null
+
 
             fun startDownloading(bookId: String, total: Int) {
-                if (mBookId != bookId && !isDownloading) {
-                    mBookId = bookId
-                    mTotal = total
-                    mDownloadCallback?.onDownloadingStarted(bookId, total)
+                val isDownloadingBook = progressMap.containsKey(bookId)
+                val isNotDownloading = hasDownloadingBook.compareAndSet(false, true)
+                if (!isDownloadingBook && isNotDownloading) {
+                    beingDownloadedBookId = bookId
+                    progressMap[bookId] = BookDownloadingProgress(0, total)
+                    callbacks.forEach {
+                        it.onDownloadingStarted(bookId, total)
+                    }
                 }
             }
 
             fun updateProgress(bookId: String, progress: Int) {
-                if (mBookId == bookId && isDownloading) {
-                    mProgress = progress
-                    mDownloadCallback?.onProgressUpdated(bookId, progress, total)
+                beingDownloadedBookId = bookId
+                progressMap[bookId]?.apply {
+                    this.progress = progress
+                    callbacks.forEach {
+                        it.onProgressUpdated(bookId, progress, this.total)
+                    }
                 }
             }
 
-            fun endDownloading(bookId: String, downloaded: Int, total: Int) {
-                mTotal = 0
-                mProgress = 0
-                mBookId = ""
-                mDownloadCallback?.onDownloadingEnded(bookId, downloaded, total)
-                mDownloadCallback = null
+            fun endDownloading(bookId: String) {
+                val lastProgress = progressMap.remove(bookId)
+                lastProgress?.run {
+                    callbacks.forEach {
+                        it.onDownloadingEnded(bookId, progress, total)
+                    }
+                }
+                beingDownloadedBookId = null
+                hasDownloadingBook.compareAndSet(true, false)
             }
 
-            fun endDownloadingWithError(bookId: String, downloaded: Int, total: Int) {
-                mTotal = 0
-                mProgress = 0
-                mBookId = ""
-                mDownloadCallback?.onDownloadingEndedWithError(bookId, total - downloaded, total)
-                mDownloadCallback = null
+            fun endDownloadingWithError(bookId: String) {
+                val lastProgress = progressMap.remove(bookId)
+                lastProgress?.run {
+                    callbacks.forEach {
+                        it.onDownloadingEndedWithError(bookId, total - progress, total)
+                    }
+                }
+                beingDownloadedBookId = null
+                hasDownloadingBook.compareAndSet(true, false)
             }
 
-            fun setDownloadCallback(downloadCallback: BookDownloadCallback) {
-                mDownloadCallback = downloadCallback
+            fun addDownloadCallback(downloadCallback: BookDownloadCallback) {
+                callbacks.add(downloadCallback)
+            }
+
+            fun removeDownloadCallback(downloadCallback: BookDownloadCallback) {
+                callbacks.remove(downloadCallback)
             }
         }
 
