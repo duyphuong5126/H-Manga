@@ -280,6 +280,7 @@ class HomePresenter @Inject constructor(
                         }
                     }
                 }
+                syncRecommendedBooks()
             }
         } else {
             view.showRefreshingDialog()
