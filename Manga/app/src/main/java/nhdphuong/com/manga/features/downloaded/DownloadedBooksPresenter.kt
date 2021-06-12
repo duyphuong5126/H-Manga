@@ -139,6 +139,7 @@ class DownloadedBooksPresenter @Inject constructor(
 
     override fun notifyBookRemoved(bookId: String) {
         totalBookList.removeAll { it.bookId == bookId }
+        downloadedThumbnails.removeAll { it.first == bookId }
         updateCurrentPage()
     }
 

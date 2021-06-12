@@ -16,6 +16,7 @@ import android.os.Looper
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.RECENT_DATA_UPDATED_ACTION
 import nhdphuong.com.manga.Constants.Companion.REFRESH_DOWNLOADED_BOOK_LIST
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -73,6 +75,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
     private lateinit var mtvLastUpdate: MyTextView
     private lateinit var mtvRefresh: MyTextView
     private lateinit var pbRefresh: ProgressBar
+    private lateinit var recommendationLayout: LinearLayout
 
     private var downloadedBooks = ""
     private var noDownloadedBooks = ""
@@ -84,10 +87,17 @@ class DownloadedBooksActivity : AppCompatActivity(),
 
     private val activityResultCallback = ActivityResultCallback<ActivityResult> { result ->
         result?.run {
-            if (resultCode == RESULT_OK && data?.action == REFRESH_DOWNLOADED_BOOK_LIST) {
-                data?.getStringExtra(BOOK_ID)
-                    ?.takeIf(String::isNotBlank)
-                    ?.let(downloadedBooksPresenter::notifyBookRemoved)
+            if (resultCode == RESULT_OK) {
+                when (data?.action) {
+                    RECENT_DATA_UPDATED_ACTION -> {
+                        downloadedBooksPresenter.reloadBookMarkers()
+                    }
+                    REFRESH_DOWNLOADED_BOOK_LIST -> {
+                        data?.getStringExtra(BOOK_ID)
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let(downloadedBooksPresenter::notifyBookRemoved)
+                    }
+                }
             }
         }
     }
@@ -108,6 +118,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
         clNothing = findViewById(R.id.clNothing)
         mbReload = findViewById(R.id.mbReload)
         tvNothing = findViewById(R.id.tvNothing)
+        recommendationLayout = findViewById(R.id.recommendationLayout)
         ivRefresh = refreshHeader.findViewById(R.id.ivRefresh)
         mtvLastUpdate = refreshHeader.findViewById(R.id.mtvLastUpdate)
         mtvRefresh = refreshHeader.findViewById(R.id.mtvRefresh)
@@ -129,6 +140,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
         pullDown = getString(R.string.pull_down)
 
         setUpUI()
+        recommendationLayout.gone()
 
         loadingDialog = createLoadingDialog()
         ibSwitch.becomeInvisible()
@@ -155,13 +167,6 @@ class DownloadedBooksActivity : AppCompatActivity(),
         mbReload.gone()
         tvNothing.text = noDownloadedBooks
         downloadedBooksPresenter.start()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        if (this::bookListAdapter.isInitialized) {
-            downloadedBooksPresenter.reloadBookMarkers()
-        }
     }
 
     override fun onDestroy() {

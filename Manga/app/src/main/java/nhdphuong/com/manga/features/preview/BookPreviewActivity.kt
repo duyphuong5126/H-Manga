@@ -15,6 +15,9 @@ import android.view.WindowManager
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import nhdphuong.com.manga.Constants.Companion.RECENT_DATA_UPDATED_ACTION
+import nhdphuong.com.manga.Constants.Companion.REFRESH_DOWNLOADED_BOOK_LIST
+import nhdphuong.com.manga.Constants.Companion.TAG_SELECTED_ACTION
 
 
 class BookPreviewActivity : AppCompatActivity() {
@@ -61,8 +64,8 @@ class BookPreviewActivity : AppCompatActivity() {
 
     override fun finish() {
         val action = intent.action
-        if (action != Constants.TAG_SELECTED_ACTION && action != Constants.REFRESH_DOWNLOADED_BOOK_LIST) {
-            intent.action = Constants.RECENT_DATA_UPDATED_ACTION
+        if (action != TAG_SELECTED_ACTION && action != REFRESH_DOWNLOADED_BOOK_LIST) {
+            intent.action = RECENT_DATA_UPDATED_ACTION
             setResult(Activity.RESULT_OK, intent)
         }
         super.finish()
