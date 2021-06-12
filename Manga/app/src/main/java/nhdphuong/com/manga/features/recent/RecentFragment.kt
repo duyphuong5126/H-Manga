@@ -245,7 +245,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         recommendedListAdapter = BookAdapter(
             recommendedBookList,
             RECOMMEND_BOOK_WITH_ACTIONS,
-            this::onBookSelected,
+            this::onRecommendedBookSelected,
             this::onBlockingBook,
             this::onFavoriteBookAdded,
             this::onFavoriteBookRemoved
@@ -454,6 +454,11 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
 
     private fun onBookSelected(book: Book) {
         BookPreviewActivity.start(this, recentActivityLauncher, book)
+    }
+
+    private fun onRecommendedBookSelected(book: Book) {
+        BookPreviewActivity.start(this, recentActivityLauncher, book)
+        presenter.checkOutRecommendedBook(book.bookId)
     }
 
     private fun onBlockingBook(bookId: String) {

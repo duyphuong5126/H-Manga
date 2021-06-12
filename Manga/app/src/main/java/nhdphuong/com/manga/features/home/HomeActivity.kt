@@ -19,6 +19,7 @@ import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.features.header.HeaderFragment
 import nhdphuong.com.manga.features.header.HeaderModule
 import nhdphuong.com.manga.features.header.HeaderPresenter
+import nhdphuong.com.manga.work.VersionCheckWorker
 import javax.inject.Inject
 
 
@@ -67,6 +68,7 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
             searchQueryChangedReceiver,
             ACTION_SEARCH_QUERY_CHANGED
         )
+        VersionCheckWorker.start(this)
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

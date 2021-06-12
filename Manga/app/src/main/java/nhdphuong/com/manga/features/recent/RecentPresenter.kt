@@ -11,8 +11,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.EVENT_ADD_FAVORITE
+import nhdphuong.com.manga.Constants.Companion.EVENT_BLOCK_RECOMMENDED_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_BROWSE_FAVORITE
 import nhdphuong.com.manga.Constants.Companion.EVENT_BROWSE_RECENT
+import nhdphuong.com.manga.Constants.Companion.EVENT_CLICK_RECOMMENDED_BOOK
+import nhdphuong.com.manga.Constants.Companion.EVENT_REMOVE_FAVORITE
+import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
 import nhdphuong.com.manga.analytics.AnalyticsParam
@@ -259,12 +264,20 @@ class RecentPresenter @Inject constructor(
                 }
             }
 
-            val bookIdParam = AnalyticsParam(Constants.PARAM_NAME_ANALYTICS_BOOK_ID, bookId)
-            logAnalyticsEventUseCase.execute(Constants.EVENT_BLOCK_RECOMMENDED_BOOK, bookIdParam)
+            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, bookId)
+            logAnalyticsEventUseCase.execute(EVENT_BLOCK_RECOMMENDED_BOOK, bookIdParam)
                 .subscribeOn(Schedulers.io())
                 .subscribe()
                 .addTo(compositeDisposable)
         }
+    }
+
+    override fun checkOutRecommendedBook(bookId: String) {
+        val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, bookId)
+        logAnalyticsEventUseCase.execute(EVENT_CLICK_RECOMMENDED_BOOK, bookIdParam)
+            .subscribeOn(Schedulers.io())
+            .subscribe()
+            .addTo(compositeDisposable)
     }
 
     override fun addFavoriteRecommendedBook(book: Book) {
@@ -277,6 +290,11 @@ class RecentPresenter @Inject constructor(
             main.launch {
                 view.showFavoriteRecommendedBooks(recommendedFavoriteList)
             }
+            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+            logAnalyticsEventUseCase.execute(EVENT_ADD_FAVORITE, bookIdParam)
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+                .addTo(compositeDisposable)
         }
     }
 
@@ -290,6 +308,11 @@ class RecentPresenter @Inject constructor(
             main.launch {
                 view.showFavoriteRecommendedBooks(recommendedFavoriteList)
             }
+            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+            logAnalyticsEventUseCase.execute(EVENT_REMOVE_FAVORITE, bookIdParam)
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+                .addTo(compositeDisposable)
         }
     }
 

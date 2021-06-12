@@ -13,10 +13,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nhdphuong.com.manga.BuildConfig
+import nhdphuong.com.manga.Constants.Companion.EVENT_ADD_FAVORITE
 import nhdphuong.com.manga.Constants.Companion.EVENT_BLOCK_RECOMMENDED_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_CLICK_RECOMMENDED_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_FAILED_TO_LOAD_HOME
 import nhdphuong.com.manga.Constants.Companion.EVENT_FAILED_TO_SEARCH
+import nhdphuong.com.manga.Constants.Companion.EVENT_REMOVE_FAVORITE
 import nhdphuong.com.manga.Constants.Companion.EVENT_SEARCH
 import nhdphuong.com.manga.Constants.Companion.MAX_PER_PAGE
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
@@ -422,6 +424,11 @@ class HomePresenter @Inject constructor(
             main.launch {
                 view.showFavoriteRecommendedBooks(recommendedFavoriteList)
             }
+            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+            logAnalyticsEventUseCase.execute(EVENT_ADD_FAVORITE, bookIdParam)
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+                .addTo(compositeDisposable)
         }
     }
 
@@ -435,6 +442,11 @@ class HomePresenter @Inject constructor(
             main.launch {
                 view.showFavoriteRecommendedBooks(recommendedFavoriteList)
             }
+            val bookIdParam = AnalyticsParam(PARAM_NAME_ANALYTICS_BOOK_ID, book.bookId)
+            logAnalyticsEventUseCase.execute(EVENT_REMOVE_FAVORITE, bookIdParam)
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+                .addTo(compositeDisposable)
         }
     }
 

@@ -35,6 +35,7 @@ interface RecentContract {
         fun saveLastBookListRefreshTime()
         fun syncRecommendedList()
         fun doNoRecommendBook(bookId: String)
+        fun checkOutRecommendedBook(bookId: String)
         fun addFavoriteRecommendedBook(book: Book)
         fun removeFavoriteRecommendedBook(book: Book)
     }
