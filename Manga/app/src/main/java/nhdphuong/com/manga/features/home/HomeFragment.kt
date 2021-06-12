@@ -6,7 +6,7 @@ import `in`.srain.cube.views.ptr.PtrHandler
 import `in`.srain.cube.views.ptr.PtrUIHandler
 import `in`.srain.cube.views.ptr.indicator.PtrIndicator
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Intent
@@ -22,6 +22,9 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.widget.NestedScrollView
@@ -30,9 +33,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.ACTION_SEARCH_QUERY_CHANGED
+import nhdphuong.com.manga.Constants.Companion.RECENT_DATA_UPDATED_ACTION
+import nhdphuong.com.manga.Constants.Companion.SELECTED_TAG
+import nhdphuong.com.manga.Constants.Companion.TAG_SELECTED_ACTION
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.NotificationHelper
 import nhdphuong.com.manga.R
+import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.views.adapters.BookAdapter
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.SortOption
@@ -119,6 +127,31 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
     @Inject
     lateinit var networkManager: NetworkManager
+
+    private val activityResultCallback = ActivityResultCallback<ActivityResult> { result ->
+        if (result?.resultCode == RESULT_OK) {
+            when (result.data?.action) {
+                RECENT_DATA_UPDATED_ACTION -> {
+                    homePresenter.reloadRecentBooks()
+                }
+                TAG_SELECTED_ACTION -> {
+                    result.data?.getStringExtra(SELECTED_TAG)?.let { selectedTag ->
+                        if (selectedTag.isNotBlank()) {
+                            val dataBundle = Bundle().apply {
+                                putString(SELECTED_TAG, selectedTag)
+                            }
+                            BroadCastReceiverHelper.sendBroadCast(
+                                context, ACTION_SEARCH_QUERY_CHANGED, dataBundle
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private val previewLauncher =
+        registerForActivityResult(StartActivityForResult(), activityResultCallback)
 
     private fun setUpUI(rootView: View) {
         btnFirst = rootView.findViewById(R.id.btnFirst)
@@ -254,18 +287,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         }
         mainListLayoutManager.gapStrategy = StaggeredGridLayoutManager.HORIZONTAL
         rvMainList.layoutManager = mainListLayoutManager
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != Activity.RESULT_OK) {
-            return
-        }
-        if (requestCode == Constants.BOOK_PREVIEW_REQUEST &&
-            data?.action == Constants.RECENT_DATA_UPDATED_ACTION
-        ) {
-            homePresenter.reloadRecentBooks()
-        }
     }
 
     override fun onClick(v: View?) {
@@ -494,7 +515,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     }
 
     override fun showBookPreview(book: Book) {
-        BookPreviewActivity.start(this, book)
+        BookPreviewActivity.start(this, previewLauncher, book)
     }
 
     override fun startUpdateTagsService() {
@@ -655,12 +676,12 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     }
 
     private fun onBookSelected(book: Book) {
-        BookPreviewActivity.start(this, book)
+        BookPreviewActivity.start(this, previewLauncher, book)
     }
 
     private fun onRecommendedBookSelected(book: Book) {
         homePresenter.checkOutRecommendedBook(book.bookId)
-        BookPreviewActivity.start(this@HomeFragment, book)
+        BookPreviewActivity.start(this@HomeFragment, previewLauncher, book)
     }
 
     private fun onBlockingBook(bookId: String) {

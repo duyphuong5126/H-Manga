@@ -6,9 +6,8 @@ import `in`.srain.cube.views.ptr.PtrHandler
 import `in`.srain.cube.views.ptr.PtrUIHandler
 import `in`.srain.cube.views.ptr.indicator.PtrIndicator
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.app.Dialog
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -20,12 +19,18 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.RECENT_DATA_UPDATED_ACTION
+import nhdphuong.com.manga.Constants.Companion.SELECTED_TAG
+import nhdphuong.com.manga.Constants.Companion.TAG_SELECTED_ACTION
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
@@ -97,6 +102,27 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
             ) ?: Constants.RECENT
         }
 
+    private val activityResultCallback = ActivityResultCallback<ActivityResult> { result ->
+        when {
+            result?.data?.action == RECENT_DATA_UPDATED_ACTION -> {
+                presenter.reloadRecentMarks()
+            }
+            result?.resultCode == RESULT_OK && result.data?.action == TAG_SELECTED_ACTION -> {
+                val tagName = result.data?.getStringExtra(SELECTED_TAG).orEmpty()
+                activity?.run {
+                    val intent = intent
+                    intent.action = TAG_SELECTED_ACTION
+                    intent.putExtra(SELECTED_TAG, tagName)
+                    setResult(RESULT_OK, intent)
+                    finish()
+                }
+            }
+        }
+    }
+
+    private val recentActivityLauncher =
+        registerForActivityResult(StartActivityForResult(), activityResultCallback)
+
     override fun setPresenter(presenter: RecentContract.Presenter) {
         this.presenter = presenter
     }
@@ -163,25 +189,6 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         }
         presenter.setType(recentType)
         presenter.start()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == Constants.BOOK_PREVIEW_REQUEST && data?.action == Constants.RECENT_DATA_UPDATED_ACTION) {
-            presenter.reloadRecentMarks()
-            return
-        }
-        if (resultCode != Activity.RESULT_OK || data?.action != Constants.TAG_SELECTED_ACTION) {
-            return
-        }
-        val tagName = data.getStringExtra(Constants.SELECTED_TAG).orEmpty()
-        activity?.run {
-            val intent = intent
-            intent.action = Constants.TAG_SELECTED_ACTION
-            intent.putExtra(Constants.SELECTED_TAG, tagName)
-            setResult(Activity.RESULT_OK, intent)
-            finish()
-        }
     }
 
     override fun onDestroy() {
@@ -446,7 +453,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
     }
 
     private fun onBookSelected(book: Book) {
-        BookPreviewActivity.start(this, book)
+        BookPreviewActivity.start(this, recentActivityLauncher, book)
     }
 
     private fun onBlockingBook(bookId: String) {

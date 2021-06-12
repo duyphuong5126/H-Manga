@@ -1,19 +1,19 @@
 package nhdphuong.com.manga.features.home
 
 import android.annotation.TargetApi
-import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import nhdphuong.com.manga.Constants
-import nhdphuong.com.manga.Logger
+import nhdphuong.com.manga.Constants.Companion.ACTION_SEARCH_QUERY_CHANGED
+import nhdphuong.com.manga.Constants.Companion.SELECTED_TAG
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
+import nhdphuong.com.manga.broadcastreceiver.BroadCastReceiverHelper
 import nhdphuong.com.manga.features.RandomContract
 import nhdphuong.com.manga.features.SearchContract
 import nhdphuong.com.manga.features.header.HeaderFragment
@@ -44,10 +44,29 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
     @Inject
     lateinit var mHeaderPresenter: HeaderPresenter
 
+    private val searchQueryChangedReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            intent?.run {
+                if (action == ACTION_SEARCH_QUERY_CHANGED) {
+                    val selectedTag = getStringExtra(SELECTED_TAG)
+                    if (!selectedTag.isNullOrBlank()) {
+                        mHeaderFragment.updateSearchBar(selectedTag)
+                        onSearchInputted(selectedTag)
+                    }
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         showFragments()
+        BroadCastReceiverHelper.registerBroadcastReceiver(
+            this,
+            searchQueryChangedReceiver,
+            ACTION_SEARCH_QUERY_CHANGED
+        )
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -56,21 +75,9 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
         window?.statusBarColor = ContextCompat.getColor(this@HomeActivity, R.color.colorPrimary)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != Activity.RESULT_OK) {
-            return
-        }
-        data?.run {
-            if (action == Constants.TAG_SELECTED_ACTION) {
-                getStringExtra(Constants.SELECTED_TAG)?.let { selectedTag ->
-                    if (!TextUtils.isEmpty(selectedTag)) {
-                        mHeaderFragment.updateSearchBar(selectedTag)
-                        onSearchInputted(selectedTag)
-                    }
-                }
-            }
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        BroadCastReceiverHelper.unRegisterBroadcastReceiver(this, searchQueryChangedReceiver)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {

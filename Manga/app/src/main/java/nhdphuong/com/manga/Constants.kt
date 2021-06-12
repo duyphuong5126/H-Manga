@@ -94,10 +94,6 @@ class Constants {
 
         const val MAX_PER_PAGE = 25
 
-        const val BOOK_PREVIEW_REQUEST = 10073
-        const val DOWNLOADED_DATA_PREVIEW_REQUEST = 10074
-        const val READING_REQUEST = 10075
-
         const val RECENT_DATA_UPDATED_ACTION = "RECENT_DATA_UPDATED"
         const val TAG_SELECTED_ACTION = "TAG_SELECTED"
         const val SELECTED_TAG = "SELECTED_TAG"
@@ -157,6 +153,7 @@ class Constants {
         const val ACTION_TAGS_DOWNLOADING_PROGRESS = "ACTION_TAGS_DOWNLOADING_PROGRESS"
         const val ACTION_TAGS_DOWNLOADING_FAILED = "ACTION_TAGS_DOWNLOADING_FAILED"
         const val ACTION_TAGS_DOWNLOADING_COMPLETED = "ACTION_TAGS_DOWNLOADING_COMPLETED"
+        const val ACTION_SEARCH_QUERY_CHANGED = "ACTION_SEARCH_QUERY_CHANGED"
 
         // Analytics events
         const val EVENT_EXCEPTION = "Exception"

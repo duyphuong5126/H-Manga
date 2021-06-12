@@ -3,6 +3,7 @@ package nhdphuong.com.manga.features.tags
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import nhdphuong.com.manga.Constants
@@ -18,17 +19,14 @@ import javax.inject.Inject
 
 class TagsActivity : AppCompatActivity(), SearchContract {
     companion object {
-        fun start(activity: Activity, @Tag tagType: String, requestCode: Int) {
-            val intent = Intent(activity, TagsActivity::class.java)
-            intent.putExtra(Constants.TAG_TYPE, tagType)
-            activity.startActivityForResult(intent, requestCode)
-            activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-        }
-
-        fun start(fragment: Fragment, @Tag tagType: String, requestCode: Int) {
+        fun start(
+            fragment: Fragment,
+            launcher: ActivityResultLauncher<Intent>,
+            @Tag tagType: String
+        ) {
             val intent = Intent(fragment.context, TagsActivity::class.java)
             intent.putExtra(Constants.TAG_TYPE, tagType)
-            fragment.startActivityForResult(intent, requestCode)
+            launcher.launch(intent)
             fragment.activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
     }

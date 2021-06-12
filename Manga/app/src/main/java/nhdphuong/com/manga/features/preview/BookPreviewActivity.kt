@@ -12,6 +12,7 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import javax.inject.Inject
 import android.view.WindowManager
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 
@@ -69,18 +70,22 @@ class BookPreviewActivity : AppCompatActivity() {
     }
 
     companion object {
-        fun start(fragment: Fragment, book: Book) {
+        fun start(fragment: Fragment, launcher: ActivityResultLauncher<Intent>, book: Book) {
             val intent = Intent(fragment.activity, BookPreviewActivity::class.java)
             intent.putExtra(Constants.BOOK, book)
-            fragment.startActivityForResult(intent, Constants.BOOK_PREVIEW_REQUEST)
+            launcher.launch(intent)
             fragment.activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
 
-        fun startViewDownloadedData(activity: AppCompatActivity, book: Book) {
+        fun startViewDownloadedData(
+            activity: AppCompatActivity,
+            launcher: ActivityResultLauncher<Intent>,
+            book: Book
+        ) {
             val intent = Intent(activity, BookPreviewActivity::class.java)
             intent.putExtra(Constants.BOOK, book)
             intent.putExtra(Constants.VIEW_DOWNLOADED_DATA, true)
-            activity.startActivityForResult(intent, Constants.DOWNLOADED_DATA_PREVIEW_REQUEST)
+            launcher.launch(intent)
             activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
 

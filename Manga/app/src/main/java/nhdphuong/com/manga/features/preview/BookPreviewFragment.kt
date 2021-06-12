@@ -4,7 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -27,6 +27,9 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -51,6 +54,7 @@ import nhdphuong.com.manga.Constants.Companion.ACTION_SHOW_GALLERY_REFRESHING_DI
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.DELETING_FAILED_COUNT
 import nhdphuong.com.manga.Constants.Companion.DOWNLOADING_FAILED_COUNT
+import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE_RESULT
 import nhdphuong.com.manga.Constants.Companion.PROGRESS
 import nhdphuong.com.manga.Constants.Companion.TOTAL
 import nhdphuong.com.manga.Logger
@@ -198,6 +202,20 @@ class BookPreviewFragment :
     private var showFullCommentThreadTemplate: String = ""
     private var favoriteWithCountTemplate: String = ""
 
+    private val activityResultCallback = ActivityResultCallback<ActivityResult> { result ->
+        result?.run {
+            if (resultCode == RESULT_OK) {
+                presenter.refreshRecentStatus()
+                data?.getIntExtra(LAST_VISITED_PAGE_RESULT, -1)
+                    ?.takeIf { it >= 0 }
+                    ?.let(presenter::refreshLastVisitedPage)
+            }
+        }
+    }
+
+    private val readingLauncher =
+        registerForActivityResult(StartActivityForResult(), activityResultCallback)
+
     private val bookDownloadingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
@@ -336,16 +354,6 @@ class BookPreviewFragment :
             refreshGalleryDialog = it.createLoadingDialog(R.string.refreshing_gallery)
         }
         checkAndRequestStoragePermissionIfNecessary()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == Constants.READING_REQUEST) {
-            presenter.refreshRecentStatus()
-            data?.getIntExtra(Constants.LAST_VISITED_PAGE_RESULT, -1)
-                ?.takeIf { it >= 0 }
-                ?.let(presenter::refreshLastVisitedPage)
-        }
     }
 
     override fun onStart() {
@@ -802,7 +810,7 @@ class BookPreviewFragment :
     }
 
     override fun startReadingFromPage(page: Int, book: Book) {
-        ReaderActivity.start(this, page, book, viewDownloadedData)
+        ReaderActivity.start(this, readingLauncher, page, book, viewDownloadedData)
         activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
 
@@ -905,7 +913,7 @@ class BookPreviewFragment :
                 val intent = intent
                 intent.action = Constants.TAG_SELECTED_ACTION
                 intent.putExtra(Constants.SELECTED_TAG, tag.name)
-                setResult(Activity.RESULT_OK, intent)
+                setResult(RESULT_OK, intent)
                 finish()
             }
         }
@@ -1009,7 +1017,7 @@ class BookPreviewFragment :
             activity?.run {
                 intent.action = Constants.REFRESH_DOWNLOADED_BOOK_LIST
                 intent.putExtra(BOOK_ID, bookId)
-                setResult(Activity.RESULT_OK, intent)
+                setResult(RESULT_OK, intent)
                 finish()
             }
         }, CLOSE_AFTER_REMOVED_TIME)

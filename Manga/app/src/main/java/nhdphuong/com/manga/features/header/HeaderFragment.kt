@@ -1,8 +1,7 @@
 package nhdphuong.com.manga.features.header
 
-import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextUtils
@@ -14,10 +13,17 @@ import android.view.inputmethod.EditorInfo
 import android.widget.AutoCompleteTextView
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.FAVORITE
+import nhdphuong.com.manga.Constants.Companion.RECENT
+import nhdphuong.com.manga.Constants.Companion.TAG_RESULT
+import nhdphuong.com.manga.Constants.Companion.TAG_SELECTED_ACTION
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.Tab
@@ -48,7 +54,6 @@ import nhdphuong.com.manga.views.showTagsNotAvailable
 class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener,
     SearchSuggestionAdapter.SuggestionCallback {
     companion object {
-        private const val TAG_REQUEST_CODE = 10007
         const val ICON_TYPE_CODE = "IconTypeCode"
     }
 
@@ -71,6 +76,23 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener,
 
     private var suggestionRemovedTemplate = ""
     private var generalError = ""
+
+    private val activityResultCallback = ActivityResultCallback<ActivityResult> { result ->
+        resetTabBar()
+        if (result?.resultCode == RESULT_OK) {
+            val searchData = when (result.data?.action) {
+                TAG_SELECTED_ACTION -> {
+                    result.data?.getStringExtra(Constants.SELECTED_TAG).orEmpty()
+                }
+                else -> result.data?.getStringExtra(TAG_RESULT).orEmpty()
+            }
+            searchContract?.onSearchInputted(searchData)
+            updateSearchBar(searchData)
+        }
+    }
+
+    private val headerActivityLauncher =
+        registerForActivityResult(StartActivityForResult(), activityResultCallback)
 
     override fun setPresenter(presenter: HeaderContract.Presenter) {
         this.presenter = presenter
@@ -217,16 +239,6 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener,
         presenter.refreshTagData()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        resetTabBar()
-        if (resultCode == Activity.RESULT_OK && requestCode == TAG_REQUEST_CODE) {
-            val searchData = data?.getStringExtra(Constants.TAG_RESULT).orEmpty()
-            searchContract?.onSearchInputted(searchData)
-            updateSearchBar(searchData)
-        }
-    }
-
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.ibMainLogo -> {
@@ -273,16 +285,16 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener,
         if (tagChangeListener != null) {
             tagChangeListener?.onTagChange(tab.defaultName)
         } else {
-            TagsActivity.start(this@HeaderFragment, tab.defaultName, TAG_REQUEST_CODE)
+            TagsActivity.start(this@HeaderFragment, headerActivityLauncher, tab.defaultName)
         }
     }
 
     override fun goToFavoriteList() {
-        RecentActivity.start(this@HeaderFragment, Constants.FAVORITE)
+        RecentActivity.start(this@HeaderFragment, headerActivityLauncher, FAVORITE)
     }
 
     override fun goToRecentList() {
-        RecentActivity.start(this@HeaderFragment, Constants.RECENT)
+        RecentActivity.start(this@HeaderFragment, headerActivityLauncher, RECENT)
     }
 
     override fun goToRandomBook() {

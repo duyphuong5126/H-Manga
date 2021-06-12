@@ -2,6 +2,7 @@ package nhdphuong.com.manga.features.recent
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import nhdphuong.com.manga.Constants
@@ -14,10 +15,14 @@ class RecentActivity : AppCompatActivity() {
     companion object {
         private var mInstance: RecentActivity? = null
 
-        fun start(fragment: Fragment, @RecentType recentType: String) {
+        fun start(
+            fragment: Fragment,
+            launcher: ActivityResultLauncher<Intent>,
+            @RecentType recentType: String
+        ) {
             val intent = Intent(fragment.context, RecentActivity::class.java)
             intent.putExtra(Constants.RECENT_TYPE, recentType)
-            fragment.startActivityForResult(intent, Constants.BOOK_PREVIEW_REQUEST)
+            launcher.launch(intent)
             fragment.activity?.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
 

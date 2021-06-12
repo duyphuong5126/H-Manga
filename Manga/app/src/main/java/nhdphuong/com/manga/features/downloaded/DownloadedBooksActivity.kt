@@ -6,7 +6,6 @@ import `in`.srain.cube.views.ptr.PtrHandler
 import `in`.srain.cube.views.ptr.PtrUIHandler
 import `in`.srain.cube.views.ptr.indicator.PtrIndicator
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -18,12 +17,16 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.REFRESH_DOWNLOADED_BOOK_LIST
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
@@ -78,6 +81,19 @@ class DownloadedBooksActivity : AppCompatActivity(),
     private var releaseToRefresh = ""
     private var updatingTemplate = ""
     private var pullDown = ""
+
+    private val activityResultCallback = ActivityResultCallback<ActivityResult> { result ->
+        result?.run {
+            if (resultCode == RESULT_OK && data?.action == REFRESH_DOWNLOADED_BOOK_LIST) {
+                data?.getStringExtra(BOOK_ID)
+                    ?.takeIf(String::isNotBlank)
+                    ?.let(downloadedBooksPresenter::notifyBookRemoved)
+            }
+        }
+    }
+
+    private val previewLauncher =
+        registerForActivityResult(StartActivityForResult(), activityResultCallback)
 
     private fun setUpUI() {
         ibSwitch = findViewById(R.id.ibSwitch)
@@ -145,17 +161,6 @@ class DownloadedBooksActivity : AppCompatActivity(),
         super.onStart()
         if (this::bookListAdapter.isInitialized) {
             downloadedBooksPresenter.reloadBookMarkers()
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == Constants.DOWNLOADED_DATA_PREVIEW_REQUEST) {
-            if (data?.action == Constants.REFRESH_DOWNLOADED_BOOK_LIST) {
-                data.getStringExtra(Constants.BOOK_ID)?.takeIf { it.isNotBlank() }?.let { bookId ->
-                    downloadedBooksPresenter.notifyBookRemoved(bookId)
-                }
-            }
         }
     }
 
@@ -339,7 +344,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
     }
 
     private fun onBookSelected(book: Book) {
-        BookPreviewActivity.startViewDownloadedData(this@DownloadedBooksActivity, book)
+        BookPreviewActivity.startViewDownloadedData(this, previewLauncher, book)
     }
 
     companion object {
