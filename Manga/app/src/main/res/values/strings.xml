@@ -295,6 +295,9 @@
     <string name="book_id_template">Book ID: %s</string>
     <string name="total_item_count_template">Total: %d items</string>
     <string name="total_one_item">Total: 1 item</string>
+    <string name="block">Not interested</string>
+    <string name="viewed">Viewed</string>
+    <string name="remove_favorite">Remove favorite</string>
 
     <string-array name="dots" tools:ignore="TypographyEllipsis">
         <item>.</item>

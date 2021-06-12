@@ -26,6 +26,7 @@ interface HomeContract {
         fun showRefreshingDialog()
         fun showRecentBooks(recentList: List<String>)
         fun showFavoriteBooks(favoriteList: List<String>)
+        fun showFavoriteRecommendedBooks(favoriteList: List<String>)
         fun changeSearchInfo(data: String)
         fun showBookPreview(book: Book)
         fun startUpdateTagsService()
@@ -54,5 +55,7 @@ interface HomeContract {
         fun doNoRecommendBook(bookId: String)
         fun checkOutRecommendedBook(bookId: String)
         fun checkAndResumeBookDownloading()
+        fun addFavoriteRecommendedBook(book: Book)
+        fun removeFavoriteRecommendedBook(book: Book)
     }
 }

@@ -32,7 +32,7 @@ class MasterDataLocalDataSource @Inject constructor(
 
     override fun insertArtistsList(artistsList: List<Artist>) {
         io.launch {
-            mTagDAO.insertArtist(artistsList)
+            mTagDAO.insertArtists(artistsList)
         }
     }
 

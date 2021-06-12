@@ -17,7 +17,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,15 +31,19 @@ import nhdphuong.com.manga.R
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.enum.ErrorEnum
 import nhdphuong.com.manga.features.preview.BookPreviewActivity
+import nhdphuong.com.manga.views.MyGridLayoutManager
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.adapters.BookAdapter
+import nhdphuong.com.manga.views.adapters.BookAdapter.Companion.HOME_PREVIEW_BOOK
+import nhdphuong.com.manga.views.adapters.BookAdapter.Companion.RECOMMEND_BOOK_WITH_ACTIONS
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import nhdphuong.com.manga.views.createLoadingDialog
 import nhdphuong.com.manga.views.customs.MyButton
 import nhdphuong.com.manga.views.customs.MyTextView
+import nhdphuong.com.manga.views.showDoNotRecommendBookDialog
 
 /*
  * Created by nhdphuong on 6/10/18.
@@ -55,6 +61,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
 
     private lateinit var presenter: RecentContract.Presenter
     private lateinit var recentListAdapter: BookAdapter
+    private lateinit var recommendedListAdapter: BookAdapter
     private lateinit var paginationAdapter: PaginationAdapter
     private lateinit var loadingDialog: Dialog
 
@@ -76,6 +83,10 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
     private lateinit var mtvLastUpdate: MyTextView
     private lateinit var mtvRefresh: MyTextView
     private lateinit var pbRefresh: ProgressBar
+    private lateinit var recommendationLayout: LinearLayout
+    private lateinit var rvRecommendList: RecyclerView
+
+    private var doNoRecommendMessageTemplate = ""
 
     private val updateDotsHandler: Handler = Handler(Looper.getMainLooper())
 
@@ -139,8 +150,10 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         btnLast.setOnClickListener(this)
         mbReload.gone()
 
-        activity?.let {
-            loadingDialog = it.createLoadingDialog()
+        activity?.run {
+            loadingDialog = createLoadingDialog()
+
+            doNoRecommendMessageTemplate = getString(R.string.do_not_recommend_book_accepted)
         }
 
         tvNothing.text = if (recentType == Constants.RECENT) {
@@ -207,16 +220,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
     }
 
     override fun setUpRecentBookList(recentBookList: List<Book>) {
-        val recentFragment = this
-        recentListAdapter = BookAdapter(
-            recentBookList,
-            BookAdapter.HOME_PREVIEW_BOOK,
-            object : BookAdapter.OnBookClick {
-                override fun onItemClick(item: Book) {
-                    BookPreviewActivity.start(recentFragment, item)
-                }
-            }
-        )
+        recentListAdapter = BookAdapter(recentBookList, HOME_PREVIEW_BOOK, this::onBookSelected)
         val recentList: RecyclerView = rvBookList
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
         val spanCount = if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
@@ -230,6 +234,37 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         recentList.adapter = recentListAdapter
     }
 
+    override fun setUpRecommendedBookList(recommendedBookList: List<Book>) {
+        recommendedListAdapter = BookAdapter(
+            recommendedBookList,
+            RECOMMEND_BOOK_WITH_ACTIONS,
+            this::onBookSelected,
+            this::onBlockingBook,
+            this::onFavoriteBookAdded,
+            this::onFavoriteBookRemoved
+        )
+        rvRecommendList.adapter = recommendedListAdapter
+    }
+
+    override fun showRecommendedList() {
+        recommendedListAdapter.notifyDataSetChanged()
+        context?.let {
+            val gridLayoutManager =
+                object : MyGridLayoutManager(it, recommendedListAdapter.itemCount) {
+                    override fun isAutoMeasureEnabled(): Boolean {
+                        return true
+                    }
+                }
+
+            rvRecommendList.layoutManager = gridLayoutManager
+        }
+        recommendationLayout.becomeVisible()
+    }
+
+    override fun hideRecommendedList() {
+        recommendationLayout.gone()
+    }
+
     override fun refreshRecentBookList() {
         clNothing.gone()
         recentListAdapter.notifyDataSetChanged()
@@ -237,6 +272,7 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
             rvBookList.smoothScrollToPosition(0)
         }
         presenter.reloadRecentMarks()
+        presenter.syncRecommendedList()
     }
 
     override fun refreshRecentPagination(pageCount: Int) {
@@ -294,6 +330,14 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
             ErrorEnum.UnknownError -> R.string.library_error_unknown_label
         }
         tvNothing.text = getString(stringResId)
+    }
+
+    override fun showRecentRecommendedBooks(recentList: List<String>) {
+        recommendedListAdapter.setRecentList(recentList)
+    }
+
+    override fun showFavoriteRecommendedBooks(favoriteList: List<String>) {
+        recommendedListAdapter.setFavoriteList(favoriteList)
     }
 
     override fun showLoading() {
@@ -363,6 +407,8 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         clNothing = rootView.findViewById(R.id.clNothing)
         mbReload = rootView.findViewById(R.id.mbReload)
         tvNothing = rootView.findViewById(R.id.tvNothing)
+        recommendationLayout = rootView.findViewById(R.id.recommendationLayout)
+        rvRecommendList = rootView.findViewById(R.id.rvRecommendList)
         ivRefresh = refreshHeader.findViewById(R.id.ivRefresh)
         mtvLastUpdate = refreshHeader.findViewById(R.id.mtvLastUpdate)
         mtvRefresh = refreshHeader.findViewById(R.id.mtvRefresh)
@@ -397,5 +443,28 @@ class RecentFragment : Fragment(), RecentContract.View, PtrUIHandler, View.OnCli
         handler.post {
             rvPagination.scrollToPosition(pageNumber)
         }
+    }
+
+    private fun onBookSelected(book: Book) {
+        BookPreviewActivity.start(this, book)
+    }
+
+    private fun onBlockingBook(bookId: String) {
+        activity?.run {
+            showDoNotRecommendBookDialog(bookId, onOk = {
+                presenter.doNoRecommendBook(bookId)
+                val acceptedMessage =
+                    String.format(doNoRecommendMessageTemplate, bookId)
+                Toast.makeText(this, acceptedMessage, Toast.LENGTH_LONG).show()
+            })
+        }
+    }
+
+    private fun onFavoriteBookAdded(book: Book) {
+        presenter.addFavoriteRecommendedBook(book)
+    }
+
+    private fun onFavoriteBookRemoved(book: Book) {
+        presenter.removeFavoriteRecommendedBook(book)
     }
 }

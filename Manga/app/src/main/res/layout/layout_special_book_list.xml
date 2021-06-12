@@ -125,6 +125,54 @@
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false" />
 
+                    <LinearLayout
+                        android:id="@+id/recommendationLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical">
+
+                        <nhdphuong.com.manga.views.customs.MyTextView
+                            android:id="@+id/mtvRecommendBook"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start"
+                            android:layout_marginStart="@dimen/space_medium"
+                            android:layout_marginTop="@dimen/space_large"
+                            android:text="@string/maybe_you_interest"
+                            android:textColor="@android:color/white"
+                            android:textSize="@dimen/header_title_size"
+                            app:layout_goneMarginTop="@dimen/space_medium_extra"
+                            app:myFont="@string/NotoSansBold" />
+
+                        <HorizontalScrollView
+                            android:id="@+id/hsvRecommendList"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start"
+                            android:layout_marginTop="@dimen/space_medium"
+                            android:clipToPadding="false"
+                            android:overScrollMode="never"
+                            android:paddingStart="@dimen/space_medium"
+                            android:paddingEnd="@dimen/space_medium">
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/rvRecommendList"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:nestedScrollingEnabled="false"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        </HorizontalScrollView>
+
+                    </LinearLayout>
+
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/clNavigation"
                         android:layout_width="match_parent"

@@ -395,7 +395,7 @@ class BookLocalDataSource @Inject constructor(
         return Completable.fromCallable {
             tagDAO.insertTags(book.tags.filter { it.type == Constants.TAG })
             book.tags.filter { it.type == Constants.ARTIST }.map { it.toArtist() }
-                .let(tagDAO::insertArtist)
+                .let(tagDAO::insertArtists)
             book.tags.filter { it.type == Constants.CHARACTER }.map { it.toCharacter() }
                 .let(tagDAO::insertCharacters)
             book.tags.filter { it.type == Constants.GROUP }.map { it.toGroup() }

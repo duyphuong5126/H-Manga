@@ -121,13 +121,13 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
-            android:id="@+id/ibDoNotRecommend"
+            android:id="@+id/ibAction"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginTop="@dimen/space_medium"
             android:layout_marginEnd="@dimen/space_medium"
-            android:background="@drawable/ripple_circle_grey"
-            android:src="@drawable/ic_do_not_recommend"
+            android:background="@drawable/ripple_circle_grey_1"
+            android:src="@drawable/ic_more_white_24dp"
             app:layout_constraintEnd_toEndOf="@id/vNavigation"
             app:layout_constraintTop_toTopOf="@id/vNavigation" />
     </androidx.constraintlayout.widget.ConstraintLayout>

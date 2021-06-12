@@ -11,6 +11,7 @@ interface RecentContract {
     interface View : Base.View<Presenter> {
         fun setPresenter(presenter: Presenter)
         fun setUpRecentBookList(recentBookList: List<Book>)
+        fun setUpRecommendedBookList(recommendedBookList: List<Book>)
         fun refreshRecentBookList()
         fun refreshRecentPagination(pageCount: Int)
         fun showRecentBooks(recentList: List<String>)
@@ -18,6 +19,10 @@ interface RecentContract {
         fun showLastBookListRefreshTime(lastRefreshTimeStamp: String)
         fun showNothingView(@RecentType recentType: String)
         fun updateErrorMessage(errorEnum: ErrorEnum)
+        fun showRecentRecommendedBooks(recentList: List<String>)
+        fun showFavoriteRecommendedBooks(favoriteList: List<String>)
+        fun hideRecommendedList()
+        fun showRecommendedList()
     }
 
     interface Presenter : Base.Presenter {
@@ -28,5 +33,9 @@ interface RecentContract {
         fun jumToLastPage()
         fun reloadLastBookListRefreshTime()
         fun saveLastBookListRefreshTime()
+        fun syncRecommendedList()
+        fun doNoRecommendBook(bookId: String)
+        fun addFavoriteRecommendedBook(book: Book)
+        fun removeFavoriteRecommendedBook(book: Book)
     }
 }

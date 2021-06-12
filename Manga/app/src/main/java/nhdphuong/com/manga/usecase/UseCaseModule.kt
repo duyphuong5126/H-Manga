@@ -85,4 +85,7 @@ interface UseCaseModule {
 
     @Binds
     fun getPendingDownloadBookListUseCase(useCaseImpl: GetPendingDownloadBookListUseCaseImpl): GetPendingDownloadBookListUseCase
+
+    @Binds
+    fun recommendBooksByHistoryUseCase(useCaseImpl: RecommendBooksByHistoryUseCaseImpl): RecommendBooksByHistoryUseCase
 }

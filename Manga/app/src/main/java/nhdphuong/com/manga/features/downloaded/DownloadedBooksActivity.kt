@@ -34,6 +34,7 @@ import nhdphuong.com.manga.views.doOnGlobalLayout
 import nhdphuong.com.manga.views.gone
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.adapters.BookAdapter
+import nhdphuong.com.manga.views.adapters.BookAdapter.Companion.HOME_PREVIEW_BOOK
 import nhdphuong.com.manga.views.adapters.PaginationAdapter
 import nhdphuong.com.manga.views.createLoadingDialog
 import nhdphuong.com.manga.views.customs.MyButton
@@ -184,15 +185,7 @@ class DownloadedBooksActivity : AppCompatActivity(),
     }
 
     override fun setUpBookList(bookList: List<Book>) {
-        bookListAdapter = BookAdapter(
-            bookList,
-            BookAdapter.HOME_PREVIEW_BOOK,
-            object : BookAdapter.OnBookClick {
-                override fun onItemClick(item: Book) {
-                    BookPreviewActivity.startViewDownloadedData(this@DownloadedBooksActivity, item)
-                }
-            }
-        )
+        bookListAdapter = BookAdapter(bookList, HOME_PREVIEW_BOOK, this::onBookSelected)
 
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
         val spanCount = if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
@@ -343,6 +336,10 @@ class DownloadedBooksActivity : AppCompatActivity(),
         handler.post {
             rvPagination.scrollToPosition(pageNumber)
         }
+    }
+
+    private fun onBookSelected(book: Book) {
+        BookPreviewActivity.startViewDownloadedData(this@DownloadedBooksActivity, book)
     }
 
     companion object {

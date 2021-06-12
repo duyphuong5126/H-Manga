@@ -73,6 +73,7 @@ import nhdphuong.com.manga.supports.isFirstTimeInstall
 import nhdphuong.com.manga.views.InformationCardAdapter
 import nhdphuong.com.manga.views.MyGridLayoutManager
 import nhdphuong.com.manga.views.adapters.BookAdapter
+import nhdphuong.com.manga.views.adapters.BookAdapter.Companion.RECOMMEND_BOOK
 import nhdphuong.com.manga.views.adapters.CommentAdapter
 import nhdphuong.com.manga.views.adapters.PreviewAdapter
 import nhdphuong.com.manga.views.becomeInvisible
@@ -178,9 +179,6 @@ class BookPreviewFragment :
     private var languagesInfoAdapter: InformationCardAdapter? = null
 
     private var lastOrientation = Configuration.ORIENTATION_UNDEFINED
-
-    @Volatile
-    private var isPresenterStarted: Boolean = false
 
     private var viewDownloadedData = false
 
@@ -330,19 +328,13 @@ class BookPreviewFragment :
         ibBack.setOnClickListener(this)
         buttonUnSeen.setOnClickListener(this)
 
-        view.doOnGlobalLayout {
-            if (!isPresenterStarted) {
-                isPresenterStarted = true
-                presenter.loadInfoLists()
-            }
-        }
+        presenter.start()
 
         activity?.let {
             lastOrientation =
                 it.resources?.configuration?.orientation ?: Configuration.ORIENTATION_UNDEFINED
             refreshGalleryDialog = it.createLoadingDialog(R.string.refreshing_gallery)
         }
-        presenter.start()
         checkAndRequestStoragePermissionIfNecessary()
     }
 
@@ -358,6 +350,7 @@ class BookPreviewFragment :
 
     override fun onStart() {
         super.onStart()
+        presenter.loadInfoLists()
         BroadCastReceiverHelper.registerBroadcastReceiver(
             context,
             bookDownloadingReceiver,
@@ -393,7 +386,6 @@ class BookPreviewFragment :
 
     override fun onStop() {
         super.onStop()
-        isPresenterStarted = false
         BroadCastReceiverHelper.unRegisterBroadcastReceiver(context, bookDownloadingReceiver)
     }
 
@@ -665,14 +657,7 @@ class BookPreviewFragment :
             }
 
             rvRecommendList.layoutManager = gridLayoutManager
-            recommendBookAdapter = BookAdapter(
-                bookList,
-                BookAdapter.RECOMMEND_BOOK,
-                object : BookAdapter.OnBookClick {
-                    override fun onItemClick(item: Book) {
-                        BookPreviewActivity.restart(item)
-                    }
-                })
+            recommendBookAdapter = BookAdapter(bookList, RECOMMEND_BOOK, this::onBookSelected)
             rvRecommendList.adapter = recommendBookAdapter
         }
     }
@@ -1049,5 +1034,9 @@ class BookPreviewFragment :
                 }
             }
         }
+    }
+
+    private fun onBookSelected(book: Book) {
+        BookPreviewActivity.restart(book)
     }
 }

@@ -2,11 +2,15 @@ package nhdphuong.com.manga.views.adapters
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuItemImpl
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import jp.shts.android.library.TriangleLabelView
@@ -17,6 +21,7 @@ import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.supports.ImageUtils
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.views.doOnGlobalLayout
+import nhdphuong.com.manga.views.getInsetDrawable
 
 /*
  * Created by nhdphuong on 3/18/18.
@@ -24,13 +29,15 @@ import nhdphuong.com.manga.views.doOnGlobalLayout
 class BookAdapter(
     private val itemList: List<Book>,
     private val adapterType: Int,
-    private val bookClickCallback: OnBookClick,
-    private val onBookBlocked: OnBookBlocked? = null
+    private val onBookSelected: (item: Book) -> Unit = {},
+    private val onBlockingBook: (bookId: String) -> Unit = {},
+    private val onFavoriteBookAdded: (item: Book) -> Unit = {},
+    private val onFavoriteBookRemoved: (item: Book) -> Unit = {}
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         const val HOME_PREVIEW_BOOK = 1
         const val RECOMMEND_BOOK = 2
-        const val REMOVABLE_RECOMMEND_BOOK = 3
+        const val RECOMMEND_BOOK_WITH_ACTIONS = 3
     }
 
     private val recentList = ArrayList<String>()
@@ -45,17 +52,17 @@ class BookAdapter(
             RECOMMEND_BOOK -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_recommend_list, parent, false)
-                MainListViewHolder(view, bookClickCallback)
+                MainListViewHolder(view)
             }
-            REMOVABLE_RECOMMEND_BOOK -> {
+            RECOMMEND_BOOK_WITH_ACTIONS -> {
                 val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_removable_recommendation, parent, false)
-                RemovableRecommendedBookViewHolder(view, bookClickCallback)
+                    .inflate(R.layout.item_recommendation_with_actions, parent, false)
+                RemovableRecommendedBookViewHolder(view)
             }
             else -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_home_list, parent, false)
-                MainListViewHolder(view, bookClickCallback)
+                MainListViewHolder(view)
             }
         }
     }
@@ -77,15 +84,11 @@ class BookAdapter(
         val bookId = itemList[position].bookId
         val isRecent = recentList.contains(bookId)
         val isFavorite = favoriteList.contains(bookId)
-        if (isFavorite || isRecent) {
-            if (isRecent) {
-                mainLisViewHolder.showRecentLabel()
-            }
-            if (isFavorite) {
-                mainLisViewHolder.showFavoriteLabel()
-            }
-        } else {
-            mainLisViewHolder.hideRecentView()
+        mainLisViewHolder.isFavorite = isFavorite
+        when {
+            isFavorite -> mainLisViewHolder.showFavoriteLabel()
+            isRecent -> mainLisViewHolder.showRecentLabel()
+            else -> mainLisViewHolder.hideRecentView()
         }
     }
 
@@ -123,10 +126,7 @@ class BookAdapter(
         notifyDataSetChanged()
     }
 
-    open inner class MainListViewHolder(
-        itemView: View,
-        private val bookClickCallback: OnBookClick
-    ) : RecyclerView.ViewHolder(itemView) {
+    open inner class MainListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         protected lateinit var bookPreview: Book
         private val ivItemThumbnail: ImageView = itemView.findViewById(R.id.ivItemThumbnail)
         private val tv1stTitle: TextView = itemView.findViewById(R.id.tvItemTitle)
@@ -142,13 +142,14 @@ class BookAdapter(
         private val favoriteColor = ContextCompat.getColor(itemView.context, R.color.redED2553)
 
         private var isTitleModifiable = true
+        var isFavorite = false
 
         val ivThumbnail: ImageView
             get() = ivItemThumbnail
 
         init {
             vNavigation.setOnClickListener {
-                bookClickCallback.onItemClick(bookPreview)
+                onBookSelected(bookPreview)
             }
         }
 
@@ -207,24 +208,58 @@ class BookAdapter(
         }
     }
 
+    @SuppressLint("RestrictedApi")
     inner class RemovableRecommendedBookViewHolder(
-        itemView: View,
-        bookClickCallback: OnBookClick
-    ) : MainListViewHolder(itemView, bookClickCallback) {
-        private val ibDoNotRecommend: ImageButton = itemView.findViewById(R.id.ibDoNotRecommend)
+        itemView: View
+    ) : MainListViewHolder(itemView), PopupMenu.OnMenuItemClickListener {
+        private val ibDoNotRecommend: ImageButton = itemView.findViewById(R.id.ibAction)
+        private val popUpMenu
+            get() = PopupMenu(itemView.context, ibDoNotRecommend).apply {
+                val menuResId = if (isFavorite) {
+                    R.menu.favorite_book_action_menu
+                } else {
+                    R.menu.book_action_menu
+                }
+                menuInflater.inflate(menuResId, menu)
+                if (menu is MenuBuilder) {
+                    val menuBuilder = menu as MenuBuilder
+                    menuBuilder.setOptionalIconsVisible(true)
+                    menuBuilder.visibleItems.forEach {
+                        setUpItemIcon(it)
+                    }
+                }
+                setOnMenuItemClickListener(this@RemovableRecommendedBookViewHolder)
+            }
 
         init {
             ibDoNotRecommend.setOnClickListener {
-                onBookBlocked?.onBlockingBook(bookPreview.bookId)
+                popUpMenu.show()
             }
         }
-    }
 
-    interface OnBookClick {
-        fun onItemClick(item: Book)
-    }
+        private fun setUpItemIcon(item: MenuItemImpl) {
+            item.icon = itemView.context.getInsetDrawable(
+                item.icon,
+                startMarginResId = R.dimen.space_small,
+                endMarginResId = R.dimen.space_small
+            )
+        }
 
-    interface OnBookBlocked {
-        fun onBlockingBook(bookId: String)
+        override fun onMenuItemClick(item: MenuItem): Boolean {
+            when (item.itemId) {
+                R.id.actionBlock -> {
+                    onBlockingBook.invoke(bookPreview.bookId)
+                }
+
+                R.id.actionFavorite -> {
+                    onFavoriteBookAdded.invoke(bookPreview)
+                }
+
+                R.id.actionRemoveFavorite -> {
+                    onFavoriteBookRemoved.invoke(bookPreview)
+                }
+            }
+            return true
+        }
     }
 }

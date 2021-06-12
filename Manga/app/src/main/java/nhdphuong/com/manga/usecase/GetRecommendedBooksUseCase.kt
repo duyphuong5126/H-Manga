@@ -27,16 +27,13 @@ class GetRecommendedBooksUseCaseImpl @Inject constructor(
         return searchRepository.getMostUsedSearchEntries(MAX_SEARCH_ENTRIES)
             .flatMap { mostUsedSearchList ->
                 bookRepository.getMostUsedTags(MAX_USED_TAGS).map {
-                    val result = arrayListOf<String>()
-                    result.addAll(mostUsedSearchList)
-                    result.addAll(it)
+                    val searchQueries = arrayListOf<String>()
+                    searchQueries.addAll(mostUsedSearchList)
+                    searchQueries.addAll(it)
                     if (excludedSearchInfo.isNotBlank()) {
-                        result.removeAll { entry -> entry == excludedSearchInfo }
+                        searchQueries.removeAll { entry -> entry == excludedSearchInfo }
                     }
-                    if (result.isNotEmpty()) {
-                        result.shuffle()
-                    }
-                    ArrayList(result.distinct())
+                    ArrayList(searchQueries.distinct()).apply(ArrayList<String>::shuffle)
                 }
             }.map { searchQueries ->
                 logger.d("searchQueries=$searchQueries")

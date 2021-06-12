@@ -11,6 +11,7 @@ import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import nhdphuong.com.manga.BuildConfig
 import nhdphuong.com.manga.Constants.Companion.EVENT_BLOCK_RECOMMENDED_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_CLICK_RECOMMENDED_BOOK
@@ -102,6 +103,8 @@ class HomePresenter @Inject constructor(
     private val isSearching: Boolean get() = !TextUtils.isEmpty(searchData)
 
     private val newerVersionAcknowledged = AtomicBoolean(false)
+
+    private val recommendedFavoriteList = arrayListOf<String>()
 
     private var sortOption = Recent
         set(value) {
@@ -408,6 +411,32 @@ class HomePresenter @Inject constructor(
         }
     }
 
+    override fun addFavoriteRecommendedBook(book: Book) {
+        io.launch {
+            bookRepository.saveFavoriteBook(book)
+            if (bookRepository.isFavoriteBook(book.bookId)) {
+                recommendedFavoriteList.add(book.bookId)
+            }
+
+            main.launch {
+                view.showFavoriteRecommendedBooks(recommendedFavoriteList)
+            }
+        }
+    }
+
+    override fun removeFavoriteRecommendedBook(book: Book) {
+        io.launch {
+            bookRepository.removeFavoriteBook(book)
+            if (!bookRepository.isFavoriteBook(book.bookId)) {
+                recommendedFavoriteList.remove(book.bookId)
+            }
+
+            main.launch {
+                view.showFavoriteRecommendedBooks(recommendedFavoriteList)
+            }
+        }
+    }
+
     override fun stop() {
         logger.d("stop")
         io.launch {
@@ -607,6 +636,13 @@ class HomePresenter @Inject constructor(
         getRecommendedBooksUseCase.execute(dayOfWeek, searchData)
             .switchIfEmpty(getRecommendedBooksFromReadingHistoryUseCase.execute())
             .switchIfEmpty(getRecommendedBooksFromFavoriteUseCase.execute())
+            .doOnSuccess { recommendedBooks ->
+                runBlocking {
+                    recommendedBooks.filter {
+                        bookRepository.isFavoriteBook(it.bookId)
+                    }.map(Book::bookId).let(recommendedFavoriteList::addAll)
+                }
+            }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({

@@ -10,12 +10,12 @@ import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Constants.Companion.EVENT_BROWSE_FAVORITE
 import nhdphuong.com.manga.Constants.Companion.EVENT_BROWSE_RECENT
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.SharedPreferencesManager
+import nhdphuong.com.manga.analytics.AnalyticsParam
 import nhdphuong.com.manga.data.entity.FavoriteBook
 import nhdphuong.com.manga.data.entity.RecentBook
 import nhdphuong.com.manga.data.entity.book.Book
@@ -27,15 +27,15 @@ import nhdphuong.com.manga.scope.corountine.Main
 import nhdphuong.com.manga.supports.SupportUtils
 import nhdphuong.com.manga.usecase.LogAnalyticsErrorUseCase
 import nhdphuong.com.manga.usecase.LogAnalyticsEventUseCase
+import nhdphuong.com.manga.usecase.RecommendBooksByHistoryUseCase
 import java.net.SocketTimeoutException
+import java.util.Calendar
 import java.util.Collections
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.collections.HashMap
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -48,6 +48,7 @@ class RecentPresenter @Inject constructor(
     private val sharedPreferencesManager: SharedPreferencesManager,
     private val logAnalyticsErrorUseCase: LogAnalyticsErrorUseCase,
     private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
+    private val recommendBooksByHistoryUseCase: RecommendBooksByHistoryUseCase,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : RecentContract.Presenter {
@@ -68,6 +69,11 @@ class RecentPresenter @Inject constructor(
     private var currentPageCount: Int = 1
     private var currentPage: Int = 1
     private val recentBookList = ArrayList<Book>()
+
+    private val recommendedBooks = arrayListOf<Book>()
+
+    private val recommendedFavoriteList = arrayListOf<String>()
+    private val recommendedRecentList = arrayListOf<String>()
 
     @SuppressLint("UseSparseArrays")
     private var preventiveData = HashMap<Int, ArrayList<Book>>()
@@ -102,6 +108,7 @@ class RecentPresenter @Inject constructor(
         recentBookList.clear()
         view.showLoading()
         view.setUpRecentBookList(recentBookList)
+        view.setUpRecommendedBookList(recommendedBooks)
         io.launch {
             preventiveData[currentPage] = getRecentBook(currentPage - 1)
             recentBookList.addAll(preventiveData[currentPage].orEmpty())
@@ -111,7 +118,7 @@ class RecentPresenter @Inject constructor(
                 }
             }
 
-            val job = launch {
+            val job = io.launch {
                 recentCount = bookRepository.getRecentCount()
                 favoriteCount = bookRepository.getFavoriteCount()
 
@@ -172,6 +179,20 @@ class RecentPresenter @Inject constructor(
                     view.showFavoriteBooks(bookList)
                 }
             }
+
+            recommendedRecentList.clear()
+            recommendedFavoriteList.clear()
+            recommendedBooks.forEach {
+                if (bookRepository.isFavoriteBook(it.bookId)) {
+                    recommendedFavoriteList.add(it.bookId)
+                } else if (bookRepository.isRecentBook(it.bookId)) {
+                    recommendedRecentList.add(it.bookId)
+                }
+            }
+            main.launch {
+                view.showRecentRecommendedBooks(recommendedRecentList)
+                view.showFavoriteRecommendedBooks(recommendedFavoriteList)
+            }
         }
     }
 
@@ -200,6 +221,76 @@ class RecentPresenter @Inject constructor(
 
     override fun saveLastBookListRefreshTime() {
         sharedPreferencesManager.setLastBookListRefreshTime(System.currentTimeMillis())
+    }
+
+    override fun syncRecommendedList() {
+        logger.d("syncRecommendedList with ${recentBookList.size} books")
+        if (recentBookList.isEmpty()) {
+            return
+        }
+        val dayOfWeek = Calendar.getInstance(Locale.getDefault()).get(Calendar.DAY_OF_WEEK)
+        recommendBooksByHistoryUseCase.execute(recentBookList, dayOfWeek)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                view.hideRecommendedList()
+            }.subscribe({
+                logger.d("Recommended list ${it.size}")
+                if (it.isNotEmpty()) {
+                    recommendedBooks.clear()
+                    recommendedBooks.addAll(it)
+                    view.showRecommendedList()
+                }
+            }, {
+                view.hideRecommendedList()
+            }).addTo(compositeDisposable)
+    }
+
+    override fun doNoRecommendBook(bookId: String) {
+        io.launch {
+            bookRepository.addBookToBlockList(bookId)
+            recommendedBooks.removeAll { it.bookId == bookId }
+            val isNoRecommendedBook = recommendedBooks.isEmpty()
+            main.launch {
+                if (isNoRecommendedBook) {
+                    view.hideRecommendedList()
+                } else {
+                    view.showRecommendedList()
+                }
+            }
+
+            val bookIdParam = AnalyticsParam(Constants.PARAM_NAME_ANALYTICS_BOOK_ID, bookId)
+            logAnalyticsEventUseCase.execute(Constants.EVENT_BLOCK_RECOMMENDED_BOOK, bookIdParam)
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+                .addTo(compositeDisposable)
+        }
+    }
+
+    override fun addFavoriteRecommendedBook(book: Book) {
+        io.launch {
+            bookRepository.saveFavoriteBook(book)
+            if (bookRepository.isFavoriteBook(book.bookId)) {
+                recommendedFavoriteList.add(book.bookId)
+            }
+
+            main.launch {
+                view.showFavoriteRecommendedBooks(recommendedFavoriteList)
+            }
+        }
+    }
+
+    override fun removeFavoriteRecommendedBook(book: Book) {
+        io.launch {
+            bookRepository.removeFavoriteBook(book)
+            if (!bookRepository.isFavoriteBook(book.bookId)) {
+                recommendedFavoriteList.remove(book.bookId)
+            }
+
+            main.launch {
+                view.showFavoriteRecommendedBooks(recommendedFavoriteList)
+            }
+        }
     }
 
     override fun stop() {
@@ -262,14 +353,9 @@ class RecentPresenter @Inject constructor(
         }
         val toLoadPages = min(currentPageCount, NUMBER_OF_PREVENTIVE_PAGES)
         isLoadingPreventiveData.compareAndSet(false, true)
-        suspendCoroutine<Boolean> { continuation ->
-            runBlocking {
-                for (page in currentPage + 1..toLoadPages) {
-                    logger.d("Start loading page $page")
-                    preventiveData[page] = getRecentBook(page - 1)
-                }
-            }
-            continuation.resume(true)
+        for (page in currentPage + 1..toLoadPages) {
+            logger.d("Start loading page $page")
+            preventiveData[page] = getRecentBook(page - 1)
         }
         logger.d("Load preventive data successfully")
         isLoadingPreventiveData.compareAndSet(true, false)

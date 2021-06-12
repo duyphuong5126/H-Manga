@@ -1,5 +1,9 @@
 package nhdphuong.com.manga.views
 
+import android.content.Context
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.InsetDrawable
+import android.os.Build
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.core.widget.NestedScrollView
@@ -123,6 +127,44 @@ fun RecyclerView.scrollToAroundPosition(position: Int, additionalStep: Int = 0) 
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+
+fun Context.getInsetDrawable(
+    drawable: Drawable,
+    startMarginResId: Int = -1,
+    topMarginResId: Int = -1,
+    endMarginResId: Int = -1,
+    bottomMarginResId: Int = -1
+): InsetDrawable {
+    var marginStart = 0
+    var marginTop = 0
+    var marginBottom = 0
+    var marginEnd = 0
+    resources?.run {
+        if (startMarginResId >= 0) {
+            marginStart = getDimensionPixelSize(startMarginResId)
+        }
+        if (topMarginResId >= 0) {
+            marginTop = getDimensionPixelSize(topMarginResId)
+        }
+        if (endMarginResId >= 0) {
+            marginEnd = getDimensionPixelSize(endMarginResId)
+        }
+        if (bottomMarginResId >= 0) {
+            marginBottom = getDimensionPixelSize(bottomMarginResId)
+        }
+    }
+
+    return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+        InsetDrawable(drawable, marginStart, marginTop, marginEnd, marginBottom)
+    } else {
+        object : InsetDrawable(drawable, marginStart, marginTop, marginEnd, marginBottom) {
+            override fun getIntrinsicWidth(): Int {
+                return intrinsicHeight + marginStart + marginEnd
             }
         }
     }

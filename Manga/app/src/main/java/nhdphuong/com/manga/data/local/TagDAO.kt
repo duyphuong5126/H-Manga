@@ -92,7 +92,7 @@ interface TagDAO {
      * For Artists table
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertArtist(artists: List<Artist>)
+    fun insertArtists(artists: List<Artist>)
 
     @Query("SELECT count(*) FROM $TABLE_ARTIST")
     fun getArtistsCount(): Int

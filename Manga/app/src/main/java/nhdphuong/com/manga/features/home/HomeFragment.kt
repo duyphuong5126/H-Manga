@@ -44,6 +44,8 @@ import nhdphuong.com.manga.features.setting.SettingsActivity
 import nhdphuong.com.manga.service.NetworkManager
 import nhdphuong.com.manga.service.RecentFavoriteMigrationService
 import nhdphuong.com.manga.views.MyGridLayoutManager
+import nhdphuong.com.manga.views.adapters.BookAdapter.Companion.HOME_PREVIEW_BOOK
+import nhdphuong.com.manga.views.adapters.BookAdapter.Companion.RECOMMEND_BOOK_WITH_ACTIONS
 import nhdphuong.com.manga.views.becomeVisible
 import nhdphuong.com.manga.views.becomeVisibleIf
 import nhdphuong.com.manga.views.gone
@@ -244,10 +246,8 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val mainListLayoutManager = object : StaggeredGridLayoutManager(
-            if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS,
-            VERTICAL
-        ) {
+        val spanCount = if (isLandscape) LANDSCAPE_GRID_COLUMNS else GRID_COLUMNS
+        val mainListLayoutManager = object : StaggeredGridLayoutManager(spanCount, VERTICAL) {
             override fun isAutoMeasureEnabled(): Boolean {
                 return true
             }
@@ -337,15 +337,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
     @SuppressLint("PrivateResource")
     override fun setUpHomeBookList(homeBookList: List<Book>) {
-        val homeFragment = this
-        homeListAdapter = BookAdapter(
-            homeBookList,
-            BookAdapter.HOME_PREVIEW_BOOK,
-            object : BookAdapter.OnBookClick {
-                override fun onItemClick(item: Book) {
-                    BookPreviewActivity.start(homeFragment, item)
-                }
-            })
+        homeListAdapter = BookAdapter(homeBookList, HOME_PREVIEW_BOOK, this::onBookSelected)
         val mainList: RecyclerView = rvMainList
         val isLandscape = resources.getBoolean(R.bool.is_landscape)
         val mainListLayoutManager = object : StaggeredGridLayoutManager(
@@ -375,22 +367,11 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
             recommendAdapter = BookAdapter(
                 bookList,
-                BookAdapter.REMOVABLE_RECOMMEND_BOOK,
-                object : BookAdapter.OnBookClick {
-                    override fun onItemClick(item: Book) {
-                        homePresenter.checkOutRecommendedBook(item.bookId)
-                        BookPreviewActivity.start(this@HomeFragment, item)
-                    }
-                }, object : BookAdapter.OnBookBlocked {
-                    override fun onBlockingBook(bookId: String) {
-                        activity?.showDoNotRecommendBookDialog(bookId, onOk = {
-                            homePresenter.doNoRecommendBook(bookId)
-                            val acceptedMessage =
-                                String.format(doNoRecommendMessageTemplate, bookId)
-                            Toast.makeText(it, acceptedMessage, Toast.LENGTH_LONG).show()
-                        })
-                    }
-                }
+                RECOMMEND_BOOK_WITH_ACTIONS,
+                this::onRecommendedBookSelected,
+                this::onBlockingBook,
+                this::onFavoriteBookAdded,
+                this::onFavoriteBookRemoved
             )
             rvRecommendList.adapter = recommendAdapter
         }
@@ -498,6 +479,10 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
 
     override fun showFavoriteBooks(favoriteList: List<String>) {
         homeListAdapter.setFavoriteList(favoriteList)
+    }
+
+    override fun showFavoriteRecommendedBooks(favoriteList: List<String>) {
+        recommendAdapter?.setFavoriteList(favoriteList)
     }
 
     override fun showRecentBooks(recentList: List<String>) {
@@ -667,6 +652,34 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
             text = String.format(searchResultTitle, data)
             becomeVisibleIf(data.isNotBlank())
         }
+    }
+
+    private fun onBookSelected(book: Book) {
+        BookPreviewActivity.start(this, book)
+    }
+
+    private fun onRecommendedBookSelected(book: Book) {
+        homePresenter.checkOutRecommendedBook(book.bookId)
+        BookPreviewActivity.start(this@HomeFragment, book)
+    }
+
+    private fun onBlockingBook(bookId: String) {
+        activity?.run {
+            showDoNotRecommendBookDialog(bookId, onOk = {
+                homePresenter.doNoRecommendBook(bookId)
+                val acceptedMessage =
+                    String.format(doNoRecommendMessageTemplate, bookId)
+                Toast.makeText(this, acceptedMessage, Toast.LENGTH_LONG).show()
+            })
+        }
+    }
+
+    private fun onFavoriteBookAdded(book: Book) {
+        homePresenter.addFavoriteRecommendedBook(book)
+    }
+
+    private fun onFavoriteBookRemoved(book: Book) {
+        homePresenter.removeFavoriteRecommendedBook(book)
     }
 
     companion object {

@@ -70,32 +70,21 @@ class BookPreviewPresenter @Inject constructor(
         private const val COMMENTS_PER_PAGE = 25
     }
 
-    private var isTagListInitialized = false
-    private var isLanguageListInitialized = false
-    private var isArtistListInitialized = false
-    private var isCategoryListInitialized = false
-    private var isCharacterListInitialized = false
-    private var isParodyListInitialized = false
-    private var isGroupListInitialized = false
     private var isInfoLoaded = false
     private var isBookCoverReloaded = false
     private var cacheCoverUrl: String = ""
 
-    private lateinit var tagList: ArrayList<Tag>
-    private lateinit var artistList: ArrayList<Tag>
-    private lateinit var categoryList: ArrayList<Tag>
-    private lateinit var languageList: ArrayList<Tag>
-    private lateinit var parodyList: ArrayList<Tag>
-    private lateinit var characterList: ArrayList<Tag>
-    private lateinit var groupList: ArrayList<Tag>
+    private val tagList: ArrayList<Tag> = arrayListOf()
+    private val artistList: ArrayList<Tag> = arrayListOf()
+    private val categoryList: ArrayList<Tag> = arrayListOf()
+    private val languageList: ArrayList<Tag> = arrayListOf()
+    private val parodyList: ArrayList<Tag> = arrayListOf()
+    private val characterList: ArrayList<Tag> = arrayListOf()
+    private val groupList: ArrayList<Tag> = arrayListOf()
 
     private val bookThumbnailList = ArrayList<String>()
 
     private val commentSource = ArrayList<Comment>()
-
-    private val uploadedTimeStamp: String = SupportUtils.getTimeElapsed(
-        System.currentTimeMillis() - book.updateAt * MILLISECOND
-    )
 
     private var isFavoriteBook: Boolean = false
 
@@ -149,20 +138,9 @@ class BookPreviewPresenter @Inject constructor(
         view.showFavoriteBookSaved(isFavoriteBook)
         view.show1stTitle(book.title.englishName)
         view.show2ndTitle(book.title.japaneseName)
-        view.showUploadedTime(uploadedTimeStamp)
+        view.showUploadedTime(getUploadedTimeStamp(book))
         view.showPageCount(book.numOfPages)
-        tagList = ArrayList()
-        categoryList = ArrayList()
-        artistList = ArrayList()
-        characterList = ArrayList()
-        languageList = ArrayList()
-        parodyList = ArrayList()
-        groupList = ArrayList()
 
-        if (viewDownloadedData) {
-            view.hideCommentList()
-            return
-        }
         io.launch {
             when (val commentResponse = bookRepository.getCommentList(book.bookId)) {
                 is CommentResponse.Success -> {
@@ -197,76 +175,9 @@ class BookPreviewPresenter @Inject constructor(
 
     override fun loadInfoLists() {
         if (!isInfoLoaded) {
-            for (tag in book.tags) {
-                when (tag.type) {
-                    Constants.TAG -> tagList.add(tag)
-                    Constants.CATEGORY -> categoryList.add(tag)
-                    Constants.CHARACTER -> characterList.add(tag)
-                    Constants.ARTIST -> artistList.add(tag)
-                    Constants.LANGUAGE -> languageList.add(tag)
-                    Constants.PARODY -> parodyList.add(tag)
-                    Constants.GROUP -> groupList.add(tag)
-                }
-            }
-
-            if (!isTagListInitialized) {
-                if (tagList.isEmpty()) {
-                    view.hideTagList()
-                } else {
-                    view.showTagList(tagList)
-                }
-                isTagListInitialized = true
-            }
-            if (!isArtistListInitialized) {
-                if (artistList.isEmpty()) {
-                    view.hideArtistList()
-                } else {
-                    view.showArtistList(artistList)
-                }
-                isArtistListInitialized = true
-            }
-            if (!isLanguageListInitialized) {
-                if (languageList.isEmpty()) {
-                    view.hideLanguageList()
-                } else {
-                    view.showLanguageList(languageList)
-                }
-                isLanguageListInitialized = true
-            }
-            if (!isCategoryListInitialized) {
-                if (categoryList.isEmpty()) {
-                    view.hideCategoryList()
-                } else {
-                    view.showCategoryList(categoryList)
-                }
-                isCategoryListInitialized = true
-            }
-            if (!isCharacterListInitialized) {
-                if (characterList.isEmpty()) {
-                    view.hideCharacterList()
-                } else {
-                    view.showCharacterList(characterList)
-                }
-                isCharacterListInitialized = true
-            }
-            if (!isGroupListInitialized) {
-                if (groupList.isEmpty()) {
-                    view.hideGroupList()
-                } else {
-                    view.showGroupList(groupList)
-                }
-                isGroupListInitialized = true
-            }
-            if (!isParodyListInitialized) {
-                if (parodyList.isEmpty()) {
-                    view.hideParodyList()
-                } else {
-                    view.showParodyList(parodyList)
-                }
-                isParodyListInitialized = true
-            }
-
+            loadTagData(book)
             loadBookThumbnails()
+            isInfoLoaded = true
 
             if (!viewDownloadedData) {
                 loadRecommendBook()
@@ -534,13 +445,76 @@ class BookPreviewPresenter @Inject constructor(
         return coverUrl
     }
 
+    private fun loadTagData(currentBook: Book) {
+        Completable.fromCallable {
+            tagList.clear()
+            categoryList.clear()
+            characterList.clear()
+            artistList.clear()
+            languageList.clear()
+            parodyList.clear()
+            groupList.clear()
+            currentBook.tags.forEach { tag ->
+                when (tag.type) {
+                    Constants.TAG -> tagList.add(tag)
+                    Constants.CATEGORY -> categoryList.add(tag)
+                    Constants.CHARACTER -> characterList.add(tag)
+                    Constants.ARTIST -> artistList.add(tag)
+                    Constants.LANGUAGE -> languageList.add(tag)
+                    Constants.PARODY -> parodyList.add(tag)
+                    Constants.GROUP -> groupList.add(tag)
+                }
+            }
+        }.subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                if (tagList.isEmpty()) {
+                    view.hideTagList()
+                } else {
+                    view.showTagList(tagList)
+                }
+                if (artistList.isEmpty()) {
+                    view.hideArtistList()
+                } else {
+                    view.showArtistList(artistList)
+                }
+                if (languageList.isEmpty()) {
+                    view.hideLanguageList()
+                } else {
+                    view.showLanguageList(languageList)
+                }
+                if (categoryList.isEmpty()) {
+                    view.hideCategoryList()
+                } else {
+                    view.showCategoryList(categoryList)
+                }
+                if (characterList.isEmpty()) {
+                    view.hideCharacterList()
+                } else {
+                    view.showCharacterList(characterList)
+                }
+                if (groupList.isEmpty()) {
+                    view.hideGroupList()
+                } else {
+                    view.showGroupList(groupList)
+                }
+                if (parodyList.isEmpty()) {
+                    view.hideParodyList()
+                } else {
+                    view.showParodyList(parodyList)
+                }
+            }, {
+                logger.e("Failed to load tag data with error $it")
+            }).addTo(compositeDisposable)
+    }
+
     private fun loadBookThumbnails() {
         if (viewDownloadedData) {
             getDownloadedBookPagesUseCase.execute(book.bookId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(onSuccess = { downloadedImages ->
-                    logger.d("Book ${book.bookId}: ${downloadedImages.size} page(s)")
+                    logger.d("Downloaded book ${book.bookId}: ${downloadedImages.size} page(s)")
                     bookThumbnailList.addAll(downloadedImages)
                     view.showBookThumbnailList(bookThumbnailList)
                 }, onError = {
@@ -552,6 +526,7 @@ class BookPreviewPresenter @Inject constructor(
             if (bookPages.isEmpty()) {
                 return
             }
+            logger.d("Book ${book.bookId}: ${bookPages.size} page(s)")
             for (pageId in bookPages.indices) {
                 val page = bookPages[pageId]
                 val url = ApiConstants.getThumbnailByPage(
@@ -561,9 +536,9 @@ class BookPreviewPresenter @Inject constructor(
                 )
                 bookThumbnailList.add(url)
             }
+            logger.d("Book ${book.bookId}: bookThumbnailList=$bookThumbnailList")
             view.showBookThumbnailList(bookThumbnailList)
         }
-        isInfoLoaded = true
     }
 
     private fun loadRecommendBook() {
@@ -626,4 +601,8 @@ class BookPreviewPresenter @Inject constructor(
             .subscribe()
             .addTo(compositeDisposable)
     }
+
+    private fun getUploadedTimeStamp(book: Book): String = SupportUtils.getTimeElapsed(
+        System.currentTimeMillis() - book.updateAt * MILLISECOND
+    )
 }
