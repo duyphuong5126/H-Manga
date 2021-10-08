@@ -9,7 +9,6 @@ import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -30,8 +29,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -72,8 +69,6 @@ import nhdphuong.com.manga.views.showDoNotRecommendBookDialog
 import nhdphuong.com.manga.views.showGoToPageDialog
 import nhdphuong.com.manga.views.showTryAlternativeDomainsDialog
 import javax.inject.Inject
-import nhdphuong.com.manga.shared.ExternalRoutingViewModel
-import nhdphuong.com.manga.views.uimodel.RoutingModel
 
 /*
  * Created by nhdphuong on 3/16/18.
@@ -160,8 +155,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     private val previewLauncher =
         registerForActivityResult(StartActivityForResult(), activityResultCallback)
 
-    private var externalRoutingViewModel: ExternalRoutingViewModel? = null
-
     private fun setUpUI(rootView: View) {
         btnFirst = rootView.findViewById(R.id.btnFirst)
         btnJumpToPage = rootView.findViewById(R.id.btnJumpToPage)
@@ -198,19 +191,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         homePresenter = presenter
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        (context as? FragmentActivity)?.let {
-            externalRoutingViewModel =
-                ViewModelProviders.of(it)[ExternalRoutingViewModel::class.java]
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        externalRoutingViewModel = null
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -242,12 +222,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         nsvMainList.overScrollMode = View.OVER_SCROLL_NEVER
         activity?.let {
             loadingDialog = it.createLoadingDialog()
-            externalRoutingViewModel?.routingModel?.observe(it) { routing ->
-                when (routing) {
-                    is RoutingModel.BookQuerying -> handleExternalBookID(routing.bookId)
-                    is RoutingModel.Search -> handleExternalSearchInfo(routing.searchInfo)
-                }
-            }
         }
         srlPullToReload.addPtrUIHandler(this)
         srlPullToReload.setPtrHandler(object : PtrHandler {
@@ -285,11 +259,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         }
         mtvUpgradeTitle.setOnClickListener(this)
         ibUpgradePopupClose.setOnClickListener(this)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        externalRoutingViewModel?.routingModel?.removeObservers(this)
     }
 
     override fun onStart() {
