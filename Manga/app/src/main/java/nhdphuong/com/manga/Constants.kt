@@ -154,6 +154,7 @@ class Constants {
         const val ACTION_TAGS_DOWNLOADING_FAILED = "ACTION_TAGS_DOWNLOADING_FAILED"
         const val ACTION_TAGS_DOWNLOADING_COMPLETED = "ACTION_TAGS_DOWNLOADING_COMPLETED"
         const val ACTION_SEARCH_QUERY_CHANGED = "ACTION_SEARCH_QUERY_CHANGED"
+        const val ACTION_OPEN_BOOK_EXTERNALLY = "ACTION_OPEN_BOOK_EXTERNALLY"
 
         // Analytics events
         const val EVENT_EXCEPTION = "Exception"
@@ -211,5 +212,7 @@ class Constants {
         const val ALTERNATIVE_HOME_URL = "home_url"
         const val ALTERNATIVE_IMAGE_URL = "i_url"
         const val ALTERNATIVE_THUMBNAIL_URL = "t_url"
+
+        const val DEEP_LINK_BOOK_PATH = "g"
     }
 }

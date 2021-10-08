@@ -50,6 +50,7 @@ import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_COMPLETED
 import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_FAILED
 import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_PROGRESS
 import nhdphuong.com.manga.Constants.Companion.ACTION_DOWNLOADING_STARTED
+import nhdphuong.com.manga.Constants.Companion.ACTION_OPEN_BOOK_EXTERNALLY
 import nhdphuong.com.manga.Constants.Companion.ACTION_SHOW_GALLERY_REFRESHING_DIALOG
 import nhdphuong.com.manga.Constants.Companion.BOOK_ID
 import nhdphuong.com.manga.Constants.Companion.DELETING_FAILED_COUNT
@@ -271,6 +272,17 @@ class BookPreviewFragment :
         }
     }
 
+    private val externalBookIdReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == ACTION_OPEN_BOOK_EXTERNALLY) {
+                val bookId = intent.extras?.getString(BOOK_ID)
+                if (!bookId.isNullOrBlank()) {
+                    presenter.restartBookPreview(bookId)
+                }
+            }
+        }
+    }
+
     override fun setPresenter(presenter: BookPreviewContract.Presenter) {
         this.presenter = presenter
     }
@@ -354,6 +366,17 @@ class BookPreviewFragment :
             refreshGalleryDialog = it.createLoadingDialog(R.string.refreshing_gallery)
         }
         checkAndRequestStoragePermissionIfNecessary()
+
+        BroadCastReceiverHelper.registerBroadcastReceiver(
+            context,
+            externalBookIdReceiver,
+            ACTION_OPEN_BOOK_EXTERNALLY
+        )
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        BroadCastReceiverHelper.unRegisterBroadcastReceiver(context, externalBookIdReceiver)
     }
 
     override fun onStart() {
@@ -1045,6 +1068,6 @@ class BookPreviewFragment :
     }
 
     private fun onBookSelected(book: Book) {
-        BookPreviewActivity.restart(book)
+        BookPreviewActivity.restart(book, viewDownloadedData)
     }
 }

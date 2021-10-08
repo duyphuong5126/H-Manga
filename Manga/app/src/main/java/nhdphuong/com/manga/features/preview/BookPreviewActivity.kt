@@ -15,6 +15,7 @@ import android.view.WindowManager
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import java.util.concurrent.atomic.AtomicBoolean
 import nhdphuong.com.manga.Constants.Companion.RECENT_DATA_UPDATED_ACTION
 import nhdphuong.com.manga.Constants.Companion.REFRESH_DOWNLOADED_BOOK_LIST
 import nhdphuong.com.manga.Constants.Companion.TAG_SELECTED_ACTION
@@ -29,6 +30,7 @@ class BookPreviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_preview)
+        started.compareAndSet(false, true)
         instance = this
 
         intent.extras?.getParcelable<Book>(Constants.BOOK)?.let { book ->
@@ -37,21 +39,26 @@ class BookPreviewActivity : AppCompatActivity() {
                         as BookPreviewFragment?
             if (bookPreviewFragment == null) {
                 bookPreviewFragment = BookPreviewFragment()
-                intent.extras?.getBoolean(Constants.VIEW_DOWNLOADED_DATA, false)
-                    ?.let { viewDownloadedData ->
-                        bookPreviewFragment.arguments = Bundle().apply {
-                            putBoolean(Constants.VIEW_DOWNLOADED_DATA, viewDownloadedData)
-                        }
-                    }
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.clBookPreview, bookPreviewFragment)
                     .commitAllowingStateLoss()
             }
+            intent.extras?.getBoolean(Constants.VIEW_DOWNLOADED_DATA, false)
+                ?.let { viewDownloadedData ->
+                    bookPreviewFragment.arguments = Bundle().apply {
+                        putBoolean(Constants.VIEW_DOWNLOADED_DATA, viewDownloadedData)
+                    }
+                }
 
             NHentaiApp.instance.applicationComponent.plus(
                 BookPreviewModule(bookPreviewFragment, book)
             ).inject(this)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        started.compareAndSet(true, false)
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -73,6 +80,9 @@ class BookPreviewActivity : AppCompatActivity() {
     }
 
     companion object {
+        private val started = AtomicBoolean(false)
+        val isStarted: Boolean get() = started.get()
+
         fun start(fragment: Fragment, launcher: ActivityResultLauncher<Intent>, book: Book) {
             val intent = Intent(fragment.activity, BookPreviewActivity::class.java)
             intent.putExtra(Constants.BOOK, book)
@@ -94,9 +104,12 @@ class BookPreviewActivity : AppCompatActivity() {
 
         private var instance: BookPreviewActivity? = null
 
-        fun restart(book: Book) {
+        fun restart(book: Book, viewDownLoadedData: Boolean = false) {
             instance?.let { bookPreviewActivity ->
-                bookPreviewActivity.intent.putExtra(Constants.BOOK, book)
+                bookPreviewActivity.intent.apply {
+                    putExtra(Constants.BOOK, book)
+                    putExtra(Constants.VIEW_DOWNLOADED_DATA, viewDownLoadedData)
+                }
                 bookPreviewActivity.recreate()
                 bookPreviewActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             }

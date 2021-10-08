@@ -3,6 +3,7 @@ package nhdphuong.com.manga.features.home
 import android.annotation.SuppressLint
 import android.text.TextUtils
 import com.google.gson.JsonParseException
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -54,10 +55,11 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.Random
 import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
-import kotlin.collections.HashMap
 import kotlin.math.abs
 
 /*
@@ -90,11 +92,13 @@ class HomePresenter @Inject constructor(
     private val logger = Logger("HomePresenter")
 
     private var mainList = CopyOnWriteArrayList<Book>()
-    private var currentNumOfPages = 0L
-    private var currentPage = 1L
+    private var _currentNumOfPages = AtomicLong(0)
+    private val currentNumOfPages: Long get() = _currentNumOfPages.get()
+    private var _currentPage = AtomicLong(1L)
+    private val currentPage: Long get() = _currentPage.get()
 
     @SuppressLint("UseSparseArrays")
-    private var preventiveData = HashMap<Long, ArrayList<Book>>()
+    private var preventiveData = ConcurrentHashMap<Long, ArrayList<Book>>()
 
     private var recommendedBooks = arrayListOf<Book>()
 
@@ -244,7 +248,7 @@ class HomePresenter @Inject constructor(
             view.showLoading()
             io.launch {
                 val remoteBooks = getBooksListByPage(currentPage, true)
-                currentNumOfPages = remoteBooks?.numOfPages ?: 0L
+                _currentNumOfPages.getAndSet(remoteBooks?.numOfPages ?: 0L)
                 val isCurrentPageEmpty = if (remoteBooks != null) {
                     remoteBooks.bookList.let { bookList ->
                         preventiveData[currentPage]?.let { page ->
@@ -450,6 +454,33 @@ class HomePresenter @Inject constructor(
         }
     }
 
+    override fun openBook(bookId: String) {
+        Single.create<Book> {
+            val mainListItem = mainList.firstOrNull { book -> book.bookId == bookId }
+            if (mainListItem != null) {
+                it.onSuccess(mainListItem)
+            } else {
+                preventiveData.entries.forEach { (_, bookList) ->
+                    val item = bookList.firstOrNull { book -> book.bookId == bookId }
+                    if (item != null) {
+                        it.onSuccess(item)
+                        return@create
+                    }
+                }
+            }
+            runBlocking {
+                when (val bookResponse = bookRepository.getBookDetails(bookId)) {
+                    is BookResponse.Success -> it.onSuccess(bookResponse.book)
+                    is BookResponse.Failure -> it.onError(bookResponse.error)
+                }
+            }
+        }.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(view::showBookPreview) {
+                logger.d("Could not fetch data of the book $bookId")
+            }.addTo(compositeDisposable)
+    }
+
     override fun stop() {
         logger.d("stop")
         io.launch {
@@ -472,17 +503,15 @@ class HomePresenter @Inject constructor(
         view.setUpHomeBookList(mainList)
         val downloadingJob = io.launch {
             try {
-                val startTime = System.currentTimeMillis()
                 var remoteBook = getBooksListByPage(currentPage, true)
                 var triedPages = 1
                 while (remoteBook == null && triedPages < MAX_TRYING_PAGES && networkUtils.isNetworkConnected()) {
                     logger.d("Page $currentPage is empty, trying page ${currentPage + 1}")
-                    currentPage++
+                    _currentPage.incrementAndGet()
                     triedPages++
                     remoteBook = getBooksListByPage(currentPage, true)
                 }
-                logger.d("Time spent=${System.currentTimeMillis() - startTime}")
-                currentNumOfPages = remoteBook?.numOfPages ?: 0
+                _currentNumOfPages.getAndSet(remoteBook?.numOfPages ?: 0)
                 logger.d("Remote books: $currentNumOfPages")
                 val bookList = remoteBook?.bookList ?: ArrayList()
                 mainList.addAll(bookList)
@@ -529,7 +558,7 @@ class HomePresenter @Inject constructor(
     }
 
     private fun onPageChange(pageNumber: Long) {
-        currentPage = pageNumber
+        _currentPage.getAndSet(pageNumber)
         io.launch {
             mainList.clear()
             var newPage = false
@@ -606,8 +635,8 @@ class HomePresenter @Inject constructor(
         }
         preventiveData.clear()
         recommendedBooks.clear()
-        currentNumOfPages = 0L
-        currentPage = 1
+        _currentNumOfPages.getAndSet(0)
+        _currentPage.getAndSet(1)
         isRefreshing.compareAndSet(true, false)
     }
 

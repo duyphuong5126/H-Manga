@@ -253,7 +253,7 @@ class BookPreviewPresenter @Inject constructor(
             val bookResponse = bookRepository.getBookDetails(bookId)
             if (bookResponse is BookResponse.Success) {
                 main.launch {
-                    BookPreviewActivity.restart(bookResponse.book)
+                    BookPreviewActivity.restart(bookResponse.book, false)
                 }
             }
         }

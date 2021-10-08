@@ -9,7 +9,10 @@ import android.os.Bundle
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProviders
 import nhdphuong.com.manga.Constants.Companion.ACTION_SEARCH_QUERY_CHANGED
+import nhdphuong.com.manga.Constants.Companion.BOOK_ID
+import nhdphuong.com.manga.Constants.Companion.SEARCH_INFO
 import nhdphuong.com.manga.Constants.Companion.SELECTED_TAG
 import nhdphuong.com.manga.NHentaiApp
 import nhdphuong.com.manga.R
@@ -21,6 +24,8 @@ import nhdphuong.com.manga.features.header.HeaderModule
 import nhdphuong.com.manga.features.header.HeaderPresenter
 import nhdphuong.com.manga.work.VersionCheckWorker
 import javax.inject.Inject
+import nhdphuong.com.manga.shared.ExternalRoutingViewModel
+import nhdphuong.com.manga.views.uimodel.RoutingModel
 
 
 class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
@@ -32,11 +37,26 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
             val intent = Intent(fromContext, HomeActivity::class.java)
             fromContext.startActivity(intent)
         }
+
+        @JvmStatic
+        fun start(fromContext: Context, bookId: String) {
+            val intent = Intent(fromContext, HomeActivity::class.java).putExtra(BOOK_ID, bookId)
+            fromContext.startActivity(intent)
+        }
+
+        @JvmStatic
+        fun startSearching(fromContext: Context, searchTerm: String) {
+            val intent =
+                Intent(fromContext, HomeActivity::class.java).putExtra(SEARCH_INFO, searchTerm)
+            fromContext.startActivity(intent)
+        }
     }
 
     @Suppress("unused")
     @Inject
     lateinit var mHomePresenter: HomePresenter
+
+    private var externalRoutingViewModel: ExternalRoutingViewModel? = null
 
     private lateinit var mHomeFragment: HomeFragment
     private lateinit var mHeaderFragment: HeaderFragment
@@ -69,6 +89,19 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
             ACTION_SEARCH_QUERY_CHANGED
         )
         VersionCheckWorker.start(this)
+        externalRoutingViewModel = ViewModelProviders.of(this)[ExternalRoutingViewModel::class.java]
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        val bookId = intent?.getStringExtra(BOOK_ID)
+        if (!bookId.isNullOrBlank()) {
+            externalRoutingViewModel?.navigate(RoutingModel.BookQuerying(bookId))
+        } else {
+            intent?.getStringExtra(SEARCH_INFO)?.let { searchInfo ->
+                externalRoutingViewModel?.navigate(RoutingModel.Search(searchInfo))
+            }
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -80,6 +113,7 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
     override fun onDestroy() {
         super.onDestroy()
         BroadCastReceiverHelper.unRegisterBroadcastReceiver(this, searchQueryChangedReceiver)
+        externalRoutingViewModel = null
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
@@ -123,6 +157,17 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
                 as HomeFragment?
         if (homeFragment == null) {
             homeFragment = HomeFragment()
+            val bookId = intent?.getStringExtra(BOOK_ID)
+            if (!bookId.isNullOrBlank()) {
+                homeFragment.arguments = Bundle().apply {
+                    putString(BOOK_ID, bookId)
+                }
+            } else {
+                val searchInfo = intent?.getStringExtra(SEARCH_INFO)
+                homeFragment.arguments = Bundle().apply {
+                    putString(SEARCH_INFO, searchInfo)
+                }
+            }
             supportFragmentManager.beginTransaction()
                 .replace(R.id.clMainFragment, homeFragment, TAG)
                 .addToBackStack(TAG)

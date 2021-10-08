@@ -57,5 +57,6 @@ interface HomeContract {
         fun checkAndResumeBookDownloading()
         fun addFavoriteRecommendedBook(book: Book)
         fun removeFavoriteRecommendedBook(book: Book)
+        fun openBook(bookId: String)
     }
 }
