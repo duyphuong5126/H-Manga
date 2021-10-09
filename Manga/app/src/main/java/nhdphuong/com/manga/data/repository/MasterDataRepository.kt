@@ -20,6 +20,7 @@ import nhdphuong.com.manga.scope.corountine.IO
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
+import nhdphuong.com.manga.data.entity.notification.GlobalNotification
 
 @Singleton
 class MasterDataRepository @Inject constructor(
@@ -385,5 +386,9 @@ class MasterDataRepository @Inject constructor(
 
     fun fetchFeedbackFormUrl(): Single<String> {
         return mMasterRemoteDataSource.fetchFeedbackFormUrl()
+    }
+
+    fun getGlobalNotification(): Single<GlobalNotification> {
+        return mMasterRemoteDataSource.fetchNotification()
     }
 }

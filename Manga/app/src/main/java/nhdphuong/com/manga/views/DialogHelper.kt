@@ -297,6 +297,17 @@ fun Activity.showTryAlternativeDomainsDialog(
     showOkDismissDialog(this, title, message, ok, cancel, onOk, onCancel, false)
 }
 
+fun Activity.showGlobalMessage(
+    title: String,
+    description: String,
+    ok: String,
+    cancel: String,
+    onOk: () -> Unit = {},
+    onCancel: () -> Unit = {}
+) {
+    showOkDismissDialog(this, title, description, ok, cancel, onOk, onCancel)
+}
+
 @SuppressLint("InflateParams")
 private fun showOkDismissDialog(
     activity: Activity,

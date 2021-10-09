@@ -14,6 +14,7 @@ import nhdphuong.com.manga.data.entity.book.tags.Group
 import nhdphuong.com.manga.data.entity.book.tags.Language
 import nhdphuong.com.manga.data.entity.book.tags.Parody
 import nhdphuong.com.manga.data.entity.book.tags.UnknownTag
+import nhdphuong.com.manga.data.entity.notification.GlobalNotification
 
 interface MasterDataSource {
     interface Remote {
@@ -41,6 +42,8 @@ interface MasterDataSource {
         fun fetchAlternativeDomains(): Single<AlternativeDomainGroup>
 
         fun fetchFeedbackFormUrl(): Single<String>
+
+        fun fetchNotification(): Single<GlobalNotification>
     }
 
     interface Local {

@@ -69,6 +69,9 @@ import nhdphuong.com.manga.views.showDoNotRecommendBookDialog
 import nhdphuong.com.manga.views.showGoToPageDialog
 import nhdphuong.com.manga.views.showTryAlternativeDomainsDialog
 import javax.inject.Inject
+import nhdphuong.com.manga.data.entity.notification.NotificationContent
+import nhdphuong.com.manga.supports.openUrl
+import nhdphuong.com.manga.views.showGlobalMessage
 
 /*
  * Created by nhdphuong on 3/16/18.
@@ -586,6 +589,19 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         }
     }
 
+    override fun showNotification(notificationContent: NotificationContent) {
+        activity?.run {
+            showGlobalMessage(
+                notificationContent.title,
+                notificationContent.message,
+                notificationContent.action,
+                getString(R.string.cancel),
+                onOk = {
+                    openUrl(notificationContent.externalUrl)
+                })
+        }
+    }
+
     fun changeSearchInputted(data: String) {
         homePresenter.updateSortOption(SortOption.Recent)
         homePresenter.updateSearchData(data)
@@ -718,6 +734,10 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     private fun handleExternalSearchInfo(searchInfo: String) {
         updateSearchInfo(searchInfo)
         changeSearchInputted(searchInfo)
+    }
+
+    override fun invalidated() {
+        throw RuntimeException("Invalidated")
     }
 
     companion object {

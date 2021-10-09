@@ -213,6 +213,14 @@ class Constants {
         const val ALTERNATIVE_IMAGE_URL = "i_url"
         const val ALTERNATIVE_THUMBNAIL_URL = "t_url"
 
+        const val HAS_GLOBAL_NOTIFICATION = "hasNotification"
+        const val IS_GLOBAL_NOTIFICATION_INVALIDATED = "invalidated"
+        const val GLOBAL_NOTIFICATION_CONTENT = "content"
+        const val GLOBAL_NOTIFICATION_TITLE = "title"
+        const val GLOBAL_NOTIFICATION_MESSAGE = "message"
+        const val GLOBAL_NOTIFICATION_ACTION = "action"
+        const val GLOBAL_NOTIFICATION_URL = "external_url"
+
         const val DEEP_LINK_BOOK_PATH = "g"
     }
 }

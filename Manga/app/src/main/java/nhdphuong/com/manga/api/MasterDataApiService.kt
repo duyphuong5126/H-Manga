@@ -11,6 +11,7 @@ import nhdphuong.com.manga.data.entity.book.tags.Parody
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 import nhdphuong.com.manga.data.entity.book.tags.UnknownTag
 import nhdphuong.com.manga.data.entity.book.tags.Character
+import nhdphuong.com.manga.data.entity.notification.GlobalNotification
 import retrofit2.Call
 import retrofit2.http.GET
 
@@ -57,4 +58,7 @@ interface MasterDataApiService {
 
     @GET("${ApiConstants.NHENTAI_DB}/AlternativeDomains.json")
     fun getAlternativeDomains(): Call<AlternativeDomainGroup>
+
+    @GET("${ApiConstants.NHENTAI_DB}/Notification.json")
+    fun getNotification(): Call<GlobalNotification>
 }

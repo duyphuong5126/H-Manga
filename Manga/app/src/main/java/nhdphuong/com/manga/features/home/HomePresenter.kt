@@ -86,7 +86,8 @@ class HomePresenter @Inject constructor(
         private const val NUMBER_OF_PREVENTIVE_PAGES = 10
         private const val MAX_TRYING_PAGES = 5
         private const val BOOKS_PER_PAGE = MAX_PER_PAGE
-        private const val TIMES_OPEN_APP_NEED_ALTERNATIVE_DOMAINS_MESSAGE = 20
+        private const val TIMES_OPEN_APP_NEEDED_FOR_ALTERNATIVE_DOMAINS_MESSAGE = 20
+        private const val TIMES_OPEN_APP_NEEDED_FOR_GLOBAL_MESSAGE = 15
     }
 
     private val logger = Logger("HomePresenter")
@@ -519,13 +520,30 @@ class HomePresenter @Inject constructor(
 
                 val timesOpenApp = sharedPreferencesManager.timesOpenApp
                 val timesOpenAppMatched =
-                    (timesOpenApp % TIMES_OPEN_APP_NEED_ALTERNATIVE_DOMAINS_MESSAGE == 0 || timesOpenApp == 1)
+                    (timesOpenApp % TIMES_OPEN_APP_NEEDED_FOR_ALTERNATIVE_DOMAINS_MESSAGE == 0 || timesOpenApp == 1)
                 val checkedOutAlternativeDomains =
                     sharedPreferencesManager.checkedOutAlternativeDomains
                 val alternativeDomainInUsed = sharedPreferencesManager.useAlternativeDomain
                 val showAlternativeDomainsQuestion =
                     needToAskAlternativeDomains && timesOpenAppMatched
                             && !checkedOutAlternativeDomains && !alternativeDomainInUsed
+
+                val needToShowGlobalMessage =
+                    timesOpenApp % TIMES_OPEN_APP_NEEDED_FOR_GLOBAL_MESSAGE == 0 && !showAlternativeDomainsQuestion
+
+                masterDataRepository.getGlobalNotification()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        if (it.isInvalidated) {
+                            view.invalidated()
+                        } else if (it.hasNotification && needToShowGlobalMessage) {
+                            logger.d("Notification: ${it.content}")
+                            view.showNotification(it.content)
+                        }
+                    }, {
+                        logger.e("Could not get global notification with error $it")
+                    }).addTo(compositeDisposable)
                 main.launch {
                     if (view.isActive()) {
                         view.refreshHomeBookList()

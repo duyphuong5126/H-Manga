@@ -3,6 +3,7 @@ package nhdphuong.com.manga.features.home
 import nhdphuong.com.manga.Base
 import nhdphuong.com.manga.data.entity.book.Book
 import nhdphuong.com.manga.data.entity.book.SortOption
+import nhdphuong.com.manga.data.entity.notification.NotificationContent
 import nhdphuong.com.manga.enum.ErrorEnum
 
 /*
@@ -35,6 +36,8 @@ interface HomeContract {
         fun finishRefreshing()
         fun showAlternativeDomainsQuestion()
         fun startRecentFavoriteMigration()
+        fun showNotification(notificationContent: NotificationContent)
+        fun invalidated()
     }
 
     interface Presenter : Base.Presenter {
