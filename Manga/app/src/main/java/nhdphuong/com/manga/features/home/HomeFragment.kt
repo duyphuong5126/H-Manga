@@ -259,6 +259,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         }
         mtvUpgradeTitle.setOnClickListener(this)
         ibUpgradePopupClose.setOnClickListener(this)
+        homePresenter.refreshAppVersion()
     }
 
     override fun onStart() {
@@ -275,11 +276,6 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     override fun onStop() {
         super.onStop()
         context?.let(networkManager::detach)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        homePresenter.refreshAppVersion()
     }
 
     override fun onDestroy() {
@@ -439,7 +435,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
         homePaginationAdapter.onPageSelectCallback =
             object : PaginationAdapter.OnPageSelectCallback {
                 override fun onPageSelected(page: Int) {
-                    homePresenter.jumpToPage(page.toLong())
+                    homePresenter.jumpToPage((page + 1).toLong())
                 }
             }
         mainPagination.becomeVisible()

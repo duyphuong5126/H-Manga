@@ -49,7 +49,7 @@ class BookDeletingService : JobIntentService() {
         deletingBook = getString(R.string.deleting_book)
         deletingProgress = getString(R.string.deleting_in_progress)
         bookProgressTemplate = getString(R.string.book_progress_template)
-        deletingCompleted = getString(R.string.deleting_completed)
+        deletingCompleted = getString(R.string.deleting_book_completed)
         deletingCompletedTemplate = getString(R.string.deleting_completed_template)
         deletingFailed = getString(R.string.deleting_failure)
         deletingFailedTemplate = getString(R.string.deleting_failed_template)

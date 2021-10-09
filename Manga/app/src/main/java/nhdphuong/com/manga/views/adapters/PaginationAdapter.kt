@@ -20,8 +20,13 @@ class PaginationAdapter(
         private const val CIRCLE = 2
     }
 
-    private val mPageList: List<Int> = (1..pageCount).toList()
-    private var mCurrentPage: Int = if (paginationMode == PaginationMode.NUMBER) mPageList[0] else 0
+    init {
+        if (paginationMode == PaginationMode.CHARACTER && pageCount != TAG_PREFIXES.length) {
+            pageCount = TAG_PREFIXES.length
+        }
+    }
+
+    private var mCurrentPage: Int = 0
 
     var onPageSelectCallback: OnPageSelectCallback? = null
     var onCharacterSelectCallback: OnCharacterSelectCallback? = null
@@ -59,8 +64,8 @@ class PaginationAdapter(
             }
             else -> {
                 val numberPaginationViewHolder = holder as NumberPaginationViewHolder
-                numberPaginationViewHolder.setData(mPageList[position])
-                numberPaginationViewHolder.setPageSelected(mPageList[position])
+                numberPaginationViewHolder.setData(position)
+                numberPaginationViewHolder.setPageSelected(position)
             }
         }
     }
@@ -83,7 +88,7 @@ class PaginationAdapter(
 
         fun setData(pageNumber: Int) {
             mPage = pageNumber
-            mTvPageNumber.text = mPage.toString()
+            mTvPageNumber.text = (mPage + 1).toString()
         }
 
         fun setPageSelected(pageSelected: Int) {
@@ -143,16 +148,16 @@ class PaginationAdapter(
 
     fun selectFirstPage() {
         val lastSelectedPage = mCurrentPage
-        mCurrentPage = 1
-        notifyItemChanged(mPageList.indexOf(lastSelectedPage))
-        notifyItemChanged(mPageList.indexOf(mCurrentPage))
+        mCurrentPage = 0
+        notifyItemChanged(lastSelectedPage)
+        notifyItemChanged(mCurrentPage)
     }
 
     fun selectLastPage() {
         val lastSelectedPage = mCurrentPage
-        mCurrentPage = mPageList[mPageList.size - 1]
-        notifyItemChanged(mPageList.indexOf(lastSelectedPage))
-        notifyItemChanged(mPageList.indexOf(mCurrentPage))
+        mCurrentPage = pageCount - 1
+        notifyItemChanged(lastSelectedPage)
+        notifyItemChanged(mCurrentPage)
     }
 
     private fun moveToItem(index: Int) {
@@ -160,31 +165,21 @@ class PaginationAdapter(
         mCurrentPage = index
         if (paginationMode == PaginationMode.NUMBER) {
             onPageSelectCallback?.onPageSelected(index)
-            notifyItemChanged(mPageList.indexOf(lastSelectedPage))
-            notifyItemChanged(mPageList.indexOf(mCurrentPage))
         } else {
             onCharacterSelectCallback?.onPageSelected(TAG_PREFIXES[index])
-            notifyItemChanged(lastSelectedPage)
-            notifyItemChanged(mCurrentPage)
         }
+        notifyItemChanged(lastSelectedPage)
+        notifyItemChanged(mCurrentPage)
     }
 
     fun jumpToFirst() {
-        if (paginationMode == PaginationMode.NUMBER) {
-            if (mPageList.isNotEmpty()) {
-                moveToItem(mPageList[0])
-            }
-        } else {
+        if (itemCount > 0) {
             moveToItem(0)
         }
     }
 
     fun jumpToLast() {
-        if (paginationMode == PaginationMode.NUMBER) {
-            if (mPageList.isNotEmpty()) {
-                moveToItem(mPageList[mPageList.size - 1])
-            }
-        } else {
+        if (itemCount > 0) {
             moveToItem(itemCount - 1)
         }
     }
@@ -192,8 +187,8 @@ class PaginationAdapter(
     fun jumpToIndex(index: Int) {
         Logger.d("", "Move to index: $index")
         if (paginationMode == PaginationMode.NUMBER) {
-            if (mPageList.isNotEmpty()) {
-                moveToItem(mPageList[index])
+            if (pageCount > 0 && index in 0 until pageCount) {
+                moveToItem(index)
             }
         } else {
             moveToItem(itemCount - 1)

@@ -20,7 +20,7 @@
     <string name="previous_label">Previous</string>
     <string name="next_label">Next</string>
 
-    <string name="book_id_label">Book ID:</string>
+    <string name="book_id_label">Doujinshi ID:</string>
     <string name="tags_label">Tags:</string>
     <string name="artists_label">Artists:</string>
     <string name="languages_label">Languages:</string>
@@ -36,11 +36,11 @@
     <string name="page_number">1</string>
     <string name="nothing_to_show">Nothing here</string>
     <string name="internet_error">Look like you lost your connection!</string>
-    <string name="book_cover">Book cover</string>
+    <string name="book_cover">Doujinshi cover</string>
     <string name="title_1">Title 1</string>
 
-    <string name="no_recent_book">You\'ve not read any book recently!</string>
-    <string name="no_favorite_book">You have no favorite book!</string>
+    <string name="no_recent_book">You\'ve not read any doujinshi recently!</string>
+    <string name="no_favorite_book">You have no favorite doujinshi!</string>
     <string name="no_downloaded_book">Nothing was downloaded!</string>
 
     <string name="years_elapsed">%s years ago</string>
@@ -72,10 +72,10 @@
     <string name="last_visited_page">Continue reading from page</string>
     <string name="page_thumbnail">Page thumbnail</string>
     <string name="recommend_for_you">More like this</string>
-    <string name="maybe_you_interest">Books you may like</string>
-    <string name="book_page">Book page</string>
+    <string name="maybe_you_interest">Doujinshis you may like</string>
+    <string name="book_page">Doujinshi page</string>
     <string name="back">Back</string>
-    <string name="book_title">Book title</string>
+    <string name="book_title">Doujinshi title</string>
     <string name="bottom_reader">Page %s of %s</string>
     <string name="back_to_gallery">Back to gallery</string>
     <string name="close">Close</string>
@@ -91,12 +91,12 @@
     <string name="cleared">Clear</string>
     <string name="fail_to_download">Could not download %s items</string>
     <string name="fail_to_delete">Could not delete %d items</string>
-    <string name="is_book_being_downloaded">Book downloading</string>
-    <string name="is_downloading_this_book">This book is being downloaded.\nPlease wait until it completes.</string>
-    <string name="is_downloading_another_book">This book was added into downloading queue. It will be downloaded after the book %s.</string>
+    <string name="is_book_being_downloaded">Downloading</string>
+    <string name="is_downloading_this_book">This doujinshi is being downloaded.\nPlease wait until it completes.</string>
+    <string name="is_downloading_another_book">This doujinshi was queued. It will be downloaded after the doujinshi %s.</string>
     <string name="reload_library">Reload Library</string>
-    <string name="book_list_refreshing_title">Book list is refreshing</string>
-    <string name="book_list_refreshing_description">Book list is now refreshing.\nPlease try again later.</string>
+    <string name="book_list_refreshing_title">Refreshing doujinshi list</string>
+    <string name="book_list_refreshing_description">Doujinshi list is being refreshed.\nPlease try again later.</string>
     <string name="pull_down">Pull it down</string>
     <string name="release_to_refresh">Release to refresh</string>
     <string name="updating">Updating%s</string>
@@ -129,39 +129,39 @@
     <string name="app_upgrade_notification_receive">Allow app upgrade notification</string>
 
     <string name="downloaded">Downloaded</string>
-    <string name="downloaded_books">Downloaded Books</string>
+    <string name="downloaded_books">Downloaded Doujinshis</string>
 
     <string name="downloading">Downloading</string>
-    <string name="downloading_books">Downloading books</string>
+    <string name="downloading_books">Downloading Doujinshis</string>
 
-    <string name="pending_download_failure_template">Failed to download %d/%d pages</string>
+    <string name="pending_download_failure_template">Could not download %d/%d pages</string>
 
-    <string name="no_pending_item">You\'re not downloading any book</string>
+    <string name="no_pending_item">You\'re not downloading any doujinshi</string>
 
-    <string name="downloading_book">Downloading your book</string>
-    <string name="deleting_book">Deleting your book</string>
+    <string name="downloading_book">Downloading doujinshi</string>
+    <string name="deleting_book">Deleting doujinshi</string>
     <string name="downloading_in_progress">Downloading in progress</string>
     <string name="deleting_in_progress">Deleting in progress</string>
     <string name="downloading_failure">Downloading failure</string>
     <string name="deleting_failure">Deleting failure</string>
-    <string name="downloading_completed">Downloading completed</string>
-    <string name="deleting_completed">Deleting completed</string>
-    <string name="downloading_completed_template">Book ID %s was downloaded</string>
-    <string name="deleting_completed_template">Book ID %s was deleted</string>
-    <string name="downloading_failed_template">Failed to download %d/%d pages of book ID %s</string>
-    <string name="deleting_failed_template">Failed to delete book ID %s</string>
-    <string name="book_progress_template">Book ID: %s, progress: %d/%d</string>
-    <string name="downloading_book_failed_message">Failed to download book ID %s\nPlease try it again</string>
-    <string name="migrating_books">Updating your recent/favorite books</string>
-    <string name="migration_progress_template">Updated %d/%d books</string>
-    <string name="migration_progress_with_failure_template">Updated %d books, failed %d books, total: %d</string>
-    <string name="migration_failure_template">Could not update %d/%d books</string>
-    <string name="migration_completed">Your recent/favorite books were updated</string>
-    <string name="migration_result">Updated %d/%d books\nFailed to update %d/%d books</string>
+    <string name="downloading_completed">Downloading finished</string>
+    <string name="deleting_book_completed">Deleted doujinshi</string>
+    <string name="downloading_completed_template">The doujinshi %s was downloaded</string>
+    <string name="deleting_completed_template">The doujinshi %s was deleted</string>
+    <string name="downloading_failed_template">Could not download %d/%d pages of the doujinshi %s</string>
+    <string name="deleting_failed_template">Could not delete the doujinshi %s</string>
+    <string name="book_progress_template">Doujinshi %s, progress: %d/%d</string>
+    <string name="downloading_book_failed_message">Could not download the doujinshi %s\nPlease try it again</string>
+    <string name="migrating_books">Updating your recent/favorite doujinshis</string>
+    <string name="migration_progress_template">Updated %d/%d doujinshis</string>
+    <string name="migration_progress_with_failure_template">Updated %d doujinshis, %d doujinshis failed, total: %d</string>
+    <string name="migration_failure_template">Could not update %d/%d doujinshis</string>
+    <string name="migration_completed">Your recent/favorite doujinshis were updated</string>
+    <string name="migration_result">Updated %d/%d doujinshis\nCould not update %d/%d doujinshis</string>
 
     <string name="downloading_tags">Downloading tag data</string>
     <string name="downloading_tags_progress">Tag data is being downloaded\nCurrent page: %d/%d\nArtists: %d\nCharacters: %d\nCategories: %d\nLanguages: %d\nParodies: %d\nGroups: %d\nTags: %d\nUnknown types: %d</string>
-    <string name="downloading_tags_failed">Failed to download tag data on page %d</string>
+    <string name="downloading_tags_failed">Could not download tag data of page %d</string>
     <string name="downloading_tags_completed">Downloading tag data completed</string>
 
     <string name="downloading_tags_already_started_title">Downloading started</string>
@@ -172,7 +172,7 @@
     <string name="notification_channel_description">Hentai manga</string>
 
     <string name="tags_downloading_completed">Tag list is downloaded, new data version: %d</string>
-    <string name="tags_downloading_failed">Failed to download tag list</string>
+    <string name="tags_downloading_failed">Could not download the tag list</string>
 
     <string name="now_reading">Now reading</string>
 
@@ -194,20 +194,20 @@
     <string name="number_of_tags">Tags: %d</string>
     <string name="number_of_unknown">Unknown: %d</string>
 
-    <string name="un_seen_book_title">Forget This Book</string>
-    <string name="un_seen_book_description">This book is in your reading list. \nAre you sure you want to remove it?</string>
+    <string name="un_seen_book_title">Forget This Doujinshi</string>
+    <string name="un_seen_book_description">This doujinshi is in your reading list. \nRemove it anyway?</string>
 
     <string name="cancel_downloading">Cancel downloading</string>
-    <string name="cancel_downloading_message">Do you want to stop downloading book number %s?</string>
+    <string name="cancel_downloading_message">Do you want to stop downloading the doujinshi %s?</string>
 
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
-    <string name="book_downloading_finished_title">Downloaded book</string>
-    <string name="book_downloading_finished_message">Book number %s was downloaded.\nNow you can read it offline.</string>
+    <string name="book_downloading_finished_title">Downloaded doujinshi</string>
+    <string name="book_downloading_finished_message">The doujinshi %s was downloaded.\nNow you can read it offline.</string>
 
-    <string name="book_deleting_confirmation_title">Delete this book</string>
-    <string name="book_deleting_confirmation_message">Are you sure you want to delete book number %s?</string>
+    <string name="book_deleting_confirmation_title">Delete this doujinshi</string>
+    <string name="book_deleting_confirmation_message">Are you sure you want to delete the doujinshi %s?</string>
 
     <string name="open_with">Open with</string>
 
@@ -225,7 +225,7 @@
 
     <string name="library_error_data_parsing_label">Cannot load data from server!</string>
     <string name="library_error_time_out_label">Connection timeout!\nPlease try again later</string>
-    <string name="library_error_unknown_label">Unable to load book library!</string>
+    <string name="library_error_unknown_label">Can not load the doujinshi library!</string>
 
     <string name="jump_to_page">Go To Page</string>
     <string name="page_number_hint">Enter page number</string>
@@ -248,8 +248,8 @@
     <string name="retry">Retry</string>
     <string name="install_manually">Install Manually</string>
 
-    <string name="app_upgrade_failed_title">Failed To Upgrade App</string>
-    <string name="app_upgrade_failed_message">Failed to install version %s.\nPlease try again or install it manually:\nPress Install Manually button \u2192 Download apk file from GitHub \u2192 Install it manually</string>
+    <string name="app_upgrade_failed_title">Could not Upgrade App</string>
+    <string name="app_upgrade_failed_message">Could not install version %s.\nPlease try again or install it manually:\nPress Install Manually button \u2192 Download apk file from GitHub \u2192 Install it manually</string>
 
     <string name="app_being_upgraded_message">A new version is being installed.\nPlease try again later.</string>
 
@@ -280,9 +280,9 @@
     <string name="suggestion_removed_successfully">\"%s\" was removed successfully</string>
 
     <string name="do_not_recommend_book_title">Not interested</string>
-    <string name="do_not_recommend_book_message">App won\'t recommend the book %s to you anymore.\nYou still can see this book in other places.</string>
+    <string name="do_not_recommend_book_message">App won\'t recommend the doujinshi %s to you anymore.\nYou still can see it in other places.</string>
 
-    <string name="do_not_recommend_book_accepted">Book ID %s was removed</string>
+    <string name="do_not_recommend_book_accepted">The doujinshi %s was removed</string>
 
     <string name="general_error_message">An error occurred</string>
     <string name="reading_modes_title">Reading direction:</string>
@@ -292,7 +292,7 @@
     <string name="top_down">top down</string>
     <string name="tap_to_navigate_label">Tap to navigate:</string>
 
-    <string name="book_id_template">Book ID: %s</string>
+    <string name="book_id_template">Doujinshi ID: %s</string>
     <string name="total_item_count_template">Total: %d items</string>
     <string name="total_one_item">Total: 1 item</string>
     <string name="block">Not interested</string>

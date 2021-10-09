@@ -34,7 +34,7 @@ class SearchSuggestionAdapter(
     }
 
     override fun getItem(position: Int): String {
-        return suggestionList[position]
+        return suggestionList[position].orEmpty()
     }
 
     override fun getFilter(): Filter = object : Filter() {

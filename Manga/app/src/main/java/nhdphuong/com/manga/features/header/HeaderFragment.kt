@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Constants.Companion.FAVORITE
 import nhdphuong.com.manga.Constants.Companion.RECENT
+import nhdphuong.com.manga.Constants.Companion.SEARCH_INFO
 import nhdphuong.com.manga.Constants.Companion.TAG_RESULT
 import nhdphuong.com.manga.Constants.Companion.TAG_SELECTED_ACTION
 import nhdphuong.com.manga.Logger
@@ -309,6 +310,12 @@ class HeaderFragment : Fragment(), HeaderContract.View, View.OnClickListener,
         context?.let {
             suggestionAdapter = SearchSuggestionAdapter(it, arrayListOf(), this)
             edtSearch.setAdapter(suggestionAdapter)
+        }
+
+        arguments?.getString(SEARCH_INFO)?.let {
+            if (it.isNotBlank()) {
+                presenter.saveSearchInfo(it)
+            }
         }
     }
 

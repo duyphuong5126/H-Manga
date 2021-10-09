@@ -146,9 +146,10 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
                     putString(BOOK_ID, bookId)
                 }
             } else {
-                val searchInfo = intent?.getStringExtra(SEARCH_INFO)
-                homeFragment.arguments = Bundle().apply {
-                    putString(SEARCH_INFO, searchInfo)
+                intent?.getStringExtra(SEARCH_INFO)?.let { searchInfo ->
+                    homeFragment.arguments = Bundle().apply {
+                        putString(SEARCH_INFO, searchInfo)
+                    }
                 }
             }
             supportFragmentManager.beginTransaction()
@@ -162,6 +163,11 @@ class HomeActivity : AppCompatActivity(), SearchContract, RandomContract {
                 as HeaderFragment?
         if (headerFragment == null) {
             headerFragment = HeaderFragment()
+            intent?.getStringExtra(SEARCH_INFO)?.let { searchInfo ->
+                headerFragment.arguments = Bundle().apply {
+                    putString(SEARCH_INFO, searchInfo)
+                }
+            }
             supportFragmentManager.beginTransaction().replace(R.id.clHeader, headerFragment, TAG)
                 .addToBackStack(TAG).commitAllowingStateLoss()
         }

@@ -128,7 +128,7 @@ class DownloadedBooksPresenter @Inject constructor(
     }
 
     override fun jumpToPage(pageNumber: Int) {
-        currentPage = pageNumber - 1
+        currentPage = pageNumber
         updateCurrentPage()
     }
 
@@ -140,7 +140,25 @@ class DownloadedBooksPresenter @Inject constructor(
     override fun notifyBookRemoved(bookId: String) {
         totalBookList.removeAll { it.bookId == bookId }
         downloadedThumbnails.removeAll { it.first == bookId }
-        updateCurrentPage()
+        val bookCount = totalBookList.size
+        val lastTotalPages = totalPages
+        totalPages = bookCount / MAX_PER_PAGE
+        if (bookCount % MAX_PER_PAGE > 0) {
+            totalPages++
+        }
+        if (totalPages < lastTotalPages) {
+            currentPage--
+            if (currentPage < 0) {
+                currentPage = 0
+            }
+            updateCurrentPage()
+            view.refreshRecentPagination(totalPages)
+            if (totalPages > 0) {
+                view.moveToPage(currentPage)
+            }
+        } else {
+            updateCurrentPage()
+        }
     }
 
     override fun stop() {

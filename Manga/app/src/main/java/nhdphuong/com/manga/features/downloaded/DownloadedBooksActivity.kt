@@ -234,6 +234,8 @@ class DownloadedBooksActivity : AppCompatActivity(),
             btnFirst.gone()
             btnLast.gone()
             recentPagination.gone()
+            recentPagination.adapter = null
+            recentPagination.layoutManager = null
             return
         }
         paginationAdapter = PaginationAdapter(pageCount)
@@ -251,6 +253,10 @@ class DownloadedBooksActivity : AppCompatActivity(),
             btnFirst.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
             btnLast.becomeVisibleIf(lastVisiblePageItem < pageCount - 1)
         }
+    }
+
+    override fun moveToPage(pageNumber: Int) {
+        paginationAdapter.jumpToIndex(pageNumber)
     }
 
     override fun showLastBookListRefreshTime(lastRefreshTimeStamp: String) {

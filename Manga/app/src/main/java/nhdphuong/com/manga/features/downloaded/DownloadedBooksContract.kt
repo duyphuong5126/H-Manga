@@ -8,6 +8,7 @@ interface DownloadedBooksContract {
         fun setUpBookList(bookList: List<Book>)
         fun refreshBookList()
         fun refreshRecentPagination(pageCount: Int)
+        fun moveToPage(pageNumber: Int)
         fun showLastBookListRefreshTime(lastRefreshTimeStamp: String)
         fun showRecentBooks(recentList: List<String>)
         fun showFavoriteBooks(favoriteList: List<String>)
