@@ -737,7 +737,7 @@ class HomeFragment : Fragment(), HomeContract.View, PtrUIHandler, View.OnClickLi
     }
 
     override fun invalidated() {
-        throw RuntimeException("Invalidated")
+        activity?.finish() ?: throw RuntimeException("Invalidated")
     }
 
     companion object {
