@@ -132,6 +132,10 @@ class BookRepository @Inject constructor(
         return bookLocalDataSource.saveDownloadedBook(book)
     }
 
+    override suspend fun updateDownloadedBook(book: Book): Boolean {
+        return bookLocalDataSource.updateDownloadedBook(book)
+    }
+
     override fun saveImageOfBook(
         bookId: String,
         imageMeasurements: ImageMeasurements,

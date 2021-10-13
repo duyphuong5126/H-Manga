@@ -58,6 +58,7 @@ interface BookDataSource {
         fun getDownloadedBookList(): Single<List<Book>>
         fun addToRecentList(book: Book): Completable
         fun saveDownloadedBook(book: Book): Completable
+        suspend fun updateDownloadedBook(book: Book): Boolean
         fun saveImageOfBook(
             bookId: String,
             imageMeasurements: ImageMeasurements,

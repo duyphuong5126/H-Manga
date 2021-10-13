@@ -6,6 +6,7 @@ import android.text.TextUtils
 import com.google.gson.annotations.SerializedName
 import nhdphuong.com.manga.api.ApiConstants
 import nhdphuong.com.manga.Constants
+import nhdphuong.com.manga.Constants.Companion.LANGUAGE
 import nhdphuong.com.manga.data.entity.book.tags.Tag
 
 /*
@@ -55,21 +56,56 @@ data class Book(
                 else -> ""
             }
         }
-
+    private var _language: String? = null
     val language: String
         get() {
-            return when {
-                title.englishName.contains(ENG, ignoreCase = true) -> Constants.ENGLISH_LANG
-                title.englishName.contains(CN, ignoreCase = true) -> Constants.CHINESE_LANG
-                else -> Constants.JAPANESE_LANG
+            if (!_language.isNullOrBlank()) {
+                return _language!!
             }
-        }
+            var hasEnglishTag = false
+            var hasChineseTag = false
+            var hasJapaneseTag = false
+            tags.forEach {
+                val name = it.name.trim().lowercase()
+                if (it.type == LANGUAGE && name == ENG_TAG) {
+                    hasEnglishTag = true
+                    return@forEach
+                }
 
-    val logString: String
-        get() {
-            return "Book title: eng=${title.englishName}\n" +
-                    "            japanese=${title.japaneseName}\n" +
-                    "            pretty=${title.pretty}\n"
+                if (it.type == LANGUAGE && name == CHINESE_TAG) {
+                    hasChineseTag = true
+                    return@forEach
+                }
+
+                if (it.type == LANGUAGE && name == JAPANESE_TAG) {
+                    hasJapaneseTag = true
+                    return@forEach
+                }
+            }
+            _language = when {
+                hasEnglishTag || title.englishName.contains(
+                    ENG,
+                    ignoreCase = true
+                ) -> Constants.ENGLISH_LANG
+                hasChineseTag || title.englishName.contains(
+                    CN,
+                    ignoreCase = true
+                ) -> Constants.CHINESE_LANG
+                hasJapaneseTag -> Constants.JAPANESE_LANG
+                else -> {
+                    tags.firstOrNull {
+                        val name = it.name.trim().lowercase()
+                        it.type == LANGUAGE && name != TRANSLATED_TAG && name != REWRITE_TAG && name != TEXT_CLEANED_TAG
+                    }?.name?.let {
+                        if (it.length <= 3) {
+                            it
+                        } else {
+                            it.substring(0, 3)
+                        }
+                    }.orEmpty()
+                }
+            }
+            return _language.orEmpty()
         }
 
     constructor(parcel: Parcel) : this(
@@ -120,6 +156,14 @@ data class Book(
         private const val ENG = "[English]"
         private const val CN = "[Chinese]"
         private const val NULL = "null"
+
+        private const val ENG_TAG = "english"
+        private const val CHINESE_TAG = "chinese"
+        private const val JAPANESE_TAG = "japanese"
+
+        private const val TRANSLATED_TAG = "translated"
+        private const val REWRITE_TAG = "rewrite"
+        private const val TEXT_CLEANED_TAG = "text cleaned"
 
         override fun createFromParcel(parcel: Parcel): Book {
             return Book(parcel)

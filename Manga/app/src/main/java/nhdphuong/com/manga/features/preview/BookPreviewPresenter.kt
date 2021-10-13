@@ -3,7 +3,6 @@ package nhdphuong.com.manga.features.preview
 import io.reactivex.Completable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import nhdphuong.com.manga.Constants
 import nhdphuong.com.manga.Logger
 import nhdphuong.com.manga.api.ApiConstants
@@ -18,13 +17,12 @@ import nhdphuong.com.manga.supports.SupportUtils
 import java.util.LinkedList
 import javax.inject.Inject
 import kotlin.collections.ArrayList
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.disposables.CompositeDisposable
+import java.util.concurrent.atomic.AtomicBoolean
 import nhdphuong.com.manga.Constants.Companion.EVENT_ADD_FAVORITE
 import nhdphuong.com.manga.Constants.Companion.EVENT_FORGET_BOOK
 import nhdphuong.com.manga.Constants.Companion.PARAM_NAME_ANALYTICS_BOOK_ID
@@ -33,6 +31,7 @@ import nhdphuong.com.manga.Constants.Companion.EVENT_OPEN_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_OPEN_DOWNLOADED_BOOK
 import nhdphuong.com.manga.Constants.Companion.EVENT_REMOVE_FAVORITE
 import nhdphuong.com.manga.analytics.AnalyticsParam
+import nhdphuong.com.manga.data.SerializationService
 import nhdphuong.com.manga.data.entity.BookResponse
 import nhdphuong.com.manga.data.entity.CommentResponse
 import nhdphuong.com.manga.data.entity.RecommendBookResponse
@@ -61,6 +60,7 @@ class BookPreviewPresenter @Inject constructor(
     private val logAnalyticsEventUseCase: LogAnalyticsEventUseCase,
     private val bookRepository: BookRepository,
     private val networkUtils: INetworkUtils,
+    private val serializationService: SerializationService,
     @IO private val io: CoroutineScope,
     @Main private val main: CoroutineScope
 ) : BookPreviewContract.Presenter {
@@ -86,9 +86,11 @@ class BookPreviewPresenter @Inject constructor(
 
     private val commentSource = ArrayList<Comment>()
 
-    private var isFavoriteBook: Boolean = false
+    private val _isFavoriteBook = AtomicBoolean(false)
+    private val isFavoriteBook: Boolean get() = _isFavoriteBook.get()
 
-    private var viewDownloadedData: Boolean = false
+    private val _viewDownloadedData = AtomicBoolean(false)
+    private val viewDownloadedData: Boolean get() = _viewDownloadedData.get()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -99,7 +101,7 @@ class BookPreviewPresenter @Inject constructor(
     }
 
     override fun enableViewDownloadedDataMode() {
-        viewDownloadedData = true
+        _viewDownloadedData.getAndSet(true)
     }
 
     override fun start() {
@@ -127,15 +129,34 @@ class BookPreviewPresenter @Inject constructor(
         } else {
             view.showBookCoverImage(cacheCoverUrl)
         }
-        refreshBookFavorite()
         io.launch {
-            if (bookRepository.isRecentBook(book.bookId)) {
+            _isFavoriteBook.getAndSet(bookRepository.isFavoriteBook(book.bookId))
+            main.launch {
+                view.showFavoriteBookSaved(isFavoriteBook)
+            }
+            val isRecentBook = bookRepository.isRecentBook(book.bookId)
+            if (isRecentBook) {
                 main.launch { view.showUnSeenButton() }
             } else {
                 main.launch { view.hideUnSeenButton() }
             }
+            if (isRecentBook || isFavoriteBook || viewDownloadedData) {
+                val bookId = book.bookId
+                val bookResponse = bookRepository.getBookDetails(bookId)
+                if (bookResponse is BookResponse.Success) {
+                    val bookJson = serializationService.serialize(bookResponse.book)
+                    if (isRecentBook) {
+                        bookRepository.updateRawRecentBook(bookId, bookJson)
+                    }
+                    if (isFavoriteBook) {
+                        bookRepository.updateRawFavoriteBook(bookId, bookJson)
+                    }
+                    if (viewDownloadedData && book.numOfFavorites != bookResponse.book.numOfFavorites) {
+                        bookRepository.updateDownloadedBook(bookResponse.book)
+                    }
+                }
+            }
         }
-        view.showFavoriteBookSaved(isFavoriteBook)
         view.show1stTitle(book.title.englishName)
         view.show2ndTitle(book.title.japaneseName)
         view.showUploadedTime(getUploadedTimeStamp(book))
@@ -274,7 +295,7 @@ class BookPreviewPresenter @Inject constructor(
                 .subscribe()
                 .addTo(compositeDisposable)
 
-            refreshBookFavorite()
+            _isFavoriteBook.getAndSet(bookRepository.isFavoriteBook(book.bookId))
             main.launch {
                 view.showFavoriteBookSaved(isFavoriteBook)
             }
@@ -577,17 +598,6 @@ class BookPreviewPresenter @Inject constructor(
                     view.showNoRecommendBook()
                 }
             }
-        }
-    }
-
-    private fun refreshBookFavorite() {
-        runBlocking {
-            isFavoriteBook = suspendCoroutine { continuation ->
-                io.launch {
-                    continuation.resume(bookRepository.isFavoriteBook(book.bookId))
-                }
-            }
-            logger.d("isFavoriteBook: $isFavoriteBook")
         }
     }
 

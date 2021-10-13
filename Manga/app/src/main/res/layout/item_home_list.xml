@@ -84,7 +84,6 @@
                     android:clickable="false"
                     android:contentDescription="@string/main_item_description"
                     android:scaleType="fitXY"
-                    android:src="@drawable/ic_lang_jp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/tvItemTitle"
                     app:layout_constraintStart_toStartOf="parent"

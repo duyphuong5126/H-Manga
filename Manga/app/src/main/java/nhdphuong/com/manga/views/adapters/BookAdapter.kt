@@ -173,12 +173,12 @@ class BookAdapter(
         fun setData(item: Book) {
             isTitleModifiable = true
             bookPreview = item
-            val languageIconResId = when (item.language) {
+            when (item.language) {
                 Constants.CHINESE_LANG -> R.drawable.ic_lang_cn
                 Constants.ENGLISH_LANG -> R.drawable.ic_lang_gb
-                else -> R.drawable.ic_lang_jp
-            }
-            tvLanguage.setImageResource(languageIconResId)
+                Constants.JAPANESE_LANG -> R.drawable.ic_lang_jp
+                else -> null
+            }?.let(tvLanguage::setImageResource)
 
             if (!NHentaiApp.instance.isCensored) {
                 val downloadedThumbnail = downloadedThumbnails.firstOrNull {
@@ -194,7 +194,12 @@ class BookAdapter(
                 ivItemThumbnail.setImageResource(R.drawable.ic_nothing_here_grey)
             }
 
-            tv1stTitle.text = item.previewTitle
+            tv1stTitle.text = when (item.language) {
+                Constants.CHINESE_LANG,
+                Constants.ENGLISH_LANG,
+                Constants.JAPANESE_LANG -> item.previewTitle
+                else -> String.format("[%s] %s", item.language.uppercase(), item.previewTitle)
+            }
             tv1stTitle.doOnGlobalLayout {
                 if (isTitleModifiable) {
                     val fullText = item.previewTitle

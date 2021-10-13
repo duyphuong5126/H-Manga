@@ -258,6 +258,26 @@ class BookLocalDataSource @Inject constructor(
         }.andThen(extractAndSaveTagList(book))
     }
 
+    override suspend fun updateDownloadedBook(book: Book): Boolean {
+        return try {
+            book.run {
+                bookDAO.updateDownloadedBook(
+                    mediaId,
+                    title.englishName,
+                    title.japaneseName,
+                    title.pretty,
+                    scanlator,
+                    updateAt,
+                    numOfPages,
+                    numOfFavorites
+                ) > 0
+            }
+        } catch (error: Throwable) {
+            logger.e("Could not update downloaded book with error $error")
+            false
+        }
+    }
+
     override fun getDownloadedBookCoverPath(bookId: String): Single<String> {
         return bookDAO.getFirstImagePathOfBook(bookId, ImageUsageType.COVER)
             .flatMap { cover ->

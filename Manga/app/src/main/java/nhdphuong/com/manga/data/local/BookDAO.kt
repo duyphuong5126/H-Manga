@@ -16,11 +16,19 @@ import nhdphuong.com.manga.Constants.Companion.ID
 import nhdphuong.com.manga.Constants.Companion.TYPE
 import nhdphuong.com.manga.Constants.Companion.LOCAL_PATH
 import nhdphuong.com.manga.Constants.Companion.LAST_VISITED_PAGE
+import nhdphuong.com.manga.Constants.Companion.MEDIA_ID
+import nhdphuong.com.manga.Constants.Companion.NUM_FAVORITES
+import nhdphuong.com.manga.Constants.Companion.NUM_PAGES
 import nhdphuong.com.manga.Constants.Companion.RAW_BOOK
 import nhdphuong.com.manga.Constants.Companion.READING_TIMES
+import nhdphuong.com.manga.Constants.Companion.SCANLATOR
 import nhdphuong.com.manga.Constants.Companion.TABLE_BLOCKED_BOOK
 import nhdphuong.com.manga.Constants.Companion.TABLE_LAST_VISITED_PAGE
 import nhdphuong.com.manga.Constants.Companion.TAG_ID
+import nhdphuong.com.manga.Constants.Companion.TITLE_ENG
+import nhdphuong.com.manga.Constants.Companion.TITLE_JAPANESE
+import nhdphuong.com.manga.Constants.Companion.TITLE_PRETTY
+import nhdphuong.com.manga.Constants.Companion.UPLOAD_DATE
 import nhdphuong.com.manga.data.entity.BlockedBook
 import nhdphuong.com.manga.data.entity.FavoriteBook
 import nhdphuong.com.manga.data.entity.RecentBook
@@ -52,6 +60,18 @@ interface BookDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addDownloadedBook(downloadedBooks: List<DownloadedBookModel>): List<Long>
+
+    @Query("update $DOWNLOADED_BOOK set $MEDIA_ID = :mediaId, $TITLE_ENG = :titleEng, $TITLE_JAPANESE = :titleJapanese, $TITLE_PRETTY = :titlePretty, $SCANLATOR = :scanlator, $UPLOAD_DATE = :uploadDate, $NUM_PAGES = :numOfPages, $NUM_FAVORITES = :numOfFavorites")
+    fun updateDownloadedBook(
+        mediaId: String,
+        titleEng: String,
+        titleJapanese: String,
+        titlePretty: String,
+        scanlator: String,
+        uploadDate: Long,
+        numOfPages: Int,
+        numOfFavorites: Int
+    ): Int
 
     @Query("select * from $DOWNLOADED_BOOK order by rowid desc")
     fun getAllDownloadedBooks(): Single<List<DownloadedBookModel>>
