@@ -61,8 +61,9 @@ interface BookDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addDownloadedBook(downloadedBooks: List<DownloadedBookModel>): List<Long>
 
-    @Query("update $DOWNLOADED_BOOK set $MEDIA_ID = :mediaId, $TITLE_ENG = :titleEng, $TITLE_JAPANESE = :titleJapanese, $TITLE_PRETTY = :titlePretty, $SCANLATOR = :scanlator, $UPLOAD_DATE = :uploadDate, $NUM_PAGES = :numOfPages, $NUM_FAVORITES = :numOfFavorites")
+    @Query("update $DOWNLOADED_BOOK set $MEDIA_ID = :mediaId, $TITLE_ENG = :titleEng, $TITLE_JAPANESE = :titleJapanese, $TITLE_PRETTY = :titlePretty, $SCANLATOR = :scanlator, $UPLOAD_DATE = :uploadDate, $NUM_PAGES = :numOfPages, $NUM_FAVORITES = :numOfFavorites where $ID = :bookId")
     fun updateDownloadedBook(
+        bookId: String,
         mediaId: String,
         titleEng: String,
         titleJapanese: String,

@@ -262,6 +262,7 @@ class BookLocalDataSource @Inject constructor(
         return try {
             book.run {
                 bookDAO.updateDownloadedBook(
+                    bookId,
                     mediaId,
                     title.englishName,
                     title.japaneseName,
