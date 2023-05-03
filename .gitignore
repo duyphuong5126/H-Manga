@@ -62,3 +62,11 @@ fastlane/test_output
 fastlane/readme.md
 Manga/.idea/
 Manga/app/.idea/
+/.idea/.gitignore
+/.idea/.name
+/.idea/compiler.xml
+/.idea/kotlinc.xml
+/.idea/misc.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml
+/gradle/wrapper/gradle-wrapper.jar
