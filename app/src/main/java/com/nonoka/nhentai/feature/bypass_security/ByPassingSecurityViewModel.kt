@@ -19,12 +19,25 @@ class ByPassingSecurityViewModel : ViewModel() {
             _byPassingResult.emit(ByPassingResult.Processing)
             try {
                 val doujinshis = Gson().fromJson(data, DoujinshisResult::class.java)
-                Timber.tag("Test>>>").d("Doujinshis=${doujinshis.doujinshiList.size}")
+                Timber.d("Doujinshis=${doujinshis.doujinshiList.size}")
                 _byPassingResult.emit(ByPassingResult.Success)
             } catch (error: Throwable) {
-                Timber.tag("Test>>>").e("Unable to parse data with error $error")
+                Timber.e("Unable to parse data with error $error")
                 _byPassingResult.emit(ByPassingResult.Failure)
             }
+        }
+    }
+
+    fun onRetry() {
+        viewModelScope.launch {
+            _byPassingResult.emit(ByPassingResult.Loading)
+        }
+    }
+
+    fun onError(error: String) {
+        Timber.e("Bypassing error $error")
+        viewModelScope.launch {
+            _byPassingResult.emit(ByPassingResult.Failure)
         }
     }
 }

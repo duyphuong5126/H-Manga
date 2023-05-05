@@ -29,14 +29,64 @@ data class Doujinshi(
     @field:SerializedName(NUM_PAGES) var numOfPages: Int,
     @field:SerializedName(NUM_FAVORITES) var numOfFavorites: Int
 ) : Parcelable {
-    val thumbnail: String
-    val previewTitle: String
-    val usefulName: String
-    val language: String
+    var thumbnail: String = ""
+        get() {
+            if (field.isBlank()) {
+                internalInit()
+            }
+            return field
+        }
+        private set
 
-    init {
+    var previewTitle: String = ""
+        get() {
+            if (field.isBlank()) {
+                internalInit()
+            }
+            return field
+        }
+        private set
+    var usefulName: String = ""
+        get() {
+            if (field.isBlank()) {
+                internalInit()
+            }
+            return field
+        }
+        private set
+    var language: String = ""
+        get() {
+            if (field.isBlank()) {
+                internalInit()
+            }
+            return field
+        }
+        private set
+
+    var thumbnailRatio: Float = 0f
+        get() {
+            if (field == 0f) {
+                internalInit()
+            }
+            return field
+        }
+        private set
+
+    private fun internalInit() {
+        var ratio = 1f
+        if (images.thumbnail.width > 0 && images.thumbnail.height > 0) {
+            ratio = images.thumbnail.width.toFloat() / images.thumbnail.height
+        } else if (images.cover.width > 0 && images.cover.height > 0) {
+            ratio = images.cover.width.toFloat() / images.cover.height
+        } else {
+            images.pages.firstOrNull { it.height > 0 && it.width > 0 }?.run {
+                ratio = width.toFloat() / height
+            }
+        }
+        thumbnailRatio = ratio
+
         val imageType = images.thumbnail.imageType
-        thumbnail = "$NHENTAI_T/galleries/$mediaId/thumb$imageType"
+        thumbnail = "$NHENTAI_T/galleries/$mediaId/thumb.$imageType"
 
         previewTitle = if (!title.englishName.isNullOrBlank() &&
             !NULL.equals(title.englishName, ignoreCase = true)
