@@ -105,8 +105,9 @@ private fun Gallery(homeViewModel: HomeViewModel = hiltViewModel()) {
                     key = { index ->
                         when {
                             index == 0 -> "Scrollable header"
-                            index < lazyDoujinshis.itemCount -> {
-                                when (val item = lazyDoujinshis[index] as GalleryUiState) {
+                            index <= lazyDoujinshis.itemCount -> {
+                                val galleryIndex = index - 1
+                                when (val item = lazyDoujinshis[galleryIndex] as GalleryUiState) {
                                     is GalleryUiState.Title -> item.title
                                     is GalleryUiState.DoujinshiItem -> item.doujinshi.bookId
                                 }
@@ -116,8 +117,9 @@ private fun Gallery(homeViewModel: HomeViewModel = hiltViewModel()) {
                         }
                     },
                     span = { index ->
-                        if (index > 0 && index < lazyDoujinshis.itemCount) {
-                            when (lazyDoujinshis[index] as GalleryUiState) {
+                        if (index > 0 && index <= lazyDoujinshis.itemCount) {
+                            val galleryIndex = index - 1
+                            when (lazyDoujinshis[galleryIndex] as GalleryUiState) {
                                 is GalleryUiState.Title -> StaggeredGridItemSpan.FullLine
                                 is GalleryUiState.DoujinshiItem -> StaggeredGridItemSpan.SingleLane
                             }
@@ -128,7 +130,7 @@ private fun Gallery(homeViewModel: HomeViewModel = hiltViewModel()) {
                 ) { index ->
                     when {
                         index == 0 -> GalleryHeader()
-                        index < lazyDoujinshis.itemCount -> {
+                        index <= lazyDoujinshis.itemCount -> {
                             val galleryIndex = index - 1
                             when (val item = lazyDoujinshis[galleryIndex] as GalleryUiState) {
                                 is GalleryUiState.Title -> GalleryTitle(item)

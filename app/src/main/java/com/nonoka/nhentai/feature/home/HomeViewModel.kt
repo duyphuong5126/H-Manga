@@ -21,7 +21,7 @@ class HomeViewModel @Inject constructor(
         Timber.d("Loading page $pageIndex")
         val result = ArrayList<GalleryUiState>()
         result.add(GalleryUiState.Title("Page ${pageIndex + 1}"))
-        result.addAll(doujinshiRepository.getGalleryPage(pageIndex).doujinshiList.map {
+        result.addAll(doujinshiRepository.getGalleryPage(pageIndex, filters).doujinshiList.map {
             GalleryUiState.DoujinshiItem(it)
         })
         return result

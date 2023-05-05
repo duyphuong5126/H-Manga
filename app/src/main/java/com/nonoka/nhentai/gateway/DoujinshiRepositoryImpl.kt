@@ -9,12 +9,12 @@ class DoujinshiRepositoryImpl @Inject constructor(
     private val doujinshiRemoteSource: DoujinshiRemoteSource
 ) : DoujinshiRepository {
     private val galleryCacheMap = HashMap<Int, Pair<DoujinshisResult, Long>>()
-    override suspend fun getGalleryPage(page: Int): DoujinshisResult {
+    override suspend fun getGalleryPage(page: Int, filters: List<String>): DoujinshisResult {
         val cacheResult = galleryCacheMap[page]
         return if (cacheResult != null && System.currentTimeMillis() - cacheResult.second < CACHE_DURATION) {
             cacheResult.first
         } else {
-            val remoteResult = doujinshiRemoteSource.loadDoujinshis(page)
+            val remoteResult = doujinshiRemoteSource.loadDoujinshis(page, filters)
             galleryCacheMap[page] = Pair(remoteResult, System.currentTimeMillis())
             remoteResult
         }

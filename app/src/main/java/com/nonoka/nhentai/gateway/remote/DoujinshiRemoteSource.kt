@@ -9,13 +9,13 @@ import kotlin.coroutines.suspendCoroutine
 import timber.log.Timber
 
 interface DoujinshiRemoteSource {
-    suspend fun loadDoujinshis(page: Int): DoujinshisResult
+    suspend fun loadDoujinshis(page: Int, filters: List<String>): DoujinshisResult
 }
 
 class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
-    override suspend fun loadDoujinshis(page: Int): DoujinshisResult {
+    override suspend fun loadDoujinshis(page: Int, filters: List<String>): DoujinshisResult {
         return suspendCoroutine { continuation ->
-            val url = galleryUrl(page)
+            val url = galleryUrl(page, filters)
             Timber.tag("GalleryLoading>>>")
                 .d("url=$url")
             crawlerMap[ClientType.Gallery]?.load(
@@ -37,7 +37,12 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
         }
     }
 
-    private fun galleryUrl(page: Int): String {
-        return "https://nhentai.net/api/galleries/all?page=${page + 1}"
+    private fun galleryUrl(page: Int, filters: List<String>): String {
+        return if (filters.isNotEmpty()) {
+            val searchContent = filters.joinToString("+") {
+                it.replace(" ", "+")
+            }
+            "https://nhentai.net/api/galleries/search?query=$searchContent&page=${page + 1}"
+        } else "https://nhentai.net/api/galleries/all?page=${page + 1}"
     }
 }
