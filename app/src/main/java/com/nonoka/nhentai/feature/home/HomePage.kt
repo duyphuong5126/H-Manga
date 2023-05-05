@@ -5,8 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,10 +19,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -36,24 +36,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.compose.collectAsLazyPagingItems
-import coil.compose.AsyncImage
 import com.nonoka.nhentai.R
-import com.nonoka.nhentai.domain.entity.CHINESE_LANG
-import com.nonoka.nhentai.domain.entity.JAPANESE_LANG
 import com.nonoka.nhentai.paging.PagingDataSource
+import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.theme.Black
-import com.nonoka.nhentai.ui.theme.Black96
 import com.nonoka.nhentai.ui.theme.Grey31
+import com.nonoka.nhentai.ui.theme.Grey400
 import com.nonoka.nhentai.ui.theme.MainColor
 import com.nonoka.nhentai.ui.theme.White
 import com.nonoka.nhentai.ui.theme.extraNormalSpace
@@ -62,7 +57,6 @@ import com.nonoka.nhentai.ui.theme.mediumRadius
 import com.nonoka.nhentai.ui.theme.mediumSpace
 import com.nonoka.nhentai.ui.theme.normalSpace
 import com.nonoka.nhentai.ui.theme.smallSpace
-import com.nonoka.nhentai.ui.theme.tinySpace
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,19 +101,22 @@ private fun Gallery(homeViewModel: HomeViewModel = hiltViewModel()) {
         content = {
             if (lazyDoujinshis.itemCount > 0) {
                 items(
-                    count = lazyDoujinshis.itemCount + 1,
+                    count = lazyDoujinshis.itemCount + 2,
                     key = { index ->
-                        if (index < lazyDoujinshis.itemCount) {
-                            when (val item = lazyDoujinshis[index] as GalleryUiState) {
-                                is GalleryUiState.Title -> item.title
-                                is GalleryUiState.DoujinshiItem -> item.doujinshi.bookId
+                        when {
+                            index == 0 -> "Scrollable header"
+                            index < lazyDoujinshis.itemCount -> {
+                                when (val item = lazyDoujinshis[index] as GalleryUiState) {
+                                    is GalleryUiState.Title -> item.title
+                                    is GalleryUiState.DoujinshiItem -> item.doujinshi.bookId
+                                }
                             }
-                        } else {
-                            "Loading footer"
+
+                            else -> "Loading footer"
                         }
                     },
                     span = { index ->
-                        if (index < lazyDoujinshis.itemCount) {
+                        if (index > 0 && index < lazyDoujinshis.itemCount) {
                             when (lazyDoujinshis[index] as GalleryUiState) {
                                 is GalleryUiState.Title -> StaggeredGridItemSpan.FullLine
                                 is GalleryUiState.DoujinshiItem -> StaggeredGridItemSpan.SingleLane
@@ -129,17 +126,23 @@ private fun Gallery(homeViewModel: HomeViewModel = hiltViewModel()) {
                         }
                     },
                 ) { index ->
-                    if (index < lazyDoujinshis.itemCount) {
-                        when (val item = lazyDoujinshis[index] as GalleryUiState) {
-                            is GalleryUiState.Title -> Title(item)
-                            is GalleryUiState.DoujinshiItem -> DoujinshiThumbnail(item)
+                    when {
+                        index == 0 -> GalleryHeader()
+                        index < lazyDoujinshis.itemCount -> {
+                            val galleryIndex = index - 1
+                            when (val item = lazyDoujinshis[galleryIndex] as GalleryUiState) {
+                                is GalleryUiState.Title -> GalleryTitle(item)
+                                is GalleryUiState.DoujinshiItem -> DoujinshiCard(item)
+                            }
                         }
-                    } else {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentWidth(Alignment.CenterHorizontally)
-                        )
+
+                        else -> {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentWidth(Alignment.CenterHorizontally)
+                            )
+                        }
                     }
                 }
             } else {
@@ -161,7 +164,7 @@ private fun Gallery(homeViewModel: HomeViewModel = hiltViewModel()) {
 }
 
 @Composable
-private fun Header(modifier: Modifier = Modifier) {
+private fun Header(modifier: Modifier = Modifier, homeViewModel: HomeViewModel = hiltViewModel()) {
     var searchText by remember { mutableStateOf("") }
     Box(
         modifier = modifier
@@ -198,10 +201,24 @@ private fun Header(modifier: Modifier = Modifier) {
                 BasicTextField(
                     modifier = Modifier.align(Alignment.CenterStart),
                     value = searchText,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
+                    keyboardActions = KeyboardActions(onGo = {
+                        homeViewModel.addFilter(searchText)
+                        searchText = ""
+                    }),
                     onValueChange = { newText ->
                         searchText = newText
                     },
                     maxLines = 1,
+                    decorationBox = { innerTextField ->
+                        if (searchText.isBlank()) {
+                            Text(
+                                text = "e.g. tag:\"big breasts\" pages:>15 -milf",
+                                style = MaterialTheme.typography.bodyMedium.copy(color = Grey400)
+                            )
+                        }
+                        innerTextField()
+                    }
                 )
             }
             Box(
@@ -216,89 +233,32 @@ private fun Header(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun DoujinshiThumbnail(doujinshiItem: GalleryUiState.DoujinshiItem) {
-    val doujinshi = doujinshiItem.doujinshi
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(doujinshi.thumbnailRatio)
-            .clip(shape = RoundedCornerShape(size = mediumRadius))
-    ) {
-        AsyncImage(
-            model = doujinshi.thumbnail,
-            contentDescription = "Thumbnail of ${doujinshi.bookId}",
-            modifier = Modifier.fillMaxSize()
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .background(Black96)
-            ) {
-                val iconId = "inlineContent"
-                val text = buildAnnotatedString {
-                    appendInlineContent(iconId, "[myBox]")
-                    append(doujinshi.previewTitle)
-                }
-                val inlineContent = mapOf(
-                    Pair(
-                        // This tells the [CoreText] to replace the placeholder string "[icon]" by
-                        // the composable given in the [InlineTextContent] object.
-                        iconId,
-                        InlineTextContent(
-                            // Placeholder tells text layout the expected size and vertical alignment of
-                            // children composable.
-                            Placeholder(
-                                width = 20.sp,
-                                height = 20.sp,
-                                placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
-                            )
-                        ) {
-                            // This Icon will fill maximum size, which is specified by the [Placeholder]
-                            // above. Notice the width and height in [Placeholder] are specified in TextUnit,
-                            // and are converted into pixel by text layout.
-
-                            Image(
-                                painter = painterResource(id = getLanguageIconRes(doujinshi.language)),
-                                contentDescription = doujinshi.language,
-                                modifier = Modifier.padding(top = 7.dp, end = smallSpace)
-                            )
-                        }
-                    )
-                )
-                BasicText(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = smallSpace, vertical = tinySpace),
-                    text = text,
-                    style = MaterialTheme.typography.bodyMedium.copy(color = White),
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 3,
-                    inlineContent = inlineContent
-                )
-            }
-        }
-    }
-}
-
-private fun getLanguageIconRes(language: String): Int {
-    return when (language) {
-        CHINESE_LANG -> R.drawable.ic_lang_cn
-        JAPANESE_LANG -> R.drawable.ic_lang_jp
-        else -> R.drawable.ic_lang_gb
-    }
-}
-
-@Composable
-private fun Title(title: GalleryUiState.Title) {
+private fun GalleryTitle(title: GalleryUiState.Title) {
     Text(
         text = title.title,
         style = MaterialTheme.typography.bodyLarge.copy(color = White),
         modifier = Modifier.padding(start = smallSpace, top = normalSpace, bottom = mediumSpace),
     )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun GalleryHeader(homeViewModel: HomeViewModel = hiltViewModel()) {
+    if (homeViewModel.filters.isNotEmpty()) {
+        FlowRow(modifier = Modifier.padding(mediumSpace)) {
+            homeViewModel.filters.forEach {
+                Text(
+                    text = it,
+                    modifier = Modifier
+                        .padding(end = smallSpace)
+                        .clip(RoundedCornerShape(mediumRadius))
+                        .background(MainColor)
+                        .padding(horizontal = mediumSpace, vertical = smallSpace),
+                    style = MaterialTheme.typography.bodyMedium.copy(White),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
 }
 
