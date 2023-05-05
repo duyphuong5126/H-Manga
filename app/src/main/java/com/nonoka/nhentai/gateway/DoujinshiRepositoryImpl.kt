@@ -9,7 +9,15 @@ class DoujinshiRepositoryImpl @Inject constructor(
     private val doujinshiRemoteSource: DoujinshiRemoteSource
 ) : DoujinshiRepository {
     private val galleryCacheMap = HashMap<Int, Pair<DoujinshisResult, Long>>()
+    private var filterString = ""
     override suspend fun getGalleryPage(page: Int, filters: List<String>): DoujinshisResult {
+        val searchContent = filters.joinToString("+") {
+            it.replace(" ", "+")
+        }
+        if (filterString != searchContent) {
+            filterString = searchContent
+            galleryCacheMap.clear()
+        }
         val cacheResult = galleryCacheMap[page]
         return if (cacheResult != null && System.currentTimeMillis() - cacheResult.second < CACHE_DURATION) {
             cacheResult.first

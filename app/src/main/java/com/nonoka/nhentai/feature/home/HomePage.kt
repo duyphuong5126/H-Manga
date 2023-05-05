@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -31,10 +33,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.paging.PagingDataSource
@@ -57,29 +63,11 @@ import com.nonoka.nhentai.ui.theme.mediumRadius
 import com.nonoka.nhentai.ui.theme.mediumSpace
 import com.nonoka.nhentai.ui.theme.normalSpace
 import com.nonoka.nhentai.ui.theme.smallSpace
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun HomePage() {
-    Scaffold(
-        topBar = {
-            Header()
-        },
-        containerColor = Black
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(it)
-                .fillMaxSize(),
-        ) {
-            Gallery()
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun Gallery(homeViewModel: HomeViewModel = hiltViewModel()) {
+fun HomePage(homeViewModel: HomeViewModel = hiltViewModel()) {
     val lazyDoujinshis = remember {
         Pager(
             PagingConfig(
@@ -91,15 +79,40 @@ private fun Gallery(homeViewModel: HomeViewModel = hiltViewModel()) {
         }
     }.flow.collectAsLazyPagingItems()
 
-    LazyVerticalStaggeredGrid(
-        modifier = Modifier
-            .padding(start = smallSpace, end = smallSpace)
-            .fillMaxSize(),
-        columns = StaggeredGridCells.Adaptive(minSize = 150.dp),
-        verticalItemSpacing = smallSpace,
-        horizontalArrangement = Arrangement.spacedBy(smallSpace),
-        content = {
-            if (lazyDoujinshis.itemCount > 0) {
+    val galleryState = rememberLazyStaggeredGridState()
+
+    Scaffold(
+        topBar = {
+            Header(lazyDoujinshis, galleryState)
+        },
+        containerColor = Black
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize(),
+        ) {
+            Gallery(lazyDoujinshis, galleryState)
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun Gallery(
+    lazyDoujinshis: LazyPagingItems<GalleryUiState>,
+    galleryState: LazyStaggeredGridState,
+) {
+    if (lazyDoujinshis.itemCount > 0) {
+        LazyVerticalStaggeredGrid(
+            modifier = Modifier
+                .padding(start = smallSpace, end = smallSpace)
+                .fillMaxSize(),
+            state = galleryState,
+            columns = StaggeredGridCells.Adaptive(minSize = 150.dp),
+            verticalItemSpacing = smallSpace,
+            horizontalArrangement = Arrangement.spacedBy(smallSpace),
+            content = {
                 items(
                     count = lazyDoujinshis.itemCount + 2,
                     key = { index ->
@@ -147,27 +160,29 @@ private fun Gallery(homeViewModel: HomeViewModel = hiltViewModel()) {
                         }
                     }
                 }
-            } else {
-                items(
-                    count = 1,
-                    span = {
-                        StaggeredGridItemSpan.FullLine
-                    },
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .wrapContentWidth(Alignment.CenterHorizontally)
-                    )
-                }
-            }
-        },
-    )
+            },
+        )
+    } else {
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(id = R.mipmap.ic_nothing_here_grey),
+            contentDescription = "No data loaded",
+        )
+    }
 }
 
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-private fun Header(modifier: Modifier = Modifier, homeViewModel: HomeViewModel = hiltViewModel()) {
+private fun Header(
+    lazyDoujinshis: LazyPagingItems<GalleryUiState>,
+    galleryState: LazyStaggeredGridState,
+    modifier: Modifier = Modifier,
+    homeViewModel: HomeViewModel = hiltViewModel()
+) {
     var searchText by remember { mutableStateOf("") }
+    val coroutineContext = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Box(
         modifier = modifier
             .height(headerHeight)
@@ -207,6 +222,11 @@ private fun Header(modifier: Modifier = Modifier, homeViewModel: HomeViewModel =
                     keyboardActions = KeyboardActions(onGo = {
                         homeViewModel.addFilter(searchText)
                         searchText = ""
+                        keyboardController?.hide()
+                        lazyDoujinshis.refresh()
+                        coroutineContext.launch {
+                            galleryState.scrollToItem(0)
+                        }
                     }),
                     onValueChange = { newText ->
                         searchText = newText
@@ -239,24 +259,37 @@ private fun GalleryTitle(title: GalleryUiState.Title) {
     Text(
         text = title.title,
         style = MaterialTheme.typography.bodyLarge.copy(color = White),
-        modifier = Modifier.padding(start = smallSpace, top = normalSpace, bottom = mediumSpace),
+        modifier = Modifier.padding(start = smallSpace, top = normalSpace, bottom = smallSpace),
     )
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun GalleryHeader(homeViewModel: HomeViewModel = hiltViewModel()) {
-    if (homeViewModel.filters.isNotEmpty()) {
+    if (homeViewModel.filters.isNotEmpty() || homeViewModel.galleryCountLabel.value.isNotBlank()) {
         FlowRow(modifier = Modifier.padding(mediumSpace)) {
-            homeViewModel.filters.forEach {
+            if (homeViewModel.filters.isNotEmpty()) {
+                homeViewModel.filters.forEach {
+                    Text(
+                        text = it,
+                        modifier = Modifier
+                            .padding(end = smallSpace, top = smallSpace)
+                            .clip(RoundedCornerShape(mediumRadius))
+                            .background(MainColor)
+                            .padding(horizontal = mediumSpace, vertical = smallSpace),
+                        style = MaterialTheme.typography.bodyMedium.copy(White),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            if (homeViewModel.galleryCountLabel.value.isNotBlank()) {
                 Text(
-                    text = it,
                     modifier = Modifier
-                        .padding(end = smallSpace)
-                        .clip(RoundedCornerShape(mediumRadius))
-                        .background(MainColor)
-                        .padding(horizontal = mediumSpace, vertical = smallSpace),
-                    style = MaterialTheme.typography.bodyMedium.copy(White),
+                        .padding(top = normalSpace)
+                        .fillMaxSize(),
+                    text = homeViewModel.galleryCountLabel.value,
+                    style = MaterialTheme.typography.headlineSmall.copy(color = White),
                     textAlign = TextAlign.Center
                 )
             }
