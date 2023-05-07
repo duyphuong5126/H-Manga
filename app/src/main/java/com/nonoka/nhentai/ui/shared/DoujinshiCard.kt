@@ -30,6 +30,7 @@ import com.nonoka.nhentai.domain.entity.JAPANESE_LANG
 import com.nonoka.nhentai.feature.home.GalleryUiState
 import com.nonoka.nhentai.ui.theme.Black96
 import com.nonoka.nhentai.ui.theme.White
+import com.nonoka.nhentai.ui.theme.doujinshiCardTitleStyle
 import com.nonoka.nhentai.ui.theme.mediumRadius
 import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.ui.theme.tinySpace
@@ -93,7 +94,7 @@ fun DoujinshiCard(doujinshiItem: GalleryUiState.DoujinshiItem) {
                         .fillMaxWidth()
                         .padding(horizontal = smallSpace, vertical = tinySpace),
                     text = text,
-                    style = MaterialTheme.typography.bodyMedium.copy(color = White),
+                    style = MaterialTheme.typography.doujinshiCardTitleStyle.copy(color = White),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 3,
                     inlineContent = inlineContent

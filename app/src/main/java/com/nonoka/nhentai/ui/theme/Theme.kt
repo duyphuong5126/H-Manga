@@ -64,7 +64,7 @@ fun NHentaiTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = MaterialTheme.brandTypography(),
         content = content
     )
 }

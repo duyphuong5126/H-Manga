@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
@@ -42,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -69,6 +71,7 @@ import com.nonoka.nhentai.ui.theme.mediumRadius
 import com.nonoka.nhentai.ui.theme.mediumSpace
 import com.nonoka.nhentai.ui.theme.normalSpace
 import com.nonoka.nhentai.ui.theme.smallSpace
+import com.nonoka.nhentai.ui.theme.titleStyle
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -259,13 +262,23 @@ private fun Header(
                     }
                 )
             }
-            Box(
+            TextButton(
                 modifier = Modifier
                     .width(36.dp)
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(topEnd = mediumRadius, bottomEnd = mediumRadius))
-                    .background(MainColor)
-            )
+                    .wrapContentSize(),
+                shape = RoundedCornerShape(topEnd = mediumRadius, bottomEnd = mediumRadius),
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = MainColor,
+                ),
+                onClick = {}
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_random_black_24dp),
+                    contentDescription = "Randomize doujinshis",
+                    colorFilter = ColorFilter.tint(White),
+                )
+            }
         }
     }
 }
@@ -274,7 +287,7 @@ private fun Header(
 private fun GalleryTitle(title: GalleryUiState.Title) {
     Text(
         text = title.title,
-        style = MaterialTheme.typography.bodyLarge.copy(color = White),
+        style = MaterialTheme.typography.titleStyle.copy(color = White),
         modifier = Modifier.padding(start = smallSpace, top = normalSpace, bottom = smallSpace),
     )
 }
@@ -310,7 +323,7 @@ private fun GalleryHeader(
                         .padding(top = normalSpace)
                         .fillMaxSize(),
                     text = homeViewModel.galleryCountLabel.value,
-                    style = MaterialTheme.typography.headlineSmall.copy(color = White),
+                    style = MaterialTheme.typography.titleStyle.copy(color = White),
                     textAlign = TextAlign.Center
                 )
             }
@@ -341,7 +354,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "Recent",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.titleStyle
                 )
             }
         }
@@ -362,7 +375,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "Popular:",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.titleStyle
                 )
             }
         }
@@ -383,7 +396,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "Today",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.titleStyle
                 )
             }
         }
@@ -404,7 +417,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "This week",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.titleStyle
                 )
             }
         }
@@ -426,7 +439,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "All time",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.titleStyle
                 )
             }
         }
