@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.nonoka.nhentai.domain.DoujinshiRepository
+import com.nonoka.nhentai.domain.entity.book.SortOption
 import com.nonoka.nhentai.paging.PagingDataLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.DecimalFormat
@@ -17,6 +18,8 @@ class HomeViewModel @Inject constructor(
     val filters = mutableStateListOf<String>()
     val galleryCountLabel = mutableStateOf("")
 
+    val sortOption = mutableStateOf(SortOption.Recent)
+
     private val decimalFormat = DecimalFormat("#,###")
 
     fun addFilter(filter: String) {
@@ -25,11 +28,15 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun selectSortOption(sortOption: SortOption) {
+        this.sortOption.value = sortOption
+    }
+
     override suspend fun loadPage(pageIndex: Int): List<GalleryUiState> {
         Timber.d("Loading page $pageIndex")
         val pageData = ArrayList<GalleryUiState>()
 
-        val result = doujinshiRepository.getGalleryPage(pageIndex, filters)
+        val result = doujinshiRepository.getGalleryPage(pageIndex, filters, sortOption.value)
         val resultList = result.doujinshiList.map {
             GalleryUiState.DoujinshiItem(it)
         }

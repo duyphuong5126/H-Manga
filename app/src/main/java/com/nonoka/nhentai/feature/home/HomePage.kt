@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -24,11 +25,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,16 +48,19 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.nonoka.nhentai.R
+import com.nonoka.nhentai.domain.entity.book.SortOption
 import com.nonoka.nhentai.paging.PagingDataSource
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.theme.Black
 import com.nonoka.nhentai.ui.theme.Grey31
 import com.nonoka.nhentai.ui.theme.Grey400
+import com.nonoka.nhentai.ui.theme.Grey77
 import com.nonoka.nhentai.ui.theme.MainColor
 import com.nonoka.nhentai.ui.theme.White
 import com.nonoka.nhentai.ui.theme.extraNormalSpace
@@ -68,22 +74,30 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomePage(homeViewModel: HomeViewModel = hiltViewModel()) {
+    val coroutineContext = rememberCoroutineScope()
     val lazyDoujinshis = remember {
         Pager(
             PagingConfig(
                 pageSize = 25,
                 prefetchDistance = 5,
+                initialLoadSize = 25,
             )
         ) {
             PagingDataSource(homeViewModel)
-        }
-    }.flow.collectAsLazyPagingItems()
+        }.flow
+    }.collectAsLazyPagingItems()
 
     val galleryState = rememberLazyStaggeredGridState()
+    val onRefreshGallery: () -> Unit = {
+        lazyDoujinshis.refresh()
+        coroutineContext.launch {
+            galleryState.scrollToItem(0)
+        }
+    }
 
     Scaffold(
         topBar = {
-            Header(lazyDoujinshis, galleryState)
+            Header(onRefreshGallery)
         },
         containerColor = Black
     ) {
@@ -92,7 +106,7 @@ fun HomePage(homeViewModel: HomeViewModel = hiltViewModel()) {
                 .padding(it)
                 .fillMaxSize(),
         ) {
-            Gallery(lazyDoujinshis, galleryState)
+            Gallery(lazyDoujinshis, galleryState, onRefreshGallery)
         }
     }
 }
@@ -102,6 +116,7 @@ fun HomePage(homeViewModel: HomeViewModel = hiltViewModel()) {
 private fun Gallery(
     lazyDoujinshis: LazyPagingItems<GalleryUiState>,
     galleryState: LazyStaggeredGridState,
+    onRefreshGallery: () -> Unit,
 ) {
     if (lazyDoujinshis.itemCount > 0) {
         LazyVerticalStaggeredGrid(
@@ -142,7 +157,7 @@ private fun Gallery(
                     },
                 ) { index ->
                     when {
-                        index == 0 -> GalleryHeader()
+                        index == 0 -> GalleryHeader(onRefreshGallery)
                         index <= lazyDoujinshis.itemCount -> {
                             val galleryIndex = index - 1
                             when (val item = lazyDoujinshis[galleryIndex] as GalleryUiState) {
@@ -162,6 +177,12 @@ private fun Gallery(
                 }
             },
         )
+    } else if (lazyDoujinshis.loadState.refresh == LoadState.Loading) {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .fillMaxSize()
+                .wrapContentWidth(Alignment.CenterHorizontally)
+        )
     } else {
         Image(
             modifier = Modifier.fillMaxSize(),
@@ -171,16 +192,14 @@ private fun Gallery(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Header(
-    lazyDoujinshis: LazyPagingItems<GalleryUiState>,
-    galleryState: LazyStaggeredGridState,
+    onRefreshGallery: () -> Unit,
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     var searchText by remember { mutableStateOf("") }
-    val coroutineContext = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Box(
@@ -223,10 +242,7 @@ private fun Header(
                         homeViewModel.addFilter(searchText)
                         searchText = ""
                         keyboardController?.hide()
-                        lazyDoujinshis.refresh()
-                        coroutineContext.launch {
-                            galleryState.scrollToItem(0)
-                        }
+                        onRefreshGallery()
                     }),
                     onValueChange = { newText ->
                         searchText = newText
@@ -265,7 +281,10 @@ private fun GalleryTitle(title: GalleryUiState.Title) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun GalleryHeader(homeViewModel: HomeViewModel = hiltViewModel()) {
+private fun GalleryHeader(
+    onRefreshGallery: () -> Unit,
+    homeViewModel: HomeViewModel = hiltViewModel()
+) {
     if (homeViewModel.filters.isNotEmpty() || homeViewModel.galleryCountLabel.value.isNotBlank()) {
         FlowRow(modifier = Modifier.padding(mediumSpace)) {
             if (homeViewModel.filters.isNotEmpty()) {
@@ -283,6 +302,8 @@ private fun GalleryHeader(homeViewModel: HomeViewModel = hiltViewModel()) {
                 }
             }
 
+            SortOptions(onRefreshGallery)
+
             if (homeViewModel.galleryCountLabel.value.isNotBlank()) {
                 Text(
                     modifier = Modifier
@@ -291,6 +312,121 @@ private fun GalleryHeader(homeViewModel: HomeViewModel = hiltViewModel()) {
                     text = homeViewModel.galleryCountLabel.value,
                     style = MaterialTheme.typography.headlineSmall.copy(color = White),
                     textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SortOptions(
+    onRefreshGallery: () -> Unit,
+    homeViewModel: HomeViewModel = hiltViewModel()
+) {
+    val selectedOption = homeViewModel.sortOption.value
+    LazyRow {
+        item {
+            TextButton(
+                modifier = Modifier
+                    .padding(end = smallSpace),
+                shape = RoundedCornerShape(mediumRadius),
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = if (selectedOption == SortOption.Recent) Grey77 else Grey31,
+                    contentColor = White
+                ),
+                onClick = {
+                    homeViewModel.selectSortOption(SortOption.Recent)
+                    onRefreshGallery()
+                }
+            ) {
+                Text(
+                    text = "Recent",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+
+        item {
+            TextButton(
+                modifier = Modifier
+                    .padding(end = 1.dp),
+                shape = RoundedCornerShape(
+                    topStart = mediumRadius,
+                    bottomStart = mediumRadius
+                ),
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = Grey31,
+                    contentColor = White
+                ),
+                onClick = {},
+            ) {
+                Text(
+                    text = "Popular:",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+
+        item {
+            TextButton(
+                modifier = Modifier
+                    .padding(end = 1.dp),
+                shape = RoundedCornerShape(0.dp),
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = if (selectedOption == SortOption.PopularToday) Grey77 else Grey31,
+                    contentColor = White
+                ),
+                onClick = {
+                    homeViewModel.selectSortOption(SortOption.PopularToday)
+                    onRefreshGallery()
+                }
+            ) {
+                Text(
+                    text = "Today",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+
+        item {
+            TextButton(
+                modifier = Modifier
+                    .padding(end = 1.dp),
+                shape = RoundedCornerShape(0.dp),
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = if (selectedOption == SortOption.PopularWeek) Grey77 else Grey31,
+                    contentColor = White
+                ),
+                onClick = {
+                    homeViewModel.selectSortOption(SortOption.PopularWeek)
+                    onRefreshGallery()
+                }
+            ) {
+                Text(
+                    text = "This week",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+
+        item {
+            TextButton(
+                shape = RoundedCornerShape(
+                    topEnd = mediumRadius,
+                    bottomEnd = mediumRadius
+                ),
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = if (selectedOption == SortOption.PopularAllTime) Grey77 else Grey31,
+                    contentColor = White
+                ),
+                onClick = {
+                    homeViewModel.selectSortOption(SortOption.PopularAllTime)
+                    onRefreshGallery()
+                }
+            ) {
+                Text(
+                    text = "All time",
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }
