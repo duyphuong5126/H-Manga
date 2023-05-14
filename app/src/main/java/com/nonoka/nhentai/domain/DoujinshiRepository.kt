@@ -1,5 +1,6 @@
 package com.nonoka.nhentai.domain
 
+import com.nonoka.nhentai.domain.entity.book.Doujinshi
 import com.nonoka.nhentai.domain.entity.book.DoujinshisResult
 import com.nonoka.nhentai.domain.entity.book.SortOption
 
@@ -9,4 +10,6 @@ interface DoujinshiRepository {
         filters: List<String> = arrayListOf(),
         sortOption: SortOption = SortOption.Recent
     ): DoujinshisResult
+
+    suspend fun getDoujinshi(doujinshiId: String): Resource<Doujinshi>
 }

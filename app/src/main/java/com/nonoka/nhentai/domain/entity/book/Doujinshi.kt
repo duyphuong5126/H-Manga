@@ -38,14 +38,33 @@ data class Doujinshi(
         }
         private set
 
-    var previewTitle: String = ""
+    val cover: String get() = "$NHENTAI_T/galleries/$mediaId/cover.${images.cover.imageType}"
+    val coverRatio: Float
         get() {
-            if (field.isBlank()) {
-                internalInit()
+            var ratio = 1f
+            if (images.cover.width > 0 && images.cover.height > 0) {
+                ratio = images.cover.width.toFloat() / images.cover.height
             }
-            return field
+            return ratio
         }
-        private set
+
+    val previewTitle: String
+        get() {
+            return if (!title.englishName.isNullOrBlank() &&
+                !NULL.equals(title.englishName, ignoreCase = true)
+            ) {
+                title.englishName + "\n"
+            } else if (!title.japaneseName.isNullOrBlank() &&
+                !NULL.equals(title.japaneseName, ignoreCase = true)
+            ) {
+                "${title.japaneseName}\n"
+            } else if (!title.prettyName.isNullOrBlank() &&
+                !NULL.equals(title.prettyName, ignoreCase = true)
+            ) {
+                title.prettyName
+            } else ""
+        }
+
     var usefulName: String = ""
         get() {
             if (field.isBlank()) {
@@ -85,22 +104,8 @@ data class Doujinshi(
         }
         thumbnailRatio = ratio
 
-        val imageType = images.thumbnail.imageType
-        thumbnail = "$NHENTAI_T/galleries/$mediaId/thumb.$imageType"
-
-        previewTitle = if (!title.englishName.isNullOrBlank() &&
-            !NULL.equals(title.englishName, ignoreCase = true)
-        ) {
-            title.englishName + "\n"
-        } else if (!title.japaneseName.isNullOrBlank() &&
-            !NULL.equals(title.japaneseName, ignoreCase = true)
-        ) {
-            "${title.japaneseName}\n"
-        } else if (!title.prettyName.isNullOrBlank() &&
-            !NULL.equals(title.prettyName, ignoreCase = true)
-        ) {
-            title.prettyName
-        } else ""
+        val thumbnailType = images.thumbnail.imageType
+        thumbnail = "$NHENTAI_T/galleries/$mediaId/thumb.$thumbnailType"
 
         usefulName = when {
             !title.englishName.isNullOrBlank() -> title.englishName

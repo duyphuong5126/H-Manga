@@ -1,6 +1,9 @@
 package com.nonoka.nhentai.gateway
 
 import com.nonoka.nhentai.domain.DoujinshiRepository
+import com.nonoka.nhentai.domain.Resource
+import com.nonoka.nhentai.domain.Resource.Success
+import com.nonoka.nhentai.domain.entity.book.Doujinshi
 import com.nonoka.nhentai.domain.entity.book.DoujinshisResult
 import com.nonoka.nhentai.domain.entity.book.SortOption
 import com.nonoka.nhentai.gateway.remote.DoujinshiRemoteSource
@@ -9,6 +12,7 @@ import javax.inject.Inject
 class DoujinshiRepositoryImpl @Inject constructor(
     private val doujinshiRemoteSource: DoujinshiRemoteSource
 ) : DoujinshiRepository {
+    private val doujinshiCacheMap = HashMap<String, Doujinshi>()
     private val galleryCacheMap = HashMap<Int, Pair<DoujinshisResult, Long>>()
     private var filterString = ""
     override suspend fun getGalleryPage(
@@ -27,6 +31,9 @@ class DoujinshiRepositoryImpl @Inject constructor(
         } else {
             val remoteResult = doujinshiRemoteSource.loadDoujinshis(page, filters, sortOption)
             galleryCacheMap[page] = Pair(remoteResult, System.currentTimeMillis())
+            remoteResult.doujinshiList.forEach {
+                doujinshiCacheMap[it.bookId] = it
+            }
             remoteResult
         }
     }
@@ -44,6 +51,17 @@ class DoujinshiRepositoryImpl @Inject constructor(
             it.replace(" ", "+")
         }
         return content + sortString
+    }
+
+    override suspend fun getDoujinshi(doujinshiId: String): Resource<Doujinshi> {
+        val doujinshi = doujinshiCacheMap[doujinshiId]
+        return if (doujinshi != null) {
+            Success(doujinshi)
+        } else {
+            doujinshiRemoteSource.loadDoujinshi(doujinshiId).doOnSuccess {
+                doujinshiCacheMap[doujinshiId] = it
+            }
+        }
     }
 
     companion object {

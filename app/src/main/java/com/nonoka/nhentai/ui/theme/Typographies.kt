@@ -38,18 +38,39 @@ val notoSansFontFamily = FontFamily(
     ),
 )
 
-val Typography.doujinshiCardTitleStyle: TextStyle
+val Typography.doujinshiPrimaryTitleStyle: TextStyle
     get() = TextStyle(
         fontFamily = notoSansFontFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 14.sp
+        fontSize = 20.sp
     )
 
-val Typography.titleStyle: TextStyle
+val Typography.doujinshiSecondaryTitleStyle: TextStyle
+    get() = TextStyle(
+        fontFamily = notoSansFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp
+    )
+
+val Typography.bodyRegularBold: TextStyle
     get() = TextStyle(
         fontFamily = notoSansFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 16.sp
+    )
+
+val Typography.bodyRegularThin: TextStyle
+    get() = TextStyle(
+        fontFamily = notoSansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp
+    )
+
+val Typography.bodySmallBold: TextStyle
+    get() = TextStyle(
+        fontFamily = notoSansFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 14.sp
     )
 
 @Composable

@@ -2,6 +2,7 @@ package com.nonoka.nhentai.ui.shared
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,19 +31,25 @@ import com.nonoka.nhentai.domain.entity.JAPANESE_LANG
 import com.nonoka.nhentai.feature.home.GalleryUiState
 import com.nonoka.nhentai.ui.theme.Black96
 import com.nonoka.nhentai.ui.theme.White
-import com.nonoka.nhentai.ui.theme.doujinshiCardTitleStyle
+import com.nonoka.nhentai.ui.theme.bodySmallBold
 import com.nonoka.nhentai.ui.theme.mediumRadius
 import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.ui.theme.tinySpace
 
 @Composable
-fun DoujinshiCard(doujinshiItem: GalleryUiState.DoujinshiItem) {
+fun DoujinshiCard(
+    doujinshiItem: GalleryUiState.DoujinshiItem,
+    onDoujinshiSelected: (String) -> Unit = {},
+) {
     val doujinshi = doujinshiItem.doujinshi
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(doujinshi.thumbnailRatio)
             .clip(shape = RoundedCornerShape(size = mediumRadius))
+            .clickable {
+                onDoujinshiSelected(doujinshi.bookId)
+            }
     ) {
         AsyncImage(
             model = doujinshi.thumbnail,
@@ -94,7 +101,7 @@ fun DoujinshiCard(doujinshiItem: GalleryUiState.DoujinshiItem) {
                         .fillMaxWidth()
                         .padding(horizontal = smallSpace, vertical = tinySpace),
                     text = text,
-                    style = MaterialTheme.typography.doujinshiCardTitleStyle.copy(color = White),
+                    style = MaterialTheme.typography.bodySmallBold.copy(color = White),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 3,
                     inlineContent = inlineContent

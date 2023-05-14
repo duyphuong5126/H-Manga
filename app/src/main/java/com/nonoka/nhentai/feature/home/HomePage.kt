@@ -65,18 +65,21 @@ import com.nonoka.nhentai.ui.theme.Grey400
 import com.nonoka.nhentai.ui.theme.Grey77
 import com.nonoka.nhentai.ui.theme.MainColor
 import com.nonoka.nhentai.ui.theme.White
+import com.nonoka.nhentai.ui.theme.bodyRegularBold
 import com.nonoka.nhentai.ui.theme.extraNormalSpace
 import com.nonoka.nhentai.ui.theme.headerHeight
 import com.nonoka.nhentai.ui.theme.mediumRadius
 import com.nonoka.nhentai.ui.theme.mediumSpace
 import com.nonoka.nhentai.ui.theme.normalSpace
 import com.nonoka.nhentai.ui.theme.smallSpace
-import com.nonoka.nhentai.ui.theme.titleStyle
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun HomePage(homeViewModel: HomeViewModel = hiltViewModel()) {
+fun HomePage(
+    onDoujinshiSelected: (String) -> Unit = {},
+    homeViewModel: HomeViewModel = hiltViewModel()
+) {
     val coroutineContext = rememberCoroutineScope()
     val lazyDoujinshis = remember {
         Pager(
@@ -109,7 +112,7 @@ fun HomePage(homeViewModel: HomeViewModel = hiltViewModel()) {
                 .padding(it)
                 .fillMaxSize(),
         ) {
-            Gallery(lazyDoujinshis, galleryState, onRefreshGallery)
+            Gallery(lazyDoujinshis, galleryState, onRefreshGallery, onDoujinshiSelected)
         }
     }
 }
@@ -120,6 +123,7 @@ private fun Gallery(
     lazyDoujinshis: LazyPagingItems<GalleryUiState>,
     galleryState: LazyStaggeredGridState,
     onRefreshGallery: () -> Unit,
+    onDoujinshiSelected: (String) -> Unit,
 ) {
     if (lazyDoujinshis.itemCount > 0) {
         LazyVerticalStaggeredGrid(
@@ -165,7 +169,10 @@ private fun Gallery(
                             val galleryIndex = index - 1
                             when (val item = lazyDoujinshis[galleryIndex] as GalleryUiState) {
                                 is GalleryUiState.Title -> GalleryTitle(item)
-                                is GalleryUiState.DoujinshiItem -> DoujinshiCard(item)
+                                is GalleryUiState.DoujinshiItem -> DoujinshiCard(
+                                    item,
+                                    onDoujinshiSelected = onDoujinshiSelected,
+                                )
                             }
                         }
 
@@ -287,7 +294,7 @@ private fun Header(
 private fun GalleryTitle(title: GalleryUiState.Title) {
     Text(
         text = title.title,
-        style = MaterialTheme.typography.titleStyle.copy(color = White),
+        style = MaterialTheme.typography.bodyRegularBold.copy(color = White),
         modifier = Modifier.padding(start = smallSpace, top = normalSpace, bottom = smallSpace),
     )
 }
@@ -323,7 +330,7 @@ private fun GalleryHeader(
                         .padding(top = normalSpace)
                         .fillMaxSize(),
                     text = homeViewModel.galleryCountLabel.value,
-                    style = MaterialTheme.typography.titleStyle.copy(color = White),
+                    style = MaterialTheme.typography.bodyRegularBold.copy(color = White),
                     textAlign = TextAlign.Center
                 )
             }
@@ -354,7 +361,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "Recent",
-                    style = MaterialTheme.typography.titleStyle
+                    style = MaterialTheme.typography.bodyRegularBold
                 )
             }
         }
@@ -375,7 +382,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "Popular:",
-                    style = MaterialTheme.typography.titleStyle
+                    style = MaterialTheme.typography.bodyRegularBold
                 )
             }
         }
@@ -396,7 +403,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "Today",
-                    style = MaterialTheme.typography.titleStyle
+                    style = MaterialTheme.typography.bodyRegularBold
                 )
             }
         }
@@ -417,7 +424,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "This week",
-                    style = MaterialTheme.typography.titleStyle
+                    style = MaterialTheme.typography.bodyRegularBold
                 )
             }
         }
@@ -439,7 +446,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "All time",
-                    style = MaterialTheme.typography.titleStyle
+                    style = MaterialTheme.typography.bodyRegularBold
                 )
             }
         }
