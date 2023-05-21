@@ -78,18 +78,17 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
             val recommendationUrl = buildDetailRecommendationUrl(doujinshiId)
             crawlerMap[ClientType.Detail]?.load(
                 url = recommendationUrl, onDataReady = { _, data ->
-                    continuation.resumeWith(
-                        Result.success(
-                            Success(
-                                Gson().fromJson(
-                                    data,
-                                    RecommendedDoujinshis::class.java
-                                ).doujinshiList,
-                            )
-                        )
-                    )
-                }, onError = { _, error ->
-                    continuation.resumeWith(Result.success(Error(Throwable(error))))
+                    try {
+                        val result = Gson().fromJson(
+                            data,
+                            RecommendedDoujinshis::class.java
+                        ).doujinshiList
+                        continuation.resumeWith(Result.success(Success(result)))
+                    } catch (error: Throwable) {
+                        continuation.resumeWith(Result.failure(error))
+                    }
+                }, onError = { error, _ ->
+                    continuation.resumeWith(Result.failure(Throwable(error)))
                 }
             )
         }

@@ -45,6 +45,14 @@ val Typography.doujinshiPrimaryTitleStyle: TextStyle
         fontSize = 20.sp
     )
 
+val Typography.readerTitleStyle: TextStyle
+    get() = TextStyle(
+        fontFamily = notoSansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 18.sp,
+        fontStyle = FontStyle.Italic
+    )
+
 val Typography.doujinshiSecondaryTitleStyle: TextStyle
     get() = TextStyle(
         fontFamily = notoSansFontFamily,
@@ -52,14 +60,14 @@ val Typography.doujinshiSecondaryTitleStyle: TextStyle
         fontSize = 18.sp
     )
 
-val Typography.bodyRegularBold: TextStyle
+val Typography.bodyNormalBold: TextStyle
     get() = TextStyle(
         fontFamily = notoSansFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 16.sp
     )
 
-val Typography.bodyRegularThin: TextStyle
+val Typography.bodyNormalRegular: TextStyle
     get() = TextStyle(
         fontFamily = notoSansFontFamily,
         fontWeight = FontWeight.Normal,
@@ -71,6 +79,13 @@ val Typography.bodySmallBold: TextStyle
         fontFamily = notoSansFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 14.sp
+    )
+
+val Typography.captionRegular: TextStyle
+    get() = TextStyle(
+        fontFamily = notoSansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp
     )
 
 @Composable

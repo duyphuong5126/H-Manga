@@ -37,6 +37,7 @@ import com.nonoka.nhentai.R
 import com.nonoka.nhentai.feature.collection.CollectionPage
 import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiPage
 import com.nonoka.nhentai.feature.home.HomePage
+import com.nonoka.nhentai.feature.reader.ReaderPage
 import com.nonoka.nhentai.helper.ClientType
 import com.nonoka.nhentai.helper.WebDataCrawler
 import com.nonoka.nhentai.helper.crawlerMap
@@ -51,7 +52,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -127,6 +127,7 @@ class MainActivity : ComponentActivity() {
                             composable(Tab.Collection.id) {
                                 CollectionPage()
                             }
+
                             composable(
                                 "doujinshiPage/{doujinshiId}",
                                 arguments = listOf(navArgument("doujinshiId") {
@@ -134,7 +135,28 @@ class MainActivity : ComponentActivity() {
                                 })
                             ) { backStackEntry ->
                                 backStackEntry.arguments?.getString("doujinshiId")?.let { id ->
-                                    DoujinshiPage(doujinshiId = id)
+                                    DoujinshiPage(
+                                        doujinshiId = id,
+                                        startReading = {
+                                            navController.navigate("readerPage/$id")
+                                        },
+                                    )
+                                }
+                            }
+
+                            composable(
+                                "readerPage/{doujinshiId}",
+                                arguments = listOf(navArgument("doujinshiId") {
+                                    type = NavType.StringType
+                                })
+                            ) { backStackEntry ->
+                                backStackEntry.arguments?.getString("doujinshiId")?.let { id ->
+                                    ReaderPage(
+                                        doujinshiId = id,
+                                        onBackPressed = {
+                                            navController.popBackStack()
+                                        },
+                                    )
                                 }
                             }
                         }

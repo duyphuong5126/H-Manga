@@ -62,6 +62,12 @@ data class Doujinshi(
             } else ""
         }
 
+    val previewThumbnailList: List<String>
+        get() = images.pages.mapIndexed { index, imageMeasurements ->
+            val thumbnailType: String = if (imageMeasurements.imageType == "p") ".png" else ".jpg"
+            "$NHENTAI_T/galleries/$mediaId/${index + 1}t$thumbnailType"
+        }
+
     var usefulName: String = ""
         get() {
             if (field.isBlank()) {

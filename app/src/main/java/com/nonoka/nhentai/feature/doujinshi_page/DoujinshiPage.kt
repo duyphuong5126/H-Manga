@@ -1,6 +1,7 @@
 package com.nonoka.nhentai.feature.doujinshi_page
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -46,8 +47,8 @@ import com.nonoka.nhentai.ui.theme.Grey31
 import com.nonoka.nhentai.ui.theme.Grey77
 import com.nonoka.nhentai.ui.theme.MainColor
 import com.nonoka.nhentai.ui.theme.White
-import com.nonoka.nhentai.ui.theme.bodyRegularBold
-import com.nonoka.nhentai.ui.theme.bodyRegularThin
+import com.nonoka.nhentai.ui.theme.bodyNormalBold
+import com.nonoka.nhentai.ui.theme.bodyNormalRegular
 import com.nonoka.nhentai.ui.theme.doujinshiPrimaryTitleStyle
 import com.nonoka.nhentai.ui.theme.doujinshiSecondaryTitleStyle
 import com.nonoka.nhentai.ui.theme.smallPlusSpace
@@ -61,7 +62,11 @@ import com.nonoka.nhentai.ui.theme.smallRadius
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun DoujinshiPage(doujinshiId: String, viewModel: DoujinshiViewModel = hiltViewModel()) {
+fun DoujinshiPage(
+    doujinshiId: String,
+    startReading: (Int) -> Unit = {},
+    viewModel: DoujinshiViewModel = hiltViewModel()
+) {
     viewModel.init(doujinshiId)
     val doujinshi = viewModel.doujinshiState.value
     if (doujinshi != null) {
@@ -75,7 +80,10 @@ fun DoujinshiPage(doujinshiId: String, viewModel: DoujinshiViewModel = hiltViewM
                         contentDescription = "Thumbnail of ${doujinshi.id}",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .aspectRatio(doujinshi.coverRatio),
+                            .aspectRatio(doujinshi.coverRatio)
+                            .clickable {
+                                startReading(0)
+                            },
                     )
                 }
 
@@ -119,7 +127,7 @@ fun DoujinshiPage(doujinshiId: String, viewModel: DoujinshiViewModel = hiltViewM
                             modifier = Modifier
                                 .padding(end = smallSpace)
                                 .padding(top = smallPlusSpace),
-                            style = MaterialTheme.typography.bodyRegularBold.copy(White),
+                            style = MaterialTheme.typography.bodyNormalBold.copy(White),
                         )
                         Text(
                             text = doujinshi.id,
@@ -148,7 +156,7 @@ fun DoujinshiPage(doujinshiId: String, viewModel: DoujinshiViewModel = hiltViewM
                             modifier = Modifier
                                 .padding(end = smallSpace)
                                 .padding(top = smallPlusSpace),
-                            style = MaterialTheme.typography.bodyRegularBold.copy(White),
+                            style = MaterialTheme.typography.bodyNormalBold.copy(White),
                         )
 
                         FlowRow {
@@ -182,7 +190,7 @@ fun DoujinshiPage(doujinshiId: String, viewModel: DoujinshiViewModel = hiltViewM
                         modifier = Modifier
                             .padding(start = mediumSpace, end = smallSpace)
                             .padding(top = smallPlusSpace),
-                        style = MaterialTheme.typography.bodyRegularThin.copy(White),
+                        style = MaterialTheme.typography.bodyNormalRegular.copy(White),
                     )
                 }
 
@@ -210,7 +218,7 @@ fun DoujinshiPage(doujinshiId: String, viewModel: DoujinshiViewModel = hiltViewM
 
                             Text(
                                 text = "Favorite",
-                                style = MaterialTheme.typography.bodyRegularBold
+                                style = MaterialTheme.typography.bodyNormalBold
                             )
                         }
 
@@ -236,7 +244,7 @@ fun DoujinshiPage(doujinshiId: String, viewModel: DoujinshiViewModel = hiltViewM
 
                             Text(
                                 text = "Download",
-                                style = MaterialTheme.typography.bodyRegularBold
+                                style = MaterialTheme.typography.bodyNormalBold
                             )
                         }
                     }
@@ -247,7 +255,7 @@ fun DoujinshiPage(doujinshiId: String, viewModel: DoujinshiViewModel = hiltViewM
                         text = "Preview",
                         modifier = Modifier
                             .padding(start = mediumSpace, top = mediumSpace),
-                        style = MaterialTheme.typography.bodyRegularBold.copy(White),
+                        style = MaterialTheme.typography.bodyNormalBold.copy(White),
                     )
                 }
 
@@ -304,7 +312,7 @@ private fun RecommendedDoujinshis(viewModel: DoujinshiViewModel = hiltViewModel(
             text = "Recommended",
             modifier = Modifier
                 .padding(start = mediumSpace, top = normalSpace),
-            style = MaterialTheme.typography.bodyRegularBold.copy(White),
+            style = MaterialTheme.typography.bodyNormalBold.copy(White),
         )
 
         LazyRow(

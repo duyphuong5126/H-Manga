@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.JsonSyntaxException
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.NHENTAI_T
 import com.nonoka.nhentai.domain.entity.PNG
@@ -98,10 +99,14 @@ class DoujinshiViewModel @Inject constructor(
 
     private fun loadRecommendedDoujinshis(doujinshiId: String) {
         viewModelScope.launch(Dispatchers.Main) {
-            doujinshiRepository.getRecommendedDoujinshis(doujinshiId).doOnSuccess {
-                recommendedDoujinshis.addAll(
-                    it.map(::DoujinshiItem),
-                )
+            try {
+                doujinshiRepository.getRecommendedDoujinshis(doujinshiId).doOnSuccess {
+                    recommendedDoujinshis.addAll(
+                        it.map(::DoujinshiItem),
+                    )
+                }
+            } catch (error: JsonSyntaxException) {
+                Timber.e(error)
             }
         }
     }

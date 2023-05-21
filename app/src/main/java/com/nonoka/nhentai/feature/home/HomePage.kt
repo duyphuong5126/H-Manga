@@ -65,7 +65,7 @@ import com.nonoka.nhentai.ui.theme.Grey400
 import com.nonoka.nhentai.ui.theme.Grey77
 import com.nonoka.nhentai.ui.theme.MainColor
 import com.nonoka.nhentai.ui.theme.White
-import com.nonoka.nhentai.ui.theme.bodyRegularBold
+import com.nonoka.nhentai.ui.theme.bodyNormalBold
 import com.nonoka.nhentai.ui.theme.extraNormalSpace
 import com.nonoka.nhentai.ui.theme.headerHeight
 import com.nonoka.nhentai.ui.theme.mediumRadius
@@ -294,7 +294,7 @@ private fun Header(
 private fun GalleryTitle(title: GalleryUiState.Title) {
     Text(
         text = title.title,
-        style = MaterialTheme.typography.bodyRegularBold.copy(color = White),
+        style = MaterialTheme.typography.bodyNormalBold.copy(color = White),
         modifier = Modifier.padding(start = smallSpace, top = normalSpace, bottom = smallSpace),
     )
 }
@@ -330,7 +330,7 @@ private fun GalleryHeader(
                         .padding(top = normalSpace)
                         .fillMaxSize(),
                     text = homeViewModel.galleryCountLabel.value,
-                    style = MaterialTheme.typography.bodyRegularBold.copy(color = White),
+                    style = MaterialTheme.typography.bodyNormalBold.copy(color = White),
                     textAlign = TextAlign.Center
                 )
             }
@@ -361,7 +361,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "Recent",
-                    style = MaterialTheme.typography.bodyRegularBold
+                    style = MaterialTheme.typography.bodyNormalBold
                 )
             }
         }
@@ -382,7 +382,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "Popular:",
-                    style = MaterialTheme.typography.bodyRegularBold
+                    style = MaterialTheme.typography.bodyNormalBold
                 )
             }
         }
@@ -403,7 +403,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "Today",
-                    style = MaterialTheme.typography.bodyRegularBold
+                    style = MaterialTheme.typography.bodyNormalBold
                 )
             }
         }
@@ -424,7 +424,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "This week",
-                    style = MaterialTheme.typography.bodyRegularBold
+                    style = MaterialTheme.typography.bodyNormalBold
                 )
             }
         }
@@ -446,7 +446,7 @@ private fun SortOptions(
             ) {
                 Text(
                     text = "All time",
-                    style = MaterialTheme.typography.bodyRegularBold
+                    style = MaterialTheme.typography.bodyNormalBold
                 )
             }
         }
