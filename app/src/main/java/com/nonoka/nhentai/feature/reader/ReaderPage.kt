@@ -182,7 +182,8 @@ private fun BottomBar(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Black96)
+                .background(Black96),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LazyRow(
                 contentPadding = PaddingValues(vertical = mediumSpace, horizontal = normalSpace),
@@ -206,20 +207,34 @@ private fun BottomBar(
                             )
                         }
 
-                        AsyncImage(
+                        Box(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(1.dp),
-                            model = thumbnail, contentDescription = "Thumb ${index + 1}",
-                            contentScale = ContentScale.Crop,
-                        )
+                                .padding(1.dp)
+                                .width(60.dp)
+                                .height(90.dp)
+                                .clip(shape = RoundedCornerShape(size = mediumRadius))
+                                .background(Black96)
+                        ) {
+                            AsyncImage(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                model = thumbnail, contentDescription = "Thumb ${index + 1}",
+                                contentScale = ContentScale.Crop,
+                            )
+                        }
 
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomCenter)
-                                .background(Black96)
                                 .padding(1.dp)
+                                .fillMaxWidth()
+                                .clip(
+                                    shape = RoundedCornerShape(
+                                        bottomStart = mediumRadius,
+                                        bottomEnd = mediumRadius,
+                                    )
+                                )
+                                .background(Black96)
+                                .align(Alignment.BottomCenter)
                         ) {
                             Text(
                                 modifier = Modifier
@@ -235,6 +250,7 @@ private fun BottomBar(
             }
 
             Text(
+                modifier = Modifier.padding(bottom = mediumSpace),
                 text = readerState.pageIndicatorTemplate.format(viewModel.focusedIndex.value + 1),
                 style = MaterialTheme.typography.bodyNormalBold.copy(color = White)
             )
@@ -273,7 +289,8 @@ private fun Reader(
                     val scrollListener = object : OnScrollListener() {
                         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                             super.onScrolled(recyclerView, dx, dy)
-                            val focusedIndex = layoutManager.findFirstVisibleItemPosition()
+                            val focusedIndex =
+                                if (dy > 0) layoutManager.findLastVisibleItemPosition() else layoutManager.findFirstVisibleItemPosition()
                             if (focusedIndex != RecyclerView.NO_POSITION) {
                                 viewModel.focusedIndex.value = focusedIndex
                                 onFocusedIndexChanged(focusedIndex)
