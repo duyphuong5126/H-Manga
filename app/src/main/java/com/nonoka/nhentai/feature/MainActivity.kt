@@ -140,6 +140,9 @@ class MainActivity : ComponentActivity() {
                                         startReading = {
                                             navController.navigate("readerPage/$id")
                                         },
+                                        onBackPressed = {
+                                            navController.popBackStack()
+                                        }
                                     )
                                 }
                             }

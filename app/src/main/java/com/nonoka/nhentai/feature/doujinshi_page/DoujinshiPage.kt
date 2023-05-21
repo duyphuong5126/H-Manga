@@ -1,5 +1,6 @@
 package com.nonoka.nhentai.feature.doujinshi_page
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,11 +10,13 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -26,10 +29,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -42,7 +49,8 @@ import coil.compose.AsyncImage
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.theme.Black
-import com.nonoka.nhentai.ui.theme.Black96
+import com.nonoka.nhentai.ui.theme.Black95
+import com.nonoka.nhentai.ui.theme.Black59
 import com.nonoka.nhentai.ui.theme.Grey31
 import com.nonoka.nhentai.ui.theme.Grey77
 import com.nonoka.nhentai.ui.theme.MainColor
@@ -65,7 +73,8 @@ import com.nonoka.nhentai.ui.theme.smallRadius
 fun DoujinshiPage(
     doujinshiId: String,
     startReading: (Int) -> Unit = {},
-    viewModel: DoujinshiViewModel = hiltViewModel()
+    viewModel: DoujinshiViewModel = hiltViewModel(),
+    onBackPressed: () -> Unit,
 ) {
     viewModel.init(doujinshiId)
     val doujinshi = viewModel.doujinshiState.value
@@ -75,16 +84,52 @@ fun DoujinshiPage(
         ) {
             LazyColumn(modifier = Modifier.padding(it)) {
                 item {
-                    AsyncImage(
-                        model = doujinshi.coverUrl,
-                        contentDescription = "Thumbnail of ${doujinshi.id}",
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(doujinshi.coverRatio)
-                            .clickable {
-                                startReading(0)
-                            },
-                    )
+                    ) {
+                        AsyncImage(
+                            model = doujinshi.coverUrl,
+                            contentDescription = "Thumbnail of ${doujinshi.id}",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable {
+                                    startReading(0)
+                                },
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .height(120.dp)
+                                .fillMaxWidth()
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            Black95,
+                                            Color.Transparent
+                                        )
+                                    )
+                                ),
+                        ) {
+                            TextButton(
+                                modifier = Modifier
+                                    .wrapContentSize(),
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = White,
+                                    containerColor = Color.Transparent
+                                ),
+                                shape = RoundedCornerShape(size = 0.dp),
+                                onClick = onBackPressed
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_back_solid_24dp),
+                                    contentDescription = "Back",
+                                    colorFilter = ColorFilter.tint(White),
+                                )
+                            }
+                        }
+                    }
                 }
 
                 item {
@@ -285,7 +330,7 @@ fun DoujinshiPage(
                                 Text(
                                     modifier = Modifier
                                         .width(150.dp)
-                                        .background(Black96)
+                                        .background(Black59)
                                         .padding(vertical = smallSpace),
                                     text = "${index + 1}",
                                     style = MaterialTheme.typography.bodySmallBold.copy(color = White),

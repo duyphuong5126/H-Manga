@@ -54,7 +54,7 @@ import com.nonoka.nhentai.ui.shared.SpaceItemDecoration
 import com.nonoka.nhentai.ui.shared.zoomable.ZoomableBookLayout
 import com.nonoka.nhentai.ui.shared.zoomable.ZoomableRecyclerView
 import com.nonoka.nhentai.ui.theme.Black
-import com.nonoka.nhentai.ui.theme.Black96
+import com.nonoka.nhentai.ui.theme.Black59
 import com.nonoka.nhentai.ui.theme.MainColor
 import com.nonoka.nhentai.ui.theme.White
 import com.nonoka.nhentai.ui.theme.bodyNormalBold
@@ -67,6 +67,8 @@ import com.nonoka.nhentai.ui.theme.smallRadius
 import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.ui.theme.tinySpace
 import kotlinx.coroutines.launch
+
+const val thumbnailScrollOffset = 2
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,7 +95,7 @@ fun ReaderPage(
                     readerState = readerState,
                     onFocusedIndexChanged = {
                         coroutineContext.launch {
-                            thumbnailListState.scrollToItem(it)
+                            thumbnailListState.scrollToItem(if (it - thumbnailScrollOffset >= 0) it - thumbnailScrollOffset else it)
                         }
                     },
                 )
@@ -141,7 +143,7 @@ private fun TopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Black96),
+            .background(Black59),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextButton(
@@ -182,7 +184,7 @@ private fun BottomBar(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Black96),
+                .background(Black59),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LazyRow(
@@ -213,7 +215,7 @@ private fun BottomBar(
                                 .width(60.dp)
                                 .height(90.dp)
                                 .clip(shape = RoundedCornerShape(size = mediumRadius))
-                                .background(Black96)
+                                .background(Black59)
                         ) {
                             AsyncImage(
                                 modifier = Modifier
@@ -233,7 +235,7 @@ private fun BottomBar(
                                         bottomEnd = mediumRadius,
                                     )
                                 )
-                                .background(Black96)
+                                .background(Black59)
                                 .align(Alignment.BottomCenter)
                         ) {
                             Text(

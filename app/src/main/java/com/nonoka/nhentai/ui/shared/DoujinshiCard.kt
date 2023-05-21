@@ -30,7 +30,7 @@ import com.nonoka.nhentai.R
 import com.nonoka.nhentai.domain.entity.CHINESE_LANG
 import com.nonoka.nhentai.domain.entity.JAPANESE_LANG
 import com.nonoka.nhentai.feature.home.GalleryUiState
-import com.nonoka.nhentai.ui.theme.Black96
+import com.nonoka.nhentai.ui.theme.Black59
 import com.nonoka.nhentai.ui.theme.White
 import com.nonoka.nhentai.ui.theme.bodySmallBold
 import com.nonoka.nhentai.ui.theme.mediumRadius
@@ -66,7 +66,7 @@ fun DoujinshiCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
-                    .background(Black96)
+                    .background(Black59)
             ) {
                 val iconId = "inlineContent"
                 val text = buildAnnotatedString {

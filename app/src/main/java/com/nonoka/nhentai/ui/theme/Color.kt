@@ -20,4 +20,6 @@ val Grey77 = Color(0xFF4D4D4D)
 val Grey400 = Color(0xFF9E9E9E)
 val Grey31 = Color(0xFF1F1F1F)
 
-val Black96 = Color(0x96000000)
+val Black59 = Color(0x96000000)
+
+val Black95 = Color(0xF2000000)
