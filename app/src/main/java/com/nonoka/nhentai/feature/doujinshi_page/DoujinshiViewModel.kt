@@ -35,6 +35,8 @@ data class DoujinshiState(
     val comment: String,
 
     val previewThumbnails: List<String>,
+
+    val favoritesLabel: String
 )
 
 data class TagInfo(val label: String, val count: String)
@@ -92,7 +94,12 @@ class DoujinshiViewModel @Inject constructor(
                     val thumbnailType =
                         if (imageMeasurements.imageType == PNG) ".png" else ".jpg"
                     "$NHENTAI_T/galleries/${doujinshi.mediaId}/${index + 1}t$thumbnailType"
-                }
+                },
+                favoritesLabel = if (doujinshi.numOfFavorites > 0) "Favorite (${
+                    decimalFormat.format(
+                        doujinshi.numOfFavorites
+                    )
+                })" else "Favorite"
             )
         }
     }

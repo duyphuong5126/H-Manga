@@ -254,7 +254,7 @@ fun DoujinshiPage(
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_favorite_solid_24dp),
-                                contentDescription = "Favorite",
+                                contentDescription = doujinshi.favoritesLabel,
                                 tint = White,
                                 modifier = Modifier
                                     .padding(end = smallSpace)
@@ -262,7 +262,7 @@ fun DoujinshiPage(
                             )
 
                             Text(
-                                text = "Favorite",
+                                text = doujinshi.favoritesLabel,
                                 style = MaterialTheme.typography.bodyNormalBold
                             )
                         }

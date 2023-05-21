@@ -106,8 +106,16 @@ fun ReaderPage(
                 AnimatedVisibility(
                     modifier = Modifier.align(Alignment.TopCenter),
                     visible = barsVisible,
-                    enter = slideInVertically(),
-                    exit = slideOutVertically()
+                    enter = slideInVertically(
+                        initialOffsetY = { offset ->
+                            -offset
+                        },
+                    ),
+                    exit = slideOutVertically(
+                        targetOffsetY = { offset ->
+                            -offset
+                        },
+                    )
                 ) {
                     TopBar(readerState, onBackPressed)
                 }
