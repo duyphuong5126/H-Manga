@@ -1,5 +1,6 @@
 package com.nonoka.nhentai.feature.doujinshi_page
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,6 +8,7 @@ import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.NHENTAI_T
 import com.nonoka.nhentai.domain.entity.PNG
 import com.nonoka.nhentai.domain.entity.book.Doujinshi
+import com.nonoka.nhentai.feature.home.GalleryUiState.DoujinshiItem
 import com.nonoka.nhentai.util.capitalized
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.DecimalFormat
@@ -46,6 +48,8 @@ class DoujinshiViewModel @Inject constructor(
 
     val doujinshiState = mutableStateOf<DoujinshiState?>(null)
 
+    val recommendedDoujinshis = mutableStateListOf<DoujinshiItem>()
+
     fun init(doujinshiId: String) {
         Timber.d("Load doujinshi $doujinshiId")
         viewModelScope.launch(Dispatchers.Main) {
@@ -55,6 +59,7 @@ class DoujinshiViewModel @Inject constructor(
                     Timber.e("Failed to load doujinshi $doujinshiId with error $it")
                 }
         }
+        loadRecommendedDoujinshis(doujinshiId)
     }
 
     private fun processDoujinshiData(doujinshi: Doujinshi) {
@@ -88,6 +93,16 @@ class DoujinshiViewModel @Inject constructor(
                     "$NHENTAI_T/galleries/${doujinshi.mediaId}/${index + 1}t$thumbnailType"
                 }
             )
+        }
+    }
+
+    private fun loadRecommendedDoujinshis(doujinshiId: String) {
+        viewModelScope.launch(Dispatchers.Main) {
+            doujinshiRepository.getRecommendedDoujinshis(doujinshiId).doOnSuccess {
+                recommendedDoujinshis.addAll(
+                    it.map(::DoujinshiItem),
+                )
+            }
         }
     }
 }

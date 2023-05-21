@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
@@ -40,12 +41,14 @@ import com.nonoka.nhentai.ui.theme.tinySpace
 fun DoujinshiCard(
     doujinshiItem: GalleryUiState.DoujinshiItem,
     onDoujinshiSelected: (String) -> Unit = {},
+    size: Pair<Int, Int>? = null
 ) {
     val doujinshi = doujinshiItem.doujinshi
     Box(
-        modifier = Modifier
+        modifier = (if (size != null) Modifier
+            .size(size.first.dp, size.second.dp) else Modifier
             .fillMaxWidth()
-            .aspectRatio(doujinshi.thumbnailRatio)
+            .aspectRatio(doujinshi.thumbnailRatio))
             .clip(shape = RoundedCornerShape(size = mediumRadius))
             .clickable {
                 onDoujinshiSelected(doujinshi.bookId)

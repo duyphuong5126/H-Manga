@@ -13,6 +13,7 @@ class DoujinshiRepositoryImpl @Inject constructor(
     private val doujinshiRemoteSource: DoujinshiRemoteSource
 ) : DoujinshiRepository {
     private val doujinshiCacheMap = HashMap<String, Doujinshi>()
+    private val recommendedDoujinshisCacheMap = HashMap<String, List<Doujinshi>>()
     private val galleryCacheMap = HashMap<Int, Pair<DoujinshisResult, Long>>()
     private var filterString = ""
     override suspend fun getGalleryPage(
@@ -60,6 +61,17 @@ class DoujinshiRepositoryImpl @Inject constructor(
         } else {
             doujinshiRemoteSource.loadDoujinshi(doujinshiId).doOnSuccess {
                 doujinshiCacheMap[doujinshiId] = it
+            }
+        }
+    }
+
+    override suspend fun getRecommendedDoujinshis(doujinshiId: String): Resource<List<Doujinshi>> {
+        val recommendedList = recommendedDoujinshisCacheMap[doujinshiId]
+        return if (recommendedList != null) {
+            Success(recommendedList)
+        } else {
+            doujinshiRemoteSource.getRecommendedDoujinshis(doujinshiId).doOnSuccess {
+                recommendedDoujinshisCacheMap[doujinshiId] = it
             }
         }
     }

@@ -51,13 +51,9 @@ import dagger.hilt.android.AndroidEntryPoint
 @OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val galleryCrawler = WebDataCrawler()
-    private val detailCrawler = WebDataCrawler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        crawlerMap[ClientType.Gallery] = galleryCrawler
-        crawlerMap[ClientType.Detail] = detailCrawler
         setContent {
             val navController = rememberNavController()
             NHentaiTheme {
@@ -150,10 +146,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        crawlerMap.remove(ClientType.Gallery)
-        crawlerMap.remove(ClientType.Detail)
-        galleryCrawler.clearRequester()
-        detailCrawler.clearRequester()
+        crawlerMap[ClientType.Gallery]?.clearRequester()
+        crawlerMap[ClientType.Detail]?.clearRequester()
+        crawlerMap[ClientType.Recommendation]?.clearRequester()
     }
 
     private fun getIconRes(tab: Tab): Int {
@@ -169,7 +164,7 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier
                 .fillMaxSize(),
         ) {
-            arrayOf(galleryCrawler, detailCrawler).forEach {
+            crawlerMap.values.forEach {
                 WebView(dataCrawler = it)
             }
         }

@@ -7,6 +7,7 @@ import com.nonoka.nhentai.domain.Resource.Error
 import com.nonoka.nhentai.domain.entity.NHENTAI_HOME
 import com.nonoka.nhentai.domain.entity.book.Doujinshi
 import com.nonoka.nhentai.domain.entity.book.DoujinshisResult
+import com.nonoka.nhentai.domain.entity.book.RecommendedDoujinshis
 import com.nonoka.nhentai.domain.entity.book.SortOption
 import com.nonoka.nhentai.helper.ClientType
 import com.nonoka.nhentai.helper.crawlerMap
@@ -21,6 +22,8 @@ interface DoujinshiRemoteSource {
     ): DoujinshisResult
 
     suspend fun loadDoujinshi(doujinshiId: String): Resource<Doujinshi>
+
+    suspend fun getRecommendedDoujinshis(doujinshiId: String): Resource<List<Doujinshi>>
 }
 
 class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
@@ -70,6 +73,28 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
         }
     }
 
+    override suspend fun getRecommendedDoujinshis(doujinshiId: String): Resource<List<Doujinshi>> {
+        return suspendCoroutine { continuation ->
+            val recommendationUrl = buildDetailRecommendationUrl(doujinshiId)
+            crawlerMap[ClientType.Detail]?.load(
+                url = recommendationUrl, onDataReady = { _, data ->
+                    continuation.resumeWith(
+                        Result.success(
+                            Success(
+                                Gson().fromJson(
+                                    data,
+                                    RecommendedDoujinshis::class.java
+                                ).doujinshiList,
+                            )
+                        )
+                    )
+                }, onError = { _, error ->
+                    continuation.resumeWith(Result.success(Error(Throwable(error))))
+                }
+            )
+        }
+    }
+
     private fun galleryUrl(
         page: Int, filters: List<String>,
         sortOption: SortOption
@@ -93,4 +118,7 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
 
     private fun buildDetailUrl(doujinshiId: String): String =
         "$NHENTAI_HOME/api/gallery/$doujinshiId"
+
+    private fun buildDetailRecommendationUrl(doujinshiId: String): String =
+        "$NHENTAI_HOME/api/gallery/$doujinshiId/related"
 }

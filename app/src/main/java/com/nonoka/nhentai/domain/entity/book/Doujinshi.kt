@@ -29,14 +29,11 @@ data class Doujinshi(
     @field:SerializedName(NUM_PAGES) var numOfPages: Int,
     @field:SerializedName(NUM_FAVORITES) var numOfFavorites: Int
 ) : Parcelable {
-    var thumbnail: String = ""
+    val thumbnail: String
         get() {
-            if (field.isBlank()) {
-                internalInit()
-            }
-            return field
+            val thumbnailType = images.thumbnail.imageType
+            return "$NHENTAI_T/galleries/$mediaId/thumb.$thumbnailType"
         }
-        private set
 
     val cover: String get() = "$NHENTAI_T/galleries/$mediaId/cover.${images.cover.imageType}"
     val coverRatio: Float
@@ -73,14 +70,55 @@ data class Doujinshi(
             return field
         }
         private set
-    var language: String = ""
+    val language: String
         get() {
-            if (field.isBlank()) {
-                internalInit()
+            var hasEnglishTag = false
+            var hasChineseTag = false
+            var hasJapaneseTag = false
+            tags.forEach {
+                val name = it.name.trim().lowercase()
+                if (it.type == LANGUAGE && name == ENG_TAG) {
+                    hasEnglishTag = true
+                    return@forEach
+                }
+
+                if (it.type == LANGUAGE && name == CHINESE_TAG) {
+                    hasChineseTag = true
+                    return@forEach
+                }
+
+                if (it.type == LANGUAGE && name == JAPANESE_TAG) {
+                    hasJapaneseTag = true
+                    return@forEach
+                }
             }
-            return field
+            return when {
+                hasEnglishTag || title.englishName?.contains(
+                    ENG,
+                    ignoreCase = true
+                ) == true -> ENGLISH_LANG
+
+                hasChineseTag || title.englishName?.contains(
+                    CN,
+                    ignoreCase = true
+                ) == true -> CHINESE_LANG
+
+                hasJapaneseTag -> JAPANESE_LANG
+
+                else -> {
+                    tags.firstOrNull {
+                        val name = it.name.trim().lowercase()
+                        it.type == LANGUAGE && name != TRANSLATED_TAG && name != REWRITE_TAG && name != TEXT_CLEANED_TAG
+                    }?.name?.let {
+                        if (it.length <= 3) {
+                            it
+                        } else {
+                            it.substring(0, 3)
+                        }
+                    }.orEmpty()
+                }
+            }
         }
-        private set
 
     var thumbnailRatio: Float = 0f
         get() {
@@ -104,61 +142,11 @@ data class Doujinshi(
         }
         thumbnailRatio = ratio
 
-        val thumbnailType = images.thumbnail.imageType
-        thumbnail = "$NHENTAI_T/galleries/$mediaId/thumb.$thumbnailType"
-
         usefulName = when {
             !title.englishName.isNullOrBlank() -> title.englishName
             !title.japaneseName.isNullOrBlank() -> title.japaneseName
             !title.prettyName.isNullOrBlank() -> title.prettyName
             else -> ""
-        }
-
-        var hasEnglishTag = false
-        var hasChineseTag = false
-        var hasJapaneseTag = false
-        tags.forEach {
-            val name = it.name.trim().lowercase()
-            if (it.type == LANGUAGE && name == ENG_TAG) {
-                hasEnglishTag = true
-                return@forEach
-            }
-
-            if (it.type == LANGUAGE && name == CHINESE_TAG) {
-                hasChineseTag = true
-                return@forEach
-            }
-
-            if (it.type == LANGUAGE && name == JAPANESE_TAG) {
-                hasJapaneseTag = true
-                return@forEach
-            }
-        }
-        language = when {
-            hasEnglishTag || title.englishName?.contains(
-                ENG,
-                ignoreCase = true
-            ) == true -> ENGLISH_LANG
-
-            hasChineseTag || title.englishName?.contains(
-                CN,
-                ignoreCase = true
-            ) == true -> CHINESE_LANG
-
-            hasJapaneseTag -> JAPANESE_LANG
-
-            else -> {
-                tags.firstOrNull {
-                    val name = it.name.trim().lowercase()
-                    it.type == LANGUAGE && name != TRANSLATED_TAG && name != REWRITE_TAG && name != TEXT_CLEANED_TAG
-                }?.name?.let {
-                    if (it.length <= 3) {
-                        it
-                    } else {
-                        it.substring(0, 3)
-                    }
-                }.orEmpty()
-            }
         }
     }
 

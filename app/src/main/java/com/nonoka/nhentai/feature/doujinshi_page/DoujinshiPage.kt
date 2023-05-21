@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.nonoka.nhentai.R
+import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.theme.Black
 import com.nonoka.nhentai.ui.theme.Black96
 import com.nonoka.nhentai.ui.theme.Grey31
@@ -285,6 +287,35 @@ fun DoujinshiPage(doujinshiId: String, viewModel: DoujinshiViewModel = hiltViewM
                         }
                     }
                 }
+
+                item {
+                    RecommendedDoujinshis()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecommendedDoujinshis(viewModel: DoujinshiViewModel = hiltViewModel()) {
+    val recommendedDoujinshis = viewModel.recommendedDoujinshis
+    if (recommendedDoujinshis.isNotEmpty()) {
+        Text(
+            text = "Recommended",
+            modifier = Modifier
+                .padding(start = mediumSpace, top = normalSpace),
+            style = MaterialTheme.typography.bodyRegularBold.copy(White),
+        )
+
+        LazyRow(
+            modifier = Modifier
+                .height(408.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(mediumSpace),
+            contentPadding = PaddingValues(horizontal = mediumSpace)
+        ) {
+            items(count = recommendedDoujinshis.size) { index ->
+                DoujinshiCard(doujinshiItem = recommendedDoujinshis[index], size = Pair(200, 300))
             }
         }
     }

@@ -12,4 +12,6 @@ interface DoujinshiRepository {
     ): DoujinshisResult
 
     suspend fun getDoujinshi(doujinshiId: String): Resource<Doujinshi>
+
+    suspend fun getRecommendedDoujinshis(doujinshiId: String): Resource<List<Doujinshi>>
 }

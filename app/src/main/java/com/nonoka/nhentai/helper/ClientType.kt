@@ -1,5 +1,5 @@
 package com.nonoka.nhentai.helper
 
 enum class ClientType {
-    Gallery, Detail
+    Gallery, Detail, Recommendation
 }
