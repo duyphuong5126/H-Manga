@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -27,7 +26,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -59,6 +57,7 @@ import com.nonoka.nhentai.R
 import com.nonoka.nhentai.domain.entity.book.SortOption
 import com.nonoka.nhentai.paging.PagingDataSource
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
+import com.nonoka.nhentai.ui.shared.LoadingDialogContent
 import com.nonoka.nhentai.ui.theme.Black
 import com.nonoka.nhentai.ui.theme.Grey31
 import com.nonoka.nhentai.ui.theme.Grey400
@@ -177,27 +176,35 @@ private fun Gallery(
                         }
 
                         else -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentWidth(Alignment.CenterHorizontally)
-                            )
+                            LoadingDialogContent(modifier = Modifier.padding(bottom = mediumSpace))
                         }
                     }
                 }
             },
         )
     } else if (lazyDoujinshis.loadState.refresh == LoadState.Loading) {
-        CircularProgressIndicator(
-            modifier = Modifier
-                .fillMaxSize()
-                .wrapContentWidth(Alignment.CenterHorizontally)
-        )
+        FullScreenLoading()
     } else {
         Image(
             modifier = Modifier.fillMaxSize(),
             painter = painterResource(id = R.mipmap.ic_nothing_here_grey),
             contentDescription = "No data loaded",
+        )
+    }
+}
+
+@Composable
+private fun FullScreenLoading() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        LoadingDialogContent(
+            modifier = Modifier
+                .padding(
+                    start = normalSpace,
+                    end = normalSpace,
+                    bottom = normalSpace
+                )
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
         )
     }
 }
