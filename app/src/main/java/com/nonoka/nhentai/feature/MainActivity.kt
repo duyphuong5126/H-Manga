@@ -137,8 +137,8 @@ class MainActivity : ComponentActivity() {
                                 backStackEntry.arguments?.getString("doujinshiId")?.let { id ->
                                     DoujinshiPage(
                                         doujinshiId = id,
-                                        startReading = {
-                                            navController.navigate("readerPage/$id")
+                                        startReading = { index ->
+                                            navController.navigate("readerPage/$id?pageIndex=$index")
                                         },
                                         onBackPressed = {
                                             navController.popBackStack()
@@ -148,14 +148,21 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable(
-                                "readerPage/{doujinshiId}",
-                                arguments = listOf(navArgument("doujinshiId") {
-                                    type = NavType.StringType
-                                })
+                                "readerPage/{doujinshiId}?pageIndex={pageIndex}",
+                                arguments = listOf(
+                                    navArgument("doujinshiId") {
+                                        type = NavType.StringType
+                                    },
+                                    navArgument("pageIndex") {
+                                        type = NavType.IntType
+                                    },
+                                )
                             ) { backStackEntry ->
                                 backStackEntry.arguments?.getString("doujinshiId")?.let { id ->
                                     ReaderPage(
                                         doujinshiId = id,
+                                        startIndex = backStackEntry.arguments?.getInt("pageIndex")
+                                            ?: -1,
                                         onBackPressed = {
                                             navController.popBackStack()
                                         },

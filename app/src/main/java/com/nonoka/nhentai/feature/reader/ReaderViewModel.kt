@@ -9,6 +9,8 @@ import com.nonoka.nhentai.domain.entity.book.Doujinshi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -28,11 +30,15 @@ class ReaderViewModel @Inject constructor(
     var toolBarsVisible = mutableStateOf(true)
 
     var focusedIndex = mutableStateOf(-1)
+    var focusingIndexRequest = MutableSharedFlow<Int?>()
 
     fun init(doujinshiId: String, startIndex: Int = -1) {
         Timber.d("Load doujinshi $doujinshiId")
         if (startIndex >= 0) {
-            focusedIndex.value = startIndex
+            viewModelScope.launch(Dispatchers.Default) {
+                delay(1000)
+                focusingIndexRequest.emit(startIndex)
+            }
         }
         viewModelScope.launch(Dispatchers.Main) {
             doujinshiRepository.getDoujinshi(doujinshiId)
@@ -40,6 +46,13 @@ class ReaderViewModel @Inject constructor(
                 .doOnError {
                     Timber.e("Failed to load doujinshi $doujinshiId with error $it")
                 }
+        }
+    }
+
+    fun requestReadingPage(index: Int) {
+        focusedIndex.value = index
+        viewModelScope.launch {
+            focusingIndexRequest.emit(index)
         }
     }
 

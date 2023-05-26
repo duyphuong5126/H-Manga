@@ -8,6 +8,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,11 +41,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
@@ -227,7 +233,10 @@ private fun BottomBar(
                         ) {
                             AsyncImage(
                                 modifier = Modifier
-                                    .fillMaxSize(),
+                                    .fillMaxSize()
+                                    .clickable {
+                                        viewModel.requestReadingPage(index)
+                                    },
                                 model = thumbnail, contentDescription = "Thumb ${index + 1}",
                                 contentScale = ContentScale.Crop,
                             )
@@ -273,6 +282,7 @@ private fun Reader(
     readerState: ReaderState,
     onFocusedIndexChanged: (Int) -> Unit,
     viewModel: ReaderViewModel = hiltViewModel(),
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
 ) {
     AndroidView(
         factory = { context ->
@@ -288,7 +298,7 @@ private fun Reader(
                         ViewGroup.LayoutParams.MATCH_PARENT
                     )
 
-                    adapter = BookReaderAdapter(readerState.images)
+                    adapter = ReaderAdapter(readerState.images)
 
                     addItemDecoration(SpaceItemDecoration(context, R.dimen.app_medium_space))
 
@@ -315,6 +325,16 @@ private fun Reader(
                 }
 
                 addView(reader)
+
+                lifecycleOwner.lifecycleScope.launch {
+                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                        viewModel.focusingIndexRequest.collect { index ->
+                            if (index != null && index >= 0) {
+                                reader.scrollToPosition(index)
+                            }
+                        }
+                    }
+                }
             }
         },
         modifier = Modifier.fillMaxHeight()

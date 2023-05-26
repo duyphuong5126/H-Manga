@@ -323,7 +323,10 @@ fun DoujinshiPage(
                                         .height(200.dp)
                                         .width(150.dp)
                                         .clip(RoundedCornerShape(smallRadius))
-                                        .background(Grey31),
+                                        .background(Grey31)
+                                        .clickable {
+                                            startReading(index)
+                                        },
                                     contentScale = ContentScale.FillBounds
                                 )
 

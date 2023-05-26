@@ -60,6 +60,13 @@ val Typography.doujinshiSecondaryTitleStyle: TextStyle
         fontSize = 18.sp
     )
 
+val Typography.headlineLargeStyle: TextStyle
+    get() = TextStyle(
+        fontFamily = notoSansFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp
+    )
+
 val Typography.bodyNormalBold: TextStyle
     get() = TextStyle(
         fontFamily = notoSansFontFamily,
