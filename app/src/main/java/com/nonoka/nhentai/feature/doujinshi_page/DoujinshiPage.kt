@@ -52,6 +52,7 @@ import coil.compose.AsyncImage
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.shared.LoadingDialog
+import com.nonoka.nhentai.ui.shared.LoadingDialogContent
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import com.nonoka.nhentai.ui.theme.Black
 import com.nonoka.nhentai.ui.theme.Black95
@@ -88,11 +89,11 @@ fun DoujinshiPage(
             viewModel.init(doujinshiId)
         },
     )
-    val loadingState by remember {
-        viewModel.loadingState
+    val mainLoadingState by remember {
+        viewModel.mainLoadingState
     }
-    if (loadingState is LoadingUiState.Loading) {
-        LoadingDialog(message = (loadingState as LoadingUiState.Loading).message)
+    if (mainLoadingState is LoadingUiState.Loading) {
+        LoadingDialog(message = (mainLoadingState as LoadingUiState.Loading).message)
     }
     val doujinshi = viewModel.doujinshiState.value
     if (doujinshi != null) {
@@ -373,14 +374,14 @@ fun DoujinshiPage(
 @Composable
 private fun RecommendedDoujinshis(viewModel: DoujinshiViewModel = hiltViewModel()) {
     val recommendedDoujinshis = viewModel.recommendedDoujinshis
-    if (recommendedDoujinshis.isNotEmpty()) {
-        Text(
-            text = "Recommended",
-            modifier = Modifier
-                .padding(start = mediumSpace, top = normalSpace),
-            style = MaterialTheme.typography.bodyNormalBold.copy(White),
-        )
+    Text(
+        text = "Recommended",
+        modifier = Modifier
+            .padding(start = mediumSpace, top = normalSpace),
+        style = MaterialTheme.typography.bodyNormalBold.copy(White),
+    )
 
+    if (recommendedDoujinshis.isNotEmpty()) {
         LazyRow(
             modifier = Modifier
                 .height(308.dp),
@@ -395,6 +396,18 @@ private fun RecommendedDoujinshis(viewModel: DoujinshiViewModel = hiltViewModel(
                     onDoujinshiSelected = viewModel::init,
                 )
             }
+        }
+    } else {
+        val recommendationLoadingState by remember {
+            viewModel.recommendationLoadingState
+        }
+        if (recommendationLoadingState is LoadingUiState.Loading) {
+            LoadingDialogContent(
+                modifier = Modifier
+                    .padding(mediumSpace)
+                    .fillMaxWidth(),
+                message = "Loading, please wait."
+            )
         }
     }
 }

@@ -70,8 +70,11 @@ class DoujinshiRepositoryImpl @Inject constructor(
         return if (recommendedList != null) {
             Success(recommendedList)
         } else {
-            doujinshiRemoteSource.getRecommendedDoujinshis(doujinshiId).doOnSuccess {
-                recommendedDoujinshisCacheMap[doujinshiId] = it
+            doujinshiRemoteSource.getRecommendedDoujinshis(doujinshiId).doOnSuccess { recommended ->
+                recommendedDoujinshisCacheMap[doujinshiId] = recommended
+                recommended.forEach {
+                    doujinshiCacheMap[it.bookId] = it
+                }
             }
         }
     }

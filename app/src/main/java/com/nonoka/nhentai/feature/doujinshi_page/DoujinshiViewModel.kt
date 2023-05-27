@@ -53,11 +53,12 @@ class DoujinshiViewModel @Inject constructor(
 
     val recommendedDoujinshis = mutableStateListOf<DoujinshiItem>()
 
-    var loadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
+    var mainLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
+    var recommendationLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
 
     fun init(doujinshiId: String) {
         Timber.d("Test>>> Load doujinshi $doujinshiId")
-        loadingState.value = LoadingUiState.Loading("Loading, please wait")
+        mainLoadingState.value = LoadingUiState.Loading("Loading, please wait")
         viewModelScope.launch(Dispatchers.Main) {
             doujinshiRepository.getDoujinshi(doujinshiId)
                 .doOnSuccess {
@@ -66,14 +67,14 @@ class DoujinshiViewModel @Inject constructor(
                 }
                 .doOnError {
                     Timber.e("Test>>> Failed to load doujinshi $doujinshiId with error $it")
-                    loadingState.value = LoadingUiState.Idle
+                    mainLoadingState.value = LoadingUiState.Idle
                 }
         }
     }
 
     private fun processDoujinshiData(doujinshi: Doujinshi) {
         Timber.d("Test>>> Loaded doujinshi ${doujinshi.bookId}")
-        loadingState.value = LoadingUiState.Idle
+        mainLoadingState.value = LoadingUiState.Idle
         viewModelScope.launch(Dispatchers.Default) {
             val artistCount = doujinshi.tags
                 .count {
@@ -114,16 +115,19 @@ class DoujinshiViewModel @Inject constructor(
 
     private fun loadRecommendedDoujinshis(doujinshiId: String) {
         viewModelScope.launch(Dispatchers.Main) {
+            recommendationLoadingState.value = LoadingUiState.Loading("Loading...")
+            recommendedDoujinshis.clear()
             doujinshiRepository.getRecommendedDoujinshis(doujinshiId).doOnSuccess {
                 Timber.d("Test>>> loaded recommendation of $doujinshiId")
                 viewModelScope.launch(Dispatchers.Default) {
-                    recommendedDoujinshis.clear()
                     recommendedDoujinshis.addAll(
                         it.map(::DoujinshiItem),
                     )
                 }
+                recommendationLoadingState.value = LoadingUiState.Idle
             }.doOnError {
                 Timber.d("Test>>> failed to load recommendation of $doujinshiId: $it")
+                recommendationLoadingState.value = LoadingUiState.Idle
             }
         }
     }
