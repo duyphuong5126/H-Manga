@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.book.SortOption
 import com.nonoka.nhentai.paging.PagingDataLoader
+import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.DecimalFormat
 import javax.inject.Inject
@@ -22,6 +23,8 @@ class HomeViewModel @Inject constructor(
 
     private val decimalFormat = DecimalFormat("#,###")
 
+    var loadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
+
     fun addFilter(filter: String) {
         if (filter.isNotBlank()) {
             filters.add(filter)
@@ -35,17 +38,21 @@ class HomeViewModel @Inject constructor(
     override suspend fun loadPage(pageIndex: Int): List<GalleryUiState> {
         Timber.d("Loading page $pageIndex")
         val pageData = ArrayList<GalleryUiState>()
+        try {
+            val result = doujinshiRepository.getGalleryPage(pageIndex, filters, sortOption.value)
+            val resultList = result.doujinshiList.map {
+                GalleryUiState.DoujinshiItem(it)
+            }
+            if (resultList.isNotEmpty()) {
+                pageData.add(GalleryUiState.Title("Page ${pageIndex + 1}"))
+                pageData.addAll(resultList)
 
-        val result = doujinshiRepository.getGalleryPage(pageIndex, filters, sortOption.value)
-        val resultList = result.doujinshiList.map {
-            GalleryUiState.DoujinshiItem(it)
-        }
-        if (resultList.isNotEmpty()) {
-            pageData.add(GalleryUiState.Title("Page ${pageIndex + 1}"))
-            pageData.addAll(resultList)
-
-            galleryCountLabel.value =
-                "Result: ${decimalFormat.format(result.numOfPages * result.numOfBooksPerPage)} doujinshis"
+                galleryCountLabel.value =
+                    "Result: ${decimalFormat.format(result.numOfPages * result.numOfBooksPerPage)} doujinshis"
+            }
+            loadingState.value = LoadingUiState.Idle
+        } catch (error: Throwable) {
+            loadingState.value = LoadingUiState.Idle
         }
         return pageData
     }

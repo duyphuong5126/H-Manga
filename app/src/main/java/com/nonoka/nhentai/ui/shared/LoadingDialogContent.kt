@@ -21,6 +21,7 @@ import com.nonoka.nhentai.ui.theme.smallSpace
 
 @Composable
 fun LoadingDialogContent(
+    message: String,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -40,7 +41,7 @@ fun LoadingDialogContent(
             )
 
             Text(
-                text = "Loading, please wait",
+                text = message,
                 style = MaterialTheme.typography.headlineLargeStyle
             )
         }

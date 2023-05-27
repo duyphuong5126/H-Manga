@@ -120,7 +120,10 @@ class MainActivity : ComponentActivity() {
                             composable(Tab.Home.id) {
                                 HomePage(
                                     onDoujinshiSelected = { id ->
-                                        navController.navigate("doujinshiPage/$id")
+                                        val route = "doujinshiPage/$id"
+                                        navController.navigate(route) {
+                                            popUpTo(route)
+                                        }
                                     },
                                 )
                             }

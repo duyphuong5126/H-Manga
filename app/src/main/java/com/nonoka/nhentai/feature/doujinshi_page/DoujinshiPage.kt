@@ -31,6 +31,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +51,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
+import com.nonoka.nhentai.ui.shared.LoadingDialog
+import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import com.nonoka.nhentai.ui.theme.Black
 import com.nonoka.nhentai.ui.theme.Black95
 import com.nonoka.nhentai.ui.theme.Black59
@@ -67,6 +72,7 @@ import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.ui.theme.bodySmallBold
 import com.nonoka.nhentai.ui.theme.mediumPlusSpace
 import com.nonoka.nhentai.ui.theme.smallRadius
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -76,9 +82,21 @@ fun DoujinshiPage(
     viewModel: DoujinshiViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
 ) {
-    viewModel.init(doujinshiId)
+    LaunchedEffect(
+        key1 = doujinshiId,
+        block = {
+            viewModel.init(doujinshiId)
+        },
+    )
+    val loadingState by remember {
+        viewModel.loadingState
+    }
+    if (loadingState is LoadingUiState.Loading) {
+        LoadingDialog(message = (loadingState as LoadingUiState.Loading).message)
+    }
     val doujinshi = viewModel.doujinshiState.value
     if (doujinshi != null) {
+        Timber.d("Test>>> rebuild")
         Scaffold(
             containerColor = Black
         ) {
@@ -365,13 +383,17 @@ private fun RecommendedDoujinshis(viewModel: DoujinshiViewModel = hiltViewModel(
 
         LazyRow(
             modifier = Modifier
-                .height(408.dp),
+                .height(308.dp),
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(mediumSpace),
             contentPadding = PaddingValues(horizontal = mediumSpace)
         ) {
             items(count = recommendedDoujinshis.size) { index ->
-                DoujinshiCard(doujinshiItem = recommendedDoujinshis[index], size = Pair(200, 300))
+                DoujinshiCard(
+                    doujinshiItem = recommendedDoujinshis[index],
+                    size = Pair(200, 300),
+                    onDoujinshiSelected = viewModel::init,
+                )
             }
         }
     }

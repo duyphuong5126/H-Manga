@@ -57,7 +57,9 @@ import com.nonoka.nhentai.R
 import com.nonoka.nhentai.domain.entity.book.SortOption
 import com.nonoka.nhentai.paging.PagingDataSource
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
+import com.nonoka.nhentai.ui.shared.LoadingDialog
 import com.nonoka.nhentai.ui.shared.LoadingDialogContent
+import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import com.nonoka.nhentai.ui.theme.Black
 import com.nonoka.nhentai.ui.theme.Grey31
 import com.nonoka.nhentai.ui.theme.Grey400
@@ -95,6 +97,7 @@ fun HomePage(
     val galleryState = rememberLazyStaggeredGridState()
     val onRefreshGallery: () -> Unit = {
         lazyDoujinshis.refresh()
+        homeViewModel.loadingState.value = LoadingUiState.Loading("Refreshing")
         coroutineContext.launch {
             galleryState.scrollToItem(0)
         }
@@ -123,7 +126,11 @@ private fun Gallery(
     galleryState: LazyStaggeredGridState,
     onRefreshGallery: () -> Unit,
     onDoujinshiSelected: (String) -> Unit,
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
+    val loadingState by remember {
+        viewModel.loadingState
+    }
     if (lazyDoujinshis.itemCount > 0) {
         LazyVerticalStaggeredGrid(
             modifier = Modifier
@@ -176,14 +183,17 @@ private fun Gallery(
                         }
 
                         else -> {
-                            LoadingDialogContent(modifier = Modifier.padding(bottom = mediumSpace))
+                            LoadingDialogContent(
+                                modifier = Modifier.padding(bottom = mediumSpace),
+                                message = "Loading, please wait."
+                            )
                         }
                     }
                 }
             },
         )
     } else if (lazyDoujinshis.loadState.refresh == LoadState.Loading) {
-        FullScreenLoading()
+        LoadingDialog(message = "Loading, please wait.")
     } else {
         Image(
             modifier = Modifier.fillMaxSize(),
@@ -191,21 +201,8 @@ private fun Gallery(
             contentDescription = "No data loaded",
         )
     }
-}
-
-@Composable
-private fun FullScreenLoading() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        LoadingDialogContent(
-            modifier = Modifier
-                .padding(
-                    start = normalSpace,
-                    end = normalSpace,
-                    bottom = normalSpace
-                )
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-        )
+    if (loadingState is LoadingUiState.Loading) {
+        LoadingDialog(message = (loadingState as LoadingUiState.Loading).message)
     }
 }
 

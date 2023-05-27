@@ -13,6 +13,7 @@ import com.nonoka.nhentai.helper.ClientType
 import com.nonoka.nhentai.helper.crawlerMap
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import timber.log.Timber
 
 
 interface DoujinshiRemoteSource {
@@ -52,45 +53,51 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
     }
 
     override suspend fun loadDoujinshi(doujinshiId: String): Resource<Doujinshi> {
-        return suspendCoroutine { continuation ->
-            val doujinshiUrl = buildDetailUrl(doujinshiId)
-            crawlerMap[ClientType.Detail]?.load(
-                url = doujinshiUrl, onDataReady = { _, data ->
-                    continuation.resumeWith(
-                        Result.success(
-                            Success(
-                                Gson().fromJson(
-                                    data,
-                                    Doujinshi::class.java
-                                ),
+        return try {
+            suspendCoroutine { continuation ->
+                val doujinshiUrl = buildDetailUrl(doujinshiId)
+                Timber.d("Test>>> has crawler ${crawlerMap.containsKey(ClientType.Detail)}")
+                crawlerMap[ClientType.Detail]?.load(
+                    url = doujinshiUrl, onDataReady = { _, data ->
+                        Timber.d("Test>>> doujinshi $doujinshiId - data=$data")
+                        continuation.resumeWith(
+                            Result.success(
+                                Success(
+                                    Gson().fromJson(
+                                        data,
+                                        Doujinshi::class.java
+                                    ),
+                                )
                             )
                         )
-                    )
-                }, onError = { _, error ->
-                    continuation.resumeWith(Result.success(Error(Throwable(error))))
-                }
-            )
+                    }, onError = { _, error ->
+                        continuation.resumeWithException(Throwable(error))
+                    }
+                )
+            }
+        } catch (error: Throwable) {
+            Error(error)
         }
     }
 
     override suspend fun getRecommendedDoujinshis(doujinshiId: String): Resource<List<Doujinshi>> {
-        return suspendCoroutine { continuation ->
-            val recommendationUrl = buildDetailRecommendationUrl(doujinshiId)
-            crawlerMap[ClientType.Detail]?.load(
-                url = recommendationUrl, onDataReady = { _, data ->
-                    try {
+        return try {
+            suspendCoroutine { continuation ->
+                val recommendationUrl = buildDetailRecommendationUrl(doujinshiId)
+                crawlerMap[ClientType.Detail]?.load(
+                    url = recommendationUrl, onDataReady = { _, data ->
                         val result = Gson().fromJson(
                             data,
                             RecommendedDoujinshis::class.java
                         ).doujinshiList
                         continuation.resumeWith(Result.success(Success(result)))
-                    } catch (error: Throwable) {
-                        continuation.resumeWith(Result.failure(error))
+                    }, onError = { _, error ->
+                        continuation.resumeWithException(Exception(error))
                     }
-                }, onError = { error, _ ->
-                    continuation.resumeWith(Result.failure(Throwable(error)))
-                }
-            )
+                )
+            }
+        } catch (error: Throwable) {
+            Error(error)
         }
     }
 

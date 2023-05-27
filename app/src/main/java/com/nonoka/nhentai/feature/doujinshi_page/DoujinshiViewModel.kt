@@ -4,12 +4,12 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.JsonSyntaxException
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.NHENTAI_T
 import com.nonoka.nhentai.domain.entity.PNG
 import com.nonoka.nhentai.domain.entity.book.Doujinshi
 import com.nonoka.nhentai.feature.home.GalleryUiState.DoujinshiItem
+import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import com.nonoka.nhentai.util.capitalized
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.DecimalFormat
@@ -53,19 +53,27 @@ class DoujinshiViewModel @Inject constructor(
 
     val recommendedDoujinshis = mutableStateListOf<DoujinshiItem>()
 
+    var loadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
+
     fun init(doujinshiId: String) {
-        Timber.d("Load doujinshi $doujinshiId")
+        Timber.d("Test>>> Load doujinshi $doujinshiId")
+        loadingState.value = LoadingUiState.Loading("Loading, please wait")
         viewModelScope.launch(Dispatchers.Main) {
             doujinshiRepository.getDoujinshi(doujinshiId)
-                .doOnSuccess(this@DoujinshiViewModel::processDoujinshiData)
+                .doOnSuccess {
+                    processDoujinshiData(it)
+                    loadRecommendedDoujinshis(it.bookId)
+                }
                 .doOnError {
-                    Timber.e("Failed to load doujinshi $doujinshiId with error $it")
+                    Timber.e("Test>>> Failed to load doujinshi $doujinshiId with error $it")
+                    loadingState.value = LoadingUiState.Idle
                 }
         }
-        loadRecommendedDoujinshis(doujinshiId)
     }
 
     private fun processDoujinshiData(doujinshi: Doujinshi) {
+        Timber.d("Test>>> Loaded doujinshi ${doujinshi.bookId}")
+        loadingState.value = LoadingUiState.Idle
         viewModelScope.launch(Dispatchers.Default) {
             val artistCount = doujinshi.tags
                 .count {
@@ -106,14 +114,16 @@ class DoujinshiViewModel @Inject constructor(
 
     private fun loadRecommendedDoujinshis(doujinshiId: String) {
         viewModelScope.launch(Dispatchers.Main) {
-            try {
-                doujinshiRepository.getRecommendedDoujinshis(doujinshiId).doOnSuccess {
+            doujinshiRepository.getRecommendedDoujinshis(doujinshiId).doOnSuccess {
+                Timber.d("Test>>> loaded recommendation of $doujinshiId")
+                viewModelScope.launch(Dispatchers.Default) {
+                    recommendedDoujinshis.clear()
                     recommendedDoujinshis.addAll(
                         it.map(::DoujinshiItem),
                     )
                 }
-            } catch (error: JsonSyntaxException) {
-                Timber.e(error)
+            }.doOnError {
+                Timber.d("Test>>> failed to load recommendation of $doujinshiId: $it")
             }
         }
     }

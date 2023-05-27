@@ -45,9 +45,9 @@ fun DoujinshiCard(
 ) {
     val doujinshi = doujinshiItem.doujinshi
     Box(
-        modifier = (if (size != null) Modifier
+        modifier = ((if (size != null) Modifier
             .size(size.first.dp, size.second.dp) else Modifier
-            .fillMaxWidth()
+            .fillMaxWidth())
             .aspectRatio(doujinshi.thumbnailRatio))
             .clip(shape = RoundedCornerShape(size = mediumRadius))
             .clickable {

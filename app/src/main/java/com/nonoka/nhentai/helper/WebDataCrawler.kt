@@ -71,10 +71,12 @@ class WebDataCrawler : WebViewClient() {
             errorCallbacks[url] = ArrayList()
         }
         errorCallbacks[url]?.add(onError)
+        Timber.d("Test>>> crawler load url=$url")
         requester?.invoke(url)
     }
 
     private fun onDataReady(url: String, data: String) {
+        Timber.d("Test>>> crawler loaded url=$url, data=$data")
         val callbacks = dataReadyCallbacks[url] ?: arrayListOf()
         while (callbacks.isNotEmpty()) {
             callbacks.removeFirst().invoke(url, data)
