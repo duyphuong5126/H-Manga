@@ -59,6 +59,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 import com.nonoka.nhentai.paging.PagingDataSource
+import com.nonoka.nhentai.ui.shared.model.GalleryUiState
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.shared.LoadingDialog
 import com.nonoka.nhentai.ui.shared.LoadingDialogContent

@@ -8,7 +8,7 @@ import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.NHENTAI_T
 import com.nonoka.nhentai.domain.entity.PNG
 import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
-import com.nonoka.nhentai.feature.home.GalleryUiState.DoujinshiItem
+import com.nonoka.nhentai.ui.shared.model.GalleryUiState.DoujinshiItem
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import com.nonoka.nhentai.util.capitalized
 import dagger.hilt.android.lifecycle.HiltViewModel

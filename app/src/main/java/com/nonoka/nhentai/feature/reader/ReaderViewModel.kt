@@ -32,6 +32,8 @@ class ReaderViewModel @Inject constructor(
     var focusedIndex = mutableStateOf(-1)
     var focusingIndexRequest = MutableSharedFlow<Int?>()
 
+    var currentDoujinshi: Doujinshi? = null
+
     fun init(doujinshiId: String, startIndex: Int = -1) {
         Timber.d("Load doujinshi $doujinshiId")
         if (startIndex >= 0) {
@@ -56,7 +58,17 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
+    fun onPageFocused(index: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            currentDoujinshi?.let {
+                val result = doujinshiRepository.setReadDoujinshi(it, index)
+                Timber.d("Test>>> set read doujinshi result: $result")
+            }
+        }
+    }
+
     private fun processDoujinshiData(doujinshi: Doujinshi) {
+        currentDoujinshi = doujinshi
         viewModelScope.launch(Dispatchers.Default) {
             state.value = ReaderState(
                 title = doujinshi.previewTitle,

@@ -34,7 +34,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nonoka.nhentai.R
-import com.nonoka.nhentai.domain.entity.CollectionType
 import com.nonoka.nhentai.feature.collection.CollectionPage
 import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiPage
 import com.nonoka.nhentai.feature.home.HomePage
@@ -130,11 +129,18 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable(Tab.Collection.id) {
-                                CollectionPage(CollectionType.Collection)
+                                CollectionPage(
+                                    onDoujinshiSelected = {
+                                        val route = "doujinshiPage/$id"
+                                        navController.navigate(route) {
+                                            popUpTo(route)
+                                        }
+                                    },
+                                )
                             }
 
                             composable(Tab.Recommendation.id) {
-                                CollectionPage(CollectionType.Recommendation)
+                                CollectionPage()
                             }
 
                             composable(

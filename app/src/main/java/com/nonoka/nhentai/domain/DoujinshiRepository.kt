@@ -17,4 +17,16 @@ interface DoujinshiRepository {
     suspend fun getRecommendedDoujinshis(doujinshiId: String): Resource<List<Doujinshi>>
 
     suspend fun getComments(doujinshiId: String): Resource<List<Comment>>
+
+    suspend fun getCollectionPage(
+        page: Int,
+    ): DoujinshisResult
+
+    suspend fun getDoujinshiCount(): Long
+
+    suspend fun setReadDoujinshi(doujinshi: Doujinshi, lastReadPage: Int?): Boolean
+
+    suspend fun setFavoriteDoujinshi(doujinshi: Doujinshi, isFavorite: Boolean): Boolean
+
+    suspend fun setDownloadedDoujinshi(doujinshi: Doujinshi, isDownloaded: Boolean): Boolean
 }

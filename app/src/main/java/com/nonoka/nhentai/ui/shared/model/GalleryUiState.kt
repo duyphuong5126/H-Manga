@@ -1,4 +1,4 @@
-package com.nonoka.nhentai.feature.home
+package com.nonoka.nhentai.ui.shared.model
 
 import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 

@@ -1,12 +1,10 @@
-package com.nonoka.nhentai.feature.home
+package com.nonoka.nhentai.feature.collection
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.GalleryPageNotExistException
-import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 import com.nonoka.nhentai.paging.PagingDataLoader
 import com.nonoka.nhentai.ui.shared.model.GalleryUiState
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
@@ -19,49 +17,20 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
-    private val doujinshiRepository: DoujinshiRepository
+class CollectionViewModel @Inject constructor(
+    private val doujinshiRepository: DoujinshiRepository,
 ) : ViewModel(), PagingDataLoader<GalleryUiState> {
-    val filters = mutableStateListOf<String>()
-    val galleryCountLabel = mutableStateOf("")
-
-    val sortOption = mutableStateOf(SortOption.Recent)
-
     private val decimalFormat = DecimalFormat("#,###")
 
+    val collectionCountLabel = mutableStateOf("")
+
     val loadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
-
-    fun addFilter(filter: String) {
-        if (filter.isNotBlank()) {
-            val normalizedFilter = filter.trim().lowercase()
-            if (!filters.contains(normalizedFilter)) {
-                filters.add(normalizedFilter)
-            }
-        }
-    }
-
-    fun removeFilter(filter: String) {
-        val normalizedFilter = filter.trim().lowercase()
-        filters.remove(normalizedFilter)
-        if (filters.isEmpty()) {
-            sortOption.value = SortOption.Recent
-        }
-    }
-
-    fun clearFilters() {
-        filters.clear()
-        sortOption.value = SortOption.Recent
-    }
-
-    fun selectSortOption(sortOption: SortOption) {
-        this.sortOption.value = sortOption
-    }
 
     override suspend fun loadPage(pageIndex: Int): List<GalleryUiState> {
         Timber.d("Loading page $pageIndex")
         val pageData = ArrayList<GalleryUiState>()
         try {
-            val result = doujinshiRepository.getGalleryPage(pageIndex, filters, sortOption.value)
+            val result = doujinshiRepository.getCollectionPage(pageIndex)
             val resultList = result.doujinshiList.map {
                 GalleryUiState.DoujinshiItem(it)
             }
@@ -69,8 +38,8 @@ class HomeViewModel @Inject constructor(
                 pageData.add(GalleryUiState.Title("Page ${pageIndex + 1}"))
                 pageData.addAll(resultList)
 
-                galleryCountLabel.value =
-                    "Result: ${decimalFormat.format(result.numOfPages * result.numOfBooksPerPage)} doujinshis"
+                collectionCountLabel.value =
+                    decimalFormat.format(doujinshiRepository.getDoujinshiCount())
             }
             finishLoading(pageIndex)
         } catch (error: Throwable) {

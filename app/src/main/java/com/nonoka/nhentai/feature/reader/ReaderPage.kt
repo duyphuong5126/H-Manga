@@ -99,9 +99,10 @@ fun ReaderPage(
             if (readerState != null) {
                 Reader(
                     readerState = readerState,
-                    onFocusedIndexChanged = {
+                    onFocusedIndexChanged = { index ->
+                        viewModel.onPageFocused(index)
                         coroutineContext.launch {
-                            thumbnailListState.scrollToItem(if (it - thumbnailScrollOffset >= 0) it - thumbnailScrollOffset else it)
+                            thumbnailListState.scrollToItem(if (index - thumbnailScrollOffset >= 0) index - thumbnailScrollOffset else index)
                         }
                     },
                 )

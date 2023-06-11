@@ -7,15 +7,18 @@ import com.nonoka.nhentai.domain.entity.comment.Comment
 import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 import com.nonoka.nhentai.domain.entity.doujinshi.DoujinshisResult
 import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
+import com.nonoka.nhentai.gateway.local.DoujinshiLocalDataSource
 import com.nonoka.nhentai.gateway.remote.DoujinshiRemoteSource
 import javax.inject.Inject
 
 class DoujinshiRepositoryImpl @Inject constructor(
-    private val doujinshiRemoteSource: DoujinshiRemoteSource
+    private val remoteSource: DoujinshiRemoteSource,
+    private val localDataSource: DoujinshiLocalDataSource
 ) : DoujinshiRepository {
     private val doujinshiCacheMap = HashMap<String, Doujinshi>()
     private val recommendedDoujinshisCacheMap = HashMap<String, List<Doujinshi>>()
     private val galleryCacheMap = HashMap<Int, Pair<DoujinshisResult, Long>>()
+    private val collectionCacheMap = HashMap<String, Doujinshi>()
     private var filterString = ""
     override suspend fun getGalleryPage(
         page: Int,
@@ -31,7 +34,7 @@ class DoujinshiRepositoryImpl @Inject constructor(
         return if (cacheResult != null && System.currentTimeMillis() - cacheResult.second < CACHE_DURATION) {
             cacheResult.first
         } else {
-            val remoteResult = doujinshiRemoteSource.loadDoujinshis(page, filters, sortOption)
+            val remoteResult = remoteSource.loadDoujinshis(page, filters, sortOption)
             galleryCacheMap[page] = Pair(remoteResult, System.currentTimeMillis())
             remoteResult.doujinshiList.forEach {
                 doujinshiCacheMap[it.id] = it
@@ -60,7 +63,7 @@ class DoujinshiRepositoryImpl @Inject constructor(
         return if (doujinshi != null) {
             Success(doujinshi)
         } else {
-            doujinshiRemoteSource.loadDoujinshi(doujinshiId).doOnSuccess {
+            remoteSource.loadDoujinshi(doujinshiId).doOnSuccess {
                 doujinshiCacheMap[doujinshiId] = it
             }
         }
@@ -71,7 +74,7 @@ class DoujinshiRepositoryImpl @Inject constructor(
         return if (recommendedList != null) {
             Success(recommendedList)
         } else {
-            doujinshiRemoteSource.getRecommendedDoujinshis(doujinshiId).doOnSuccess { recommended ->
+            remoteSource.getRecommendedDoujinshis(doujinshiId).doOnSuccess { recommended ->
                 recommendedDoujinshisCacheMap[doujinshiId] = recommended
                 recommended.forEach {
                     doujinshiCacheMap[it.id] = it
@@ -81,10 +84,48 @@ class DoujinshiRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getComments(doujinshiId: String): Resource<List<Comment>> {
-        return doujinshiRemoteSource.getComments(doujinshiId)
+        return remoteSource.getComments(doujinshiId)
+    }
+
+    override suspend fun getDoujinshiCount(): Long {
+        return localDataSource.getDoujinshiCount()
+    }
+
+    override suspend fun getCollectionPage(page: Int): DoujinshisResult {
+        val doujinshiList = localDataSource.getDoujinshis(PAGE_SIZE * page, PAGE_SIZE)
+        val total = localDataSource.getDoujinshiCount()
+        var numOfPages = total / PAGE_SIZE
+        if (total % PAGE_SIZE > 0) {
+            numOfPages++
+        }
+        doujinshiList.forEach {
+            collectionCacheMap[it.id] = it
+        }
+        return DoujinshisResult(
+            doujinshiList = doujinshiList,
+            numOfPages = numOfPages,
+            numOfBooksPerPage = PAGE_SIZE
+        )
+    }
+
+    override suspend fun setDownloadedDoujinshi(
+        doujinshi: Doujinshi,
+        isDownloaded: Boolean
+    ): Boolean {
+        return localDataSource.setDownloadedDoujinshi(doujinshi, isDownloaded)
+    }
+
+    override suspend fun setFavoriteDoujinshi(doujinshi: Doujinshi, isFavorite: Boolean): Boolean {
+        return localDataSource.setFavoriteDoujinshi(doujinshi, isFavorite)
+    }
+
+    override suspend fun setReadDoujinshi(doujinshi: Doujinshi, lastReadPage: Int?): Boolean {
+        return localDataSource.setReadDoujinshi(doujinshi, lastReadPage)
     }
 
     companion object {
         private const val CACHE_DURATION = 60000
+
+        private const val PAGE_SIZE = 25
     }
 }
