@@ -3,13 +3,18 @@ package com.nonoka.nhentai.feature.home
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.nonoka.nhentai.domain.DoujinshiRepository
-import com.nonoka.nhentai.domain.entity.book.SortOption
+import com.nonoka.nhentai.domain.entity.GalleryPageNotExistException
+import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 import com.nonoka.nhentai.paging.PagingDataLoader
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.DecimalFormat
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltViewModel
@@ -23,12 +28,28 @@ class HomeViewModel @Inject constructor(
 
     private val decimalFormat = DecimalFormat("#,###")
 
-    var loadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
+    val loadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
 
     fun addFilter(filter: String) {
         if (filter.isNotBlank()) {
-            filters.add(filter)
+            val normalizedFilter = filter.trim().lowercase()
+            if (!filters.contains(normalizedFilter)) {
+                filters.add(normalizedFilter)
+            }
         }
+    }
+
+    fun removeFilter(filter: String) {
+        val normalizedFilter = filter.trim().lowercase()
+        filters.remove(normalizedFilter)
+        if (filters.isEmpty()) {
+            sortOption.value = SortOption.Recent
+        }
+    }
+
+    fun clearFilters() {
+        filters.clear()
+        sortOption.value = SortOption.Recent
     }
 
     fun selectSortOption(sortOption: SortOption) {
@@ -50,10 +71,24 @@ class HomeViewModel @Inject constructor(
                 galleryCountLabel.value =
                     "Result: ${decimalFormat.format(result.numOfPages * result.numOfBooksPerPage)} doujinshis"
             }
-            loadingState.value = LoadingUiState.Idle
+            finishLoading(pageIndex)
         } catch (error: Throwable) {
-            loadingState.value = LoadingUiState.Idle
+            finishLoading(pageIndex)
+            if (error is GalleryPageNotExistException) {
+                throw error
+            }
         }
         return pageData
+    }
+
+    private fun finishLoading(pageIndex: Int) {
+        if (pageIndex > 0) {
+            viewModelScope.launch(Dispatchers.IO) {
+                delay(500)
+                loadingState.value = LoadingUiState.Idle
+            }
+        } else {
+            loadingState.value = LoadingUiState.Idle
+        }
     }
 }

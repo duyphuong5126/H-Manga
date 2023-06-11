@@ -10,10 +10,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.nonoka.nhentai.domain.entity.CollectionType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CollectionPage() {
+fun CollectionPage(collectionType: CollectionType) {
     Scaffold {
         Column(
             modifier = Modifier
@@ -22,7 +23,7 @@ fun CollectionPage() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Collection")
+            Text(text = "Collection: ${collectionType.name}")
         }
     }
 }

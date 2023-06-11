@@ -1,7 +1,5 @@
-package com.nonoka.nhentai.domain.entity.book
+package com.nonoka.nhentai.domain.entity.doujinshi
 
-import android.os.Parcel
-import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import com.nonoka.nhentai.domain.entity.CHINESE_LANG
 import com.nonoka.nhentai.domain.entity.ENGLISH_LANG
@@ -19,7 +17,7 @@ import com.nonoka.nhentai.domain.entity.TITLE
 import com.nonoka.nhentai.domain.entity.UPLOAD_DATE
 
 data class Doujinshi(
-    @field:SerializedName(ID) val bookId: String,
+    @field:SerializedName(ID) val id: String,
     @field:SerializedName(MEDIA_ID) val mediaId: String,
     @field:SerializedName(TITLE) val title: DoujinshiTitle,
     @field:SerializedName(IMAGES) val images: DoujinshiImages,
@@ -28,7 +26,7 @@ data class Doujinshi(
     @field:SerializedName(TAGS_LIST) val tags: List<Tag>,
     @field:SerializedName(NUM_PAGES) var numOfPages: Int,
     @field:SerializedName(NUM_FAVORITES) var numOfFavorites: Int
-) : Parcelable {
+) {
     val thumbnail: String
         get() {
             val thumbnailType = images.thumbnail.imageType
@@ -156,38 +154,6 @@ data class Doujinshi(
         }
     }
 
-    constructor(parcel: Parcel) : this(
-        parcel.readString().orEmpty(),
-        parcel.readString().orEmpty(),
-        parcel.readParcelable(
-            DoujinshiTitle::class.java.classLoader,
-        ) ?: DoujinshiTitle.defaultInstance,
-        parcel.readParcelable(
-            DoujinshiImages::class.java.classLoader
-        ) ?: DoujinshiImages.defaultInstance,
-        parcel.readString().orEmpty(),
-        parcel.readLong(),
-        parcel.createTypedArrayList(Tag) ?: emptyList(),
-        parcel.readInt(),
-        parcel.readInt()
-    )
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(bookId)
-        parcel.writeString(mediaId)
-        parcel.writeParcelable(title, flags)
-        parcel.writeParcelable(images, flags)
-        parcel.writeString(scanlator)
-        parcel.writeLong(updateAt)
-        parcel.writeTypedList(tags)
-        parcel.writeInt(numOfPages)
-        parcel.writeInt(numOfFavorites)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
     fun correctData() {
         if (numOfPages != images.pages.size) {
             numOfPages = images.pages.size
@@ -200,7 +166,7 @@ data class Doujinshi(
         }
     }
 
-    companion object CREATOR : Parcelable.Creator<Doujinshi> {
+    companion object {
         private const val ENG = "[English]"
         private const val CN = "[Chinese]"
         private const val NULL = "null"
@@ -212,13 +178,5 @@ data class Doujinshi(
         private const val TRANSLATED_TAG = "translated"
         private const val REWRITE_TAG = "rewrite"
         private const val TEXT_CLEANED_TAG = "text cleaned"
-
-        override fun createFromParcel(parcel: Parcel): Doujinshi {
-            return Doujinshi(parcel)
-        }
-
-        override fun newArray(size: Int): Array<Doujinshi?> {
-            return arrayOfNulls(size)
-        }
     }
 }

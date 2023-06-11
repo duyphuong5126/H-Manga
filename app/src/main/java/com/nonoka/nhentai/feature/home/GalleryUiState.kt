@@ -1,6 +1,6 @@
 package com.nonoka.nhentai.feature.home
 
-import com.nonoka.nhentai.domain.entity.book.Doujinshi
+import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 
 sealed class GalleryUiState {
     data class Title(val title: String) : GalleryUiState()

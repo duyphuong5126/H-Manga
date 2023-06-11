@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.dp
 
 val headerHeight = 48.dp
 
+val largeSpace = 32.dp
 val extraNormalSpace = 24.dp
 val normalSpace = 16.dp
 val mediumPlusSpace = 12.dp

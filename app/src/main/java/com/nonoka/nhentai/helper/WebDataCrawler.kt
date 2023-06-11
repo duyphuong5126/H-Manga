@@ -79,9 +79,10 @@ class WebDataCrawler : WebViewClient() {
         Timber.d("Test>>> crawler loaded url=$url, data=$data")
         val callbacks = dataReadyCallbacks[url] ?: arrayListOf()
         while (callbacks.isNotEmpty()) {
-            callbacks.removeFirst().invoke(url, data)
+            val callback = callbacks.removeFirst()
+            Timber.e("Test>>> callback=${callback.hashCode()}")
+            callback.invoke(url, data)
         }
-        errorCallbacks[url]?.clear()
     }
 
     private fun onError(url: String, error: String) {
@@ -89,7 +90,6 @@ class WebDataCrawler : WebViewClient() {
         while (callbacks.isNotEmpty()) {
             callbacks.removeFirst().invoke(url, error)
         }
-        dataReadyCallbacks[url]?.clear()
     }
 
     private fun cleanUpJson(rawData: String): String {

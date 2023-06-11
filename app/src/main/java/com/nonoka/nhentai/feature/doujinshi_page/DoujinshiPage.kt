@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -71,8 +73,12 @@ import com.nonoka.nhentai.ui.theme.mediumSpace
 import com.nonoka.nhentai.ui.theme.normalSpace
 import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.ui.theme.bodySmallBold
+import com.nonoka.nhentai.ui.theme.bodySmallRegular
+import com.nonoka.nhentai.ui.theme.captionRegular
 import com.nonoka.nhentai.ui.theme.mediumPlusSpace
+import com.nonoka.nhentai.ui.theme.normalIconSize
 import com.nonoka.nhentai.ui.theme.smallRadius
+import java.text.DecimalFormat
 import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -366,6 +372,38 @@ fun DoujinshiPage(
                 item {
                     RecommendedDoujinshis()
                 }
+
+                val comments = viewModel.comments
+                if (comments.isNotEmpty()) {
+                    val decimalFormat = DecimalFormat("#,###")
+                    item {
+                        Text(
+                            text = "Comments (${decimalFormat.format(comments.size)})",
+                            modifier = Modifier
+                                .padding(start = mediumSpace, top = mediumSpace),
+                            style = MaterialTheme.typography.bodyNormalBold.copy(White),
+                        )
+                    }
+
+                    items(count = comments.size) { index ->
+                        val comment = comments[index]
+                        Comment(comment, index)
+                    }
+                } else {
+                    item {
+                        val commentLoadingState by remember {
+                            viewModel.commentLoadingState
+                        }
+                        if (commentLoadingState is LoadingUiState.Loading) {
+                            LoadingDialogContent(
+                                modifier = Modifier
+                                    .padding(mediumSpace)
+                                    .fillMaxWidth(),
+                                message = "Loading, please wait."
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -407,6 +445,65 @@ private fun RecommendedDoujinshis(viewModel: DoujinshiViewModel = hiltViewModel(
                     .padding(mediumSpace)
                     .fillMaxWidth(),
                 message = "Loading, please wait."
+            )
+        }
+    }
+}
+
+@Composable
+private fun Comment(comment: CommentState, index: Int) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = smallPlusSpace,
+                end = smallPlusSpace,
+                top = smallPlusSpace
+            )
+            .clip(RoundedCornerShape(mediumRadius))
+            .background(Grey77)
+            .padding(mediumSpace),
+        verticalAlignment = Alignment.Top
+    ) {
+        AsyncImage(
+            model = comment.avatarUrl,
+            contentDescription = "Avatar of user ${comment.userName}",
+            modifier = Modifier
+                .size(normalIconSize)
+                .clip(CircleShape)
+        )
+
+        Column(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier.padding(start = mediumSpace)
+        ) {
+            Row {
+                Text(
+                    text = comment.userName,
+                    style = MaterialTheme.typography.bodyNormalBold.copy(color = White),
+                    modifier = Modifier.weight(1f)
+                )
+
+                Text(
+                    text = "#${index + 1}",
+                    style = MaterialTheme.typography.captionRegular.copy(color = White)
+                )
+            }
+
+            Text(
+                text = comment.body,
+                style = MaterialTheme.typography.bodySmallRegular.copy(color = White),
+                modifier = Modifier
+                    .padding(top = mediumSpace)
+                    .fillMaxWidth()
+            )
+
+            Text(
+                modifier = Modifier
+                    .padding(top = normalSpace),
+                text = comment.postDate,
+                style = MaterialTheme.typography.captionRegular.copy(color = Grey31)
             )
         }
     }

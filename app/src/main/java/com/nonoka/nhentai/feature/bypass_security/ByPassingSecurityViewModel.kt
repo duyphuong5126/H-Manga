@@ -3,7 +3,7 @@ package com.nonoka.nhentai.feature.bypass_security
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
-import com.nonoka.nhentai.domain.entity.book.DoujinshisResult
+import com.nonoka.nhentai.domain.entity.doujinshi.DoujinshisResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -10,7 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.nonoka.nhentai.databinding.ActivityByPassingBinding
 import com.nonoka.nhentai.feature.MainActivity
-import com.nonoka.nhentai.helper.WebDataCrawler
+import com.nonoka.nhentai.helper.ClientType
+import com.nonoka.nhentai.helper.crawlerMap
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -27,7 +28,17 @@ class ByPassingActivity : ComponentActivity() {
 
         viewBinding.refresher.setOnRefreshListener {
             viewBinding.refresher.isRefreshing = false
-            viewBinding.webView.loadUrl("https://nhentai.net/api/galleries/all?page=1")
+            crawlerMap[ClientType.ByPassing]?.load(
+                "https://nhentai.net/api/galleries/all?page=1",
+                onDataReady = { url, data ->
+                    Timber.d("url=$url\ndata=$data")
+                    viewModel.validateData(data)
+                },
+                onError = { url, errorMessage ->
+                    Timber.e("url=$url\nerrorMessage=$errorMessage")
+                    viewModel.onError(errorMessage)
+                },
+            )
             viewModel.onRetry()
         }
 
@@ -55,7 +66,7 @@ class ByPassingActivity : ComponentActivity() {
             javaScriptCanOpenWindowsAutomatically = true
         }
 
-        val priceExtractionWebViewClient = WebDataCrawler()
+        val priceExtractionWebViewClient = crawlerMap[ClientType.ByPassing]!!
         priceExtractionWebViewClient.registerRequester(viewBinding.webView::loadUrl)
 
         viewBinding.webView.webViewClient = priceExtractionWebViewClient
@@ -70,6 +81,5 @@ class ByPassingActivity : ComponentActivity() {
                 viewModel.onError(errorMessage)
             },
         )
-
     }
 }

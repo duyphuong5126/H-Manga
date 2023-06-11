@@ -1,4 +1,4 @@
-package com.nonoka.nhentai.domain.entity.book
+package com.nonoka.nhentai.domain.entity.doujinshi
 
 import com.google.gson.annotations.SerializedName
 import com.nonoka.nhentai.domain.entity.RESULT

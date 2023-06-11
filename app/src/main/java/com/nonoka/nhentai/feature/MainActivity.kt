@@ -34,6 +34,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nonoka.nhentai.R
+import com.nonoka.nhentai.domain.entity.CollectionType
 import com.nonoka.nhentai.feature.collection.CollectionPage
 import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiPage
 import com.nonoka.nhentai.feature.home.HomePage
@@ -127,8 +128,13 @@ class MainActivity : ComponentActivity() {
                                     },
                                 )
                             }
+
                             composable(Tab.Collection.id) {
-                                CollectionPage()
+                                CollectionPage(CollectionType.Collection)
+                            }
+
+                            composable(Tab.Recommendation.id) {
+                                CollectionPage(CollectionType.Recommendation)
                             }
 
                             composable(
@@ -184,12 +190,14 @@ class MainActivity : ComponentActivity() {
         crawlerMap[ClientType.Gallery]?.clearRequester()
         crawlerMap[ClientType.Detail]?.clearRequester()
         crawlerMap[ClientType.Recommendation]?.clearRequester()
+        crawlerMap[ClientType.Comment]?.clearRequester()
     }
 
     private fun getIconRes(tab: Tab): Int {
         return when (tab) {
             Tab.Home -> R.drawable.ic_home_solid_24dp
             Tab.Collection -> R.drawable.ic_collection_solid_24dp
+            Tab.Recommendation -> R.drawable.ic_recommendation_solid_24dp
         }
     }
 
@@ -232,7 +240,9 @@ class MainActivity : ComponentActivity() {
 }
 
 enum class Tab(val id: String) {
-    Home("Home"), Collection("Collection");
+    Home("Home"),
+    Collection("Collection"),
+    Recommendation("Recommendation");
 
     companion object {
         fun isTabValid(tabId: String): Boolean = values().any {

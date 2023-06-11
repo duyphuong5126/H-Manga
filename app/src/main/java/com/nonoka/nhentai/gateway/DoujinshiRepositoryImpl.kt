@@ -3,9 +3,10 @@ package com.nonoka.nhentai.gateway
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.Resource
 import com.nonoka.nhentai.domain.Resource.Success
-import com.nonoka.nhentai.domain.entity.book.Doujinshi
-import com.nonoka.nhentai.domain.entity.book.DoujinshisResult
-import com.nonoka.nhentai.domain.entity.book.SortOption
+import com.nonoka.nhentai.domain.entity.comment.Comment
+import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
+import com.nonoka.nhentai.domain.entity.doujinshi.DoujinshisResult
+import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 import com.nonoka.nhentai.gateway.remote.DoujinshiRemoteSource
 import javax.inject.Inject
 
@@ -33,7 +34,7 @@ class DoujinshiRepositoryImpl @Inject constructor(
             val remoteResult = doujinshiRemoteSource.loadDoujinshis(page, filters, sortOption)
             galleryCacheMap[page] = Pair(remoteResult, System.currentTimeMillis())
             remoteResult.doujinshiList.forEach {
-                doujinshiCacheMap[it.bookId] = it
+                doujinshiCacheMap[it.id] = it
             }
             remoteResult
         }
@@ -73,10 +74,14 @@ class DoujinshiRepositoryImpl @Inject constructor(
             doujinshiRemoteSource.getRecommendedDoujinshis(doujinshiId).doOnSuccess { recommended ->
                 recommendedDoujinshisCacheMap[doujinshiId] = recommended
                 recommended.forEach {
-                    doujinshiCacheMap[it.bookId] = it
+                    doujinshiCacheMap[it.id] = it
                 }
             }
         }
+    }
+
+    override suspend fun getComments(doujinshiId: String): Resource<List<Comment>> {
+        return doujinshiRemoteSource.getComments(doujinshiId)
     }
 
     companion object {

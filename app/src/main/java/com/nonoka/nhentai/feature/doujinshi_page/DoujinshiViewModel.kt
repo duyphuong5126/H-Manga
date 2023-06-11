@@ -7,13 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.NHENTAI_T
 import com.nonoka.nhentai.domain.entity.PNG
-import com.nonoka.nhentai.domain.entity.book.Doujinshi
+import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 import com.nonoka.nhentai.feature.home.GalleryUiState.DoujinshiItem
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import com.nonoka.nhentai.util.capitalized
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +42,13 @@ data class DoujinshiState(
 
 data class TagInfo(val label: String, val count: String)
 
+data class CommentState(
+    val userName: String,
+    val avatarUrl: String,
+    val body: String,
+    val postDate: String
+)
+
 @HiltViewModel
 class DoujinshiViewModel @Inject constructor(
     private val doujinshiRepository: DoujinshiRepository,
@@ -52,9 +60,11 @@ class DoujinshiViewModel @Inject constructor(
     val doujinshiState = mutableStateOf<DoujinshiState?>(null)
 
     val recommendedDoujinshis = mutableStateListOf<DoujinshiItem>()
+    val comments = mutableStateListOf<CommentState>()
 
-    var mainLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
-    var recommendationLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
+    val mainLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
+    val recommendationLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
+    val commentLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
 
     fun init(doujinshiId: String) {
         Timber.d("Test>>> Load doujinshi $doujinshiId")
@@ -63,7 +73,8 @@ class DoujinshiViewModel @Inject constructor(
             doujinshiRepository.getDoujinshi(doujinshiId)
                 .doOnSuccess {
                     processDoujinshiData(it)
-                    loadRecommendedDoujinshis(it.bookId)
+                    loadRecommendedDoujinshis(it.id)
+                    loadComments(it.id)
                 }
                 .doOnError {
                     Timber.e("Test>>> Failed to load doujinshi $doujinshiId with error $it")
@@ -73,7 +84,7 @@ class DoujinshiViewModel @Inject constructor(
     }
 
     private fun processDoujinshiData(doujinshi: Doujinshi) {
-        Timber.d("Test>>> Loaded doujinshi ${doujinshi.bookId}")
+        Timber.d("Test>>> Loaded doujinshi ${doujinshi.id}")
         mainLoadingState.value = LoadingUiState.Idle
         viewModelScope.launch(Dispatchers.Default) {
             val artistCount = doujinshi.tags
@@ -81,7 +92,7 @@ class DoujinshiViewModel @Inject constructor(
                     it.type.trim().lowercase() == "artist"
                 }
             doujinshiState.value = DoujinshiState(
-                id = doujinshi.bookId,
+                id = doujinshi.id,
                 primaryTitle = doujinshi.previewTitle,
                 secondaryTitle = doujinshi.title.japaneseName,
                 tags = doujinshi.tags.groupBy { tag ->
@@ -128,6 +139,34 @@ class DoujinshiViewModel @Inject constructor(
             }.doOnError {
                 Timber.d("Test>>> failed to load recommendation of $doujinshiId: $it")
                 recommendationLoadingState.value = LoadingUiState.Idle
+            }
+        }
+    }
+
+    private fun loadComments(doujinshiId: String) {
+        viewModelScope.launch(Dispatchers.Main) {
+            commentLoadingState.value = LoadingUiState.Loading("Loading...")
+            comments.clear()
+            doujinshiRepository.getComments(doujinshiId).doOnSuccess { commentList ->
+                Timber.d("Comments>>> ${commentList.size}")
+                viewModelScope.launch(Dispatchers.Default) {
+                    comments.addAll(
+                        commentList.map {
+                            CommentState(
+                                it.poster.userName,
+                                it.poster.avatarUrl,
+                                body = it.body,
+                                postDate = dateTimeFormat.format(
+                                    Date(it.postDate)
+                                )
+                            )
+                        },
+                    )
+                }
+                commentLoadingState.value = LoadingUiState.Idle
+            }.doOnError {
+                Timber.d("Comments>>> failed with error =$it")
+                commentLoadingState.value = LoadingUiState.Idle
             }
         }
     }

@@ -88,6 +88,13 @@ val Typography.bodySmallBold: TextStyle
         fontSize = 14.sp
     )
 
+val Typography.bodySmallRegular: TextStyle
+    get() = TextStyle(
+        fontFamily = notoSansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp
+    )
+
 val Typography.captionRegular: TextStyle
     get() = TextStyle(
         fontFamily = notoSansFontFamily,

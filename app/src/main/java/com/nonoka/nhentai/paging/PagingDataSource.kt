@@ -2,6 +2,7 @@ package com.nonoka.nhentai.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.nonoka.nhentai.domain.entity.GalleryPageNotExistException
 
 class PagingDataSource<T : Any>(
     private val loader: PagingDataLoader<T>
@@ -40,7 +41,18 @@ class PagingDataSource<T : Any>(
                 nextKey = nextKey
             )
         } catch (e: Throwable) {
-            LoadResult.Error(e)
+            if (e is GalleryPageNotExistException) {
+                val pageNumber = params.key ?: 0
+                val prevKey = if (pageNumber > 0) pageNumber - 1 else null
+                val nextKey = pageNumber + 1
+                LoadResult.Page(
+                    data = emptyList(),
+                    prevKey = prevKey,
+                    nextKey = nextKey
+                )
+            } else {
+                LoadResult.Error(e)
+            }
         }
     }
 }

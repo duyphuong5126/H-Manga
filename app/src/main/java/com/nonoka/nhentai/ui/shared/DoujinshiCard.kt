@@ -51,12 +51,12 @@ fun DoujinshiCard(
             .aspectRatio(doujinshi.thumbnailRatio))
             .clip(shape = RoundedCornerShape(size = mediumRadius))
             .clickable {
-                onDoujinshiSelected(doujinshi.bookId)
+                onDoujinshiSelected(doujinshi.id)
             }
     ) {
         AsyncImage(
             model = doujinshi.thumbnail,
-            contentDescription = "Thumbnail of ${doujinshi.bookId}",
+            contentDescription = "Thumbnail of ${doujinshi.id}",
             modifier = Modifier.fillMaxSize()
         )
         Box(

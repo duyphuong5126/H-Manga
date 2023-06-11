@@ -1,18 +1,23 @@
 package com.nonoka.nhentai.gateway.remote
 
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.nonoka.nhentai.domain.Resource
-import com.nonoka.nhentai.domain.Resource.Success
 import com.nonoka.nhentai.domain.Resource.Error
+import com.nonoka.nhentai.domain.Resource.Success
+import com.nonoka.nhentai.domain.entity.GalleryPageNotExistException
 import com.nonoka.nhentai.domain.entity.NHENTAI_HOME
-import com.nonoka.nhentai.domain.entity.book.Doujinshi
-import com.nonoka.nhentai.domain.entity.book.DoujinshisResult
-import com.nonoka.nhentai.domain.entity.book.RecommendedDoujinshis
-import com.nonoka.nhentai.domain.entity.book.SortOption
+import com.nonoka.nhentai.domain.entity.comment.Comment
+import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
+import com.nonoka.nhentai.domain.entity.doujinshi.DoujinshisResult
+import com.nonoka.nhentai.domain.entity.doujinshi.RecommendedDoujinshis
+import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 import com.nonoka.nhentai.helper.ClientType
 import com.nonoka.nhentai.helper.crawlerMap
+import java.lang.reflect.Type
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 
 
@@ -25,6 +30,8 @@ interface DoujinshiRemoteSource {
     suspend fun loadDoujinshi(doujinshiId: String): Resource<Doujinshi>
 
     suspend fun getRecommendedDoujinshis(doujinshiId: String): Resource<List<Doujinshi>>
+
+    suspend fun getComments(doujinshiId: String): Resource<List<Comment>>
 }
 
 class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
@@ -33,19 +40,29 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
         filters: List<String>,
         sortOption: SortOption
     ): DoujinshisResult {
-        return suspendCoroutine { continuation ->
+        return suspendCancellableCoroutine { continuation ->
             val url = galleryUrl(page, filters, sortOption)
             crawlerMap[ClientType.Gallery]?.load(
-                url = url, onDataReady = { _, data ->
-                    continuation.resumeWith(
-                        Result.success(
-                            Gson().fromJson(
-                                data,
-                                DoujinshisResult::class.java
+                url = url, onDataReady = { responseUrl, data ->
+                    Timber.d("Test>>> Response of url $responseUrl")
+                    if (continuation.isActive) {
+                        if (data.contains(notExistJson)) {
+                            Timber.d("Test>>> Not exist")
+                            continuation.resumeWith(Result.failure(GalleryPageNotExistException()))
+                        } else {
+                            Timber.d("Test>>> Exist")
+                            continuation.resumeWith(
+                                Result.success(
+                                    Gson().fromJson(
+                                        data,
+                                        DoujinshisResult::class.java
+                                    )
+                                )
                             )
-                        )
-                    )
+                        }
+                    }
                 }, onError = { _, error ->
+                    Timber.d("Test>>> error=$error")
                     continuation.resumeWithException(Throwable(error))
                 }
             )
@@ -101,6 +118,25 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
         }
     }
 
+    override suspend fun getComments(doujinshiId: String): Resource<List<Comment>> {
+        return try {
+            suspendCoroutine { continuation ->
+                val recommendationUrl = buildCommentsUrl(doujinshiId)
+                crawlerMap[ClientType.Comment]?.load(
+                    url = recommendationUrl, onDataReady = { _, data ->
+                        val listType: Type = object : TypeToken<List<Comment>>() {}.type
+                        val result = Gson().fromJson<List<Comment>>(data, listType)
+                        continuation.resumeWith(Result.success(Success(result)))
+                    }, onError = { _, error ->
+                        continuation.resumeWithException(Exception(error))
+                    }
+                )
+            }
+        } catch (error: Throwable) {
+            Error(error)
+        }
+    }
+
     private fun galleryUrl(
         page: Int, filters: List<String>,
         sortOption: SortOption
@@ -127,4 +163,11 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
 
     private fun buildDetailRecommendationUrl(doujinshiId: String): String =
         "$NHENTAI_HOME/api/gallery/$doujinshiId/related"
+
+    private fun buildCommentsUrl(doujinshiId: String): String =
+        "$NHENTAI_HOME/api/gallery/$doujinshiId/comments"
+
+    companion object {
+        private const val notExistJson = "{\"error\": \"does not exist\"}"
+    }
 }

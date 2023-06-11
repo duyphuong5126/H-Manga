@@ -1,8 +1,9 @@
 package com.nonoka.nhentai.domain
 
-import com.nonoka.nhentai.domain.entity.book.Doujinshi
-import com.nonoka.nhentai.domain.entity.book.DoujinshisResult
-import com.nonoka.nhentai.domain.entity.book.SortOption
+import com.nonoka.nhentai.domain.entity.comment.Comment
+import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
+import com.nonoka.nhentai.domain.entity.doujinshi.DoujinshisResult
+import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 
 interface DoujinshiRepository {
     suspend fun getGalleryPage(
@@ -14,4 +15,6 @@ interface DoujinshiRepository {
     suspend fun getDoujinshi(doujinshiId: String): Resource<Doujinshi>
 
     suspend fun getRecommendedDoujinshis(doujinshiId: String): Resource<List<Doujinshi>>
+
+    suspend fun getComments(doujinshiId: String): Resource<List<Comment>>
 }
