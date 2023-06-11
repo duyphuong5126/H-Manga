@@ -314,7 +314,7 @@ private fun GalleryTitle(title: GalleryUiState.Title) {
     Text(
         text = title.title,
         style = MaterialTheme.typography.bodyNormalBold.copy(color = White),
-        modifier = Modifier.padding(start = smallSpace, top = normalSpace, bottom = smallSpace),
+        modifier = Modifier.padding(start = smallSpace, bottom = smallSpace),
     )
 }
 
@@ -326,7 +326,8 @@ private fun GalleryHeader(
 ) {
     if (homeViewModel.filters.isNotEmpty() || homeViewModel.galleryCountLabel.value.isNotBlank()) {
         FlowRow(modifier = Modifier.padding(mediumSpace)) {
-            if (homeViewModel.filters.isNotEmpty()) {
+            val hasFilter = homeViewModel.filters.isNotEmpty()
+            if (hasFilter) {
                 val deleteFilterHolder = remember {
                     mutableStateOf<String?>(null)
                 }
@@ -379,9 +380,9 @@ private fun GalleryHeader(
 
             if (homeViewModel.galleryCountLabel.value.isNotBlank()) {
                 Text(
-                    modifier = Modifier
+                    modifier = if (hasFilter) Modifier
                         .padding(top = normalSpace)
-                        .fillMaxSize(),
+                        .fillMaxSize() else Modifier.fillMaxSize(),
                     text = homeViewModel.galleryCountLabel.value,
                     style = MaterialTheme.typography.bodyNormalBold.copy(color = White),
                     textAlign = TextAlign.Center

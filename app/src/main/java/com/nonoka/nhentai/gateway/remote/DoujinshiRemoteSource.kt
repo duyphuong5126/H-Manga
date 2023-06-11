@@ -73,7 +73,7 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
         return try {
             suspendCoroutine { continuation ->
                 val doujinshiUrl = buildDetailUrl(doujinshiId)
-                Timber.d("Test>>> has crawler ${crawlerMap.containsKey(ClientType.Detail)}")
+                Timber.d("Test>>> doujinshiUrl=$doujinshiUrl")
                 crawlerMap[ClientType.Detail]?.load(
                     url = doujinshiUrl, onDataReady = { _, data ->
                         Timber.d("Test>>> doujinshi $doujinshiId - data=$data")

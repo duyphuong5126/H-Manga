@@ -130,7 +130,7 @@ class MainActivity : ComponentActivity() {
 
                             composable(Tab.Collection.id) {
                                 CollectionPage(
-                                    onDoujinshiSelected = {
+                                    onDoujinshiSelected = { id ->
                                         val route = "doujinshiPage/$id"
                                         navController.navigate(route) {
                                             popUpTo(route)
