@@ -32,12 +32,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.nonoka.nhentai.R
-import com.nonoka.nhentai.paging.PagingDataSource
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.shared.LoadingDialog
 import com.nonoka.nhentai.ui.shared.LoadingDialogContent
@@ -63,17 +60,7 @@ fun CollectionPage(
     collectionViewModel: CollectionViewModel = hiltViewModel(),
 ) {
     val coroutineContext = rememberCoroutineScope()
-    val lazyDoujinshis = remember {
-        Pager(
-            PagingConfig(
-                pageSize = 25,
-                prefetchDistance = 5,
-                initialLoadSize = 25,
-            )
-        ) {
-            PagingDataSource(collectionViewModel)
-        }.flow
-    }.collectAsLazyPagingItems()
+    val lazyDoujinshis = collectionViewModel.collectionFlow.collectAsLazyPagingItems()
 
     val galleryState = rememberLazyStaggeredGridState()
 
@@ -236,7 +223,7 @@ private fun Header(
                 collectionViewModel.collectionCountLabel
             }
             Text(
-                text = "Collection ($countLabel)",
+                text = "Collection${if (countLabel.isNotBlank()) " ($countLabel)" else ""}",
                 style = MaterialTheme.typography.headlineLargeStyle.copy(color = White),
                 modifier = Modifier.padding(start = normalSpace)
             )

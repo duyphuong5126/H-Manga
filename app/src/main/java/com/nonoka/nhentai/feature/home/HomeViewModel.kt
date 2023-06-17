@@ -4,10 +4,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.GalleryPageNotExistException
 import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 import com.nonoka.nhentai.paging.PagingDataLoader
+import com.nonoka.nhentai.paging.PagingDataSource
 import com.nonoka.nhentai.ui.shared.model.GalleryUiState
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +26,16 @@ import timber.log.Timber
 class HomeViewModel @Inject constructor(
     private val doujinshiRepository: DoujinshiRepository
 ) : ViewModel(), PagingDataLoader<GalleryUiState> {
+    val lazyDoujinshisFlow = Pager(
+        PagingConfig(
+            pageSize = 25,
+            prefetchDistance = 5,
+            initialLoadSize = 25,
+        )
+    ) {
+        PagingDataSource(this)
+    }.flow.cachedIn(viewModelScope)
+
     val filters = mutableStateListOf<String>()
     val galleryCountLabel = mutableStateOf("")
 

@@ -3,9 +3,12 @@ package com.nonoka.nhentai.feature.collection
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.GalleryPageNotExistException
 import com.nonoka.nhentai.paging.PagingDataLoader
+import com.nonoka.nhentai.paging.PagingDataSource
 import com.nonoka.nhentai.ui.shared.model.GalleryUiState
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +24,16 @@ class CollectionViewModel @Inject constructor(
     private val doujinshiRepository: DoujinshiRepository,
 ) : ViewModel(), PagingDataLoader<GalleryUiState> {
     private val decimalFormat = DecimalFormat("#,###")
+
+    val collectionFlow = Pager(
+        PagingConfig(
+            pageSize = 25,
+            prefetchDistance = 5,
+            initialLoadSize = 25,
+        )
+    ) {
+        PagingDataSource(this)
+    }.flow
 
     val collectionCountLabel = mutableStateOf("")
 

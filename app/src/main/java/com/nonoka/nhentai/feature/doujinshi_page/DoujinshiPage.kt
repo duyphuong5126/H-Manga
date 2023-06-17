@@ -85,7 +85,7 @@ import timber.log.Timber
 @Composable
 fun DoujinshiPage(
     doujinshiId: String,
-    startReading: (Int) -> Unit = {},
+    startReading: (String, Int) -> Unit = { _, _ -> },
     viewModel: DoujinshiViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
 ) {
@@ -120,7 +120,7 @@ fun DoujinshiPage(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clickable {
-                                    startReading(0)
+                                    startReading(doujinshi.id, 0)
                                 },
                         )
 
@@ -350,7 +350,7 @@ fun DoujinshiPage(
                                         .clip(RoundedCornerShape(smallRadius))
                                         .background(Grey31)
                                         .clickable {
-                                            startReading(index)
+                                            startReading(doujinshi.id, index)
                                         },
                                     contentScale = ContentScale.FillBounds
                                 )
@@ -412,14 +412,15 @@ fun DoujinshiPage(
 @Composable
 private fun RecommendedDoujinshis(viewModel: DoujinshiViewModel = hiltViewModel()) {
     val recommendedDoujinshis = viewModel.recommendedDoujinshis
-    Text(
-        text = "Recommended",
-        modifier = Modifier
-            .padding(start = mediumSpace, top = normalSpace),
-        style = MaterialTheme.typography.bodyNormalBold.copy(White),
-    )
 
     if (recommendedDoujinshis.isNotEmpty()) {
+        Text(
+            text = "Recommended",
+            modifier = Modifier
+                .padding(start = mediumSpace, top = normalSpace),
+            style = MaterialTheme.typography.bodyNormalBold.copy(White),
+        )
+
         LazyRow(
             modifier = Modifier
                 .height(308.dp),

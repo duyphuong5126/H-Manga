@@ -152,8 +152,8 @@ class MainActivity : ComponentActivity() {
                                 backStackEntry.arguments?.getString("doujinshiId")?.let { id ->
                                     DoujinshiPage(
                                         doujinshiId = id,
-                                        startReading = { index ->
-                                            navController.navigate("readerPage/$id?pageIndex=$index")
+                                        startReading = { doujinshiId, index ->
+                                            navController.navigate("readerPage/$doujinshiId?pageIndex=$index")
                                         },
                                         onBackPressed = {
                                             navController.popBackStack()

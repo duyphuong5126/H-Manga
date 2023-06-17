@@ -52,13 +52,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
-import com.nonoka.nhentai.paging.PagingDataSource
 import com.nonoka.nhentai.ui.shared.model.GalleryUiState
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.shared.LoadingDialog
@@ -90,17 +87,7 @@ fun HomePage(
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val coroutineContext = rememberCoroutineScope()
-    val lazyDoujinshis = remember {
-        Pager(
-            PagingConfig(
-                pageSize = 25,
-                prefetchDistance = 5,
-                initialLoadSize = 25,
-            )
-        ) {
-            PagingDataSource(homeViewModel)
-        }.flow
-    }.collectAsLazyPagingItems()
+    val lazyDoujinshis = homeViewModel.lazyDoujinshisFlow.collectAsLazyPagingItems()
 
     val galleryState = rememberLazyStaggeredGridState()
     val onRefreshGallery: () -> Unit = {
