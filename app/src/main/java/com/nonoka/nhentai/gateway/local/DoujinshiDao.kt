@@ -11,7 +11,7 @@ import com.nonoka.nhentai.gateway.local.DoujinshiModel.Companion.TABLE_NAME
 
 @Dao
 interface DoujinshiDao {
-    @Query("select * from $TABLE_NAME limit :take offset :skip")
+    @Query("select * from $TABLE_NAME order by rowid desc limit :take offset :skip")
     suspend fun getDoujinshis(skip: Int, take: Int): List<DoujinshiModel>
 
     @Query("select count($ID) > 0 from $TABLE_NAME where $ID = :doujinshiId")

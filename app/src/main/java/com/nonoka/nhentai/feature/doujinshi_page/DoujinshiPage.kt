@@ -107,11 +107,11 @@ fun DoujinshiPage(
         LoadingDialog(message = (mainLoadingState as LoadingUiState.Loading).message)
     }
     val doujinshi = viewModel.doujinshiState.value
-    if (doujinshi != null) {
-        Timber.d("Test>>> rebuild")
-        Scaffold(
-            containerColor = Black
-        ) {
+    Scaffold(
+        containerColor = Black
+    ) {
+        if (doujinshi != null) {
+            Timber.d("Test>>> rebuild")
             LazyColumn(modifier = Modifier.padding(it)) {
                 item {
                     Box(

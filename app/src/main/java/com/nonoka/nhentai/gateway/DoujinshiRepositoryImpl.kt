@@ -19,7 +19,6 @@ class DoujinshiRepositoryImpl @Inject constructor(
     private val doujinshiCacheMap = HashMap<String, Doujinshi>()
     private val recommendedDoujinshisCacheMap = HashMap<String, List<Doujinshi>>()
     private val galleryCacheMap = HashMap<Int, Pair<DoujinshisResult, Long>>()
-    private val collectionCacheMap = HashMap<String, Doujinshi>()
     private var filterString = ""
     override suspend fun getGalleryPage(
         page: Int,
@@ -102,7 +101,7 @@ class DoujinshiRepositoryImpl @Inject constructor(
             numOfPages++
         }
         doujinshiList.forEach {
-            collectionCacheMap[it.id] = it
+            doujinshiCacheMap[it.id] = it
         }
         return DoujinshisResult(
             doujinshiList = doujinshiList,
