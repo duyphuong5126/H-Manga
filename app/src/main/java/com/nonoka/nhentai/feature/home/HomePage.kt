@@ -87,7 +87,8 @@ import timber.log.Timber
 fun HomePage(
     selectedTag: String? = null,
     onDoujinshiSelected: (String) -> Unit = {},
-    homeViewModel: HomeViewModel = hiltViewModel()
+    onSelectedTagApplied: () -> Unit = {},
+    homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val coroutineContext = rememberCoroutineScope()
     val lazyDoujinshis = homeViewModel.lazyDoujinshisFlow.collectAsLazyPagingItems()
@@ -123,6 +124,7 @@ fun HomePage(
         }
     }
 
+    Timber.d("Gallery>>> rebuild with selectedTag=$selectedTag")
     LaunchedEffect(
         key1 = selectedTag,
         block = {
@@ -130,9 +132,9 @@ fun HomePage(
                 homeViewModel.loadingState.value = LoadingUiState.Loading("Searching")
                 coroutineContext.launch {
                     delay(1000)
-                    Timber.d("Gallery>>> refresh with selectedTag=$selectedTag")
                     homeViewModel.addFilter(selectedTag)
                     onRefreshGallery("Searching")
+                    onSelectedTagApplied()
                 }
             }
         },

@@ -120,14 +120,18 @@ class MainActivity : ComponentActivity() {
                             startDestination = Tab.Home.id,
                         ) {
                             composable(Tab.Home.id) { backStackEntry ->
+                                val selectedTag: String? = backStackEntry.savedStateHandle[TAG]
                                 HomePage(
-                                    selectedTag = backStackEntry.savedStateHandle[TAG],
+                                    selectedTag = selectedTag,
                                     onDoujinshiSelected = { id ->
                                         val route = "doujinshiPage/$id"
                                         navController.navigate(route) {
                                             popUpTo(route)
                                         }
                                     },
+                                    onSelectedTagApplied = {
+                                        backStackEntry.savedStateHandle.remove<String>(TAG)
+                                    }
                                 )
                             }
 
