@@ -78,6 +78,7 @@ import com.nonoka.nhentai.ui.theme.normalIconSize
 import com.nonoka.nhentai.ui.theme.normalSpace
 import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.ui.theme.tinySpace
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -92,8 +93,8 @@ fun HomePage(
     val lazyDoujinshis = homeViewModel.lazyDoujinshisFlow.collectAsLazyPagingItems()
 
     val galleryState = rememberLazyStaggeredGridState()
-    val onRefreshGallery: () -> Unit = {
-        homeViewModel.loadingState.value = LoadingUiState.Loading("Refreshing")
+    val onRefreshGallery: (String) -> Unit = {
+        homeViewModel.loadingState.value = LoadingUiState.Loading(it)
         lazyDoujinshis.refresh()
         coroutineContext.launch {
             galleryState.scrollToItem(0)
@@ -126,9 +127,13 @@ fun HomePage(
         key1 = selectedTag,
         block = {
             if (!selectedTag.isNullOrBlank()) {
-                Timber.d("Gallery>>> refresh with selectedTag=$selectedTag")
-                homeViewModel.addFilter(selectedTag)
-                onRefreshGallery()
+                homeViewModel.loadingState.value = LoadingUiState.Loading("Searching")
+                coroutineContext.launch {
+                    delay(1000)
+                    Timber.d("Gallery>>> refresh with selectedTag=$selectedTag")
+                    homeViewModel.addFilter(selectedTag)
+                    onRefreshGallery("Searching")
+                }
             }
         },
     )
@@ -139,7 +144,7 @@ fun HomePage(
 private fun Gallery(
     lazyDoujinshis: LazyPagingItems<GalleryUiState>,
     galleryState: LazyStaggeredGridState,
-    onRefreshGallery: () -> Unit,
+    onRefreshGallery: (String) -> Unit,
     onDoujinshiSelected: (String) -> Unit,
 ) {
     if (lazyDoujinshis.itemCount > 0) {
@@ -217,7 +222,7 @@ private fun Gallery(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Header(
-    onRefreshGallery: () -> Unit,
+    onRefreshGallery: (String) -> Unit,
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -248,7 +253,7 @@ private fun Header(
                     .height(14.dp)
                     .clickable {
                         homeViewModel.clearFilters()
-                        onRefreshGallery()
+                        onRefreshGallery("Refreshing")
                     },
             )
 
@@ -269,7 +274,7 @@ private fun Header(
                         keyboardController?.hide()
                         homeViewModel.addFilter(searchText)
                         searchText = ""
-                        onRefreshGallery()
+                        onRefreshGallery("Searching")
                     }),
                     onValueChange = { newText ->
                         searchText = newText
@@ -320,7 +325,7 @@ private fun GalleryTitle(title: GalleryUiState.Title) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun GalleryHeader(
-    onRefreshGallery: () -> Unit,
+    onRefreshGallery: (String) -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     if (homeViewModel.filters.isNotEmpty() || homeViewModel.galleryCountLabel.value.isNotBlank()) {
@@ -340,7 +345,7 @@ private fun GalleryHeader(
                         },
                         onAnswerYes = {
                             homeViewModel.removeFilter(deleteFilter)
-                            onRefreshGallery()
+                            onRefreshGallery("Refreshing")
                         }
                     )
                 }
@@ -393,7 +398,7 @@ private fun GalleryHeader(
 
 @Composable
 private fun SortOptions(
-    onRefreshGallery: () -> Unit,
+    onRefreshGallery: (String) -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val selectedOption = homeViewModel.sortOption.value
@@ -411,7 +416,7 @@ private fun SortOptions(
                 ),
                 onClick = {
                     homeViewModel.selectSortOption(SortOption.Recent)
-                    onRefreshGallery()
+                    onRefreshGallery("Refreshing")
                 }
             ) {
                 Text(
@@ -453,7 +458,7 @@ private fun SortOptions(
                 ),
                 onClick = {
                     homeViewModel.selectSortOption(SortOption.PopularToday)
-                    onRefreshGallery()
+                    onRefreshGallery("Refreshing")
                 }
             ) {
                 Text(
@@ -474,7 +479,7 @@ private fun SortOptions(
                 ),
                 onClick = {
                     homeViewModel.selectSortOption(SortOption.PopularWeek)
-                    onRefreshGallery()
+                    onRefreshGallery("Refreshing")
                 }
             ) {
                 Text(
@@ -496,7 +501,7 @@ private fun SortOptions(
                 ),
                 onClick = {
                     homeViewModel.selectSortOption(SortOption.PopularAllTime)
-                    onRefreshGallery()
+                    onRefreshGallery("Refreshing")
                 }
             ) {
                 Text(
