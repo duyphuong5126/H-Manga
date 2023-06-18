@@ -39,6 +39,7 @@ import com.nonoka.nhentai.feature.collection.CollectionPage
 import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiPage
 import com.nonoka.nhentai.feature.home.HomePage
 import com.nonoka.nhentai.feature.reader.ReaderPage
+import com.nonoka.nhentai.feature.recommendation.RecommendationPage
 import com.nonoka.nhentai.helper.ClientType
 import com.nonoka.nhentai.helper.WebDataCrawler
 import com.nonoka.nhentai.helper.crawlerMap
@@ -142,7 +143,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable(Tab.Recommendation.id) {
-                                CollectionPage()
+                                RecommendationPage()
                             }
 
                             composable(

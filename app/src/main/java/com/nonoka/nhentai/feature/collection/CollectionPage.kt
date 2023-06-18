@@ -72,9 +72,7 @@ fun CollectionPage(
         }
     }
 
-    val loadingState by remember {
-        collectionViewModel.loadingState
-    }
+    val loadingState by collectionViewModel.loadingState
     if (loadingState is LoadingUiState.Loading) {
         Timber.d("Test>>> Loading dialog: show")
         LoadingDialog(message = (loadingState as LoadingUiState.Loading).message)
