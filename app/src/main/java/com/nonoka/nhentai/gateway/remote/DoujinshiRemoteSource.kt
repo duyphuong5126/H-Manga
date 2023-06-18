@@ -42,15 +42,16 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
     ): DoujinshisResult {
         return suspendCancellableCoroutine { continuation ->
             val url = galleryUrl(page, filters, sortOption)
+            Timber.d("Gallery>>> Start loading gallery $url")
             crawlerMap[ClientType.Gallery]?.load(
                 url = url, onDataReady = { responseUrl, data ->
-                    Timber.d("Test>>> Response of url $responseUrl")
+                    Timber.d("Gallery>>> Response of url $responseUrl")
                     if (continuation.isActive) {
                         if (data.contains(notExistJson)) {
-                            Timber.d("Test>>> Not exist")
+                            Timber.d("Gallery>>> Not exist")
                             continuation.resumeWith(Result.failure(GalleryPageNotExistException()))
                         } else {
-                            Timber.d("Test>>> Exist")
+                            Timber.d("Gallery>>> Exist")
                             continuation.resumeWith(
                                 Result.success(
                                     Gson().fromJson(
@@ -62,7 +63,7 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
                         }
                     }
                 }, onError = { _, error ->
-                    Timber.d("Test>>> error=$error")
+                    Timber.d("Gallery>>> error=$error")
                     continuation.resumeWithException(Throwable(error))
                 }
             )

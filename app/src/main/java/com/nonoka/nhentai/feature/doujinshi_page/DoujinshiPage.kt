@@ -1,5 +1,8 @@
 package com.nonoka.nhentai.feature.doujinshi_page
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,6 +46,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -86,6 +90,7 @@ import timber.log.Timber
 fun DoujinshiPage(
     doujinshiId: String,
     startReading: (String, Int) -> Unit = { _, _ -> },
+    onTagSelected: (String) -> Unit = { _ -> },
     viewModel: DoujinshiViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
 ) {
@@ -192,6 +197,7 @@ fun DoujinshiPage(
                             bottom = mediumSpace
                         )
                     ) {
+                        val context = LocalContext.current
                         Text(
                             text = "ID:",
                             modifier = Modifier
@@ -205,7 +211,13 @@ fun DoujinshiPage(
                                 .padding(end = smallSpace, top = smallSpace)
                                 .clip(RoundedCornerShape(mediumRadius))
                                 .background(Grey31)
-                                .padding(horizontal = mediumSpace, vertical = smallSpace),
+                                .padding(horizontal = mediumSpace, vertical = smallSpace)
+                                .clickable {
+                                    (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
+                                        .setPrimaryClip(
+                                            ClipData.newPlainText("Doujinshi ID", doujinshi.id)
+                                        )
+                                },
                             style = MaterialTheme.typography.bodySmallBold.copy(White),
                             textAlign = TextAlign.Center
                         )
@@ -243,7 +255,10 @@ fun DoujinshiPage(
                                         .padding(end = smallSpace, top = smallSpace)
                                         .clip(RoundedCornerShape(mediumRadius))
                                         .background(Grey31)
-                                        .padding(horizontal = mediumSpace, vertical = smallSpace),
+                                        .padding(horizontal = mediumSpace, vertical = smallSpace)
+                                        .clickable {
+                                            onTagSelected(tag.label)
+                                        },
                                     style = MaterialTheme.typography.bodySmallBold.copy(White),
                                     textAlign = TextAlign.Start
                                 )

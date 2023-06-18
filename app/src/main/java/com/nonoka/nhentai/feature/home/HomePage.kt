@@ -35,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -83,6 +84,7 @@ import timber.log.Timber
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomePage(
+    selectedTag: String? = null,
     onDoujinshiSelected: (String) -> Unit = {},
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -97,9 +99,7 @@ fun HomePage(
             galleryState.scrollToItem(0)
         }
     }
-    val loadingState by remember {
-        homeViewModel.loadingState
-    }
+    val loadingState by homeViewModel.loadingState
     if (loadingState is LoadingUiState.Loading) {
         Timber.d("Test>>> Loading dialog: show")
         LoadingDialog(message = (loadingState as LoadingUiState.Loading).message)
@@ -121,6 +121,17 @@ fun HomePage(
             Gallery(lazyDoujinshis, galleryState, onRefreshGallery, onDoujinshiSelected)
         }
     }
+
+    LaunchedEffect(
+        key1 = selectedTag,
+        block = {
+            if (!selectedTag.isNullOrBlank()) {
+                Timber.d("Gallery>>> refresh with selectedTag=$selectedTag")
+                homeViewModel.addFilter(selectedTag)
+                onRefreshGallery()
+            }
+        },
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)

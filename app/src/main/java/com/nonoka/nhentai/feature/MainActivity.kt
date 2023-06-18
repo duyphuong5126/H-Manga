@@ -34,6 +34,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nonoka.nhentai.R
+import com.nonoka.nhentai.domain.entity.TAG
 import com.nonoka.nhentai.feature.collection.CollectionPage
 import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiPage
 import com.nonoka.nhentai.feature.home.HomePage
@@ -117,8 +118,9 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             startDestination = Tab.Home.id,
                         ) {
-                            composable(Tab.Home.id) {
+                            composable(Tab.Home.id) { backStackEntry ->
                                 HomePage(
+                                    selectedTag = backStackEntry.savedStateHandle[TAG],
                                     onDoujinshiSelected = { id ->
                                         val route = "doujinshiPage/$id"
                                         navController.navigate(route) {
@@ -154,6 +156,13 @@ class MainActivity : ComponentActivity() {
                                         doujinshiId = id,
                                         startReading = { doujinshiId, index ->
                                             navController.navigate("readerPage/$doujinshiId?pageIndex=$index")
+                                        },
+                                        onTagSelected = { tag ->
+                                            navController
+                                                .previousBackStackEntry
+                                                ?.savedStateHandle
+                                                ?.set(TAG, tag)
+                                            navController.popBackStack()
                                         },
                                         onBackPressed = {
                                             navController.popBackStack()

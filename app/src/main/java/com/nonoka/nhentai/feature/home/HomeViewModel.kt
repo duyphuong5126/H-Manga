@@ -72,7 +72,7 @@ class HomeViewModel @Inject constructor(
     }
 
     override suspend fun loadPage(pageIndex: Int): List<GalleryUiState> {
-        Timber.d("Loading page $pageIndex")
+        Timber.d("Gallery>>> Loading page $pageIndex")
         val pageData = ArrayList<GalleryUiState>()
         try {
             val result = doujinshiRepository.getGalleryPage(pageIndex, filters, sortOption.value)

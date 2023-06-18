@@ -10,6 +10,7 @@ import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 import com.nonoka.nhentai.gateway.local.DoujinshiLocalDataSource
 import com.nonoka.nhentai.gateway.remote.DoujinshiRemoteSource
 import javax.inject.Inject
+import timber.log.Timber
 
 class DoujinshiRepositoryImpl @Inject constructor(
     private val remoteSource: DoujinshiRemoteSource,
@@ -32,8 +33,10 @@ class DoujinshiRepositoryImpl @Inject constructor(
         }
         val cacheResult = galleryCacheMap[page]
         return if (cacheResult != null && System.currentTimeMillis() - cacheResult.second < CACHE_DURATION) {
+            Timber.d("Gallery>>> Use cache")
             cacheResult.first
         } else {
+            Timber.d("Gallery>>> Not use cache")
             val remoteResult = remoteSource.loadDoujinshis(page, filters, sortOption)
             galleryCacheMap[page] = Pair(remoteResult, System.currentTimeMillis())
             remoteResult.doujinshiList.forEach {
