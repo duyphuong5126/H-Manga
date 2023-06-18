@@ -50,7 +50,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -71,7 +70,6 @@ import com.nonoka.nhentai.ui.theme.Grey77
 import com.nonoka.nhentai.ui.theme.MainColor
 import com.nonoka.nhentai.ui.theme.White
 import com.nonoka.nhentai.ui.theme.bodyNormalBold
-import com.nonoka.nhentai.ui.theme.bodySmallRegular
 import com.nonoka.nhentai.ui.theme.extraNormalSpace
 import com.nonoka.nhentai.ui.theme.headerHeight
 import com.nonoka.nhentai.ui.theme.mediumRadius
