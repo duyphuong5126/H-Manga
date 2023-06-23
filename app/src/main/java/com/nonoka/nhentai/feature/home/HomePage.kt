@@ -356,7 +356,7 @@ private fun GalleryHeader(
                         modifier = Modifier
                             .padding(end = smallSpace, top = smallSpace)
                             .clip(RoundedCornerShape(mediumRadius))
-                            .background(MainColor)
+                            .background(if (it.startsWith("-")) Grey31 else MainColor)
                             .padding(horizontal = mediumSpace, vertical = smallSpace),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
