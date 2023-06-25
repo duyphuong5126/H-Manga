@@ -64,7 +64,11 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
                     }
                 }, onError = { _, error ->
                     Timber.d("Gallery>>> error=$error")
-                    continuation.resumeWithException(Throwable(error))
+                    if (error == page404NotFoundError) {
+                        continuation.resumeWith(Result.failure(GalleryPageNotExistException()))
+                    } else {
+                        continuation.resumeWithException(Throwable(error))
+                    }
                 }
             )
         }
@@ -172,5 +176,6 @@ class DoujinshiRemoteSourceImpl : DoujinshiRemoteSource {
 
     companion object {
         private const val notExistJson = "{\"error\": \"does not exist\"}"
+        private const val page404NotFoundError = "Http error: 404 - "
     }
 }

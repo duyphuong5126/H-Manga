@@ -111,8 +111,11 @@ class HomeViewModel @Inject constructor(
             }
             finishLoading(pageIndex)
         } catch (error: Throwable) {
+            Timber.d("Gallery>>> load error $error")
             finishLoading(pageIndex)
             if (error is GalleryPageNotExistException) {
+                pageData.add(GalleryUiState.Title("Page ${pageIndex + 1} - Not exist"))
+            } else {
                 throw error
             }
         }
