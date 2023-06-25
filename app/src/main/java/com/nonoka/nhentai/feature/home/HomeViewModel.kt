@@ -8,6 +8,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.nonoka.nhentai.domain.DoujinshiRepository
+import com.nonoka.nhentai.domain.FilterRepository
 import com.nonoka.nhentai.domain.entity.GalleryPageNotExistException
 import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 import com.nonoka.nhentai.paging.PagingDataLoader
@@ -24,7 +25,8 @@ import timber.log.Timber
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val doujinshiRepository: DoujinshiRepository
+    private val doujinshiRepository: DoujinshiRepository,
+    private val filterRepository: FilterRepository,
 ) : ViewModel(), PagingDataLoader<GalleryUiState> {
     val lazyDoujinshisFlow = Pager(
         PagingConfig(
@@ -45,11 +47,20 @@ class HomeViewModel @Inject constructor(
 
     val loadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
 
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            filters.addAll(filterRepository.getActiveFilters())
+        }
+    }
+
     fun addFilter(filter: String) {
         if (filter.isNotBlank()) {
             val normalizedFilter = filter.trim().lowercase()
             if (!filters.contains(normalizedFilter)) {
                 filters.add(normalizedFilter)
+                viewModelScope.launch(Dispatchers.IO) {
+                    filterRepository.activateFilter(normalizedFilter)
+                }
             }
         }
     }
@@ -57,6 +68,9 @@ class HomeViewModel @Inject constructor(
     fun removeFilter(filter: String) {
         val normalizedFilter = filter.trim().lowercase()
         filters.remove(normalizedFilter)
+        viewModelScope.launch(Dispatchers.IO) {
+            filterRepository.deactivateFilter(normalizedFilter)
+        }
         if (filters.isEmpty()) {
             sortOption.value = SortOption.Recent
         }

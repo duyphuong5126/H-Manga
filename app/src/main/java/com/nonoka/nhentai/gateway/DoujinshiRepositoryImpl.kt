@@ -7,7 +7,7 @@ import com.nonoka.nhentai.domain.entity.comment.Comment
 import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 import com.nonoka.nhentai.domain.entity.doujinshi.DoujinshisResult
 import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
-import com.nonoka.nhentai.gateway.local.DoujinshiLocalDataSource
+import com.nonoka.nhentai.gateway.local.datasource.DoujinshiLocalDataSource
 import com.nonoka.nhentai.gateway.remote.DoujinshiRemoteSource
 import javax.inject.Inject
 import timber.log.Timber

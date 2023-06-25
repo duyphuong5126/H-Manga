@@ -1,13 +1,14 @@
-package com.nonoka.nhentai.gateway.local
+package com.nonoka.nhentai.gateway.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.nonoka.nhentai.domain.entity.ID
-import com.nonoka.nhentai.gateway.local.DoujinshiModel.Companion.IS_FAVORITE
-import com.nonoka.nhentai.gateway.local.DoujinshiModel.Companion.LAST_READ_PAGE
-import com.nonoka.nhentai.gateway.local.DoujinshiModel.Companion.TABLE_NAME
+import com.nonoka.nhentai.gateway.local.model.DoujinshiModel
+import com.nonoka.nhentai.gateway.local.model.DoujinshiModel.Companion.IS_FAVORITE
+import com.nonoka.nhentai.gateway.local.model.DoujinshiModel.Companion.LAST_READ_PAGE
+import com.nonoka.nhentai.gateway.local.model.DoujinshiModel.Companion.TABLE_NAME
 
 @Dao
 interface DoujinshiDao {

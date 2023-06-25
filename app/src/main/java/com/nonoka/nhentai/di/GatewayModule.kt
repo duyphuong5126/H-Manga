@@ -3,11 +3,17 @@ package com.nonoka.nhentai.di
 import android.content.Context
 import androidx.room.Room
 import com.nonoka.nhentai.domain.DoujinshiRepository
+import com.nonoka.nhentai.domain.FilterRepository
 import com.nonoka.nhentai.gateway.DoujinshiRepositoryImpl
-import com.nonoka.nhentai.gateway.local.DoujinshiDao
-import com.nonoka.nhentai.gateway.local.DoujinshiLocalDataSource
-import com.nonoka.nhentai.gateway.local.DoujinshiLocalDataSourceImpl
+import com.nonoka.nhentai.gateway.FilterRepositoryImpl
+import com.nonoka.nhentai.gateway.local.MIGRATION_1_2
+import com.nonoka.nhentai.gateway.local.dao.DoujinshiDao
+import com.nonoka.nhentai.gateway.local.datasource.DoujinshiLocalDataSource
+import com.nonoka.nhentai.gateway.local.datasource.DoujinshiLocalDataSourceImpl
+import com.nonoka.nhentai.gateway.local.datasource.FilterLocalDataSource
+import com.nonoka.nhentai.gateway.local.datasource.FilterLocalDataSourceImpl
 import com.nonoka.nhentai.gateway.local.NHentaiDatabase
+import com.nonoka.nhentai.gateway.local.dao.FilterDao
 import com.nonoka.nhentai.gateway.remote.DoujinshiRemoteSource
 import com.nonoka.nhentai.gateway.remote.DoujinshiRemoteSourceImpl
 import dagger.Module
@@ -32,6 +38,11 @@ class GatewayModule {
     }
 
     @Provides
+    fun providesFilterLocalDataSource(filterDao: FilterDao): FilterLocalDataSource {
+        return FilterLocalDataSourceImpl(filterDao)
+    }
+
+    @Provides
     @Singleton
     fun providesDoujinshiRepository(
         remoteSource: DoujinshiRemoteSource,
@@ -41,15 +52,25 @@ class GatewayModule {
     }
 
     @Provides
+    fun providesFilterRepository(localDataSource: FilterLocalDataSource): FilterRepository {
+        return FilterRepositoryImpl(localDataSource)
+    }
+
+    @Provides
     fun providesNHentaiDatabase(@ApplicationContext applicationContext: Context): NHentaiDatabase {
         return Room.databaseBuilder(
             applicationContext,
             NHentaiDatabase::class.java, "nhentai_database"
-        ).build()
+        ).addMigrations(MIGRATION_1_2).build()
     }
 
     @Provides
     fun providesDoujinshiDao(database: NHentaiDatabase): DoujinshiDao {
         return database.doujinshiDao()
+    }
+
+    @Provides
+    fun providesFilterDao(database: NHentaiDatabase): FilterDao {
+        return database.filterDao()
     }
 }

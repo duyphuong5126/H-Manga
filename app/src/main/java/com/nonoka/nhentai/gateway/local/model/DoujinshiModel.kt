@@ -1,10 +1,10 @@
-package com.nonoka.nhentai.gateway.local
+package com.nonoka.nhentai.gateway.local.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.nonoka.nhentai.domain.entity.ID
-import com.nonoka.nhentai.gateway.local.DoujinshiModel.Companion.TABLE_NAME
+import com.nonoka.nhentai.gateway.local.model.DoujinshiModel.Companion.TABLE_NAME
 
 @Entity(tableName = TABLE_NAME)
 data class DoujinshiModel(
