@@ -111,7 +111,7 @@ fun HomePage(
 
     Scaffold(
         topBar = {
-            Header(onRefreshGallery)
+            Header(onRefreshGallery, onDoujinshiSelected)
         },
         containerColor = Black
     ) {
@@ -225,11 +225,29 @@ private fun Gallery(
 @Composable
 private fun Header(
     onRefreshGallery: (String) -> Unit,
+    onDoujinshiSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     var searchText by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    val resetRequestId = remember {
+        mutableStateOf<Long?>(null)
+    }
+    if (resetRequestId.value != null) {
+        YesNoDialog(
+            title = "Reset Gallery",
+            description = "Do you want to clear all filters?",
+            onDismiss = {
+                resetRequestId.value = null
+            },
+            onAnswerYes = {
+                homeViewModel.clearFilters()
+                onRefreshGallery("Refreshing")
+            }
+        )
+    }
 
     Box(
         modifier = modifier
@@ -254,8 +272,7 @@ private fun Header(
                 modifier = Modifier
                     .height(14.dp)
                     .clickable {
-                        homeViewModel.clearFilters()
-                        onRefreshGallery("Refreshing")
+                        resetRequestId.value = System.currentTimeMillis()
                     },
             )
 
@@ -274,9 +291,13 @@ private fun Header(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
                     keyboardActions = KeyboardActions(onGo = {
                         keyboardController?.hide()
-                        homeViewModel.addFilter(searchText)
+                        if (searchText.toLongOrNull() != null) {
+                            onDoujinshiSelected(searchText)
+                        } else {
+                            homeViewModel.addFilter(searchText)
+                            onRefreshGallery("Searching")
+                        }
                         searchText = ""
-                        onRefreshGallery("Searching")
                     }),
                     onValueChange = { newText ->
                         searchText = newText
