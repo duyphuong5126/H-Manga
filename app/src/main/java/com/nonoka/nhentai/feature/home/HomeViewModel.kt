@@ -39,6 +39,7 @@ class HomeViewModel @Inject constructor(
     }.flow.cachedIn(viewModelScope)
 
     val filters = mutableStateListOf<String>()
+    val filterHistory = mutableStateListOf<String>()
     val galleryCountLabel = mutableStateOf("")
 
     val sortOption = mutableStateOf(SortOption.Recent)
@@ -47,9 +48,14 @@ class HomeViewModel @Inject constructor(
 
     val loadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
 
-    init {
+    var isFilterInitialized = false
+
+    var searchTerm = mutableStateOf("")
+
+    fun initFilter() {
         viewModelScope.launch(Dispatchers.IO) {
             filters.addAll(filterRepository.getActiveFilters())
+            filterHistory.addAll(filterRepository.getAllFilters())
         }
     }
 
@@ -61,6 +67,9 @@ class HomeViewModel @Inject constructor(
                 viewModelScope.launch(Dispatchers.IO) {
                     filterRepository.activateFilter(normalizedFilter)
                 }
+            }
+            if (!filterHistory.contains(normalizedFilter)) {
+                filterHistory.add(normalizedFilter)
             }
         }
     }

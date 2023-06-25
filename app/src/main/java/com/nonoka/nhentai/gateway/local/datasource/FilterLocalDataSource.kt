@@ -8,6 +8,7 @@ interface FilterLocalDataSource {
     suspend fun activateFilter(filter: String): Boolean
     suspend fun deactivateFilter(filter: String): Boolean
     suspend fun getActiveFilters(): List<String>
+    suspend fun getAllFilters(): List<String>
 }
 
 class FilterLocalDataSourceImpl @Inject constructor(
@@ -33,5 +34,9 @@ class FilterLocalDataSourceImpl @Inject constructor(
 
     override suspend fun getActiveFilters(): List<String> {
         return filterDao.getActiveFilters().map { it.id }
+    }
+
+    override suspend fun getAllFilters(): List<String> {
+        return filterDao.getAllFilters().map(FilterModel::id)
     }
 }

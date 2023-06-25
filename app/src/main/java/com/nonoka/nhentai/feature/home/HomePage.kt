@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -29,7 +30,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -70,6 +73,7 @@ import com.nonoka.nhentai.ui.theme.Grey77
 import com.nonoka.nhentai.ui.theme.MainColor
 import com.nonoka.nhentai.ui.theme.White
 import com.nonoka.nhentai.ui.theme.bodyNormalBold
+import com.nonoka.nhentai.ui.theme.bodyNormalRegular
 import com.nonoka.nhentai.ui.theme.extraNormalSpace
 import com.nonoka.nhentai.ui.theme.headerHeight
 import com.nonoka.nhentai.ui.theme.mediumRadius
@@ -137,6 +141,13 @@ fun HomePage(
                     onSelectedTagApplied()
                 }
             }
+        },
+    )
+
+    LaunchedEffect(
+        key1 = !homeViewModel.isFilterInitialized,
+        block = {
+            homeViewModel.initFilter()
         },
     )
 }
@@ -213,15 +224,19 @@ private fun Gallery(
     } else if (lazyDoujinshis.loadState.refresh == LoadState.Loading) {
         LoadingDialog(message = "Loading, please wait.")
     } else {
-        Image(
-            modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = R.mipmap.ic_nothing_here_grey),
-            contentDescription = "No data loaded",
-        )
+        Column {
+            GalleryHeader(onRefreshGallery)
+
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                painter = painterResource(id = R.mipmap.ic_nothing_here_grey),
+                contentDescription = "No data loaded",
+            )
+        }
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun Header(
     onRefreshGallery: (String) -> Unit,
@@ -229,7 +244,6 @@ private fun Header(
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
-    var searchText by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val resetRequestId = remember {
@@ -283,37 +297,95 @@ private fun Header(
                     .weight(1f)
                     .clip(RoundedCornerShape(topStart = mediumRadius, bottomStart = mediumRadius))
                     .background(White)
-                    .padding(start = mediumSpace, end = mediumSpace, top = 1.dp)
+                    .padding(start = mediumSpace, end = mediumSpace, top = 5.dp)
             ) {
-                BasicTextField(
-                    modifier = Modifier.align(Alignment.CenterStart),
-                    value = searchText,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-                    keyboardActions = KeyboardActions(onGo = {
-                        keyboardController?.hide()
-                        if (searchText.toLongOrNull() != null) {
-                            onDoujinshiSelected(searchText)
-                        } else {
-                            homeViewModel.addFilter(searchText)
-                            onRefreshGallery("Searching")
-                        }
-                        searchText = ""
-                    }),
-                    onValueChange = { newText ->
-                        searchText = newText
+                val blankSearchTerm = homeViewModel.searchTerm.value.isNotBlank()
+                var dropdownExpanded by remember(key1 = homeViewModel.searchTerm.value) {
+                    mutableStateOf(
+                        blankSearchTerm
+                    )
+                }
+                Timber.d("Dropdown>>> init dropdown expanded=$dropdownExpanded, search term=${homeViewModel.searchTerm.value}")
+                ExposedDropdownMenuBox(
+                    expanded = dropdownExpanded,
+                    onExpandedChange = {
+                        Timber.d("Dropdown>>> onExpandedChange=$dropdownExpanded")
+                        dropdownExpanded = it
                     },
-                    maxLines = 1,
-                    decorationBox = { innerTextField ->
-                        if (searchText.isBlank()) {
-                            Text(
-                                text = "e.g. tag:\"lolicon\" pages:>9 -bald",
-                                style = MaterialTheme.typography.bodyMedium.copy(color = Grey400),
-                            )
+
+                    ) {
+                    BasicTextField(
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .menuAnchor()
+                            .fillMaxWidth(),
+                        value = homeViewModel.searchTerm.value,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
+                        keyboardActions = KeyboardActions(
+                            onGo = {
+                                keyboardController?.hide()
+                                if (homeViewModel.searchTerm.value.toLongOrNull() != null) {
+                                    onDoujinshiSelected(homeViewModel.searchTerm.value)
+                                } else {
+                                    homeViewModel.addFilter(homeViewModel.searchTerm.value)
+                                    onRefreshGallery("Searching")
+                                }
+                                homeViewModel.searchTerm.value = ""
+                            },
+                        ),
+                        onValueChange = { newText ->
+                            homeViewModel.searchTerm.value = newText
+                        },
+                        maxLines = 1,
+                        decorationBox = { innerTextField ->
+                            if (homeViewModel.searchTerm.value.isBlank()) {
+                                Text(
+                                    text = "e.g. tag:\"lolicon\" pages:>9 -bald",
+                                    style = MaterialTheme.typography.bodyMedium.copy(color = Grey400),
+                                )
+                            }
+                            innerTextField()
+                        },
+                        textStyle = MaterialTheme.typography.bodyMedium
+                    )
+
+                    // filter options based on text field value (i.e. crude autocomplete)
+                    val selectedOption = homeViewModel.searchTerm.value.trim().lowercase()
+                    val filterOptions = if (selectedOption.isNotBlank())
+                        homeViewModel.filterHistory.filter { it.contains(selectedOption) } else emptyList()
+                    Timber.d("Dropdown>>> filterOptions=$filterOptions, dropdownExpanded=$dropdownExpanded")
+                    if (filterOptions.isNotEmpty()) {
+                        ExposedDropdownMenu(
+                            modifier = Modifier
+                                .background(White)
+                                .exposedDropdownSize(matchTextFieldWidth = true),
+                            expanded = dropdownExpanded,
+                            onDismissRequest = {
+                                Timber.d("Dropdown>>> onDismissRequest=$dropdownExpanded")
+                                dropdownExpanded = false
+                            },
+                        ) {
+                            filterOptions.forEach { option ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            option,
+                                            style = MaterialTheme.typography.bodyNormalRegular,
+                                        )
+                                    },
+                                    onClick = {
+                                        Timber.d("Dropdown>>> onClick=$dropdownExpanded")
+                                        keyboardController?.hide()
+                                        homeViewModel.addFilter(option)
+                                        onRefreshGallery("Searching")
+                                        homeViewModel.searchTerm.value = ""
+                                        dropdownExpanded = false
+                                    }
+                                )
+                            }
                         }
-                        innerTextField()
-                    },
-                    textStyle = MaterialTheme.typography.bodyMedium
-                )
+                    }
+                }
             }
             TextButton(
                 modifier = Modifier

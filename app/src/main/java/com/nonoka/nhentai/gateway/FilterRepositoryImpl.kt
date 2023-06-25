@@ -14,4 +14,6 @@ class FilterRepositoryImpl @Inject constructor(
         filterLocalDataSource.deactivateFilter(filter)
 
     override suspend fun getActiveFilters(): List<String> = filterLocalDataSource.getActiveFilters()
+
+    override suspend fun getAllFilters(): List<String> = filterLocalDataSource.getAllFilters()
 }

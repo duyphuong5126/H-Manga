@@ -17,6 +17,9 @@ interface FilterDao {
     @Query("select * from $TABLE_NAME where $IS_ACTIVE = 1 order by rowid")
     suspend fun getActiveFilters(): List<FilterModel>
 
+    @Query("select * from $TABLE_NAME order by rowid")
+    suspend fun getAllFilters(): List<FilterModel>
+
     @Query("select count($ID) > 0 from $TABLE_NAME where $ID = :filter")
     suspend fun hasFilter(filter: String): Boolean
 
