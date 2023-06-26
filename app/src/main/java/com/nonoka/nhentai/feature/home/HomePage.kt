@@ -143,13 +143,6 @@ fun HomePage(
             }
         },
     )
-
-    LaunchedEffect(
-        key1 = !homeViewModel.isFilterInitialized,
-        block = {
-            homeViewModel.initFilter()
-        },
-    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)

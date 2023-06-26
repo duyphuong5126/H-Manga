@@ -48,14 +48,16 @@ class HomeViewModel @Inject constructor(
 
     val loadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
 
-    var isFilterInitialized = false
-
     var searchTerm = mutableStateOf("")
 
-    fun initFilter() {
+    init {
         viewModelScope.launch(Dispatchers.IO) {
-            filters.addAll(filterRepository.getActiveFilters())
-            filterHistory.addAll(filterRepository.getAllFilters())
+            try {
+                filters.addAll(filterRepository.getActiveFilters())
+                filterHistory.addAll(filterRepository.getAllFilters())
+            } catch (error: Throwable) {
+                Timber.d("Gallery>>> failed to init filters with error $error")
+            }
         }
     }
 
