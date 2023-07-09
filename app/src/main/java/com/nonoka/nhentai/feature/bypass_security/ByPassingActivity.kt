@@ -1,6 +1,7 @@
 package com.nonoka.nhentai.feature.bypass_security
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -8,12 +9,17 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.DrawableImageViewTarget
+import com.bumptech.glide.request.target.Target
+import com.nonoka.nhentai.R
 import com.nonoka.nhentai.databinding.ActivityByPassingBinding
 import com.nonoka.nhentai.feature.MainActivity
 import com.nonoka.nhentai.helper.ClientType
 import com.nonoka.nhentai.helper.crawlerMap
 import kotlinx.coroutines.launch
 import timber.log.Timber
+
 
 class ByPassingActivity : ComponentActivity() {
     private val viewModel by viewModels<ByPassingSecurityViewModel>()
@@ -42,11 +48,15 @@ class ByPassingActivity : ComponentActivity() {
             viewModel.onRetry()
         }
 
+        val imageViewTarget = DrawableImageViewTarget(viewBinding.loadingImage)
+        Glide.with(viewBinding.loadingImage.context)
+            .load(R.drawable.ic_loading_cat_transparent)
+            .into<Target<Drawable>>(imageViewTarget)
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.byPassingResult.collect { result ->
                     Timber.d("result=$result")
-                    viewBinding.message.text = result.label
                     val isLoading =
                         result == ByPassingResult.Loading || result == ByPassingResult.Processing
                     viewBinding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE

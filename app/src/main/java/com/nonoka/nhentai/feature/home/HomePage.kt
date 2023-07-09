@@ -165,6 +165,13 @@ private fun Gallery(
             content = {
                 items(
                     count = lazyDoujinshis.itemCount + 2,
+                    contentType = { index ->
+                        when {
+                            index == 0 -> 0
+                            index <= lazyDoujinshis.itemCount -> 1
+                            else -> 2
+                        }
+                    },
                     key = { index ->
                         when {
                             index == 0 -> "Scrollable header"
@@ -205,10 +212,12 @@ private fun Gallery(
                         }
 
                         else -> {
-                            LoadingDialogContent(
-                                modifier = Modifier.padding(bottom = mediumSpace),
-                                message = "Loading, please wait."
-                            )
+                            if (!lazyDoujinshis.loadState.prepend.endOfPaginationReached && !lazyDoujinshis.loadState.append.endOfPaginationReached) {
+                                LoadingDialogContent(
+                                    modifier = Modifier.padding(bottom = mediumSpace),
+                                    message = "Loading, please wait."
+                                )
+                            }
                         }
                     }
                 }
