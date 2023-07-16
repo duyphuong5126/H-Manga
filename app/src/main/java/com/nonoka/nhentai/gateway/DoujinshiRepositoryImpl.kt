@@ -125,6 +125,10 @@ class DoujinshiRepositoryImpl @Inject constructor(
         return localDataSource.setReadDoujinshi(doujinshi, lastReadPage)
     }
 
+    override suspend fun getLastReadPageIndex(doujinshiId: String): Resource<Int> {
+        return localDataSource.getLastReadPageIndex(doujinshiId)
+    }
+
     companion object {
         private const val CACHE_DURATION = 60000
 

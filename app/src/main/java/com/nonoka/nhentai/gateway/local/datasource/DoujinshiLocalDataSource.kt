@@ -1,6 +1,7 @@
 package com.nonoka.nhentai.gateway.local.datasource
 
 import com.google.gson.Gson
+import com.nonoka.nhentai.domain.Resource
 import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 import com.nonoka.nhentai.gateway.local.dao.DoujinshiDao
 import com.nonoka.nhentai.gateway.local.model.DoujinshiModel
@@ -12,6 +13,8 @@ interface DoujinshiLocalDataSource {
     suspend fun getDoujinshis(skip: Int, take: Int): List<Doujinshi>
 
     suspend fun setReadDoujinshi(doujinshi: Doujinshi, lastReadPage: Int?): Boolean
+
+    suspend fun getLastReadPageIndex(doujinshiId: String): Resource<Int>
 
     suspend fun setFavoriteDoujinshi(doujinshi: Doujinshi, isFavorite: Boolean): Boolean
 
@@ -45,6 +48,14 @@ class DoujinshiLocalDataSourceImpl @Inject constructor(
                     isDownloaded = false
                 ),
             ).isNotEmpty()
+        }
+    }
+
+    override suspend fun getLastReadPageIndex(doujinshiId: String): Resource<Int> {
+        return try {
+            Resource.Success(doujinshiDao.getLastReadPage(doujinshiId) ?: -1)
+        } catch (error: Throwable) {
+            Resource.Error(error)
         }
     }
 

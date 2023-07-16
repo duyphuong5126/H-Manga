@@ -27,6 +27,9 @@ interface DoujinshiDao {
     @Query("update $TABLE_NAME set $LAST_READ_PAGE = :lastReadPage where $ID = :doujinshiId")
     suspend fun updateLastReadPage(doujinshiId: String, lastReadPage: Int? = null): Int
 
+    @Query("select $LAST_READ_PAGE from $TABLE_NAME where $ID = :doujinshiId")
+    suspend fun getLastReadPage(doujinshiId: String): Int?
+
     @Query("update $TABLE_NAME set $IS_FAVORITE = :isFavorite where $ID = :doujinshiId")
     suspend fun updateFavoriteStatus(doujinshiId: String, isFavorite: Boolean): Int
 

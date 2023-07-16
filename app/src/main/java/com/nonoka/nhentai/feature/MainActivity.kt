@@ -34,6 +34,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nonoka.nhentai.R
+import com.nonoka.nhentai.domain.entity.PAGE_INDEX
 import com.nonoka.nhentai.domain.entity.TAG
 import com.nonoka.nhentai.feature.collection.CollectionPage
 import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiPage
@@ -157,6 +158,9 @@ class MainActivity : ComponentActivity() {
                                 })
                             ) { backStackEntry ->
                                 backStackEntry.arguments?.getString("doujinshiId")?.let { id ->
+                                    val pageIndex: Int? =
+                                        backStackEntry.savedStateHandle[PAGE_INDEX]
+                                    backStackEntry.savedStateHandle.remove<String>(PAGE_INDEX)
                                     DoujinshiPage(
                                         doujinshiId = id,
                                         startReading = { doujinshiId, index ->
@@ -171,7 +175,8 @@ class MainActivity : ComponentActivity() {
                                         },
                                         onBackPressed = {
                                             navController.popBackStack()
-                                        }
+                                        },
+                                        lastReadPage = pageIndex,
                                     )
                                 }
                             }
@@ -192,9 +197,15 @@ class MainActivity : ComponentActivity() {
                                         doujinshiId = id,
                                         startIndex = backStackEntry.arguments?.getInt("pageIndex")
                                             ?: -1,
-                                        onBackPressed = {
+                                        onCustomBackPressed = {
                                             navController.popBackStack()
                                         },
+                                        onPageSelected = { index ->
+                                            navController
+                                                .previousBackStackEntry
+                                                ?.savedStateHandle
+                                                ?.set(PAGE_INDEX, index)
+                                        }
                                     )
                                 }
                             }

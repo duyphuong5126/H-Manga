@@ -26,6 +26,8 @@ interface DoujinshiRepository {
 
     suspend fun setReadDoujinshi(doujinshi: Doujinshi, lastReadPage: Int?): Boolean
 
+    suspend fun getLastReadPageIndex(doujinshiId: String): Resource<Int>
+
     suspend fun setFavoriteDoujinshi(doujinshi: Doujinshi, isFavorite: Boolean): Boolean
 
     suspend fun setDownloadedDoujinshi(doujinshi: Doujinshi, isDownloaded: Boolean): Boolean

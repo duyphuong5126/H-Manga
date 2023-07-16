@@ -55,3 +55,5 @@ const val IS_SUPER_USER = "is_superuser"
 const val IS_STAFF = "is_staff"
 const val POST_DATE = "post_date"
 const val BODY = "body"
+
+const val PAGE_INDEX = "page_index"

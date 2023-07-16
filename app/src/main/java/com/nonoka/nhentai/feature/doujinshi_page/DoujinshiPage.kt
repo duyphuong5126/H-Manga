@@ -83,7 +83,6 @@ import com.nonoka.nhentai.ui.theme.mediumPlusSpace
 import com.nonoka.nhentai.ui.theme.normalIconSize
 import com.nonoka.nhentai.ui.theme.smallRadius
 import java.text.DecimalFormat
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -93,6 +92,7 @@ fun DoujinshiPage(
     onTagSelected: (String) -> Unit = { _ -> },
     viewModel: DoujinshiViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
+    lastReadPage: Int? = null,
 ) {
     LaunchedEffect(
         key1 = doujinshiId,
@@ -100,6 +100,16 @@ fun DoujinshiPage(
             viewModel.init(doujinshiId)
         },
     )
+
+    LaunchedEffect(
+        key1 = lastReadPage,
+        block = {
+            if (lastReadPage != null) {
+                viewModel.loadLastReadPageIndex(doujinshiId)
+            }
+        },
+    )
+
     val mainLoadingState by remember {
         viewModel.mainLoadingState
     }
@@ -111,7 +121,6 @@ fun DoujinshiPage(
         containerColor = Black
     ) {
         if (doujinshi != null) {
-            Timber.d("Test>>> rebuild")
             LazyColumn(modifier = Modifier.padding(it)) {
                 item {
                     Box(
@@ -355,31 +364,35 @@ fun DoujinshiPage(
                         contentPadding = PaddingValues(horizontal = mediumSpace)
                     ) {
                         items(count = doujinshi.previewThumbnails.size) { index ->
-                            Box(contentAlignment = Alignment.BottomCenter) {
-                                AsyncImage(
-                                    model = doujinshi.previewThumbnails[index],
-                                    contentDescription = "Thumbnail of ${doujinshi.id}",
-                                    modifier = Modifier
-                                        .height(200.dp)
-                                        .width(150.dp)
-                                        .clip(RoundedCornerShape(smallRadius))
-                                        .background(Grey31)
-                                        .clickable {
-                                            startReading(doujinshi.id, index)
-                                        },
-                                    contentScale = ContentScale.FillBounds
-                                )
+                            PageThumbnail(
+                                doujinshiId = doujinshi.id,
+                                thumbnailUrl = doujinshi.previewThumbnails[index],
+                                index = index,
+                                startReading = startReading
+                            )
+                        }
+                    }
+                }
 
-                                Text(
-                                    modifier = Modifier
-                                        .width(150.dp)
-                                        .background(Black59)
-                                        .padding(vertical = smallSpace),
-                                    text = "${index + 1}",
-                                    style = MaterialTheme.typography.bodySmallBold.copy(color = White),
-                                    textAlign = TextAlign.Center,
-                                )
-                            }
+                val lastReadPageIndex = viewModel.lastReadPageIndex.value
+                if (lastReadPageIndex != null && lastReadPageIndex >= 0) {
+                    item {
+                        Text(
+                            text = "Continue reading",
+                            modifier = Modifier
+                                .padding(start = mediumSpace, top = normalSpace),
+                            style = MaterialTheme.typography.bodyNormalBold.copy(White),
+                        )
+                    }
+
+                    item {
+                        Box(modifier = Modifier.padding(start = mediumSpace, top = mediumSpace)) {
+                            PageThumbnail(
+                                doujinshiId = doujinshi.id,
+                                thumbnailUrl = doujinshi.previewThumbnails[lastReadPageIndex],
+                                index = lastReadPageIndex,
+                                startReading = startReading
+                            )
                         }
                     }
                 }
@@ -522,5 +535,39 @@ private fun Comment(comment: CommentState, index: Int) {
                 style = MaterialTheme.typography.captionRegular.copy(color = Grey31)
             )
         }
+    }
+}
+
+@Composable
+fun PageThumbnail(
+    doujinshiId: String,
+    thumbnailUrl: String,
+    index: Int,
+    startReading: (String, Int) -> Unit,
+) {
+    Box(contentAlignment = Alignment.BottomCenter) {
+        AsyncImage(
+            model = thumbnailUrl,
+            contentDescription = "Thumbnail of $doujinshiId",
+            modifier = Modifier
+                .height(200.dp)
+                .width(150.dp)
+                .clip(RoundedCornerShape(smallRadius))
+                .background(Grey31)
+                .clickable {
+                    startReading(doujinshiId, index)
+                },
+            contentScale = ContentScale.FillBounds
+        )
+
+        Text(
+            modifier = Modifier
+                .width(150.dp)
+                .background(Black59)
+                .padding(vertical = smallSpace),
+            text = "${index + 1}",
+            style = MaterialTheme.typography.bodySmallBold.copy(color = White),
+            textAlign = TextAlign.Center,
+        )
     }
 }

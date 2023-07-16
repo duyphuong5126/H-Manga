@@ -80,7 +80,8 @@ const val thumbnailScrollOffset = 2
 @Composable
 fun ReaderPage(
     doujinshiId: String,
-    onBackPressed: () -> Unit,
+    onCustomBackPressed: () -> Unit,
+    onPageSelected: (Int) -> Unit,
     startIndex: Int = -1,
     viewModel: ReaderViewModel = hiltViewModel(),
 ) {
@@ -104,6 +105,7 @@ fun ReaderPage(
                         coroutineContext.launch {
                             thumbnailListState.scrollToItem(if (index - thumbnailScrollOffset >= 0) index - thumbnailScrollOffset else index)
                         }
+                        onPageSelected(index)
                     },
                 )
 
@@ -124,7 +126,7 @@ fun ReaderPage(
                         },
                     )
                 ) {
-                    TopBar(readerState, onBackPressed)
+                    TopBar(readerState, onCustomBackPressed)
                 }
 
                 AnimatedVisibility(

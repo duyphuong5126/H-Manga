@@ -61,13 +61,13 @@ class DoujinshiViewModel @Inject constructor(
 
     val recommendedDoujinshis = mutableStateListOf<DoujinshiItem>()
     val comments = mutableStateListOf<CommentState>()
+    val lastReadPageIndex = mutableStateOf<Int?>(null)
 
     val mainLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
     val recommendationLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
     val commentLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
 
     fun init(doujinshiId: String) {
-        Timber.d("Test>>> Load doujinshi $doujinshiId")
         mainLoadingState.value = LoadingUiState.Loading("Loading, please wait")
         viewModelScope.launch(Dispatchers.Main) {
             doujinshiRepository.getDoujinshi(doujinshiId)
@@ -75,16 +75,15 @@ class DoujinshiViewModel @Inject constructor(
                     processDoujinshiData(it)
                     loadRecommendedDoujinshis(it.id)
                     loadComments(it.id)
+                    loadLastReadPageIndex(it.id)
                 }
                 .doOnError {
-                    Timber.e("Test>>> Failed to load doujinshi $doujinshiId with error $it")
                     mainLoadingState.value = LoadingUiState.Idle
                 }
         }
     }
 
     private fun processDoujinshiData(doujinshi: Doujinshi) {
-        Timber.d("Test>>> Loaded doujinshi ${doujinshi.id}")
         mainLoadingState.value = LoadingUiState.Idle
         viewModelScope.launch(Dispatchers.Default) {
             val artistCount = doujinshi.tags
@@ -129,7 +128,6 @@ class DoujinshiViewModel @Inject constructor(
             recommendationLoadingState.value = LoadingUiState.Loading("Loading...")
             recommendedDoujinshis.clear()
             doujinshiRepository.getRecommendedDoujinshis(doujinshiId).doOnSuccess {
-                Timber.d("Test>>> loaded recommendation of $doujinshiId")
                 viewModelScope.launch(Dispatchers.Default) {
                     recommendedDoujinshis.addAll(
                         it.map(::DoujinshiItem),
@@ -165,8 +163,19 @@ class DoujinshiViewModel @Inject constructor(
                 }
                 commentLoadingState.value = LoadingUiState.Idle
             }.doOnError {
-                Timber.d("Comments>>> failed with error =$it")
                 commentLoadingState.value = LoadingUiState.Idle
+            }
+        }
+    }
+
+    fun loadLastReadPageIndex(doujinshiId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            doujinshiRepository.getLastReadPageIndex(doujinshiId).doOnSuccess {
+                if (it >= 0) {
+                    lastReadPageIndex.value = it
+                }
+            }.doOnError {
+                Timber.e("Could not load last read page index with error $it")
             }
         }
     }
