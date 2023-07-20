@@ -5,6 +5,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.google.gson.JsonParser
 import org.apache.commons.text.StringEscapeUtils
 import timber.log.Timber
 
@@ -31,7 +32,13 @@ class WebDataCrawler : WebViewClient() {
                 override fun onComplete(requestId: Long) {
                     Timber.d("onComplete of $url")
                     webview.evaluateJavascript(HTML_PARSE_SCRIPT) { rawData ->
-                        onDataReady(url, cleanUpJson(rawData))
+                        val cleanData = cleanUpHtmlTags(rawData)
+                        try {
+                            JsonParser().parse(cleanData)
+                            onDataReady(url, cleanData)
+                        } catch (error: Throwable) {
+                            onError(url, error.message.orEmpty())
+                        }
                     }
                 }
             },
@@ -80,19 +87,19 @@ class WebDataCrawler : WebViewClient() {
         val callbacks = dataReadyCallbacks[url] ?: arrayListOf()
         while (callbacks.isNotEmpty()) {
             val callback = callbacks.removeFirst()
-            Timber.e("Test>>> callback=${callback.hashCode()}")
             callback.invoke(url, data)
         }
     }
 
     private fun onError(url: String, error: String) {
+        Timber.e("Test>>> crawler loaded url=$url, error=$error")
         val callbacks = errorCallbacks[url] ?: arrayListOf()
         while (callbacks.isNotEmpty()) {
             callbacks.removeFirst().invoke(url, error)
         }
     }
 
-    private fun cleanUpJson(rawData: String): String {
+    private fun cleanUpHtmlTags(rawData: String): String {
         return StringEscapeUtils.unescapeJson(
             rawData.replace("\"\\u003Chtml>", "")
                 .replace("\\u003C/html>\"", ""),
