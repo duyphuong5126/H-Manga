@@ -179,4 +179,21 @@ class DoujinshiViewModel @Inject constructor(
             }
         }
     }
+
+    fun resetLastReadPage(doujinshiId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            doujinshiRepository.getDoujinshi(doujinshiId).doOnSuccess {
+                try {
+                    val updateSuccess = doujinshiRepository.setReadDoujinshi(it, null)
+                    if (updateSuccess) {
+                        lastReadPageIndex.value = null
+                    }
+                } catch (error: Throwable) {
+                    Timber.e("Could not load last read page index with error $error")
+                }
+            }.doOnError {
+                Timber.e("Could not load last read page index with error $it")
+            }
+        }
+    }
 }

@@ -38,10 +38,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -59,6 +61,7 @@ import com.nonoka.nhentai.R
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.shared.LoadingDialog
 import com.nonoka.nhentai.ui.shared.LoadingDialogContent
+import com.nonoka.nhentai.ui.shared.YesNoDialog
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import com.nonoka.nhentai.ui.theme.Black
 import com.nonoka.nhentai.ui.theme.Black95
@@ -377,12 +380,44 @@ fun DoujinshiPage(
                 val lastReadPageIndex = viewModel.lastReadPageIndex.value
                 if (lastReadPageIndex != null && lastReadPageIndex >= 0) {
                     item {
-                        Text(
-                            text = "Continue reading",
-                            modifier = Modifier
-                                .padding(start = mediumSpace, top = normalSpace),
-                            style = MaterialTheme.typography.bodyNormalBold.copy(White),
-                        )
+                        val resetRequestId = remember {
+                            mutableStateOf<Long?>(null)
+                        }
+                        Row(
+                            verticalAlignment = Alignment.Bottom,
+                        ) {
+                            Text(
+                                text = "Continue reading",
+                                modifier = Modifier
+                                    .padding(start = mediumSpace, top = normalSpace),
+                                style = MaterialTheme.typography.bodyNormalBold.copy(White),
+                            )
+
+                            if (resetRequestId.value != null) {
+                                YesNoDialog(
+                                    title = "Delete Reading History",
+                                    description = "Do you want to delete your reading history?",
+                                    onDismiss = {
+                                        resetRequestId.value = null
+                                    },
+                                    onAnswerYes = {
+                                        viewModel.resetLastReadPage(doujinshiId)
+                                    }
+                                )
+                            }
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_un_seen),
+                                contentDescription = "Delete reading history",
+                                colorFilter = ColorFilter.tint(MainColor),
+                                modifier = Modifier
+                                    .padding(start = smallSpace)
+                                    .height(24.dp)
+                                    .scale(0.8f)
+                                    .clickable {
+                                        resetRequestId.value = System.currentTimeMillis()
+                                    },
+                            )
+                        }
                     }
 
                     item {
