@@ -72,10 +72,10 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                                 val currentDestination = navBackStackEntry?.destination
-                                val parentEntry = remember(navBackStackEntry) {
+                                val homeEntry = remember(navBackStackEntry) {
                                     navController.getBackStackEntry(Tab.Home.id)
                                 }
-                                val homeViewModel: HomeViewModel = hiltViewModel(parentEntry)
+                                val homeViewModel: HomeViewModel = hiltViewModel(homeEntry)
 
                                 Tab.values().forEach { tab ->
                                     val isSelected = currentDestination?.route == tab.id
