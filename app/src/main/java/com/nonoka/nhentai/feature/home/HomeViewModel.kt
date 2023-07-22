@@ -50,6 +50,8 @@ class HomeViewModel @Inject constructor(
 
     var searchTerm = mutableStateOf("")
 
+    var reset = mutableStateOf(false)
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             try {

@@ -100,10 +100,10 @@ fun HomePage(
     val galleryState = rememberLazyStaggeredGridState()
     val onRefreshGallery: (String) -> Unit = {
         homeViewModel.loadingState.value = LoadingUiState.Loading(it)
-        lazyDoujinshis.refresh()
         coroutineContext.launch {
             galleryState.scrollToItem(0)
         }
+        lazyDoujinshis.refresh()
     }
     val loadingState by homeViewModel.loadingState
     if (loadingState is LoadingUiState.Loading) {
@@ -111,6 +111,11 @@ fun HomePage(
         LoadingDialog(message = (loadingState as LoadingUiState.Loading).message)
     } else {
         Timber.d("Test>>> Loading dialog: not show")
+    }
+    val reset by homeViewModel.reset
+    if (reset) {
+        onRefreshGallery("Refreshing")
+        homeViewModel.reset.value = false
     }
 
     Scaffold(

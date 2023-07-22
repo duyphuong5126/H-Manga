@@ -21,10 +21,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -39,6 +41,7 @@ import com.nonoka.nhentai.domain.entity.TAG
 import com.nonoka.nhentai.feature.collection.CollectionPage
 import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiPage
 import com.nonoka.nhentai.feature.home.HomePage
+import com.nonoka.nhentai.feature.home.HomeViewModel
 import com.nonoka.nhentai.feature.reader.ReaderPage
 import com.nonoka.nhentai.feature.recommendation.RecommendationPage
 import com.nonoka.nhentai.helper.ClientType
@@ -69,6 +72,10 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                                 val currentDestination = navBackStackEntry?.destination
+                                val parentEntry = remember(navBackStackEntry) {
+                                    navController.getBackStackEntry(Tab.Home.id)
+                                }
+                                val homeViewModel: HomeViewModel = hiltViewModel(parentEntry)
 
                                 Tab.values().forEach { tab ->
                                     val isSelected = currentDestination?.route == tab.id
@@ -89,6 +96,9 @@ class MainActivity : ComponentActivity() {
                                             alpha = ContentAlpha.disabled
                                         ),
                                         onClick = {
+                                            val resetTab =
+                                                tab.id == navController.currentDestination?.route
+                                            homeViewModel.reset.value = resetTab
                                             navController.navigate(tab.id) {
                                                 // Pop up to the start destination of the graph to
                                                 // avoid building up a large stack of destinations
@@ -121,6 +131,10 @@ class MainActivity : ComponentActivity() {
                             startDestination = Tab.Home.id,
                         ) {
                             composable(Tab.Home.id) { backStackEntry ->
+                                val parentEntry = remember(backStackEntry) {
+                                    navController.getBackStackEntry(Tab.Home.id)
+                                }
+                                val homeViewModel: HomeViewModel = hiltViewModel(parentEntry)
                                 val selectedTag: String? = backStackEntry.savedStateHandle[TAG]
                                 HomePage(
                                     selectedTag = selectedTag,
@@ -132,7 +146,8 @@ class MainActivity : ComponentActivity() {
                                     },
                                     onSelectedTagApplied = {
                                         backStackEntry.savedStateHandle.remove<String>(TAG)
-                                    }
+                                    },
+                                    homeViewModel = homeViewModel
                                 )
                             }
 
