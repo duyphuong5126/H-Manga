@@ -17,7 +17,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @HiltViewModel
 class CollectionViewModel @Inject constructor(
@@ -40,7 +39,6 @@ class CollectionViewModel @Inject constructor(
     val loadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
 
     override suspend fun loadPage(pageIndex: Int): List<GalleryUiState> {
-        Timber.d("Loading page $pageIndex")
         val pageData = ArrayList<GalleryUiState>()
         try {
             val result = doujinshiRepository.getCollectionPage(pageIndex)
@@ -52,7 +50,7 @@ class CollectionViewModel @Inject constructor(
                 pageData.addAll(resultList)
 
                 collectionCountLabel.value =
-                    decimalFormat.format(doujinshiRepository.getDoujinshiCount())
+                    decimalFormat.format(doujinshiRepository.getCollectionSize())
             }
             finishLoading(pageIndex)
         } catch (error: Throwable) {

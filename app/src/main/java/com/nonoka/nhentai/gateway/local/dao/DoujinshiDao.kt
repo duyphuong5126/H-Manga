@@ -6,20 +6,21 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.nonoka.nhentai.domain.entity.ID
 import com.nonoka.nhentai.gateway.local.model.DoujinshiModel
+import com.nonoka.nhentai.gateway.local.model.DoujinshiModel.Companion.IS_DOWNLOADED
 import com.nonoka.nhentai.gateway.local.model.DoujinshiModel.Companion.IS_FAVORITE
 import com.nonoka.nhentai.gateway.local.model.DoujinshiModel.Companion.LAST_READ_PAGE
 import com.nonoka.nhentai.gateway.local.model.DoujinshiModel.Companion.TABLE_NAME
 
 @Dao
 interface DoujinshiDao {
-    @Query("select * from $TABLE_NAME order by rowid desc limit :take offset :skip")
-    suspend fun getDoujinshis(skip: Int, take: Int): List<DoujinshiModel>
+    @Query("select * from $TABLE_NAME where $LAST_READ_PAGE is not null or $IS_FAVORITE = 1 or $IS_DOWNLOADED = 1 order by rowid desc limit :take offset :skip")
+    suspend fun getCollectedDoujinshis(skip: Int, take: Int): List<DoujinshiModel>
 
     @Query("select count($ID) > 0 from $TABLE_NAME where $ID = :doujinshiId")
     suspend fun hasDoujinshi(doujinshiId: String): Boolean
 
-    @Query("select count($ID) from $TABLE_NAME")
-    suspend fun countDoujinshi(): Long
+    @Query("select count($ID) from $TABLE_NAME where $LAST_READ_PAGE is not null or $IS_FAVORITE = 1 or $IS_DOWNLOADED = 1")
+    suspend fun countCollectedDoujinshis(): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addDoujinshi(vararg doujinshiModels: DoujinshiModel): List<Long>

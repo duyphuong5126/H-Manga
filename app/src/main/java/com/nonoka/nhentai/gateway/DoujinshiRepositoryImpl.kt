@@ -89,13 +89,13 @@ class DoujinshiRepositoryImpl @Inject constructor(
         return remoteSource.getComments(doujinshiId)
     }
 
-    override suspend fun getDoujinshiCount(): Long {
-        return localDataSource.getDoujinshiCount()
+    override suspend fun getCollectionSize(): Long {
+        return localDataSource.getCollectedDoujinshiCount()
     }
 
     override suspend fun getCollectionPage(page: Int): DoujinshisResult {
-        val doujinshiList = localDataSource.getDoujinshis(PAGE_SIZE * page, PAGE_SIZE)
-        val total = localDataSource.getDoujinshiCount()
+        val doujinshiList = localDataSource.getCollectedDoujinshis(PAGE_SIZE * page, PAGE_SIZE)
+        val total = localDataSource.getCollectedDoujinshiCount()
         var numOfPages = total / PAGE_SIZE
         if (total % PAGE_SIZE > 0) {
             numOfPages++

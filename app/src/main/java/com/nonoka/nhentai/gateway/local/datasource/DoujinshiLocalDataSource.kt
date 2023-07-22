@@ -8,9 +8,9 @@ import com.nonoka.nhentai.gateway.local.model.DoujinshiModel
 import javax.inject.Inject
 
 interface DoujinshiLocalDataSource {
-    suspend fun getDoujinshiCount(): Long
+    suspend fun getCollectedDoujinshiCount(): Long
 
-    suspend fun getDoujinshis(skip: Int, take: Int): List<Doujinshi>
+    suspend fun getCollectedDoujinshis(skip: Int, take: Int): List<Doujinshi>
 
     suspend fun setReadDoujinshi(doujinshi: Doujinshi, lastReadPage: Int?): Boolean
 
@@ -25,12 +25,12 @@ class DoujinshiLocalDataSourceImpl @Inject constructor(
     private val doujinshiDao: DoujinshiDao
 ) : DoujinshiLocalDataSource {
 
-    override suspend fun getDoujinshiCount(): Long {
-        return doujinshiDao.countDoujinshi()
+    override suspend fun getCollectedDoujinshiCount(): Long {
+        return doujinshiDao.countCollectedDoujinshis()
     }
 
-    override suspend fun getDoujinshis(skip: Int, take: Int): List<Doujinshi> {
-        return doujinshiDao.getDoujinshis(skip, take).map {
+    override suspend fun getCollectedDoujinshis(skip: Int, take: Int): List<Doujinshi> {
+        return doujinshiDao.getCollectedDoujinshis(skip, take).map {
             Gson().fromJson(it.json, Doujinshi::class.java)
         }
     }

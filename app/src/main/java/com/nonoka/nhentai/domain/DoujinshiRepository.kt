@@ -22,7 +22,7 @@ interface DoujinshiRepository {
         page: Int,
     ): DoujinshisResult
 
-    suspend fun getDoujinshiCount(): Long
+    suspend fun getCollectionSize(): Long
 
     suspend fun setReadDoujinshi(doujinshi: Doujinshi, lastReadPage: Int?): Boolean
 

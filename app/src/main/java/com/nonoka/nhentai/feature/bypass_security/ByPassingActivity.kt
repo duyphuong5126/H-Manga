@@ -1,11 +1,14 @@
 package com.nonoka.nhentai.feature.bypass_security
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -62,6 +65,13 @@ class ByPassingActivity : ComponentActivity() {
                     viewBinding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
 
                     val isFailed = result == ByPassingResult.Failure
+                    val window = window
+                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                    window.statusBarColor = if (isFailed) Color.BLACK else Color.WHITE
+                    WindowCompat.getInsetsController(
+                        window,
+                        window.decorView
+                    ).isAppearanceLightStatusBars = !isFailed
                     viewBinding.loadingArea.visibility = if (isFailed) View.GONE else View.VISIBLE
 
                     if (result == ByPassingResult.Success) {
