@@ -1,6 +1,7 @@
 package com.nonoka.nhentai.feature.home
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -52,11 +53,16 @@ class HomeViewModel @Inject constructor(
 
     var reset = mutableStateOf(false)
 
-    init {
+    var filterInitialized = false
+
+    fun initFilters() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                filters.clear()
+                filterHistory.clear()
                 filters.addAll(filterRepository.getActiveFilters())
                 filterHistory.addAll(filterRepository.getAllFilters())
+                filterInitialized = true
             } catch (error: Throwable) {
                 Timber.d("Gallery>>> failed to init filters with error $error")
             }

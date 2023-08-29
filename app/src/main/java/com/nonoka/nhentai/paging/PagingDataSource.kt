@@ -7,10 +7,7 @@ class PagingDataSource<T : Any>(
     private val loader: PagingDataLoader<T>
 ) : PagingSource<Int, T>() {
     override fun getRefreshKey(state: PagingState<Int, T>): Int? {
-        return state.anchorPosition?.let {
-            state.closestPageToPosition(it)?.prevKey?.plus(1)
-                ?: state.closestPageToPosition(it)?.nextKey?.minus(1)
-        }
+        return null
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, T> {

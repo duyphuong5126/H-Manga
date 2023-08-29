@@ -29,6 +29,19 @@
             android:name=".feature.MainActivity"
             android:exported="false"
             android:theme="@style/Theme.NHentai" />
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+
+        </provider>
     </application>
 
 </manifest>

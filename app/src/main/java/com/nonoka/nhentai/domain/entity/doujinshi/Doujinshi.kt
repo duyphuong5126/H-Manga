@@ -8,6 +8,7 @@ import com.nonoka.nhentai.domain.entity.IMAGES
 import com.nonoka.nhentai.domain.entity.JAPANESE_LANG
 import com.nonoka.nhentai.domain.entity.LANGUAGE
 import com.nonoka.nhentai.domain.entity.MEDIA_ID
+import com.nonoka.nhentai.domain.entity.NHENTAI_I
 import com.nonoka.nhentai.domain.entity.NHENTAI_T
 import com.nonoka.nhentai.domain.entity.NUM_FAVORITES
 import com.nonoka.nhentai.domain.entity.NUM_PAGES
@@ -164,6 +165,12 @@ data class Doujinshi(
         if (updateAt < 0) {
             updateAt = System.currentTimeMillis()
         }
+    }
+
+    private fun getGalleryUrl(mediaId: String): String = "$NHENTAI_I/galleries/$mediaId"
+
+    fun getPageUrl(index: Int): String {
+        return "${getGalleryUrl(mediaId)}/$index.${images.pages[index].imageType}"
     }
 
     companion object {

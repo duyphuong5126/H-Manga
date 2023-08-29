@@ -31,6 +31,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -38,8 +39,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +59,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import coil.compose.AsyncImage
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
@@ -64,28 +72,32 @@ import com.nonoka.nhentai.ui.shared.LoadingDialogContent
 import com.nonoka.nhentai.ui.shared.YesNoDialog
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import com.nonoka.nhentai.ui.theme.Black
-import com.nonoka.nhentai.ui.theme.Black95
 import com.nonoka.nhentai.ui.theme.Black59
+import com.nonoka.nhentai.ui.theme.Black95
 import com.nonoka.nhentai.ui.theme.Grey31
 import com.nonoka.nhentai.ui.theme.Grey77
 import com.nonoka.nhentai.ui.theme.MainColor
 import com.nonoka.nhentai.ui.theme.White
 import com.nonoka.nhentai.ui.theme.bodyNormalBold
 import com.nonoka.nhentai.ui.theme.bodyNormalRegular
-import com.nonoka.nhentai.ui.theme.doujinshiPrimaryTitleStyle
-import com.nonoka.nhentai.ui.theme.doujinshiSecondaryTitleStyle
-import com.nonoka.nhentai.ui.theme.smallPlusSpace
-import com.nonoka.nhentai.ui.theme.mediumRadius
-import com.nonoka.nhentai.ui.theme.mediumSpace
-import com.nonoka.nhentai.ui.theme.normalSpace
-import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.ui.theme.bodySmallBold
 import com.nonoka.nhentai.ui.theme.bodySmallRegular
 import com.nonoka.nhentai.ui.theme.captionRegular
+import com.nonoka.nhentai.ui.theme.doujinshiPrimaryTitleStyle
+import com.nonoka.nhentai.ui.theme.doujinshiSecondaryTitleStyle
 import com.nonoka.nhentai.ui.theme.mediumPlusSpace
+import com.nonoka.nhentai.ui.theme.mediumRadius
+import com.nonoka.nhentai.ui.theme.mediumSpace
 import com.nonoka.nhentai.ui.theme.normalIconSize
+import com.nonoka.nhentai.ui.theme.normalSpace
+import com.nonoka.nhentai.ui.theme.smallPlusSpace
 import com.nonoka.nhentai.ui.theme.smallRadius
+import com.nonoka.nhentai.ui.theme.smallSpace
+import com.nonoka.nhentai.worker.DoujinshiDownloadWorker
+import com.nonoka.nhentai.worker.DoujinshiDownloadWorker.Companion.PROGRESS_KEY
 import java.text.DecimalFormat
+import java.util.UUID
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -292,57 +304,77 @@ fun DoujinshiPage(
                 }
 
                 item {
-                    Row {
-                        Button(
-                            onClick = {
+                    var downloadRequestId by remember {
+                        mutableStateOf<UUID?>(null)
+                    }
+                    Column {
+                        val context = LocalContext.current
+                        Row {
+                            Button(
+                                onClick = {
 
-                            },
-                            shape = RoundedCornerShape(mediumRadius),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MainColor
-                            ),
-                            contentPadding = PaddingValues(horizontal = mediumPlusSpace),
-                            modifier = Modifier.padding(start = mediumSpace, top = mediumSpace)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_favorite_solid_24dp),
-                                contentDescription = doujinshi.favoritesLabel,
-                                tint = White,
-                                modifier = Modifier
-                                    .padding(end = smallSpace)
-                                    .size(16.dp)
-                            )
+                                },
+                                shape = RoundedCornerShape(mediumRadius),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MainColor
+                                ),
+                                contentPadding = PaddingValues(horizontal = mediumPlusSpace),
+                                modifier = Modifier.padding(start = mediumSpace, top = mediumSpace)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_favorite_solid_24dp),
+                                    contentDescription = doujinshi.favoritesLabel,
+                                    tint = White,
+                                    modifier = Modifier
+                                        .padding(end = smallSpace)
+                                        .size(16.dp)
+                                )
 
-                            Text(
-                                text = doujinshi.favoritesLabel,
-                                style = MaterialTheme.typography.bodyNormalBold
-                            )
+                                Text(
+                                    text = doujinshi.favoritesLabel,
+                                    style = MaterialTheme.typography.bodyNormalBold
+                                )
+                            }
+
+                            Button(
+                                onClick = {
+                                    downloadRequestId =
+                                        DoujinshiDownloadWorker.start(context, doujinshiId)
+                                },
+                                shape = RoundedCornerShape(mediumRadius),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Grey31
+                                ),
+                                contentPadding = PaddingValues(horizontal = mediumPlusSpace),
+                                modifier = Modifier.padding(start = mediumSpace, top = mediumSpace)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_download_solid_24dp),
+                                    contentDescription = "Download",
+                                    tint = White,
+                                    modifier = Modifier
+                                        .padding(end = smallSpace)
+                                        .size(16.dp)
+                                )
+
+                                Text(
+                                    text = "Download",
+                                    style = MaterialTheme.typography.bodyNormalBold
+                                )
+                            }
                         }
 
-                        Button(
-                            onClick = {
+                        if (downloadRequestId != null) {
+                            val workInfo: WorkInfo? by WorkManager.getInstance(context)
+                                // requestId is the WorkRequest id
+                                .getWorkInfoByIdLiveData(downloadRequestId!!)
+                                .observeAsState()
 
-                            },
-                            shape = RoundedCornerShape(mediumRadius),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Grey31
-                            ),
-                            contentPadding = PaddingValues(horizontal = mediumPlusSpace),
-                            modifier = Modifier.padding(start = mediumSpace, top = mediumSpace)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_download_solid_24dp),
-                                contentDescription = "Download",
-                                tint = White,
-                                modifier = Modifier
-                                    .padding(end = smallSpace)
-                                    .size(16.dp)
-                            )
-
-                            Text(
-                                text = "Download",
-                                style = MaterialTheme.typography.bodyNormalBold
-                            )
+                            if (workInfo != null) {
+                                val progress = workInfo!!.progress
+                                val value = progress.getFloat(PROGRESS_KEY, 0f)
+                                LinearProgressIndicator(progress = value)
+                            }
                         }
                     }
                 }

@@ -148,6 +148,13 @@ fun HomePage(
             }
         },
     )
+
+    LaunchedEffect(
+        key1 = homeViewModel.filterInitialized,
+        block = {
+            homeViewModel.initFilters()
+        },
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -360,7 +367,6 @@ private fun Header(
                     val selectedOption = homeViewModel.searchTerm.value.trim().lowercase()
                     val filterOptions = if (selectedOption.isNotBlank())
                         homeViewModel.filterHistory.filter { it.contains(selectedOption) } else emptyList()
-                    Timber.d("Dropdown>>> filterOptions=$filterOptions, dropdownExpanded=$dropdownExpanded")
                     if (filterOptions.isNotEmpty()) {
                         ExposedDropdownMenu(
                             modifier = Modifier
