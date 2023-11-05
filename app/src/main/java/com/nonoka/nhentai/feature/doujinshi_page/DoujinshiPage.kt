@@ -95,6 +95,7 @@ import com.nonoka.nhentai.worker.DoujinshiDownloadWorker.Companion.PROGRESS_KEY
 import com.nonoka.nhentai.worker.DoujinshiDownloadWorker.Companion.TOTAL_KEY
 import java.text.DecimalFormat
 import java.util.UUID
+import timber.log.Timber
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -421,9 +422,11 @@ fun DoujinshiPage(
                                             ),
                                         )
                                     }
-                                } else {
-                                    downloadRequestId = null
-                                    onDownloadingFinished()
+                                    if (progress == total) {
+                                        Timber.d("Downloader - UI reset")
+                                        downloadRequestId = null
+                                        onDownloadingFinished()
+                                    }
                                 }
                             }
                         }

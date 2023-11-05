@@ -39,12 +39,14 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParameters) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val doujinshiId = inputData.getString(ID)
+        var stepCount = -1
+        var progress = -1
         if (doujinshiId != null) {
             doujinshiRepository.getDoujinshi(doujinshiId).doOnSuccess { doujinshi ->
                 val context = applicationContext
                 val loader = ImageLoader(context)
-                val stepCount = doujinshi.images.pages.size + 1
-                var progress = 0
+                stepCount = doujinshi.images.pages.size + 1
+                progress = 0
                 val folderPath = "images/${doujinshi.id}"
 
                 Timber.d("Downloader: start - $stepCount")
@@ -57,7 +59,12 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
                     if (downloadSuccess) {
                         progress++
                         Timber.d("Downloader succeed - progress: $progress/$stepCount")
-                        setProgress(workDataOf(PROGRESS_KEY to progress, TOTAL_KEY to stepCount))
+                        setProgress(
+                            workDataOf(
+                                PROGRESS_KEY to progress,
+                                TOTAL_KEY to stepCount
+                            )
+                        )
                     } else {
                         Timber.d("Downloader failure - progress: $progress/$stepCount")
                     }
@@ -73,6 +80,12 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
             }
         }
         Timber.d("Downloader - finish")
+        setProgress(
+            workDataOf(
+                PROGRESS_KEY to progress,
+                TOTAL_KEY to stepCount
+            )
+        )
         delay(2000)
         Result.success()
     }
@@ -123,8 +136,8 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
     }
 
     companion object {
-        const val PROGRESS_KEY = "Progress"
-        const val TOTAL_KEY = "Total"
+        const val PROGRESS_KEY = "progress"
+        const val TOTAL_KEY = "total"
 
         fun start(context: Context, doujinshiId: String): UUID {
             val workManager = WorkManager.getInstance(context)
