@@ -59,9 +59,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import coil.compose.AsyncImage
@@ -95,6 +92,7 @@ import com.nonoka.nhentai.ui.theme.smallRadius
 import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.worker.DoujinshiDownloadWorker
 import com.nonoka.nhentai.worker.DoujinshiDownloadWorker.Companion.PROGRESS_KEY
+import com.nonoka.nhentai.worker.DoujinshiDownloadWorker.Companion.TOTAL_KEY
 import java.text.DecimalFormat
 import java.util.UUID
 
@@ -105,6 +103,7 @@ fun DoujinshiPage(
     doujinshiId: String,
     startReading: (String, Int) -> Unit = { _, _ -> },
     onTagSelected: (String) -> Unit = { _ -> },
+    onDownloadingFinished: () -> Unit = {},
     viewModel: DoujinshiViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
     lastReadPage: Int? = null,
@@ -336,31 +335,52 @@ fun DoujinshiPage(
                                 )
                             }
 
-                            Button(
-                                onClick = {
-                                    downloadRequestId =
-                                        DoujinshiDownloadWorker.start(context, doujinshiId)
-                                },
-                                shape = RoundedCornerShape(mediumRadius),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Grey31
-                                ),
-                                contentPadding = PaddingValues(horizontal = mediumPlusSpace),
-                                modifier = Modifier.padding(start = mediumSpace, top = mediumSpace)
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_download_solid_24dp),
-                                    contentDescription = "Download",
-                                    tint = White,
-                                    modifier = Modifier
-                                        .padding(end = smallSpace)
-                                        .size(16.dp)
-                                )
+                            if (downloadRequestId == null) {
+                                val downloadClickId = remember {
+                                    mutableStateOf<Long?>(null)
+                                }
+                                if (downloadClickId.value != null) {
+                                    YesNoDialog(
+                                        title = "Download Doujinshi",
+                                        description = "Do you want to start downloading this doujinshi?",
+                                        onDismiss = {
+                                            downloadClickId.value = null
+                                        },
+                                        onAnswerYes = {
+                                            downloadClickId.value = null
+                                            downloadRequestId =
+                                                DoujinshiDownloadWorker.start(context, doujinshiId)
+                                        }
+                                    )
+                                }
+                                Button(
+                                    onClick = {
+                                        downloadClickId.value = System.currentTimeMillis()
+                                    },
+                                    shape = RoundedCornerShape(mediumRadius),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Grey31
+                                    ),
+                                    contentPadding = PaddingValues(horizontal = mediumPlusSpace),
+                                    modifier = Modifier.padding(
+                                        start = mediumSpace,
+                                        top = mediumSpace
+                                    )
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_download_solid_24dp),
+                                        contentDescription = "Download",
+                                        tint = White,
+                                        modifier = Modifier
+                                            .padding(end = smallSpace)
+                                            .size(16.dp)
+                                    )
 
-                                Text(
-                                    text = "Download",
-                                    style = MaterialTheme.typography.bodyNormalBold
-                                )
+                                    Text(
+                                        text = "Download",
+                                        style = MaterialTheme.typography.bodyNormalBold
+                                    )
+                                }
                             }
                         }
 
@@ -371,9 +391,40 @@ fun DoujinshiPage(
                                 .observeAsState()
 
                             if (workInfo != null) {
-                                val progress = workInfo!!.progress
-                                val value = progress.getFloat(PROGRESS_KEY, 0f)
-                                LinearProgressIndicator(progress = value)
+                                val progressData = workInfo!!.progress
+                                val progress = progressData.getInt(PROGRESS_KEY, -1)
+                                val total = progressData.getInt(TOTAL_KEY, -1)
+                                if (progress in 0..total) {
+                                    val progressValue = progress.toFloat() / total
+                                    Row(
+                                        modifier = Modifier.padding(mediumSpace),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        LinearProgressIndicator(
+                                            modifier = Modifier
+                                                .padding(end = normalSpace)
+                                                .height(normalSpace)
+                                                .clip(
+                                                    RoundedCornerShape(mediumRadius)
+                                                )
+                                                .weight(1f),
+                                            progress = progressValue,
+                                            color = MainColor
+                                        )
+
+                                        val progressLabel =
+                                            if (progress == total) "Complete" else "($progress/$total)"
+                                        Text(
+                                            text = progressLabel,
+                                            style = MaterialTheme.typography.bodyNormalBold.copy(
+                                                White
+                                            ),
+                                        )
+                                    }
+                                } else {
+                                    downloadRequestId = null
+                                    onDownloadingFinished()
+                                }
                             }
                         }
                     }

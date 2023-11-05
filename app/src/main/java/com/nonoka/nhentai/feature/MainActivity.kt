@@ -191,6 +191,9 @@ class MainActivity : ComponentActivity() {
                                         onBackPressed = {
                                             navController.popBackStack()
                                         },
+                                        onDownloadingFinished = {
+
+                                        },
                                         lastReadPage = pageIndex,
                                     )
                                 }

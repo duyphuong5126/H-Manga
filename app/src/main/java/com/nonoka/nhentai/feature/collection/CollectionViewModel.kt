@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.GalleryPageNotExistException
 import com.nonoka.nhentai.paging.PagingDataLoader
@@ -32,7 +33,7 @@ class CollectionViewModel @Inject constructor(
         )
     ) {
         PagingDataSource(this)
-    }.flow
+    }.flow.cachedIn(viewModelScope)
 
     val collectionCountLabel = mutableStateOf("")
 

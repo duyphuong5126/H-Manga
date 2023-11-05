@@ -7,6 +7,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
@@ -25,7 +26,9 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 
 @HiltWorker
@@ -41,23 +44,36 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
                 val context = applicationContext
                 val loader = ImageLoader(context)
                 val stepCount = doujinshi.images.pages.size + 1
-                var progress = 0.0
+                var progress = 0
                 val folderPath = "images/${doujinshi.id}"
+
+                Timber.d("Downloader: start - $stepCount")
                 doujinshi.images.pages.forEachIndexed { index, image ->
-                    val imageUrl = doujinshi.getPageUrl(index + 1)
+                    val imageUrl = doujinshi.getPageUrl(index)
+                    Timber.d("Downloader - download $imageUrl")
                     val imageName = "${index + 1}.${image.imageType}"
                     val downloadSuccess =
                         downloadImage(context, loader, imageUrl, imageName, folderPath)
                     if (downloadSuccess) {
                         progress++
-                        setProgress(workDataOf(PROGRESS_KEY to progress / stepCount))
+                        Timber.d("Downloader succeed - progress: $progress/$stepCount")
+                        setProgress(workDataOf(PROGRESS_KEY to progress, TOTAL_KEY to stepCount))
+                    } else {
+                        Timber.d("Downloader failure - progress: $progress/$stepCount")
                     }
                 }
-                doujinshiRepository.setDownloadedDoujinshi(doujinshi, true)
+                try {
+                    doujinshiRepository.setDownloadedDoujinshi(doujinshi, true)
+                } catch (e: Throwable) {
+                    Timber.d("Downloader - failed to record with error $e")
+                }
                 progress++
-                setProgress(workDataOf(PROGRESS_KEY to progress / stepCount))
+                Timber.d("Downloader - recorded, progress: $progress/$stepCount")
+                setProgress(workDataOf(PROGRESS_KEY to progress, TOTAL_KEY to stepCount))
             }
         }
+        Timber.d("Downloader - finish")
+        delay(2000)
         Result.success()
     }
 
@@ -80,7 +96,7 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
             if (drawable is BitmapDrawable) {
                 val directory = File(context.filesDir, folderPath)
                 if (!directory.exists()) {
-                    directory.mkdir()
+                    directory.mkdirs()
                 }
                 val imageFile = File(directory, imageName)
                 try {
@@ -98,6 +114,7 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
                     fos.close()
                     return@withContext true
                 } catch (e: IOException) {
+                    Timber.d("Downloader - failed to download $imageUrl, error: $e")
                     e.printStackTrace()
                 }
             }
@@ -107,6 +124,7 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
 
     companion object {
         const val PROGRESS_KEY = "Progress"
+        const val TOTAL_KEY = "Total"
 
         fun start(context: Context, doujinshiId: String): UUID {
             val workManager = WorkManager.getInstance(context)
@@ -120,7 +138,11 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
                 .setConstraints(constraints)
                 .setInputData(inputData)
                 .build()
-            workManager.enqueue(request)
+            workManager.enqueueUniqueWork(
+                "Downloading doujinshi $doujinshiId",
+                ExistingWorkPolicy.KEEP,
+                request
+            )
             return request.id
         }
     }

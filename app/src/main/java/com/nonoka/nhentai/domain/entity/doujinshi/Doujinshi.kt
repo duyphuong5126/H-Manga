@@ -16,6 +16,7 @@ import com.nonoka.nhentai.domain.entity.SCANLATOR
 import com.nonoka.nhentai.domain.entity.TAGS_LIST
 import com.nonoka.nhentai.domain.entity.TITLE
 import com.nonoka.nhentai.domain.entity.UPLOAD_DATE
+import timber.log.Timber
 
 data class Doujinshi(
     @field:SerializedName(ID) val id: String,
@@ -170,7 +171,7 @@ data class Doujinshi(
     private fun getGalleryUrl(mediaId: String): String = "$NHENTAI_I/galleries/$mediaId"
 
     fun getPageUrl(index: Int): String {
-        return "${getGalleryUrl(mediaId)}/$index.${images.pages[index].imageType}"
+        return "${getGalleryUrl(mediaId)}/${index + 1}.${images.pages[index].imageType}"
     }
 
     companion object {

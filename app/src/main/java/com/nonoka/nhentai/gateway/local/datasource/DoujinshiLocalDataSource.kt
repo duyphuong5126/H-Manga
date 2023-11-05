@@ -6,6 +6,7 @@ import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 import com.nonoka.nhentai.gateway.local.dao.DoujinshiDao
 import com.nonoka.nhentai.gateway.local.model.DoujinshiModel
 import javax.inject.Inject
+import timber.log.Timber
 
 interface DoujinshiLocalDataSource {
     suspend fun getCollectedDoujinshiCount(): Long
@@ -66,7 +67,7 @@ class DoujinshiLocalDataSourceImpl @Inject constructor(
             doujinshiDao.addDoujinshi(
                 DoujinshiModel(
                     id = doujinshi.id,
-                    json = Gson().toJson(Doujinshi::class.java),
+                    json = Gson().toJson(doujinshi, Doujinshi::class.java),
                     lastReadPage = null,
                     isFavorite = isFavorite,
                     isDownloaded = false
@@ -85,7 +86,7 @@ class DoujinshiLocalDataSourceImpl @Inject constructor(
             doujinshiDao.addDoujinshi(
                 DoujinshiModel(
                     id = doujinshi.id,
-                    json = Gson().toJson(Doujinshi::class.java),
+                    json = Gson().toJson(doujinshi, Doujinshi::class.java),
                     lastReadPage = null,
                     isFavorite = false,
                     isDownloaded = isDownloaded
