@@ -34,6 +34,8 @@ interface DoujinshiDao {
     @Query("update $TABLE_NAME set $IS_FAVORITE = :isFavorite where $ID = :doujinshiId")
     suspend fun updateFavoriteStatus(doujinshiId: String, isFavorite: Boolean): Int
 
-    @Query("update $TABLE_NAME set $IS_FAVORITE = :isDownloaded where $ID = :doujinshiId")
+    @Query("update $TABLE_NAME set $IS_DOWNLOADED = :isDownloaded where $ID = :doujinshiId")
     suspend fun updateDownloadedStatus(doujinshiId: String, isDownloaded: Boolean): Int
+    @Query("select $IS_DOWNLOADED from $TABLE_NAME where $ID = :doujinshiId")
+    suspend fun getDownloadedStatus(doujinshiId: String): Boolean
 }

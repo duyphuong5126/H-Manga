@@ -31,4 +31,6 @@ interface DoujinshiRepository {
     suspend fun setFavoriteDoujinshi(doujinshi: Doujinshi, isFavorite: Boolean): Boolean
 
     suspend fun setDownloadedDoujinshi(doujinshi: Doujinshi, isDownloaded: Boolean): Boolean
+
+    suspend fun isDoujinshiDownloaded(doujinshiId: String): Resource<Boolean>
 }

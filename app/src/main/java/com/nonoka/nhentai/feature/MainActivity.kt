@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -40,6 +41,7 @@ import com.nonoka.nhentai.domain.entity.PAGE_INDEX
 import com.nonoka.nhentai.domain.entity.TAG
 import com.nonoka.nhentai.feature.collection.CollectionPage
 import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiPage
+import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiViewModel
 import com.nonoka.nhentai.feature.home.HomePage
 import com.nonoka.nhentai.feature.home.HomeViewModel
 import com.nonoka.nhentai.feature.reader.ReaderPage
@@ -195,6 +197,7 @@ class MainActivity : ComponentActivity() {
 
                                         },
                                         lastReadPage = pageIndex,
+                                        viewModel = hiltViewModel(this@MainActivity)
                                     )
                                 }
                             }

@@ -3,6 +3,7 @@ package com.nonoka.nhentai.gateway
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.Resource
 import com.nonoka.nhentai.domain.Resource.Success
+import com.nonoka.nhentai.domain.Resource.Error
 import com.nonoka.nhentai.domain.entity.comment.Comment
 import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 import com.nonoka.nhentai.domain.entity.doujinshi.DoujinshisResult
@@ -115,6 +116,14 @@ class DoujinshiRepositoryImpl @Inject constructor(
         isDownloaded: Boolean
     ): Boolean {
         return localDataSource.setDownloadedDoujinshi(doujinshi, isDownloaded)
+    }
+
+    override suspend fun isDoujinshiDownloaded(doujinshiId: String): Resource<Boolean> {
+        return try {
+            Success(localDataSource.getDownloadedStatus(doujinshiId))
+        } catch (e: Throwable) {
+            Error(e)
+        }
     }
 
     override suspend fun setFavoriteDoujinshi(doujinshi: Doujinshi, isFavorite: Boolean): Boolean {

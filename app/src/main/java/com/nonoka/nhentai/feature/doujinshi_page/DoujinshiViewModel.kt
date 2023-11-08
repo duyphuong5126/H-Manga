@@ -16,6 +16,7 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -67,6 +68,9 @@ class DoujinshiViewModel @Inject constructor(
     val recommendationLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
     val commentLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
 
+    val downloadRequestId = mutableStateOf<UUID?>(null)
+    val downloadedStatus = mutableStateOf(false)
+
     fun init(doujinshiId: String) {
         mainLoadingState.value = LoadingUiState.Loading("Loading, please wait")
         viewModelScope.launch(Dispatchers.Main) {
@@ -76,6 +80,7 @@ class DoujinshiViewModel @Inject constructor(
                     loadRecommendedDoujinshis(it.id)
                     loadComments(it.id)
                     loadLastReadPageIndex(it.id)
+                    loadDownloadedStatus(it.id)
                 }
                 .doOnError {
                     mainLoadingState.value = LoadingUiState.Idle
@@ -191,6 +196,16 @@ class DoujinshiViewModel @Inject constructor(
                 } catch (error: Throwable) {
                     Timber.e("Could not load last read page index with error $error")
                 }
+            }.doOnError {
+                Timber.e("Could not load last read page index with error $it")
+            }
+        }
+    }
+
+    private fun loadDownloadedStatus(doujinshiId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            doujinshiRepository.isDoujinshiDownloaded(doujinshiId).doOnSuccess { isDownloaded ->
+                downloadedStatus.value = isDownloaded
             }.doOnError {
                 Timber.e("Could not load last read page index with error $it")
             }

@@ -20,6 +20,8 @@ interface DoujinshiLocalDataSource {
     suspend fun setFavoriteDoujinshi(doujinshi: Doujinshi, isFavorite: Boolean): Boolean
 
     suspend fun setDownloadedDoujinshi(doujinshi: Doujinshi, isDownloaded: Boolean): Boolean
+
+    suspend fun getDownloadedStatus(doujinshiId: String): Boolean
 }
 
 class DoujinshiLocalDataSourceImpl @Inject constructor(
@@ -93,6 +95,10 @@ class DoujinshiLocalDataSourceImpl @Inject constructor(
                 ),
             ).isNotEmpty()
         }
+    }
+
+    override suspend fun getDownloadedStatus(doujinshiId: String): Boolean {
+        return doujinshiDao.getDownloadedStatus(doujinshiId)
     }
 
 }
