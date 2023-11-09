@@ -217,7 +217,7 @@ private fun BottomBar(
                             .height(92.dp)
                             .clip(shape = RoundedCornerShape(size = mediumRadius)),
                     ) {
-                        if (viewModel.focusedIndex.value == index) {
+                        if (viewModel.focusedIndex.intValue == index) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -271,11 +271,24 @@ private fun BottomBar(
                 }
             }
 
-            Text(
-                modifier = Modifier.padding(bottom = mediumSpace),
-                text = readerState.pageIndicatorTemplate.format(viewModel.focusedIndex.value + 1),
-                style = MaterialTheme.typography.bodyNormalBold.copy(color = White)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(end = mediumSpace)
+                        .padding(bottom = mediumSpace),
+                    text = readerState.pageIndicatorTemplate.format(viewModel.focusedIndex.intValue + 1),
+                    style = MaterialTheme.typography.bodyNormalBold.copy(color = White)
+                )
+
+                Image(
+                    modifier = Modifier
+                        .padding(bottom = mediumSpace),
+                    painter = painterResource(id = if (readerState.isDownloaded) R.drawable.ic_folder_24dp else R.drawable.ic_global_24dp),
+                    contentDescription = if (readerState.isDownloaded) "Downloaded file" else "Remote"
+                )
+            }
         }
     }
 }
@@ -315,7 +328,7 @@ private fun Reader(
                             val focusedIndex =
                                 if (dy > 0) layoutManager.findLastVisibleItemPosition() else layoutManager.findFirstVisibleItemPosition()
                             if (focusedIndex != RecyclerView.NO_POSITION) {
-                                viewModel.focusedIndex.value = focusedIndex
+                                viewModel.focusedIndex.intValue = focusedIndex
                                 onFocusedIndexChanged(focusedIndex)
                             }
                         }

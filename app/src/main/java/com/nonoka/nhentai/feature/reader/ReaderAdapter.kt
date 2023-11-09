@@ -15,13 +15,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.recyclerview.widget.RecyclerView
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.databinding.ReaderPageBinding
 import com.nonoka.nhentai.ui.theme.Grey77
 import com.nonoka.nhentai.ui.theme.MainColor
 import com.nonoka.nhentai.ui.theme.headlineLargeStyle
+import com.nonoka.nhentai.feature.reader.ReaderPageModel.RemotePage
+import com.nonoka.nhentai.feature.reader.ReaderPageModel.LocalPage
 
 /*
  * Created by nhdphuong on 5/5/18.
@@ -59,9 +63,16 @@ class ReaderAdapter(
                     var isLoading by remember {
                         mutableStateOf(true)
                     }
+                    val model: Any = when (page) {
+                        is RemotePage -> page.url
+
+                        is LocalPage -> ImageRequest.Builder(LocalContext.current)
+                            .data(page.file)
+                            .build()
+                    }
                     AsyncImage(
                         modifier = Modifier.fillMaxSize(),
-                        model = page.pageUrl,
+                        model = model,
                         contentDescription = "Page ${pageIndex + 1}",
                         onSuccess = {
                             isLoading = false

@@ -16,6 +16,8 @@ import com.nonoka.nhentai.gateway.local.NHentaiDatabase
 import com.nonoka.nhentai.gateway.local.dao.FilterDao
 import com.nonoka.nhentai.gateway.remote.DoujinshiRemoteSource
 import com.nonoka.nhentai.gateway.remote.DoujinshiRemoteSourceImpl
+import com.nonoka.nhentai.util.FileService
+import com.nonoka.nhentai.util.FileServiceImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -72,5 +74,10 @@ class GatewayModule {
     @Provides
     fun providesFilterDao(database: NHentaiDatabase): FilterDao {
         return database.filterDao()
+    }
+
+    @Provides
+    fun providesFileService(impl: FileServiceImpl): FileService {
+        return impl
     }
 }

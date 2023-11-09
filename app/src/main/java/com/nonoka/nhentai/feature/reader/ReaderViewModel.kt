@@ -1,17 +1,23 @@
 package com.nonoka.nhentai.feature.reader
 
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.NHENTAI_I
 import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
+import com.nonoka.nhentai.domain.entity.doujinshi.ImageMeasurements
+import com.nonoka.nhentai.util.FileService
+import com.nonoka.nhentai.feature.reader.ReaderPageModel.RemotePage
+import com.nonoka.nhentai.feature.reader.ReaderPageModel.LocalPage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 data class ReaderState(
@@ -19,20 +25,22 @@ data class ReaderState(
     val images: List<ReaderPageModel>,
     val thumbnailList: List<String>,
     val pageIndicatorTemplate: String,
+    val isDownloaded: Boolean
 )
 
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
-    private val doujinshiRepository: DoujinshiRepository
+    private val doujinshiRepository: DoujinshiRepository,
+    private val fileService: FileService
 ) : ViewModel() {
     val state = mutableStateOf<ReaderState?>(null)
 
     var toolBarsVisible = mutableStateOf(true)
 
-    var focusedIndex = mutableStateOf(-1)
+    var focusedIndex = mutableIntStateOf(-1)
     var focusingIndexRequest = MutableSharedFlow<Int?>()
 
-    var currentDoujinshi: Doujinshi? = null
+    private var currentDoujinshi: Doujinshi? = null
 
     fun init(doujinshiId: String, startIndex: Int = -1) {
         Timber.d("Load doujinshi $doujinshiId")
@@ -52,7 +60,7 @@ class ReaderViewModel @Inject constructor(
     }
 
     fun requestReadingPage(index: Int) {
-        focusedIndex.value = index
+        focusedIndex.intValue = index
         viewModelScope.launch {
             focusingIndexRequest.emit(index)
         }
@@ -70,23 +78,53 @@ class ReaderViewModel @Inject constructor(
     private fun processDoujinshiData(doujinshi: Doujinshi) {
         currentDoujinshi = doujinshi
         viewModelScope.launch(Dispatchers.Default) {
+            var isDownloaded = false
+            withContext(Dispatchers.IO) {
+                doujinshiRepository.isDoujinshiDownloaded(doujinshi.id)
+            }.doOnSuccess {
+                isDownloaded = it
+            }
             state.value = ReaderState(
                 title = doujinshi.previewTitle,
                 images = doujinshi.images.pages.mapIndexed { index, imageMeasurements ->
-                    ReaderPageModel(
-                        pageUrl = getPictureUrl(
-                            doujinshi.mediaId,
-                            index + 1,
-                            imageMeasurements.imageType
-                        ),
-                        width = imageMeasurements.width,
-                        height = imageMeasurements.height,
-                    )
+                    if (isDownloaded) getLocalPage(
+                        doujinshi.id,
+                        index,
+                        imageMeasurements
+                    ) else getRemotePage(doujinshi.mediaId, index, imageMeasurements)
                 },
                 thumbnailList = doujinshi.previewThumbnailList,
-                pageIndicatorTemplate = "Page %d of ${doujinshi.numOfPages}"
+                pageIndicatorTemplate = "Page %d of ${doujinshi.numOfPages}",
+                isDownloaded = isDownloaded
             )
         }
+    }
+
+    private fun getRemotePage(
+        mediaId: String,
+        index: Int,
+        imageMeasurements: ImageMeasurements
+    ): RemotePage {
+        val url = getPictureUrl(mediaId, index + 1, imageMeasurements.imageType)
+        return RemotePage(
+            url = url,
+            width = imageMeasurements.width,
+            height = imageMeasurements.height,
+        )
+    }
+
+    private fun getLocalPage(
+        doujinshiId: String,
+        index: Int,
+        imageMeasurements: ImageMeasurements
+    ): LocalPage {
+        val imageName = "${index + 1}.${imageMeasurements.imageType}"
+
+        return LocalPage(
+            file = fileService.getDoujinImageLocalPath(doujinshiId, imageName),
+            width = imageMeasurements.width,
+            height = imageMeasurements.height,
+        )
     }
 
     private fun getGalleryUrl(mediaId: String): String = "$NHENTAI_I/galleries/$mediaId"
