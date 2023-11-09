@@ -72,6 +72,7 @@ class DoujinshiViewModel @Inject constructor(
     val downloadedStatus = mutableStateOf(false)
 
     fun init(doujinshiId: String) {
+        lastReadPageIndex.value = null
         mainLoadingState.value = LoadingUiState.Loading("Loading, please wait")
         viewModelScope.launch(Dispatchers.Main) {
             doujinshiRepository.getDoujinshi(doujinshiId)

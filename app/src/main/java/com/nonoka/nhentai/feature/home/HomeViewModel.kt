@@ -18,10 +18,12 @@ import com.nonoka.nhentai.ui.shared.model.GalleryUiState
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.DecimalFormat
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 @HiltViewModel
@@ -53,21 +55,7 @@ class HomeViewModel @Inject constructor(
 
     var reset = mutableStateOf(false)
 
-    var filterInitialized = false
-
-    fun initFilters() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                filters.clear()
-                filterHistory.clear()
-                filters.addAll(filterRepository.getActiveFilters())
-                filterHistory.addAll(filterRepository.getAllFilters())
-                filterInitialized = true
-            } catch (error: Throwable) {
-                Timber.d("Gallery>>> failed to init filters with error $error")
-            }
-        }
-    }
+    private val filterInitialized = AtomicBoolean(false)
 
     fun addFilter(filter: String) {
         if (filter.isNotBlank()) {
@@ -106,6 +94,19 @@ class HomeViewModel @Inject constructor(
 
     override suspend fun loadPage(pageIndex: Int): List<GalleryUiState> {
         Timber.d("Gallery>>> Loading page $pageIndex")
+        if (pageIndex == 0 && !filterInitialized.get()) {
+            withContext(Dispatchers.IO) {
+                try {
+                    filters.clear()
+                    filterHistory.clear()
+                    filters.addAll(filterRepository.getActiveFilters())
+                    filterHistory.addAll(filterRepository.getAllFilters())
+                    filterInitialized.compareAndSet(false, true)
+                } catch (error: Throwable) {
+                    Timber.d("Gallery>>> failed to init filters with error $error")
+                }
+            }
+        }
         val pageData = ArrayList<GalleryUiState>()
         try {
             val result = doujinshiRepository.getGalleryPage(pageIndex, filters, sortOption.value)
