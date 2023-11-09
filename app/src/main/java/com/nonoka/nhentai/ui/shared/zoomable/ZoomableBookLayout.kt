@@ -71,14 +71,5 @@ class ZoomableBookLayout(
         override fun onDown(e: MotionEvent): Boolean {
             return true
         }
-
-        override fun onFling(
-            e1: MotionEvent,
-            e2: MotionEvent,
-            velocityX: Float,
-            velocityY: Float
-        ): Boolean {
-            return recycler?.zoomFling(velocityX.toInt(), velocityY.toInt()) ?: false
-        }
     }
 }
