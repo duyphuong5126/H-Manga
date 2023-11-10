@@ -10,6 +10,7 @@ import com.nonoka.nhentai.domain.entity.PNG
 import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 import com.nonoka.nhentai.ui.shared.model.GalleryUiState.DoujinshiItem
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
+import com.nonoka.nhentai.util.FileService
 import com.nonoka.nhentai.util.capitalized
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.DecimalFormat
@@ -38,7 +39,9 @@ data class DoujinshiState(
 
     val previewThumbnails: List<String>,
 
-    val favoritesLabel: String
+    val favoritesLabel: String,
+
+    val origin: Doujinshi,
 )
 
 data class TagInfo(val label: String, val count: String)
@@ -53,6 +56,7 @@ data class CommentState(
 @HiltViewModel
 class DoujinshiViewModel @Inject constructor(
     private val doujinshiRepository: DoujinshiRepository,
+    private val fileService: FileService
 ) : ViewModel() {
     private val decimalFormat = DecimalFormat("#,###")
     private val dateTimeFormat =
@@ -124,7 +128,8 @@ class DoujinshiViewModel @Inject constructor(
                     decimalFormat.format(
                         doujinshi.numOfFavorites
                     )
-                })" else "Favorite"
+                })" else "Favorite",
+                origin = doujinshi
             )
         }
     }
@@ -199,6 +204,24 @@ class DoujinshiViewModel @Inject constructor(
                 }
             }.doOnError {
                 Timber.e("Could not load last read page index with error $it")
+            }
+        }
+    }
+
+    fun deleteDownloadedData(doujinshi: Doujinshi) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val doujinshiId = doujinshi.id
+            fileService.deleteDoujinshiFolder(doujinshiId).doOnSuccess { success ->
+                Timber.d("Delete result of doujin $doujinshiId: $success")
+                if (success) {
+                    val updatedSucceeded =
+                        doujinshiRepository.setDownloadedDoujinshi(doujinshi, false)
+                    if (updatedSucceeded) {
+                        downloadedStatus.value = false
+                    }
+                }
+            }.doOnError {
+                Timber.e("Could not delete downloaded doujinshi $doujinshiId with error $it")
             }
         }
     }

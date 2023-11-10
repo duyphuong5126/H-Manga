@@ -42,7 +42,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -348,7 +347,7 @@ fun DoujinshiPage(
                                         onAnswerYes = {
                                             downloadClickId.value = null
                                             viewModel.downloadRequestId.value =
-                                                DoujinshiDownloadWorker.start(context, doujinshiId)
+                                                DoujinshiDownloadWorker.start(context, doujinshi.id)
                                         }
                                     )
                                 }
@@ -495,7 +494,7 @@ fun DoujinshiPage(
                                         resetRequestId.value = null
                                     },
                                     onAnswerYes = {
-                                        viewModel.resetLastReadPage(doujinshiId)
+                                        viewModel.resetLastReadPage(doujinshi.id)
                                     }
                                 )
                             }
@@ -521,6 +520,62 @@ fun DoujinshiPage(
                                 thumbnailUrl = doujinshi.previewThumbnails[lastReadPageIndex],
                                 index = lastReadPageIndex,
                                 startReading = startReading
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    val isDownloaded by remember {
+                        viewModel.downloadedStatus
+                    }
+                    if (isDownloaded) {
+                        val deleteClickId = remember {
+                            mutableStateOf<Long?>(null)
+                        }
+                        if (deleteClickId.value != null) {
+                            YesNoDialog(
+                                title = "Delete Downloaded Data",
+                                description = "Do you want to delete the downloaded data of this doujinshi?",
+                                onDismiss = {
+                                    deleteClickId.value = null
+                                },
+                                onAnswerYes = {
+                                    deleteClickId.value = null
+                                    viewModel.deleteDownloadedData(doujinshi.origin)
+                                }
+                            )
+                        }
+
+                        Button(
+                            onClick = {
+                                deleteClickId.value = System.currentTimeMillis()
+                            },
+                            shape = RoundedCornerShape(mediumRadius),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Grey31
+                            ),
+                            contentPadding = PaddingValues(horizontal = mediumPlusSpace),
+                            modifier = Modifier
+                                .padding(
+                                    start = mediumSpace,
+                                    end = mediumSpace,
+                                    top = normalSpace
+                                )
+                                .fillMaxWidth()
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_trash_24dp),
+                                contentDescription = "Delete downloaded data",
+                                tint = White,
+                                modifier = Modifier
+                                    .padding(end = smallSpace)
+                                    .size(normalSpace)
+                            )
+
+                            Text(
+                                text = "Delete downloaded data",
+                                style = MaterialTheme.typography.bodyNormalBold
                             )
                         }
                     }
