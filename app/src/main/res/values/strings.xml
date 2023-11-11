@@ -2,4 +2,7 @@
     <string name="app_name">nHentai</string>
     <string name="loading">Loading…</string>
     <string name="book_page">Book page</string>
+    <string name="an_error_happened">An error happened</string>
+    <string name="error_placeholder">Error placeholder</string>
+    <string name="general_failure_message">Could not reach nHentai server</string>
 </resources>

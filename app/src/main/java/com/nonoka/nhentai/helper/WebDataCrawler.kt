@@ -1,11 +1,17 @@
 package com.nonoka.nhentai.helper
 
+import android.graphics.Bitmap
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.google.gson.JsonParser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.apache.commons.text.StringEscapeUtils
 import timber.log.Timber
 
@@ -15,12 +21,32 @@ class WebDataCrawler : WebViewClient() {
 
     private var requester: ((String) -> Unit)? = null
 
+    private var coroutineScope: CoroutineScope? = null
+    private var timeoutJob: Job? = null
+
+    fun initCoroutineScope(coroutineScope: CoroutineScope) {
+        this.coroutineScope = coroutineScope
+    }
+
+    fun clearCoroutineScope() {
+        timeoutJob?.cancel()
+        this.coroutineScope = null
+    }
+
     fun registerRequester(requester: (String) -> Unit) {
         this.requester = requester
     }
 
     fun clearRequester() {
         requester = null
+    }
+
+    override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
+        super.onPageStarted(view, url, favicon)
+        timeoutJob = coroutineScope?.launch(Dispatchers.IO) {
+            delay(20000)
+            onError(url, "Timeout")
+        }
     }
 
     override fun onPageFinished(webview: WebView, url: String) {

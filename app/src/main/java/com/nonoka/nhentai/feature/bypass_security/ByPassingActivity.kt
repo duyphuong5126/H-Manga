@@ -60,6 +60,11 @@ class ByPassingActivity : ComponentActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.byPassingResult.collect { result ->
                     Timber.d("result=$result")
+                    if (result == ByPassingResult.Success) {
+                        MainActivity.start(this@ByPassingActivity)
+                        finish()
+                        return@collect
+                    }
                     val isLoading =
                         result == ByPassingResult.Loading || result == ByPassingResult.Processing
                     viewBinding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
@@ -67,16 +72,16 @@ class ByPassingActivity : ComponentActivity() {
                     val isFailed = result == ByPassingResult.Failure
                     val window = window
                     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                    window.statusBarColor = if (isFailed) Color.BLACK else Color.WHITE
+                    window.statusBarColor = if (isFailed) getColor(R.color.grey24) else Color.WHITE
                     WindowCompat.getInsetsController(
                         window,
                         window.decorView
                     ).isAppearanceLightStatusBars = !isFailed
-                    viewBinding.loadingArea.visibility = if (isFailed) View.GONE else View.VISIBLE
-
-                    if (result == ByPassingResult.Success) {
-                        MainActivity.start(this@ByPassingActivity)
-                    }
+                    viewBinding.refresher.isEnabled = !isLoading
+                    viewBinding.loadingArea.visibility = if (isLoading) View.VISIBLE else View.GONE
+                    viewBinding.errorArea.visibility = if (isFailed) View.VISIBLE else View.GONE
+                    viewBinding.errorText.text =
+                        if (isFailed) getString(R.string.general_failure_message) else ""
                 }
             }
         }
@@ -87,6 +92,7 @@ class ByPassingActivity : ComponentActivity() {
         }
 
         val priceExtractionWebViewClient = crawlerMap[ClientType.ByPassing]!!
+        priceExtractionWebViewClient.initCoroutineScope(lifecycleScope)
         priceExtractionWebViewClient.registerRequester(viewBinding.webView::loadUrl)
 
         viewBinding.webView.webViewClient = priceExtractionWebViewClient
@@ -101,5 +107,10 @@ class ByPassingActivity : ComponentActivity() {
                 viewModel.onError(errorMessage)
             },
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        crawlerMap[ClientType.ByPassing]!!.clearCoroutineScope()
     }
 }
