@@ -114,5 +114,6 @@ class ByPassingActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         crawlerMap[ClientType.ByPassing]!!.clearCoroutineScope()
+        crawlerMap[ClientType.ByPassing]?.clearRequester()
     }
 }
