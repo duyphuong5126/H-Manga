@@ -20,10 +20,12 @@ import com.nonoka.nhentai.databinding.ActivityByPassingBinding
 import com.nonoka.nhentai.feature.MainActivity
 import com.nonoka.nhentai.helper.ClientType
 import com.nonoka.nhentai.helper.crawlerMap
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
+@AndroidEntryPoint
 class ByPassingActivity : ComponentActivity() {
     private val viewModel by viewModels<ByPassingSecurityViewModel>()
 

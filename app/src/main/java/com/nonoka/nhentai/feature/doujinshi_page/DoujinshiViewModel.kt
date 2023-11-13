@@ -4,6 +4,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nonoka.nhentai.di.qualifier.DefaultDispatcher
+import com.nonoka.nhentai.di.qualifier.IODispatcher
+import com.nonoka.nhentai.di.qualifier.MainDispatcher
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.NHENTAI_T
 import com.nonoka.nhentai.domain.entity.PNG
@@ -19,7 +22,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -56,7 +59,10 @@ data class CommentState(
 @HiltViewModel
 class DoujinshiViewModel @Inject constructor(
     private val doujinshiRepository: DoujinshiRepository,
-    private val fileService: FileService
+    private val fileService: FileService,
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher,
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
+    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val decimalFormat = DecimalFormat("#,###")
     private val dateTimeFormat =
@@ -78,7 +84,7 @@ class DoujinshiViewModel @Inject constructor(
     fun init(doujinshiId: String) {
         lastReadPageIndex.value = null
         mainLoadingState.value = LoadingUiState.Loading("Loading, please wait")
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(mainDispatcher) {
             doujinshiRepository.getDoujinshi(doujinshiId)
                 .doOnSuccess {
                     processDoujinshiData(it)
@@ -95,7 +101,7 @@ class DoujinshiViewModel @Inject constructor(
 
     private fun processDoujinshiData(doujinshi: Doujinshi) {
         mainLoadingState.value = LoadingUiState.Idle
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(defaultDispatcher) {
             val artistCount = doujinshi.tags
                 .count {
                     it.type.trim().lowercase() == "artist"
@@ -135,11 +141,11 @@ class DoujinshiViewModel @Inject constructor(
     }
 
     private fun loadRecommendedDoujinshis(doujinshiId: String) {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(mainDispatcher) {
             recommendationLoadingState.value = LoadingUiState.Loading("Loading...")
             recommendedDoujinshis.clear()
             doujinshiRepository.getRecommendedDoujinshis(doujinshiId).doOnSuccess {
-                viewModelScope.launch(Dispatchers.Default) {
+                viewModelScope.launch(defaultDispatcher) {
                     recommendedDoujinshis.addAll(
                         it.map(::DoujinshiItem),
                     )
@@ -153,12 +159,12 @@ class DoujinshiViewModel @Inject constructor(
     }
 
     private fun loadComments(doujinshiId: String) {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(mainDispatcher) {
             commentLoadingState.value = LoadingUiState.Loading("Loading...")
             comments.clear()
             doujinshiRepository.getComments(doujinshiId).doOnSuccess { commentList ->
                 Timber.d("Comments>>> ${commentList.size}")
-                viewModelScope.launch(Dispatchers.Default) {
+                viewModelScope.launch(defaultDispatcher) {
                     comments.addAll(
                         commentList.map {
                             CommentState(
@@ -180,7 +186,7 @@ class DoujinshiViewModel @Inject constructor(
     }
 
     fun loadLastReadPageIndex(doujinshiId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             doujinshiRepository.getLastReadPageIndex(doujinshiId).doOnSuccess {
                 if (it >= 0) {
                     lastReadPageIndex.value = it
@@ -192,7 +198,7 @@ class DoujinshiViewModel @Inject constructor(
     }
 
     fun resetLastReadPage(doujinshiId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             doujinshiRepository.getDoujinshi(doujinshiId).doOnSuccess {
                 try {
                     val updateSuccess = doujinshiRepository.setReadDoujinshi(it, null)
@@ -209,7 +215,7 @@ class DoujinshiViewModel @Inject constructor(
     }
 
     fun deleteDownloadedData(doujinshi: Doujinshi) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val doujinshiId = doujinshi.id
             fileService.deleteDoujinshiFolder(doujinshiId).doOnSuccess { success ->
                 Timber.d("Delete result of doujin $doujinshiId: $success")
@@ -227,7 +233,7 @@ class DoujinshiViewModel @Inject constructor(
     }
 
     private fun loadDownloadedStatus(doujinshiId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             doujinshiRepository.isDoujinshiDownloaded(doujinshiId).doOnSuccess { isDownloaded ->
                 downloadedStatus.value = isDownloaded
             }.doOnError {

@@ -3,19 +3,25 @@ package com.nonoka.nhentai.feature.bypass_security
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.nonoka.nhentai.di.qualifier.IODispatcher
 import com.nonoka.nhentai.domain.entity.doujinshi.DoujinshisResult
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class ByPassingSecurityViewModel : ViewModel() {
+@HiltViewModel
+class ByPassingSecurityViewModel @Inject constructor(
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher
+) : ViewModel() {
     private val _byPassingResult = MutableStateFlow(ByPassingResult.Loading)
     val byPassingResult: StateFlow<ByPassingResult> = _byPassingResult
 
     fun validateData(data: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             _byPassingResult.emit(ByPassingResult.Processing)
             try {
                 val doujinshis = Gson().fromJson(data, DoujinshisResult::class.java)

@@ -8,6 +8,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import com.nonoka.nhentai.di.qualifier.DefaultDispatcher
+import com.nonoka.nhentai.di.qualifier.IODispatcher
+import com.nonoka.nhentai.di.qualifier.MainDispatcher
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.FilterRepository
 import com.nonoka.nhentai.domain.entity.GalleryPageNotExistException
@@ -20,6 +23,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.DecimalFormat
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,6 +34,7 @@ import timber.log.Timber
 class HomeViewModel @Inject constructor(
     private val doujinshiRepository: DoujinshiRepository,
     private val filterRepository: FilterRepository,
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel(), PagingDataLoader<GalleryUiState> {
     val lazyDoujinshisFlow = Pager(
         PagingConfig(
@@ -62,7 +67,7 @@ class HomeViewModel @Inject constructor(
             val normalizedFilter = filter.trim().lowercase()
             if (!filters.contains(normalizedFilter)) {
                 filters.add(normalizedFilter)
-                viewModelScope.launch(Dispatchers.IO) {
+                viewModelScope.launch(ioDispatcher) {
                     filterRepository.activateFilter(normalizedFilter)
                 }
             }
@@ -75,7 +80,7 @@ class HomeViewModel @Inject constructor(
     fun removeFilter(filter: String) {
         val normalizedFilter = filter.trim().lowercase()
         filters.remove(normalizedFilter)
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             filterRepository.deactivateFilter(normalizedFilter)
         }
         if (filters.isEmpty()) {
@@ -95,7 +100,7 @@ class HomeViewModel @Inject constructor(
     override suspend fun loadPage(pageIndex: Int): List<GalleryUiState> {
         Timber.d("Gallery>>> Loading page $pageIndex")
         if (pageIndex == 0 && !filterInitialized.get()) {
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 try {
                     filters.clear()
                     filterHistory.clear()
@@ -135,7 +140,7 @@ class HomeViewModel @Inject constructor(
 
     private fun finishLoading(pageIndex: Int) {
         if (pageIndex > 0) {
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch(ioDispatcher) {
                 delay(500)
                 loadingState.value = LoadingUiState.Idle
             }

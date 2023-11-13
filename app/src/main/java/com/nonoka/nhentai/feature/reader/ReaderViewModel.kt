@@ -4,6 +4,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nonoka.nhentai.di.qualifier.DefaultDispatcher
+import com.nonoka.nhentai.di.qualifier.IODispatcher
+import com.nonoka.nhentai.di.qualifier.MainDispatcher
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.NHENTAI_I
 import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
@@ -13,7 +16,7 @@ import com.nonoka.nhentai.feature.reader.ReaderPageModel.RemotePage
 import com.nonoka.nhentai.feature.reader.ReaderPageModel.LocalPage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -31,7 +34,10 @@ data class ReaderState(
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
     private val doujinshiRepository: DoujinshiRepository,
-    private val fileService: FileService
+    private val fileService: FileService,
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher,
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
+    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     val state = mutableStateOf<ReaderState?>(null)
 
@@ -45,12 +51,12 @@ class ReaderViewModel @Inject constructor(
     fun init(doujinshiId: String, startIndex: Int = -1) {
         Timber.d("Load doujinshi $doujinshiId")
         if (startIndex >= 0) {
-            viewModelScope.launch(Dispatchers.Default) {
+            viewModelScope.launch(defaultDispatcher) {
                 delay(1000)
                 focusingIndexRequest.emit(startIndex)
             }
         }
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(mainDispatcher) {
             doujinshiRepository.getDoujinshi(doujinshiId)
                 .doOnSuccess(this@ReaderViewModel::processDoujinshiData)
                 .doOnError {
@@ -67,7 +73,7 @@ class ReaderViewModel @Inject constructor(
     }
 
     fun onPageFocused(index: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             currentDoujinshi?.let {
                 val result = doujinshiRepository.setReadDoujinshi(it, index)
                 Timber.d("Test>>> set read doujinshi result: $result")
@@ -77,9 +83,9 @@ class ReaderViewModel @Inject constructor(
 
     private fun processDoujinshiData(doujinshi: Doujinshi) {
         currentDoujinshi = doujinshi
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(defaultDispatcher) {
             var isDownloaded = false
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 doujinshiRepository.isDoujinshiDownloaded(doujinshi.id)
             }.doOnSuccess {
                 isDownloaded = it
