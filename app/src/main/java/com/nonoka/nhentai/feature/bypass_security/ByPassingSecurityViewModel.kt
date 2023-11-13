@@ -35,15 +35,11 @@ class ByPassingSecurityViewModel @Inject constructor(
     }
 
     fun onRetry() {
-        viewModelScope.launch {
-            _byPassingResult.emit(ByPassingResult.Loading)
-        }
+        _byPassingResult.tryEmit(ByPassingResult.Loading)
     }
 
     fun onError(error: String) {
         Timber.e("Bypassing error $error")
-        viewModelScope.launch {
-            _byPassingResult.emit(ByPassingResult.Failure)
-        }
+        _byPassingResult.tryEmit(ByPassingResult.Failure)
     }
 }
