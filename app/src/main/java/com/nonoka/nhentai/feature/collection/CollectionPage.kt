@@ -1,6 +1,5 @@
 package com.nonoka.nhentai.feature.collection
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,7 +52,7 @@ import com.nonoka.nhentai.ui.theme.smallSpace
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionPage(
     onDoujinshiSelected: (String) -> Unit = {},
@@ -96,7 +95,6 @@ fun CollectionPage(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Gallery(
     paddingValues: PaddingValues,
