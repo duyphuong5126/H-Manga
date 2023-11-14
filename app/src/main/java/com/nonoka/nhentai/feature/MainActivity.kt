@@ -8,11 +8,9 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
@@ -43,7 +41,6 @@ import com.nonoka.nhentai.domain.entity.PAGE_INDEX
 import com.nonoka.nhentai.domain.entity.TAG
 import com.nonoka.nhentai.feature.collection.CollectionPage
 import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiPage
-import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiViewModel
 import com.nonoka.nhentai.feature.home.HomePage
 import com.nonoka.nhentai.feature.home.HomeViewModel
 import com.nonoka.nhentai.feature.reader.ReaderPage
@@ -242,10 +239,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        crawlerMap[ClientType.Gallery]?.clearRequester()
-        crawlerMap[ClientType.Detail]?.clearRequester()
-        crawlerMap[ClientType.Recommendation]?.clearRequester()
-        crawlerMap[ClientType.Comment]?.clearRequester()
+        crawlerMap.filter {
+            it.key != ClientType.ByPassing
+        }.values.forEach(WebDataCrawler::clear)
     }
 
     private fun getIconRes(tab: Tab): Int {

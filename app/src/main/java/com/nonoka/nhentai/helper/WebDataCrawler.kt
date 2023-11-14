@@ -28,17 +28,16 @@ class WebDataCrawler : WebViewClient() {
         this.coroutineScope = coroutineScope
     }
 
-    fun clearCoroutineScope() {
+    fun clear() {
+        dataReadyCallbacks.clear()
+        errorCallbacks.clear()
         timeoutJob?.cancel()
-        this.coroutineScope = null
+        coroutineScope = null
+        requester = null
     }
 
     fun registerRequester(requester: (String) -> Unit) {
         this.requester = requester
-    }
-
-    fun clearRequester() {
-        requester = null
     }
 
     override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
