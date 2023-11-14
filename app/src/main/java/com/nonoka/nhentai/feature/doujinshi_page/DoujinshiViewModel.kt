@@ -80,6 +80,7 @@ class DoujinshiViewModel @Inject constructor(
 
     val downloadRequestId = mutableStateOf<UUID?>(null)
     val downloadedStatus = mutableStateOf(false)
+    val favoriteStatus = mutableStateOf(false)
 
     fun init(doujinshiId: String) {
         lastReadPageIndex.value = null
@@ -92,6 +93,7 @@ class DoujinshiViewModel @Inject constructor(
                     loadComments(it.id)
                     loadLastReadPageIndex(it.id)
                     loadDownloadedStatus(it.id)
+                    loadFavoriteStatus(it.id)
                 }
                 .doOnError {
                     mainLoadingState.value = LoadingUiState.Idle
@@ -239,6 +241,30 @@ class DoujinshiViewModel @Inject constructor(
             }.doOnError {
                 Timber.e("Could not load last read page index with error $it")
             }
+        }
+    }
+
+    private fun loadFavoriteStatus(doujinshiId: String) {
+        viewModelScope.launch(ioDispatcher) {
+            doujinshiRepository.getFavoriteStatus(doujinshiId).doOnSuccess { isFavorite ->
+                favoriteStatus.value = isFavorite
+            }.doOnError {
+                Timber.e("Could not load last read page index with error $it")
+            }
+        }
+    }
+
+    fun toggleFavoriteStatus(doujinshi: Doujinshi) {
+        viewModelScope.launch(ioDispatcher) {
+            val newFavoriteStatus = !favoriteStatus.value
+            doujinshiRepository.setFavoriteDoujinshi(doujinshi, newFavoriteStatus)
+                .doOnSuccess { updateSuccess ->
+                    if (updateSuccess) {
+                        favoriteStatus.value = newFavoriteStatus
+                    }
+                }.doOnError {
+                    Timber.e("Could not update favorite status with error $it")
+                }
         }
     }
 }

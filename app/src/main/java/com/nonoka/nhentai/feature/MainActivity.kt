@@ -9,8 +9,10 @@ import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
@@ -49,6 +51,7 @@ import com.nonoka.nhentai.feature.recommendation.RecommendationPage
 import com.nonoka.nhentai.helper.ClientType
 import com.nonoka.nhentai.helper.WebDataCrawler
 import com.nonoka.nhentai.helper.crawlerMap
+import com.nonoka.nhentai.ui.theme.Black
 import com.nonoka.nhentai.ui.theme.Grey31
 import com.nonoka.nhentai.ui.theme.MainColor
 import com.nonoka.nhentai.ui.theme.NHentaiTheme
@@ -262,6 +265,12 @@ class MainActivity : ComponentActivity() {
             crawlerMap.values.forEach {
                 WebView(dataCrawler = it)
             }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Black),
+            )
         }
     }
 

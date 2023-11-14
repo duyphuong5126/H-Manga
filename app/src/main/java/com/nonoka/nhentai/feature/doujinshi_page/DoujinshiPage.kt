@@ -307,13 +307,16 @@ fun DoujinshiPage(
                     Column {
                         val context = LocalContext.current
                         Row {
+                            val isFavorite by remember {
+                                viewModel.favoriteStatus
+                            }
                             Button(
                                 onClick = {
-
+                                    doujinshi.origin.let(viewModel::toggleFavoriteStatus)
                                 },
                                 shape = RoundedCornerShape(mediumRadius),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = MainColor
+                                    containerColor = if (isFavorite) White else MainColor
                                 ),
                                 contentPadding = PaddingValues(horizontal = mediumPlusSpace),
                                 modifier = Modifier.padding(start = mediumSpace, top = mediumSpace)
@@ -321,15 +324,16 @@ fun DoujinshiPage(
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_favorite_solid_24dp),
                                     contentDescription = doujinshi.favoritesLabel,
-                                    tint = White,
+                                    tint = if (isFavorite) MainColor else White,
                                     modifier = Modifier
                                         .padding(end = smallSpace)
-                                        .size(16.dp)
+                                        .size(normalSpace)
                                 )
 
                                 Text(
                                     text = doujinshi.favoritesLabel,
-                                    style = MaterialTheme.typography.bodyNormalBold
+                                    style = MaterialTheme.typography.bodyNormalBold,
+                                    color = if (isFavorite) MainColor else White
                                 )
                             }
 

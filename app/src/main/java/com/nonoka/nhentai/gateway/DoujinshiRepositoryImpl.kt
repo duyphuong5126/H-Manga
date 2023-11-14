@@ -126,8 +126,19 @@ class DoujinshiRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun setFavoriteDoujinshi(doujinshi: Doujinshi, isFavorite: Boolean): Boolean {
-        return localDataSource.setFavoriteDoujinshi(doujinshi, isFavorite)
+    override suspend fun setFavoriteDoujinshi(
+        doujinshi: Doujinshi,
+        isFavorite: Boolean
+    ): Resource<Boolean> {
+        return try {
+            Success(localDataSource.setFavoriteDoujinshi(doujinshi, isFavorite))
+        } catch (error: Throwable) {
+            Error(error)
+        }
+    }
+
+    override suspend fun getFavoriteStatus(doujinshiId: String): Resource<Boolean> {
+        return localDataSource.getFavoriteStatus(doujinshiId)
     }
 
     override suspend fun setReadDoujinshi(doujinshi: Doujinshi, lastReadPage: Int?): Boolean {
