@@ -11,6 +11,7 @@ import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 import com.nonoka.nhentai.gateway.local.datasource.DoujinshiLocalDataSource
 import com.nonoka.nhentai.gateway.remote.DoujinshiRemoteSource
 import javax.inject.Inject
+import kotlin.random.Random
 import timber.log.Timber
 
 class DoujinshiRepositoryImpl @Inject constructor(
@@ -43,6 +44,27 @@ class DoujinshiRepositoryImpl @Inject constructor(
                 doujinshiCacheMap[it.id] = it
             }
             remoteResult
+        }
+    }
+
+    override suspend fun getRandomDoujinshi(noFilterPageCount: Int?): Resource<Doujinshi> {
+        return try {
+            val numOfPages = noFilterPageCount ?: remoteSource.loadDoujinshis(
+                0,
+                emptyList(),
+                SortOption.Recent
+            ).numOfPages.toInt()
+            val randomPage = Random.nextInt(0, numOfPages)
+            Timber.d("Get doujinshi from the random page index $randomPage")
+            Success(
+                remoteSource.loadDoujinshis(
+                    randomPage,
+                    emptyList(),
+                    SortOption.Recent
+                ).doujinshiList.random()
+            )
+        } catch (error: Throwable) {
+            Error(error)
         }
     }
 

@@ -12,6 +12,8 @@ interface DoujinshiRepository {
         sortOption: SortOption = SortOption.Recent
     ): DoujinshisResult
 
+    suspend fun getRandomDoujinshi(noFilterPageCount: Int?): Resource<Doujinshi>
+
     suspend fun getDoujinshi(doujinshiId: String): Resource<Doujinshi>
 
     suspend fun getRecommendedDoujinshis(doujinshiId: String): Resource<List<Doujinshi>>

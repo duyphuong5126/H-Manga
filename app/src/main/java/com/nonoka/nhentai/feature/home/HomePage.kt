@@ -1,6 +1,5 @@
 package com.nonoka.nhentai.feature.home
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -86,7 +85,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(
     selectedTag: String? = null,
@@ -148,9 +147,18 @@ fun HomePage(
             }
         },
     )
+
+    val randomDoujinshi by remember {
+        homeViewModel.randomDoujinshi
+    }
+    LaunchedEffect(key1 = randomDoujinshi, block = {
+        if (randomDoujinshi != null) {
+            onDoujinshiSelected(randomDoujinshi!!.id)
+            homeViewModel.randomDoujinshi.value = null
+        }
+    })
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Gallery(
     lazyDoujinshis: LazyPagingItems<GalleryUiState>,
@@ -393,6 +401,23 @@ private fun Header(
                     }
                 }
             }
+
+            val randomRequestId = remember {
+                mutableStateOf<Long?>(null)
+            }
+            if (randomRequestId.value != null) {
+                YesNoDialog(
+                    title = "Randomize Doujinshis",
+                    description = "Do you want to open a random doujinshi?",
+                    onDismiss = {
+                        randomRequestId.value = null
+                    },
+                    onAnswerYes = {
+                        randomRequestId.value = null
+                        homeViewModel.openRandomDoujinshi()
+                    }
+                )
+            }
             TextButton(
                 modifier = Modifier
                     .width(36.dp)
@@ -402,7 +427,9 @@ private fun Header(
                 colors = ButtonDefaults.textButtonColors(
                     containerColor = MainColor,
                 ),
-                onClick = {}
+                onClick = {
+                    randomRequestId.value = System.currentTimeMillis()
+                }
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_random_black_24dp),

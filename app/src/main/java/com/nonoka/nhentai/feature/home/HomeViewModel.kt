@@ -1,19 +1,18 @@
 package com.nonoka.nhentai.feature.home
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import com.nonoka.nhentai.di.qualifier.DefaultDispatcher
 import com.nonoka.nhentai.di.qualifier.IODispatcher
 import com.nonoka.nhentai.di.qualifier.MainDispatcher
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.FilterRepository
 import com.nonoka.nhentai.domain.entity.GalleryPageNotExistException
+import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 import com.nonoka.nhentai.paging.PagingDataLoader
 import com.nonoka.nhentai.paging.PagingDataSource
@@ -24,7 +23,6 @@ import java.text.DecimalFormat
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,6 +33,7 @@ class HomeViewModel @Inject constructor(
     private val doujinshiRepository: DoujinshiRepository,
     private val filterRepository: FilterRepository,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
+    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
 ) : ViewModel(), PagingDataLoader<GalleryUiState> {
     val lazyDoujinshisFlow = Pager(
         PagingConfig(
@@ -49,6 +48,7 @@ class HomeViewModel @Inject constructor(
     val filters = mutableStateListOf<String>()
     val filterHistory = mutableStateListOf<String>()
     val galleryCountLabel = mutableStateOf("")
+    val randomDoujinshi = mutableStateOf<Doujinshi?>(null)
 
     val sortOption = mutableStateOf(SortOption.Recent)
 
@@ -61,6 +61,8 @@ class HomeViewModel @Inject constructor(
     var reset = mutableStateOf(false)
 
     private val filterInitialized = AtomicBoolean(false)
+
+    private var noFilterPageCount: Int? = null
 
     fun addFilter(filter: String) {
         if (filter.isNotBlank()) {
@@ -97,6 +99,16 @@ class HomeViewModel @Inject constructor(
         this.sortOption.value = sortOption
     }
 
+    fun openRandomDoujinshi() {
+        viewModelScope.launch(mainDispatcher) {
+            doujinshiRepository.getRandomDoujinshi(noFilterPageCount).doOnSuccess {
+                randomDoujinshi.value = it
+            }.doOnError {
+                Timber.e("Gallery>>> Failed to load random doujinshi with error $it")
+            }
+        }
+    }
+
     override suspend fun loadPage(pageIndex: Int): List<GalleryUiState> {
         Timber.d("Gallery>>> Loading page $pageIndex")
         if (pageIndex == 0 && !filterInitialized.get()) {
@@ -124,6 +136,9 @@ class HomeViewModel @Inject constructor(
 
                 galleryCountLabel.value =
                     "Result: ${decimalFormat.format(result.numOfPages * result.numOfBooksPerPage)} doujinshis"
+            }
+            if (filters.isEmpty()) {
+                noFilterPageCount = result.numOfPages.toInt()
             }
             finishLoading(pageIndex)
         } catch (error: Throwable) {

@@ -79,7 +79,7 @@ class MainActivity : ComponentActivity() {
                                 }
                                 val homeViewModel: HomeViewModel = hiltViewModel(homeEntry)
 
-                                Tab.values().forEach { tab ->
+                                Tab.supportedValues.forEach { tab ->
                                     val isSelected = currentDestination?.route == tab.id
                                     BottomNavigationItem(
                                         selected = isSelected,
@@ -305,6 +305,8 @@ enum class Tab(val id: String) {
         fun isTabValid(tabId: String): Boolean = values().any {
             it.id == tabId
         }
+
+        val supportedValues get() = values().filterNot { it == Recommendation }
     }
 }
 
