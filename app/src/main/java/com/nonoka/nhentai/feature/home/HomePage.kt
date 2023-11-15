@@ -48,6 +48,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -66,6 +67,7 @@ import com.nonoka.nhentai.ui.shared.LoadingDialogContent
 import com.nonoka.nhentai.ui.shared.YesNoDialog
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import com.nonoka.nhentai.ui.theme.Black
+import com.nonoka.nhentai.ui.theme.Grey24
 import com.nonoka.nhentai.ui.theme.Grey31
 import com.nonoka.nhentai.ui.theme.Grey400
 import com.nonoka.nhentai.ui.theme.Grey77
@@ -239,13 +241,18 @@ private fun Gallery(
     } else if (lazyDoujinshis.loadState.refresh == LoadState.Loading) {
         LoadingDialog(message = "Loading, please wait.")
     } else {
-        Column {
-            GalleryHeader(onRefreshGallery)
-
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Grey24),
+            verticalArrangement = Arrangement.Bottom
+        ) {
             Image(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 painter = painterResource(id = R.mipmap.ic_nothing_here_grey),
                 contentDescription = "No data loaded",
+                contentScale = ContentScale.Crop
             )
         }
     }

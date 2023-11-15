@@ -51,60 +51,6 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/error_area"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/grey24"
-                android:visibility="gone">
-
-                <com.daasuu.bl.BubbleLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/app_medium_space"
-                    app:bl_arrowDirection="bottom_center"
-                    app:bl_arrowHeight="@dimen/app_normal_space"
-                    app:bl_arrowPosition="@dimen/app_normal_space"
-                    app:bl_arrowWidth="@dimen/app_normal_space"
-                    app:bl_cornersRadius="@dimen/app_medium_space"
-                    app:bl_strokeWidth="0dp"
-                    app:layout_constraintBottom_toTopOf="@id/image_area"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                    <TextView
-                        android:id="@+id/errorText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/error_placeholder"
-                        android:textAppearance="?attr/textAppearanceBodyLarge"
-                        android:textColor="@color/colorPrimaryDark" />
-
-                </com.daasuu.bl.BubbleLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/image_area"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:scaleType="fitCenter"
-                        android:src="@mipmap/ic_nothing_here_grey"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintDimensionRatio="H,1:1"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
         </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

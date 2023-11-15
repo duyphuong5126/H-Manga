@@ -62,7 +62,7 @@ class ByPassingActivity : ComponentActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.byPassingResult.collect { result ->
                     Timber.d("result=$result")
-                    if (result == ByPassingResult.Success) {
+                    if (result == ByPassingResult.Success || result == ByPassingResult.Failure) {
                         MainActivity.start(this@ByPassingActivity)
                         finish()
                         return@collect
@@ -71,19 +71,15 @@ class ByPassingActivity : ComponentActivity() {
                         result == ByPassingResult.Loading || result == ByPassingResult.Processing
                     viewBinding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
 
-                    val isFailed = result == ByPassingResult.Failure
                     val window = window
                     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                    window.statusBarColor = if (isFailed) getColor(R.color.grey24) else Color.WHITE
+                    window.statusBarColor = Color.WHITE
                     WindowCompat.getInsetsController(
                         window,
                         window.decorView
-                    ).isAppearanceLightStatusBars = !isFailed
+                    ).isAppearanceLightStatusBars = true
                     viewBinding.refresher.isEnabled = !isLoading
                     viewBinding.loadingArea.visibility = if (isLoading) View.VISIBLE else View.GONE
-                    viewBinding.errorArea.visibility = if (isFailed) View.VISIBLE else View.GONE
-                    viewBinding.errorText.text =
-                        if (isFailed) getString(R.string.general_failure_message) else ""
                 }
             }
         }

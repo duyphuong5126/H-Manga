@@ -1,6 +1,5 @@
 package com.nonoka.nhentai.helper
 
-import android.graphics.Bitmap
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -15,7 +14,7 @@ import kotlinx.coroutines.launch
 import org.apache.commons.text.StringEscapeUtils
 import timber.log.Timber
 
-class WebDataCrawler : WebViewClient() {
+class WebDataCrawler(private val connectTimeout: Long) : WebViewClient() {
     private val dataReadyCallbacks = HashMap<String, ArrayList<(String, String) -> Unit>>()
     private val errorCallbacks = HashMap<String, ArrayList<(String, String) -> Unit>>()
 
@@ -38,14 +37,6 @@ class WebDataCrawler : WebViewClient() {
 
     fun registerRequester(requester: (String) -> Unit) {
         this.requester = requester
-    }
-
-    override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-        super.onPageStarted(view, url, favicon)
-        timeoutJob = coroutineScope?.launch(Dispatchers.IO) {
-            delay(20000)
-            onError(url, "Timeout")
-        }
     }
 
     override fun onPageFinished(webview: WebView, url: String) {
@@ -104,7 +95,14 @@ class WebDataCrawler : WebViewClient() {
         }
         errorCallbacks[url]?.add(onError)
         Timber.d("Test>>> crawler load url=$url")
-        requester?.invoke(url)
+        requester?.run {
+            invoke(url)
+
+            timeoutJob = coroutineScope?.launch(Dispatchers.IO) {
+                delay(connectTimeout)
+                onError(url, "Timeout")
+            }
+        }
     }
 
     private fun onDataReady(url: String, data: String) {
