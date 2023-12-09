@@ -27,7 +27,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextButton
@@ -76,7 +75,6 @@ import kotlinx.coroutines.launch
 
 const val thumbnailScrollOffset = 2
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderPage(
     doujinshiId: String,
