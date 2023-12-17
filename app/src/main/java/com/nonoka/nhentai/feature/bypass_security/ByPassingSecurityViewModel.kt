@@ -8,6 +8,8 @@ import com.nonoka.nhentai.domain.entity.doujinshi.DoujinshisResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,7 +22,17 @@ class ByPassingSecurityViewModel @Inject constructor(
     private val _byPassingResult = MutableStateFlow(ByPassingResult.Loading)
     val byPassingResult: StateFlow<ByPassingResult> = _byPassingResult
 
+    private val pendingJobs = arrayListOf<Job>()
+
+    override fun onCleared() {
+        super.onCleared()
+        for (i in pendingJobs.indices) {
+            pendingJobs.removeAt(i).cancel()
+        }
+    }
+
     fun validateData(data: String) {
+        cancelPendingJobs()
         viewModelScope.launch(ioDispatcher) {
             _byPassingResult.emit(ByPassingResult.Processing)
             try {
@@ -35,11 +47,26 @@ class ByPassingSecurityViewModel @Inject constructor(
     }
 
     fun onRetry() {
+        cancelPendingJobs()
         _byPassingResult.tryEmit(ByPassingResult.Loading)
     }
 
     fun onError(error: String) {
+        cancelPendingJobs()
         Timber.e("Bypassing error $error")
-        _byPassingResult.tryEmit(ByPassingResult.Failure)
+        if (error.contains("403")) {
+            pendingJobs.add(viewModelScope.launch {
+                delay(10000)
+                _byPassingResult.tryEmit(ByPassingResult.Failure)
+            })
+        } else {
+            _byPassingResult.tryEmit(ByPassingResult.Failure)
+        }
+    }
+
+    private fun cancelPendingJobs() {
+        for (i in pendingJobs.indices) {
+            pendingJobs.removeAt(i).cancel()
+        }
     }
 }
