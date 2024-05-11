@@ -62,7 +62,8 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
                         setProgress(
                             workDataOf(
                                 PROGRESS_KEY to progress,
-                                TOTAL_KEY to stepCount
+                                TOTAL_KEY to stepCount,
+                                DOUJINSHI_ID to doujinshiId
                             )
                         )
                     } else {
@@ -76,14 +77,21 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
                 }
                 progress++
                 Timber.d("Downloader - recorded, progress: $progress/$stepCount")
-                setProgress(workDataOf(PROGRESS_KEY to progress, TOTAL_KEY to stepCount))
+                setProgress(
+                    workDataOf(
+                        PROGRESS_KEY to progress,
+                        TOTAL_KEY to stepCount,
+                        DOUJINSHI_ID to doujinshiId
+                    )
+                )
             }
         }
         Timber.d("Downloader - finish")
         setProgress(
             workDataOf(
                 PROGRESS_KEY to progress,
-                TOTAL_KEY to stepCount
+                TOTAL_KEY to stepCount,
+                DOUJINSHI_ID to doujinshiId
             )
         )
         delay(2000)
@@ -138,6 +146,7 @@ class DoujinshiDownloadWorker @AssistedInject constructor(
     companion object {
         const val PROGRESS_KEY = "progress"
         const val TOTAL_KEY = "total"
+        const val DOUJINSHI_ID = "doujinshi_id"
 
         fun start(context: Context, doujinshiId: String): UUID {
             val workManager = WorkManager.getInstance(context)

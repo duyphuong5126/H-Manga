@@ -17,7 +17,6 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -57,7 +56,6 @@ import com.nonoka.nhentai.ui.theme.normalIconSize
 import com.nonoka.nhentai.ui.theme.smallSpace
 import dagger.hilt.android.AndroidEntryPoint
 
-@OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -193,8 +191,11 @@ class MainActivity : ComponentActivity() {
                                         onBackPressed = {
                                             navController.popBackStack()
                                         },
-                                        onDownloadingFinished = {
-
+                                        onDoujinshiChanged = { doujinshiId ->
+                                            val route = "doujinshiPage/$doujinshiId"
+                                            navController.navigate(route) {
+                                                popUpTo(route)
+                                            }
                                         },
                                         lastReadPage = pageIndex,
                                         viewModel = hiltViewModel(this@MainActivity)
@@ -302,11 +303,11 @@ enum class Tab(val id: String) {
     Recommendation("Recommendation");
 
     companion object {
-        fun isTabValid(tabId: String): Boolean = values().any {
+        fun isTabValid(tabId: String): Boolean = entries.any {
             it.id == tabId
         }
 
-        val supportedValues get() = values().filterNot { it == Recommendation }
+        val supportedValues get() = entries.filterNot { it == Recommendation }
     }
 }
 

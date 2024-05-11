@@ -54,6 +54,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import coil.compose.AsyncImage
+import coil.imageLoader
+import coil.request.ImageRequest
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.ui.shared.SpaceItemDecoration
 import com.nonoka.nhentai.ui.shared.zoomable.ZoomableBookLayout
@@ -72,6 +74,7 @@ import com.nonoka.nhentai.ui.theme.smallRadius
 import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.ui.theme.tinySpace
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 const val thumbnailScrollOffset = 2
 

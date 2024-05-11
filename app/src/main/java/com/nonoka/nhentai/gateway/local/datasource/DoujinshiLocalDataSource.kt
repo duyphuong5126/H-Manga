@@ -8,7 +8,6 @@ import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 import com.nonoka.nhentai.gateway.local.dao.DoujinshiDao
 import com.nonoka.nhentai.gateway.local.model.DoujinshiModel
 import javax.inject.Inject
-import timber.log.Timber
 
 interface DoujinshiLocalDataSource {
     suspend fun getCollectedDoujinshiCount(): Long

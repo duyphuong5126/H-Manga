@@ -29,7 +29,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -89,19 +88,20 @@ import com.nonoka.nhentai.ui.theme.smallPlusSpace
 import com.nonoka.nhentai.ui.theme.smallRadius
 import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.worker.DoujinshiDownloadWorker
+import com.nonoka.nhentai.worker.DoujinshiDownloadWorker.Companion.DOUJINSHI_ID
 import com.nonoka.nhentai.worker.DoujinshiDownloadWorker.Companion.PROGRESS_KEY
 import com.nonoka.nhentai.worker.DoujinshiDownloadWorker.Companion.TOTAL_KEY
 import java.text.DecimalFormat
 import timber.log.Timber
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DoujinshiPage(
     doujinshiId: String,
     startReading: (String, Int) -> Unit = { _, _ -> },
     onTagSelected: (String) -> Unit = { _ -> },
-    onDownloadingFinished: () -> Unit = {},
+    onDoujinshiChanged: (String) -> Unit = {},
     viewModel: DoujinshiViewModel,
     onBackPressed: () -> Unit,
     lastReadPage: Int? = null,
@@ -402,7 +402,8 @@ fun DoujinshiPage(
                                 val progressData = workInfo!!.progress
                                 val progress = progressData.getInt(PROGRESS_KEY, -1)
                                 val total = progressData.getInt(TOTAL_KEY, -1)
-                                if (progress in 0..total) {
+                                val doujinId = progressData.getString(DOUJINSHI_ID)
+                                if (progress in 0..total && doujinId == doujinshi.id) {
                                     val progressValue = progress.toFloat() / total
                                     Row(
                                         modifier = Modifier.padding(mediumSpace),
@@ -436,7 +437,6 @@ fun DoujinshiPage(
                                     if (progress == total) {
                                         Timber.d("Downloader - UI reset")
                                         viewModel.downloadRequestId.value = null
-                                        onDownloadingFinished()
                                     }
                                 }
                             }
@@ -586,7 +586,7 @@ fun DoujinshiPage(
                 }
 
                 item {
-                    RecommendedDoujinshis(viewModel)
+                    RecommendedDoujinshis(viewModel, onDoujinshiChanged)
                 }
 
                 val comments = viewModel.comments
@@ -626,7 +626,10 @@ fun DoujinshiPage(
 }
 
 @Composable
-private fun RecommendedDoujinshis(viewModel: DoujinshiViewModel) {
+private fun RecommendedDoujinshis(
+    viewModel: DoujinshiViewModel,
+    onDoujinshiChanged: (String) -> Unit,
+) {
     val recommendedDoujinshis = viewModel.recommendedDoujinshis
 
     if (recommendedDoujinshis.isNotEmpty()) {
@@ -648,7 +651,7 @@ private fun RecommendedDoujinshis(viewModel: DoujinshiViewModel) {
                 DoujinshiCard(
                     doujinshiItem = recommendedDoujinshis[index],
                     size = Pair(200, 300),
-                    onDoujinshiSelected = viewModel::init,
+                    onDoujinshiSelected = onDoujinshiChanged,
                 )
             }
         }

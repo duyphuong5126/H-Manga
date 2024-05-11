@@ -9,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -55,10 +54,7 @@ class ByPassingSecurityViewModel @Inject constructor(
         cancelPendingJobs()
         Timber.e("Bypassing error $error")
         if (error.contains("403")) {
-            pendingJobs.add(viewModelScope.launch {
-                delay(10000)
-                _byPassingResult.tryEmit(ByPassingResult.Failure)
-            })
+            _byPassingResult.tryEmit(ByPassingResult.NeedByPassing)
         } else {
             _byPassingResult.tryEmit(ByPassingResult.Failure)
         }
