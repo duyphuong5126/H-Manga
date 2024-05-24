@@ -417,7 +417,7 @@ fun DoujinshiPage(
                                                     RoundedCornerShape(mediumRadius)
                                                 )
                                                 .weight(1f),
-                                            progress = progressValue,
+                                            progress = { progressValue },
                                             color = MainColor
                                         )
 

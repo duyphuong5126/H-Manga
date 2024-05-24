@@ -17,8 +17,9 @@ class nHentaiApp : Application(), Configuration.Provider {
         Timber.plant(Timber.DebugTree())
     }
 
-    override fun getWorkManagerConfiguration(): Configuration =
-        Configuration.Builder()
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
 }

@@ -25,10 +25,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -54,8 +54,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import coil.compose.AsyncImage
-import coil.imageLoader
-import coil.request.ImageRequest
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.ui.shared.SpaceItemDecoration
 import com.nonoka.nhentai.ui.shared.zoomable.ZoomableBookLayout
@@ -74,7 +72,6 @@ import com.nonoka.nhentai.ui.theme.smallRadius
 import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.ui.theme.tinySpace
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 const val thumbnailScrollOffset = 2
 

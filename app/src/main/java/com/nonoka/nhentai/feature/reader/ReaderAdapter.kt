@@ -73,7 +73,7 @@ class ReaderAdapter(
                     AsyncImage(
                         modifier = Modifier.fillMaxSize(),
                         model = model,
-                        contentDescription = "Page ${pageIndex + 1}",
+                        contentDescription = "Page $pageIndex",
                         onSuccess = {
                             isLoading = false
                         }
@@ -88,7 +88,7 @@ class ReaderAdapter(
                             Text(
                                 modifier = Modifier
                                     .align(Alignment.Center),
-                                text = "${pageIndex + 1}",
+                                text = "$pageIndex",
                                 style = MaterialTheme.typography.headlineLargeStyle.copy(color = MainColor),
                             )
                         }
