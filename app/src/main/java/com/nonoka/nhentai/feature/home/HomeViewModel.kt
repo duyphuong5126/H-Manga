@@ -4,9 +4,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
 import com.nonoka.nhentai.di.qualifier.IODispatcher
 import com.nonoka.nhentai.di.qualifier.MainDispatcher
 import com.nonoka.nhentai.domain.DoujinshiRepository
@@ -14,8 +11,6 @@ import com.nonoka.nhentai.domain.FilterRepository
 import com.nonoka.nhentai.domain.entity.GalleryPageNotExistException
 import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
-import com.nonoka.nhentai.paging.PagingDataLoader
-import com.nonoka.nhentai.paging.PagingDataSource
 import com.nonoka.nhentai.ui.shared.model.GalleryUiState
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +18,6 @@ import java.text.DecimalFormat
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -34,21 +28,15 @@ class HomeViewModel @Inject constructor(
     private val filterRepository: FilterRepository,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
     @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
-) : ViewModel(), PagingDataLoader<GalleryUiState> {
-    val lazyDoujinshisFlow = Pager(
-        PagingConfig(
-            pageSize = 25,
-            prefetchDistance = 5,
-            initialLoadSize = 25,
-        )
-    ) {
-        PagingDataSource(this)
-    }.flow.cachedIn(viewModelScope)
+) : ViewModel() {
+
+    val galleryItems = mutableStateListOf<GalleryUiState>()
 
     val filters = mutableStateListOf<String>()
     val filterHistory = mutableStateListOf<String>()
     val galleryCountLabel = mutableStateOf("")
     val randomDoujinshi = mutableStateOf<Doujinshi?>(null)
+    val hasMoreData = mutableStateOf(false)
 
     val sortOption = mutableStateOf(SortOption.Recent)
 
@@ -63,6 +51,9 @@ class HomeViewModel @Inject constructor(
     private val filterInitialized = AtomicBoolean(false)
 
     private var noFilterPageCount: Int? = null
+
+    private var pageIndex = 0
+    private var loadingData = false
 
     fun addFilter(filter: String) {
         if (filter.isNotBlank()) {
@@ -109,58 +100,73 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    override suspend fun loadPage(pageIndex: Int): List<GalleryUiState> {
-        Timber.d("Gallery>>> Loading page $pageIndex")
-        if (pageIndex == 0 && !filterInitialized.get()) {
-            withContext(ioDispatcher) {
-                try {
-                    filters.clear()
-                    filterHistory.clear()
-                    filters.addAll(filterRepository.getActiveFilters())
-                    filterHistory.addAll(filterRepository.getAllFilters())
-                    filterInitialized.compareAndSet(false, true)
-                } catch (error: Throwable) {
-                    Timber.d("Gallery>>> failed to init filters with error $error")
-                }
-            }
-        }
-        val pageData = ArrayList<GalleryUiState>()
-        try {
-            val result = doujinshiRepository.getGalleryPage(pageIndex, filters, sortOption.value)
-            val resultList = result.doujinshiList.map {
-                GalleryUiState.DoujinshiItem(it)
-            }
-            if (resultList.isNotEmpty()) {
-                pageData.add(GalleryUiState.Title("Page ${pageIndex + 1}"))
-                pageData.addAll(resultList)
-
-                galleryCountLabel.value =
-                    "Result: ${decimalFormat.format(result.numOfPages * result.numOfBooksPerPage)} doujinshis"
-            }
-            if (filters.isEmpty()) {
-                noFilterPageCount = result.numOfPages.toInt()
-            }
-            finishLoading(pageIndex)
-        } catch (error: Throwable) {
-            Timber.d("Gallery>>> load error $error")
-            finishLoading(pageIndex)
-            if (error is GalleryPageNotExistException) {
-                pageData.add(GalleryUiState.Title("Page ${pageIndex + 1} - Not exist"))
-            } else {
-                throw error
-            }
-        }
-        return pageData
+    fun loadMore() {
+        Timber.d("Gallery>>> loadMore")
+        pageIndex++
+        loadPage()
     }
 
-    private fun finishLoading(pageIndex: Int) {
-        if (pageIndex > 0) {
-            viewModelScope.launch(ioDispatcher) {
-                delay(500)
-                loadingState.value = LoadingUiState.Idle
+    fun refresh() {
+        Timber.d("Gallery>>> refresh")
+        pageIndex = 0
+        galleryItems.clear()
+        loadPage()
+    }
+
+    private fun loadPage() {
+        if (loadingData) {
+            Timber.d("Gallery>>> Page $pageIndex is being loaded")
+            return
+        }
+        loadingData = true
+        Timber.d("Gallery>>> Loading page $pageIndex")
+        val sortOption = sortOption.value
+        val filterList = filters
+        viewModelScope.launch(mainDispatcher) {
+            if (pageIndex == 0) {
+                loadingState.value = LoadingUiState.Loading("Loading")
+                withContext(ioDispatcher) {
+                    if (!filterInitialized.get()) {
+                        try {
+                            filters.clear()
+                            filterHistory.clear()
+                            filters.addAll(filterRepository.getActiveFilters())
+                            filterHistory.addAll(filterRepository.getAllFilters())
+                            filterInitialized.compareAndSet(false, true)
+                        } catch (error: Throwable) {
+                            Timber.d("Gallery>>> failed to init filters with error $error")
+                        }
+                    }
+                }
             }
-        } else {
+            val pageData = ArrayList<GalleryUiState>()
+            try {
+                val result = doujinshiRepository.getGalleryPage(pageIndex, filterList, sortOption)
+                val resultList = result.doujinshiList.map {
+                    GalleryUiState.DoujinshiItem(it)
+                }
+                if (resultList.isNotEmpty()) {
+                    pageData.add(GalleryUiState.Title("Page ${pageIndex + 1}"))
+                    pageData.addAll(resultList)
+
+                    galleryCountLabel.value =
+                        "Result: ${decimalFormat.format(result.numOfPages * result.numOfBooksPerPage)} doujinshis"
+                }
+                if (filterList.isEmpty()) {
+                    noFilterPageCount = result.numOfPages.toInt()
+                }
+                hasMoreData.value = pageIndex < result.numOfPages.toInt()
+            } catch (error: Throwable) {
+                Timber.d("Gallery>>> load error $error")
+                if (error is GalleryPageNotExistException) {
+                    pageData.add(GalleryUiState.Title("Page ${pageIndex + 1} - Not exist"))
+                } else {
+                    throw error
+                }
+            }
+            galleryItems.addAll(pageData)
             loadingState.value = LoadingUiState.Idle
+            loadingData = false
         }
     }
 }

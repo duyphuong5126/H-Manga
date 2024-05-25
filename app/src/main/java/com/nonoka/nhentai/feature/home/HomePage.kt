@@ -44,7 +44,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
@@ -55,9 +54,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
 import com.nonoka.nhentai.ui.shared.model.GalleryUiState
@@ -95,7 +91,6 @@ fun HomePage(
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val coroutineContext = rememberCoroutineScope()
-    val lazyDoujinshis = homeViewModel.lazyDoujinshisFlow.collectAsLazyPagingItems()
 
     val galleryState = rememberLazyStaggeredGridState()
     val onRefreshGallery: (String) -> Unit = {
@@ -103,7 +98,7 @@ fun HomePage(
         coroutineContext.launch {
             galleryState.scrollToItem(0)
         }
-        lazyDoujinshis.refresh()
+        homeViewModel.refresh()
     }
     val loadingState by homeViewModel.loadingState
     if (loadingState is LoadingUiState.Loading) {
@@ -129,7 +124,7 @@ fun HomePage(
                 .padding(it)
                 .fillMaxSize(),
         ) {
-            Gallery(lazyDoujinshis, galleryState, onRefreshGallery, onDoujinshiSelected)
+            Gallery(galleryState, onRefreshGallery, onDoujinshiSelected, homeViewModel)
         }
     }
 
@@ -146,6 +141,7 @@ fun HomePage(
                     onSelectedTagApplied()
                 }
             }
+            homeViewModel.refresh()
         },
     )
 
@@ -162,12 +158,19 @@ fun HomePage(
 
 @Composable
 private fun Gallery(
-    lazyDoujinshis: LazyPagingItems<GalleryUiState>,
     galleryState: LazyStaggeredGridState,
     onRefreshGallery: (String) -> Unit,
     onDoujinshiSelected: (String) -> Unit,
+    homeViewModel: HomeViewModel,
 ) {
-    if (lazyDoujinshis.itemCount > 0) {
+    val lazyDoujinshis = homeViewModel.galleryItems
+    val loadingState by homeViewModel.loadingState
+    val firstVisibleIndex = galleryState.firstVisibleItemIndex
+    val itemCount = lazyDoujinshis.size
+    if (itemCount > 0 && firstVisibleIndex >= itemCount - 5) {
+        homeViewModel.loadMore()
+    }
+    if (lazyDoujinshis.size > 0) {
         LazyVerticalStaggeredGrid(
             modifier = Modifier
                 .padding(start = smallSpace, end = smallSpace)
@@ -178,21 +181,21 @@ private fun Gallery(
             horizontalArrangement = Arrangement.spacedBy(smallSpace),
             content = {
                 items(
-                    count = lazyDoujinshis.itemCount + 2,
+                    count = lazyDoujinshis.size + 2,
                     contentType = { index ->
                         when {
                             index == 0 -> 0
-                            index <= lazyDoujinshis.itemCount -> 1
+                            index <= lazyDoujinshis.size -> 1
                             else -> 2
                         }
                     },
                     key = { index ->
                         when {
                             index == 0 -> "Scrollable header"
-                            index <= lazyDoujinshis.itemCount -> {
+                            index <= lazyDoujinshis.size -> {
                                 val galleryIndex = index - 1
-                                when (val item = lazyDoujinshis[galleryIndex] as GalleryUiState) {
-                                    is GalleryUiState.Title -> item.title
+                                when (val item = lazyDoujinshis[galleryIndex]) {
+                                    is GalleryUiState.Title -> "$galleryIndex${item.title}"
                                     is GalleryUiState.DoujinshiItem -> item.doujinshi.id
                                 }
                             }
@@ -201,9 +204,9 @@ private fun Gallery(
                         }
                     },
                     span = { index ->
-                        if (index > 0 && index <= lazyDoujinshis.itemCount) {
+                        if (index > 0 && index <= lazyDoujinshis.size) {
                             val galleryIndex = index - 1
-                            when (lazyDoujinshis[galleryIndex] as GalleryUiState) {
+                            when (lazyDoujinshis[galleryIndex]) {
                                 is GalleryUiState.Title -> StaggeredGridItemSpan.FullLine
                                 is GalleryUiState.DoujinshiItem -> StaggeredGridItemSpan.SingleLane
                             }
@@ -214,9 +217,9 @@ private fun Gallery(
                 ) { index ->
                     when {
                         index == 0 -> GalleryHeader(onRefreshGallery)
-                        index <= lazyDoujinshis.itemCount -> {
+                        index <= lazyDoujinshis.size -> {
                             val galleryIndex = index - 1
-                            when (val item = lazyDoujinshis[galleryIndex] as GalleryUiState) {
+                            when (val item = lazyDoujinshis[galleryIndex]) {
                                 is GalleryUiState.Title -> GalleryTitle(item)
                                 is GalleryUiState.DoujinshiItem -> DoujinshiCard(
                                     item,
@@ -226,7 +229,8 @@ private fun Gallery(
                         }
 
                         else -> {
-                            if (!lazyDoujinshis.loadState.prepend.endOfPaginationReached && !lazyDoujinshis.loadState.append.endOfPaginationReached) {
+                            val hasMoreData by homeViewModel.hasMoreData
+                            if (hasMoreData) {
                                 LoadingDialogContent(
                                     modifier = Modifier.padding(bottom = mediumSpace),
                                     message = "Loading, please wait."
@@ -237,7 +241,7 @@ private fun Gallery(
                 }
             },
         )
-    } else if (lazyDoujinshis.loadState.refresh == LoadState.Loading) {
+    } else if (loadingState is LoadingUiState.Loading) {
         LoadingDialog(message = "Loading, please wait.")
     } else {
         Column(
