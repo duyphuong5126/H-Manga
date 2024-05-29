@@ -27,6 +27,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -83,9 +87,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomePage(
-    selectedTag: String? = null,
+    selectedTag: String = "",
     onDoujinshiSelected: (String) -> Unit = {},
     onSelectedTagApplied: () -> Unit = {},
     homeViewModel: HomeViewModel = hiltViewModel(),
@@ -113,6 +118,10 @@ fun HomePage(
         homeViewModel.reset.value = false
     }
 
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = loadingState is LoadingUiState.Loading,
+        onRefresh = homeViewModel::refresh
+    )
     Scaffold(
         topBar = {
             Header(onRefreshGallery, onDoujinshiSelected)
@@ -122,28 +131,43 @@ fun HomePage(
         Box(
             modifier = Modifier
                 .padding(it)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .pullRefresh(pullRefreshState),
         ) {
             Gallery(galleryState, onRefreshGallery, onDoujinshiSelected, homeViewModel)
+
+            PullRefreshIndicator(
+                refreshing = homeViewModel.loadingState.value is LoadingUiState.Loading,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+                contentColor = MainColor,
+                backgroundColor = White,
+            )
         }
     }
 
     Timber.d("Gallery>>> rebuild with selectedTag=$selectedTag")
-    LaunchedEffect(
-        key1 = selectedTag,
-        block = {
-            if (!selectedTag.isNullOrBlank()) {
-                homeViewModel.loadingState.value = LoadingUiState.Loading("Searching")
-                coroutineContext.launch {
-                    delay(1000)
-                    homeViewModel.addFilter(selectedTag)
-                    onRefreshGallery("Searching")
-                    onSelectedTagApplied()
-                }
+    val initialTag by remember {
+        homeViewModel.initialTag
+    }
+    LaunchedEffect(Unit) {
+        if (initialTag == selectedTag) {
+            Timber.d("Initialized")
+            return@LaunchedEffect
+        }
+        Timber.d("Initializing")
+        homeViewModel.initialTag.value = selectedTag
+        if (selectedTag.isNotBlank()) {
+            homeViewModel.loadingState.value = LoadingUiState.Loading("Searching")
+            coroutineContext.launch {
+                delay(1000)
+                homeViewModel.addFilter(selectedTag)
+                onRefreshGallery("Searching")
+                onSelectedTagApplied()
             }
-            homeViewModel.refresh()
-        },
-    )
+        }
+        homeViewModel.refresh()
+    }
 
     val randomDoujinshi by remember {
         homeViewModel.randomDoujinshi

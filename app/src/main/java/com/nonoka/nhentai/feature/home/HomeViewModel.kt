@@ -48,6 +48,8 @@ class HomeViewModel @Inject constructor(
 
     var reset = mutableStateOf(false)
 
+    var initialTag = mutableStateOf<String?>(null)
+
     private val filterInitialized = AtomicBoolean(false)
 
     private var noFilterPageCount: Int? = null
@@ -161,7 +163,7 @@ class HomeViewModel @Inject constructor(
                 if (error is GalleryPageNotExistException) {
                     pageData.add(GalleryUiState.Title("Page ${pageIndex + 1} - Not exist"))
                 } else {
-                    throw error
+                    pageData.add(GalleryUiState.Title("Failed to load page ${pageIndex + 1}"))
                 }
             }
             galleryItems.addAll(pageData)

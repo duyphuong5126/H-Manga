@@ -23,7 +23,8 @@ import timber.log.Timber
 
 interface DoujinshiRemoteSource {
     suspend fun loadDoujinshis(
-        page: Int, filters: List<String>,
+        page: Int,
+        filters: List<String>,
         sortOption: SortOption
     ): DoujinshisResult
 

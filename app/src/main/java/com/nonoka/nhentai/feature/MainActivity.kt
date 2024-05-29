@@ -137,7 +137,7 @@ class MainActivity : ComponentActivity() {
                                 val homeViewModel: HomeViewModel = hiltViewModel(parentEntry)
                                 val selectedTag: String? = backStackEntry.savedStateHandle[TAG]
                                 HomePage(
-                                    selectedTag = selectedTag,
+                                    selectedTag = selectedTag.orEmpty(),
                                     onDoujinshiSelected = { id ->
                                         val route = "doujinshiPage/$id"
                                         navController.navigate(route) {
