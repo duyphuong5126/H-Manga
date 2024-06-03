@@ -159,7 +159,7 @@ class HomeViewModel @Inject constructor(
                 }
                 hasMoreData.value = pageIndex < result.numOfPages.toInt()
             } catch (error: Throwable) {
-                Timber.d("Gallery>>> load error $error")
+                Timber.e("Gallery>>> load error $error")
                 if (error is GalleryPageNotExistException) {
                     pageData.add(GalleryUiState.Title("Page ${pageIndex + 1} - Not exist"))
                 } else {

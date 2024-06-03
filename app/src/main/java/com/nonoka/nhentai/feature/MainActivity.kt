@@ -282,7 +282,17 @@ class MainActivity : ComponentActivity() {
                         ViewGroup.LayoutParams.MATCH_PARENT
                     )
                     webViewClient = dataCrawler
-                    settings.javaScriptEnabled = true
+                    settings.apply {
+                        javaScriptEnabled = true
+                        loadWithOverviewMode = true
+                        useWideViewPort = true
+                        setSupportZoom(true)
+                        builtInZoomControls = true
+                        displayZoomControls = false
+                    }
+
+                    scrollBarStyle = WebView.SCROLLBARS_OUTSIDE_OVERLAY
+                    setScrollbarFadingEnabled(false)
                     dataCrawler.registerRequester(this::loadUrl)
                 }
             },
