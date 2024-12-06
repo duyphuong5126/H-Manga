@@ -9,7 +9,6 @@ import com.nonoka.nhentai.di.qualifier.IODispatcher
 import com.nonoka.nhentai.di.qualifier.MainDispatcher
 import com.nonoka.nhentai.domain.DoujinshiRepository
 import com.nonoka.nhentai.domain.entity.NHENTAI_T
-import com.nonoka.nhentai.domain.entity.PNG
 import com.nonoka.nhentai.domain.entity.doujinshi.Doujinshi
 import com.nonoka.nhentai.ui.shared.model.GalleryUiState.DoujinshiItem
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
@@ -128,9 +127,8 @@ class DoujinshiViewModel @Inject constructor(
                 updatedAt = "Updated at ${dateTimeFormat.format(doujinshi.updateAt * 1000)}",
                 comment = "Please support ${if (artistCount > 1) "these artists" else "this artist"}",
                 previewThumbnails = doujinshi.images.pages.mapIndexed { index, imageMeasurements ->
-                    val thumbnailType =
-                        if (imageMeasurements.imageType == PNG) ".png" else ".jpg"
-                    "$NHENTAI_T/galleries/${doujinshi.mediaId}/${index + 1}t$thumbnailType"
+                    val thumbnailType = imageMeasurements.imageType
+                    "$NHENTAI_T/galleries/${doujinshi.mediaId}/${index + 1}t.$thumbnailType"
                 },
                 favoritesLabel = if (doujinshi.numOfFavorites > 0) "Favorite (${
                     decimalFormat.format(

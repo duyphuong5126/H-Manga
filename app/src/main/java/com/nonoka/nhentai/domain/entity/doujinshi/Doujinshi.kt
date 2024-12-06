@@ -16,7 +16,6 @@ import com.nonoka.nhentai.domain.entity.SCANLATOR
 import com.nonoka.nhentai.domain.entity.TAGS_LIST
 import com.nonoka.nhentai.domain.entity.TITLE
 import com.nonoka.nhentai.domain.entity.UPLOAD_DATE
-import timber.log.Timber
 
 data class Doujinshi(
     @field:SerializedName(ID) val id: String,
@@ -30,10 +29,7 @@ data class Doujinshi(
     @field:SerializedName(NUM_FAVORITES) var numOfFavorites: Int
 ) {
     val thumbnail: String
-        get() {
-            val thumbnailType = images.thumbnail.imageType
-            return "$NHENTAI_T/galleries/$mediaId/thumb.$thumbnailType"
-        }
+        get() = "$NHENTAI_T/galleries/$mediaId/thumb.${images.thumbnail.imageType}"
 
     val cover: String get() = "$NHENTAI_T/galleries/$mediaId/cover.${images.cover.imageType}"
     val coverRatio: Float
@@ -64,8 +60,7 @@ data class Doujinshi(
 
     val previewThumbnailList: List<String>
         get() = images.pages.mapIndexed { index, imageMeasurements ->
-            val thumbnailType: String = if (imageMeasurements.imageType == "p") ".png" else ".jpg"
-            "$NHENTAI_T/galleries/$mediaId/${index + 1}t$thumbnailType"
+            "$NHENTAI_T/galleries/$mediaId/${index + 1}t.${imageMeasurements.imageType}"
         }
 
     var usefulName: String = ""

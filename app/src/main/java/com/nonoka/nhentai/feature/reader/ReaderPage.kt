@@ -317,7 +317,13 @@ private fun Reader(
                     addItemDecoration(SpaceItemDecoration(context, R.dimen.app_medium_space))
 
                     val layoutManager =
-                        LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+                        LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false).apply {
+                            // Enable item prefetching
+                            isItemPrefetchEnabled = true
+
+                            // Set the number of items to prefetch
+                            initialPrefetchItemCount = 3 // Adjust this number as needed
+                        }
                     this.layoutManager = layoutManager
 
                     val scrollListener = object : OnScrollListener() {

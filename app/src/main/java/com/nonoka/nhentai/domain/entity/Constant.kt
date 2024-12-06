@@ -1,8 +1,8 @@
 package com.nonoka.nhentai.domain.entity
 
 const val NHENTAI_HOME = "https://nhentai.net"
-const val NHENTAI_I = "https://i.nhentai.net"
-const val NHENTAI_T = "https://t.nhentai.net"
+const val NHENTAI_I = "https://i1.nhentai.net"
+const val NHENTAI_T = "https://t1.nhentai.net"
 
 const val CHINESE_LANG = "cn"
 const val JAPANESE_LANG = "jp"
@@ -10,8 +10,10 @@ const val ENGLISH_LANG = "eng"
 
 const val JPG = "jpg"
 const val PNG = "png"
+const val WEBP = "webp"
 const val JPG_TYPE = "j"
 const val PNG_TYPE = "p"
+const val WEBP_TYPE = "w"
 
 // Api constants
 const val ID = "id"

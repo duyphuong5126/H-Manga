@@ -7,6 +7,8 @@ import com.nonoka.nhentai.domain.entity.IMAGE_WIDTH
 import com.nonoka.nhentai.domain.entity.JPG
 import com.nonoka.nhentai.domain.entity.PNG
 import com.nonoka.nhentai.domain.entity.PNG_TYPE
+import com.nonoka.nhentai.domain.entity.WEBP
+import com.nonoka.nhentai.domain.entity.WEBP_TYPE
 
 data class ImageMeasurements(
     @field:SerializedName(IMAGE_TYPE) private val type: String,
@@ -14,9 +16,9 @@ data class ImageMeasurements(
     @field:SerializedName(IMAGE_HEIGHT) val height: Int
 ) {
     val imageType: String
-        get() = if (PNG_TYPE.equals(type, ignoreCase = true)) {
-            PNG
-        } else {
-            JPG
+        get() = when (type.lowercase()) {
+            PNG_TYPE -> PNG
+            WEBP_TYPE -> WEBP
+            else -> JPG
         }
 }
