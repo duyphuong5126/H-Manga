@@ -109,7 +109,7 @@ class WebDataCrawler(private val connectTimeout: Long) : WebViewClient() {
         Timber.d("Test>>> crawler loaded url=$url, data=$data")
         val callbacks = dataReadyCallbacks[url] ?: arrayListOf()
         while (callbacks.isNotEmpty()) {
-            val callback = callbacks.removeFirst()
+            val callback = callbacks.removeAt(0)
             callback.invoke(url, data)
         }
     }
@@ -118,7 +118,7 @@ class WebDataCrawler(private val connectTimeout: Long) : WebViewClient() {
         Timber.e("Test>>> crawler loaded url=$url, error=$error")
         val callbacks = errorCallbacks[url] ?: arrayListOf()
         while (callbacks.isNotEmpty()) {
-            callbacks.removeFirst().invoke(url, error)
+            callbacks.removeAt(0).invoke(url, error)
         }
     }
 

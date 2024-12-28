@@ -190,7 +190,7 @@ private fun Gallery(
     val lazyDoujinshis = homeViewModel.galleryItems
     val loadingState by homeViewModel.loadingState
     val firstVisibleIndex = galleryState.firstVisibleItemIndex
-    val itemCount = lazyDoujinshis.size
+    val itemCount = lazyDoujinshis.count { it is GalleryUiState.DoujinshiItem }
     if (itemCount > 0 && firstVisibleIndex >= itemCount - 5) {
         homeViewModel.loadMore()
     }
