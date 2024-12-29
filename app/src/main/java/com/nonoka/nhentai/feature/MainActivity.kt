@@ -21,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -58,10 +57,12 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private var sharedTag: String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
+            val homeViewModel: HomeViewModel = hiltViewModel()
             NHentaiTheme {
                 Scaffold(
                     bottomBar = {
@@ -72,10 +73,6 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                                 val currentDestination = navBackStackEntry?.destination
-                                val homeEntry = remember(navBackStackEntry) {
-                                    navController.getBackStackEntry(Tab.Home.id)
-                                }
-                                val homeViewModel: HomeViewModel = hiltViewModel(homeEntry)
 
                                 Tab.supportedValues.forEach { tab ->
                                     val isSelected = currentDestination?.route == tab.id
@@ -131,11 +128,10 @@ class MainActivity : ComponentActivity() {
                             startDestination = Tab.Home.id,
                         ) {
                             composable(Tab.Home.id) { backStackEntry ->
-                                val parentEntry = remember(backStackEntry) {
-                                    navController.getBackStackEntry(Tab.Home.id)
-                                }
-                                val homeViewModel: HomeViewModel = hiltViewModel(parentEntry)
-                                val selectedTag: String? = backStackEntry.savedStateHandle[TAG]
+                                val selectedTag: String? =
+                                    backStackEntry.savedStateHandle[TAG]
+                                        ?: this@MainActivity.sharedTag
+                                this@MainActivity.sharedTag = null
                                 HomePage(
                                     selectedTag = selectedTag.orEmpty(),
                                     onDoujinshiSelected = { id ->
@@ -151,7 +147,17 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            composable(Tab.Collection.id) {
+                            composable(Tab.Collection.id) { backStackEntry ->
+                                val selectedTag: String? = backStackEntry.savedStateHandle[TAG]
+                                if (!selectedTag.isNullOrBlank()) {
+                                    // Set selectedTag in Home's savedStateHandle
+                                    this@MainActivity.sharedTag = selectedTag
+
+                                    // Navigate to Tab.Home
+                                    navController.navigate(Tab.Home.id) {
+                                        popUpTo(Tab.Home.id) { inclusive = true }
+                                    }
+                                }
                                 CollectionPage(
                                     onDoujinshiSelected = { id ->
                                         val route = "doujinshiPage/$id"

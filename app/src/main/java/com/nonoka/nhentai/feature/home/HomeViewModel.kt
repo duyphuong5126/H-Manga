@@ -104,26 +104,30 @@ class HomeViewModel @Inject constructor(
 
     fun loadMore() {
         Timber.d("Gallery>>> loadMore")
+        if (loadingData) {
+            Timber.d("Gallery>>> Page $pageIndex is being loaded")
+            return
+        }
         pageIndex++
         loadPage()
     }
 
     fun refresh() {
         Timber.d("Gallery>>> refresh")
+        if (loadingData) {
+            Timber.d("Gallery>>> Page $pageIndex is being loaded")
+            return
+        }
         pageIndex = 0
         galleryItems.clear()
         loadPage()
     }
 
     private fun loadPage() {
-        if (loadingData) {
-            Timber.d("Gallery>>> Page $pageIndex is being loaded")
-            return
-        }
         loadingData = true
-        Timber.d("Gallery>>> Loading page $pageIndex")
         val sortOption = sortOption.value
         val filterList = filters
+        Timber.d("Gallery>>> Loading page $pageIndex, filters=${filterList.joinToString()}")
         viewModelScope.launch(mainDispatcher) {
             if (pageIndex == 0) {
                 loadingState.value = LoadingUiState.Loading("Loading")

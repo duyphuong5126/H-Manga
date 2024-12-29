@@ -124,7 +124,7 @@ fun HomePage(
     )
     Scaffold(
         topBar = {
-            Header(onRefreshGallery, onDoujinshiSelected)
+            Header(onRefreshGallery, onDoujinshiSelected, homeViewModel = homeViewModel)
         },
         containerColor = Black
     ) {
@@ -159,12 +159,10 @@ fun HomePage(
         homeViewModel.initialTag.value = selectedTag
         if (selectedTag.isNotBlank()) {
             homeViewModel.loadingState.value = LoadingUiState.Loading("Searching")
-            coroutineContext.launch {
-                delay(1000)
-                homeViewModel.addFilter(selectedTag)
-                onRefreshGallery("Searching")
-                onSelectedTagApplied()
-            }
+            Timber.d("Adding filter $selectedTag")
+            homeViewModel.addFilter(selectedTag)
+            onRefreshGallery("Searching")
+            onSelectedTagApplied()
         }
         homeViewModel.refresh()
     }
@@ -240,7 +238,7 @@ private fun Gallery(
                     },
                 ) { index ->
                     when {
-                        index == 0 -> GalleryHeader(onRefreshGallery)
+                        index == 0 -> GalleryHeader(onRefreshGallery, homeViewModel = homeViewModel)
                         index <= lazyDoujinshis.size -> {
                             val galleryIndex = index - 1
                             when (val item = lazyDoujinshis[galleryIndex]) {
@@ -291,7 +289,7 @@ private fun Header(
     onRefreshGallery: (String) -> Unit,
     onDoujinshiSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -488,7 +486,7 @@ private fun GalleryTitle(title: GalleryUiState.Title) {
 @Composable
 private fun GalleryHeader(
     onRefreshGallery: (String) -> Unit,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel
 ) {
     if (homeViewModel.filters.isNotEmpty() || homeViewModel.galleryCountLabel.value.isNotBlank()) {
         FlowRow(modifier = Modifier.padding(mediumSpace)) {
@@ -541,7 +539,7 @@ private fun GalleryHeader(
                     }
                 }
 
-                SortOptions(onRefreshGallery)
+                SortOptions(onRefreshGallery, homeViewModel = homeViewModel)
             }
 
             if (homeViewModel.galleryCountLabel.value.isNotBlank()) {
@@ -561,7 +559,7 @@ private fun GalleryHeader(
 @Composable
 private fun SortOptions(
     onRefreshGallery: (String) -> Unit,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel
 ) {
     val selectedOption = homeViewModel.sortOption.value
     LazyRow(
