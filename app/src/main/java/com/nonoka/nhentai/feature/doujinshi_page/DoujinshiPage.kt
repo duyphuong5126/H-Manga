@@ -56,10 +56,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.work.Data
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import coil.compose.AsyncImage
 import com.nonoka.nhentai.R
+import com.nonoka.nhentai.feature.collection.CollectionViewModel
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.shared.LoadingDialog
 import com.nonoka.nhentai.ui.shared.LoadingDialogContent
@@ -103,6 +105,7 @@ fun DoujinshiPage(
     onTagSelected: (String) -> Unit = { _ -> },
     onDoujinshiChanged: (String) -> Unit = {},
     viewModel: DoujinshiViewModel,
+    collectionViewModel: CollectionViewModel,
     onBackPressed: () -> Unit,
     lastReadPage: Int? = null,
 ) {
@@ -304,15 +307,31 @@ fun DoujinshiPage(
                     val downloadRequestId by remember {
                         viewModel.downloadRequestId
                     }
+                    val context = LocalContext.current
+                    var isDownloading = false
+                    var progressData: Data? = null
+                    if (downloadRequestId != null) {
+                        val workInfo: WorkInfo? by WorkManager.getInstance(context)
+                            // requestId is the WorkRequest id
+                            .getWorkInfoByIdLiveData(downloadRequestId!!)
+                            .observeAsState()
+                        progressData = workInfo?.progress
+                        if (progressData != null) {
+                            val progress = progressData.getInt(PROGRESS_KEY, -1)
+                            val total = progressData.getInt(TOTAL_KEY, -1)
+                            isDownloading = progress in 0..total
+                        }
+                    }
                     Column {
-                        val context = LocalContext.current
                         Row {
                             val isFavorite by remember {
                                 viewModel.favoriteStatus
                             }
                             Button(
                                 onClick = {
-                                    doujinshi.origin.let(viewModel::toggleFavoriteStatus)
+                                    viewModel.toggleFavoriteStatus(doujinshi.origin) {
+                                        collectionViewModel.reset()
+                                    }
                                 },
                                 shape = RoundedCornerShape(mediumRadius),
                                 colors = ButtonDefaults.buttonColors(
@@ -337,7 +356,9 @@ fun DoujinshiPage(
                                 )
                             }
 
-                            if (downloadRequestId == null) {
+                            val isDownloaded = doujinshi.isDownloaded
+                            Timber.d("Download>>> doujinshi=${doujinshi.id}, downloadRequestId=$downloadRequestId, isDownloaded=$isDownloaded, isDownloading=$isDownloading")
+                            if (!isDownloaded && !isDownloading) {
                                 val downloadClickId = remember {
                                     mutableStateOf<Long?>(null)
                                 }
@@ -356,88 +377,77 @@ fun DoujinshiPage(
                                     )
                                 }
 
-                                val isDownloaded by remember {
-                                    viewModel.downloadedStatus
-                                }
-                                if (!isDownloaded) {
-                                    Button(
-                                        onClick = {
-                                            downloadClickId.value = System.currentTimeMillis()
-                                        },
-                                        shape = RoundedCornerShape(mediumRadius),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Grey31
-                                        ),
-                                        contentPadding = PaddingValues(horizontal = mediumPlusSpace),
-                                        modifier = Modifier.padding(
-                                            start = mediumSpace,
-                                            top = mediumSpace
-                                        )
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_download_solid_24dp),
-                                            contentDescription = "Download",
-                                            tint = White,
-                                            modifier = Modifier
-                                                .padding(end = smallSpace)
-                                                .size(normalSpace)
-                                        )
+                                Button(
+                                    onClick = {
+                                        downloadClickId.value = System.currentTimeMillis()
+                                    },
+                                    shape = RoundedCornerShape(mediumRadius),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Grey31
+                                    ),
+                                    contentPadding = PaddingValues(horizontal = mediumPlusSpace),
+                                    modifier = Modifier.padding(
+                                        start = mediumSpace,
+                                        top = mediumSpace
+                                    )
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_download_solid_24dp),
+                                        contentDescription = "Download",
+                                        tint = White,
+                                        modifier = Modifier
+                                            .padding(end = smallSpace)
+                                            .size(normalSpace)
+                                    )
 
-                                        Text(
-                                            text = "Download",
-                                            style = MaterialTheme.typography.bodyNormalBold
-                                        )
-                                    }
+                                    Text(
+                                        text = "Download",
+                                        style = MaterialTheme.typography.bodyNormalBold
+                                    )
                                 }
                             }
                         }
 
-                        if (downloadRequestId != null) {
-                            val workInfo: WorkInfo? by WorkManager.getInstance(context)
-                                // requestId is the WorkRequest id
-                                .getWorkInfoByIdLiveData(downloadRequestId!!)
-                                .observeAsState()
+                        if (progressData != null) {
+                            val progress = progressData.getInt(PROGRESS_KEY, -1)
+                            val total = progressData.getInt(TOTAL_KEY, -1)
+                            val downloadingDoujinshiId = progressData.getString(DOUJINSHI_ID)
+                            if (progress in 0..total && downloadingDoujinshiId == doujinshi.id) {
+                                val progressValue = progress.toFloat() / total
+                                Row(
+                                    modifier = Modifier.padding(mediumSpace),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    LinearProgressIndicator(
+                                        modifier = Modifier
+                                            .padding(end = normalSpace)
+                                            .height(normalSpace)
+                                            .clip(
+                                                RoundedCornerShape(mediumRadius)
+                                            )
+                                            .weight(1f),
+                                        progress = { progressValue },
+                                        color = MainColor
+                                    )
 
-                            if (workInfo != null) {
-                                val progressData = workInfo!!.progress
-                                val progress = progressData.getInt(PROGRESS_KEY, -1)
-                                val total = progressData.getInt(TOTAL_KEY, -1)
-                                val doujinId = progressData.getString(DOUJINSHI_ID)
-                                if (progress in 0..total && doujinId == doujinshi.id) {
-                                    val progressValue = progress.toFloat() / total
-                                    Row(
-                                        modifier = Modifier.padding(mediumSpace),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        LinearProgressIndicator(
-                                            modifier = Modifier
-                                                .padding(end = normalSpace)
-                                                .height(normalSpace)
-                                                .clip(
-                                                    RoundedCornerShape(mediumRadius)
-                                                )
-                                                .weight(1f),
-                                            progress = { progressValue },
-                                            color = MainColor
-                                        )
-
-                                        val complete = progress == total
-                                        if (complete) {
-                                            viewModel.downloadedStatus.value = true
+                                    val complete = progress == total
+                                    if (complete) {
+                                        viewModel.loadDownloadedStatus(doujinshi.id) {
+                                            collectionViewModel.reset()
                                         }
-                                        val progressLabel =
-                                            if (complete) "Complete" else "($progress/$total)"
-                                        Text(
-                                            text = progressLabel,
-                                            style = MaterialTheme.typography.bodyNormalBold.copy(
-                                                White
-                                            ),
-                                        )
                                     }
-                                    if (progress == total) {
-                                        Timber.d("Downloader - UI reset")
-                                        viewModel.downloadRequestId.value = null
-                                    }
+                                    val progressLabel =
+                                        if (complete) "Complete" else "($progress/$total)"
+                                    Text(
+                                        text = progressLabel,
+                                        style = MaterialTheme.typography.bodyNormalBold.copy(
+                                            White
+                                        ),
+                                    )
+                                }
+                                if (progress == total) {
+                                    Timber.d("Downloader - UI reset")
+                                    viewModel.downloadRequestId.value = null
                                 }
                             }
                         }
@@ -498,7 +508,9 @@ fun DoujinshiPage(
                                         resetRequestId.value = null
                                     },
                                     onAnswerYes = {
-                                        viewModel.resetLastReadPage(doujinshi.id)
+                                        viewModel.resetLastReadPage(doujinshi.id) {
+                                            collectionViewModel.reset()
+                                        }
                                     }
                                 )
                             }
@@ -530,10 +542,7 @@ fun DoujinshiPage(
                 }
 
                 item {
-                    val isDownloaded by remember {
-                        viewModel.downloadedStatus
-                    }
-                    if (isDownloaded) {
+                    if (doujinshi.isDownloaded) {
                         val deleteClickId = remember {
                             mutableStateOf<Long?>(null)
                         }
@@ -546,7 +555,9 @@ fun DoujinshiPage(
                                 },
                                 onAnswerYes = {
                                     deleteClickId.value = null
-                                    viewModel.deleteDownloadedData(doujinshi.origin)
+                                    viewModel.deleteDownloadedData(doujinshi.origin) {
+                                        collectionViewModel.reset()
+                                    }
                                 }
                             )
                         }

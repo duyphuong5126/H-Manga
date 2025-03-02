@@ -44,6 +44,8 @@ data class DoujinshiState(
     val favoritesLabel: String,
 
     val origin: Doujinshi,
+
+    val isDownloaded: Boolean = false
 )
 
 data class TagInfo(val label: String, val count: String)
@@ -78,10 +80,10 @@ class DoujinshiViewModel @Inject constructor(
     val commentLoadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
 
     val downloadRequestId = mutableStateOf<UUID?>(null)
-    val downloadedStatus = mutableStateOf(false)
     val favoriteStatus = mutableStateOf(false)
 
     fun init(doujinshiId: String) {
+        Timber.d("Download>>> init doujinshiId=$doujinshiId")
         lastReadPageIndex.value = null
         mainLoadingState.value = LoadingUiState.Loading("Loading, please wait")
         viewModelScope.launch(mainDispatcher) {
@@ -197,7 +199,7 @@ class DoujinshiViewModel @Inject constructor(
         }
     }
 
-    fun resetLastReadPage(doujinshiId: String) {
+    fun resetLastReadPage(doujinshiId: String, onSuccess: () -> Unit = {}) {
         viewModelScope.launch(ioDispatcher) {
             doujinshiRepository.getDoujinshi(doujinshiId).doOnSuccess {
                 try {
@@ -205,6 +207,7 @@ class DoujinshiViewModel @Inject constructor(
                     if (updateSuccess) {
                         lastReadPageIndex.value = null
                     }
+                    onSuccess()
                 } catch (error: Throwable) {
                     Timber.e("Could not load last read page index with error $error")
                 }
@@ -214,7 +217,7 @@ class DoujinshiViewModel @Inject constructor(
         }
     }
 
-    fun deleteDownloadedData(doujinshi: Doujinshi) {
+    fun deleteDownloadedData(doujinshi: Doujinshi, onSuccess: () -> Unit = {}) {
         viewModelScope.launch(ioDispatcher) {
             val doujinshiId = doujinshi.id
             fileService.deleteDoujinshiFolder(doujinshiId).doOnSuccess { success ->
@@ -223,8 +226,9 @@ class DoujinshiViewModel @Inject constructor(
                     val updatedSucceeded =
                         doujinshiRepository.setDownloadedDoujinshi(doujinshi, false)
                     if (updatedSucceeded) {
-                        downloadedStatus.value = false
+                        doujinshiState.value = doujinshiState.value?.copy(isDownloaded = false)
                     }
+                    onSuccess()
                 }
             }.doOnError {
                 Timber.e("Could not delete downloaded doujinshi $doujinshiId with error $it")
@@ -232,11 +236,15 @@ class DoujinshiViewModel @Inject constructor(
         }
     }
 
-    private fun loadDownloadedStatus(doujinshiId: String) {
+    fun loadDownloadedStatus(doujinshiId: String, onSuccess: () -> Unit = {}) {
+        Timber.d("Download>>> loadDownloadedStatus doujinshiId=$doujinshiId")
         viewModelScope.launch(ioDispatcher) {
             doujinshiRepository.isDoujinshiDownloaded(doujinshiId).doOnSuccess { isDownloaded ->
-                downloadedStatus.value = isDownloaded
+                Timber.d("Download>>> loadDownloadedStatus doujinshiId=$doujinshiId, isDownloaded=$isDownloaded")
+                doujinshiState.value = doujinshiState.value?.copy(isDownloaded = isDownloaded)
+                onSuccess()
             }.doOnError {
+                Timber.d("Download>>> loadDownloadedStatus doujinshiId=$doujinshiId, error=$it")
                 Timber.e("Could not load last read page index with error $it")
             }
         }
@@ -252,13 +260,14 @@ class DoujinshiViewModel @Inject constructor(
         }
     }
 
-    fun toggleFavoriteStatus(doujinshi: Doujinshi) {
+    fun toggleFavoriteStatus(doujinshi: Doujinshi, onSuccess: () -> Unit = {}) {
         viewModelScope.launch(ioDispatcher) {
             val newFavoriteStatus = !favoriteStatus.value
             doujinshiRepository.setFavoriteDoujinshi(doujinshi, newFavoriteStatus)
                 .doOnSuccess { updateSuccess ->
                     if (updateSuccess) {
                         favoriteStatus.value = newFavoriteStatus
+                        onSuccess()
                     }
                 }.doOnError {
                     Timber.e("Could not update favorite status with error $it")

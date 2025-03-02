@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.domain.entity.doujinshi.SortOption
+import com.nonoka.nhentai.feature.DoujinshiStatusViewModel
 import com.nonoka.nhentai.ui.shared.model.GalleryUiState
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.shared.LoadingDialog
@@ -83,7 +84,6 @@ import com.nonoka.nhentai.ui.theme.normalIconSize
 import com.nonoka.nhentai.ui.theme.normalSpace
 import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.ui.theme.tinySpace
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -94,6 +94,7 @@ fun HomePage(
     onDoujinshiSelected: (String) -> Unit = {},
     onSelectedTagApplied: () -> Unit = {},
     homeViewModel: HomeViewModel = hiltViewModel(),
+    doujinshiStatusViewModel: DoujinshiStatusViewModel,
 ) {
     val coroutineContext = rememberCoroutineScope()
 
@@ -134,7 +135,13 @@ fun HomePage(
                 .fillMaxSize()
                 .pullRefresh(pullRefreshState),
         ) {
-            Gallery(galleryState, onRefreshGallery, onDoujinshiSelected, homeViewModel)
+            Gallery(
+                galleryState,
+                onRefreshGallery,
+                onDoujinshiSelected,
+                homeViewModel,
+                doujinshiStatusViewModel
+            )
 
             PullRefreshIndicator(
                 refreshing = homeViewModel.loadingState.value is LoadingUiState.Loading,
@@ -184,14 +191,26 @@ private fun Gallery(
     onRefreshGallery: (String) -> Unit,
     onDoujinshiSelected: (String) -> Unit,
     homeViewModel: HomeViewModel,
+    doujinshiStatusViewModel: DoujinshiStatusViewModel
 ) {
     val lazyDoujinshis = homeViewModel.galleryItems
     val loadingState by homeViewModel.loadingState
     val firstVisibleIndex = galleryState.firstVisibleItemIndex
     val itemCount = lazyDoujinshis.count { it is GalleryUiState.DoujinshiItem }
-    if (itemCount > 0 && firstVisibleIndex >= itemCount - 5) {
+    Timber.d("Home>>> itemCount=$itemCount, canScrollForward=${galleryState.canScrollForward}")
+    if (itemCount > 0 && (firstVisibleIndex >= itemCount - 5 || !galleryState.canScrollForward)) {
         homeViewModel.loadMore()
     }
+    val favoriteIds by remember {
+        doujinshiStatusViewModel.favoriteIds
+    }
+    val downloadedIds by remember {
+        doujinshiStatusViewModel.downloadedIds
+    }
+    val readIds by remember {
+        doujinshiStatusViewModel.readIds
+    }
+    Timber.d("favoriteIds=$favoriteIds\ndownloadedIds=$downloadedIds\nreadIds=$readIds")
     if (lazyDoujinshis.size > 0) {
         LazyVerticalStaggeredGrid(
             modifier = Modifier
@@ -246,6 +265,9 @@ private fun Gallery(
                                 is GalleryUiState.DoujinshiItem -> DoujinshiCard(
                                     item,
                                     onDoujinshiSelected = onDoujinshiSelected,
+                                    isFavorite = favoriteIds.contains(item.doujinshi.id),
+                                    isDownloaded = downloadedIds.contains(item.doujinshi.id),
+                                    isRead = readIds.contains(item.doujinshi.id)
                                 )
                             }
                         }
@@ -489,56 +511,60 @@ private fun GalleryHeader(
     homeViewModel: HomeViewModel
 ) {
     if (homeViewModel.filters.isNotEmpty() || homeViewModel.galleryCountLabel.value.isNotBlank()) {
-        FlowRow(modifier = Modifier.padding(mediumSpace)) {
-            val hasFilter = homeViewModel.filters.isNotEmpty()
-            if (hasFilter) {
-                val deleteFilterHolder = remember {
-                    mutableStateOf<String?>(null)
-                }
-                val deleteFilter = deleteFilterHolder.value
-                if (deleteFilter != null) {
-                    YesNoDialog(
-                        title = "Delete filter",
-                        description = "Do you want to delete the filter \"$deleteFilter\"?",
-                        onDismiss = {
-                            deleteFilterHolder.value = null
-                        },
-                        onAnswerYes = {
-                            homeViewModel.removeFilter(deleteFilter)
-                            onRefreshGallery("Refreshing")
-                        }
-                    )
-                }
-                homeViewModel.filters.forEach {
-                    Row(
-                        modifier = Modifier
-                            .padding(end = smallSpace, top = smallSpace)
-                            .clip(RoundedCornerShape(mediumRadius))
-                            .background(if (it.startsWith("-")) Grey31 else MainColor)
-                            .padding(horizontal = mediumSpace, vertical = smallSpace),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodyMedium.copy(White),
-                            textAlign = TextAlign.Center
-                        )
-
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_close_solid_24dp),
-                            contentDescription = "Remove $it filter",
-                            modifier = Modifier
-                                .padding(top = tinySpace)
-                                .size(normalIconSize)
-                                .padding(bottom = smallSpace)
-                                .clickable {
-                                    deleteFilterHolder.value = it
-                                },
-                            tint = White
+        val hasFilter = homeViewModel.filters.isNotEmpty()
+        Column {
+            FlowRow(modifier = Modifier.padding(vertical = mediumSpace)) {
+                if (hasFilter) {
+                    val deleteFilterHolder = remember {
+                        mutableStateOf<String?>(null)
+                    }
+                    val deleteFilter = deleteFilterHolder.value
+                    if (deleteFilter != null) {
+                        YesNoDialog(
+                            title = "Delete filter",
+                            description = "Do you want to delete the filter \"$deleteFilter\"?",
+                            onDismiss = {
+                                deleteFilterHolder.value = null
+                            },
+                            onAnswerYes = {
+                                homeViewModel.removeFilter(deleteFilter)
+                                onRefreshGallery("Refreshing")
+                            }
                         )
                     }
-                }
+                    homeViewModel.filters.forEach {
+                        Row(
+                            modifier = Modifier
+                                .padding(end = smallSpace, top = smallSpace)
+                                .clip(RoundedCornerShape(mediumRadius))
+                                .background(if (it.startsWith("-")) Grey31 else MainColor)
+                                .padding(horizontal = mediumSpace, vertical = smallSpace),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodyMedium.copy(White),
+                                textAlign = TextAlign.Center
+                            )
 
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_close_solid_24dp),
+                                contentDescription = "Remove $it filter",
+                                modifier = Modifier
+                                    .padding(top = tinySpace)
+                                    .size(normalIconSize)
+                                    .padding(bottom = smallSpace)
+                                    .clickable {
+                                        deleteFilterHolder.value = it
+                                    },
+                                tint = White
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (hasFilter) {
                 SortOptions(onRefreshGallery, homeViewModel = homeViewModel)
             }
 

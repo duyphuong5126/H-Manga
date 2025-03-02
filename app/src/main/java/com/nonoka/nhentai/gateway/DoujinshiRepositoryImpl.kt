@@ -148,6 +148,18 @@ class DoujinshiRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getDownloadedDoujinshis(): List<String> {
+        return localDataSource.getDownloadedDoujinshis()
+    }
+
+    override suspend fun getFavoriteDoujinshis(): List<String> {
+        return localDataSource.getFavoriteDoujinshis()
+    }
+
+    override suspend fun getReadDoujinshis(): List<String> {
+        return localDataSource.getReadDoujinshis()
+    }
+
     override suspend fun setFavoriteDoujinshi(
         doujinshi: Doujinshi,
         isFavorite: Boolean

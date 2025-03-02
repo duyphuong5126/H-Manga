@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,11 +29,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.nonoka.nhentai.R
+import com.nonoka.nhentai.feature.DoujinshiStatusViewModel
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.shared.LoadingDialog
 import com.nonoka.nhentai.ui.shared.LoadingDialogContent
@@ -54,15 +55,29 @@ import timber.log.Timber
 @Composable
 fun CollectionPage(
     onDoujinshiSelected: (String) -> Unit = {},
-    collectionViewModel: CollectionViewModel = hiltViewModel(),
+    collectionViewModel: CollectionViewModel,
+    doujinshiStatusViewModel: DoujinshiStatusViewModel,
 ) {
     val coroutineContext = rememberCoroutineScope()
     val lazyDoujinshis = collectionViewModel.collectionFlow.collectAsLazyPagingItems()
 
     val galleryState = rememberLazyStaggeredGridState()
 
+    LaunchedEffect(Unit) {
+        collectionViewModel.reset.value = false
+        doujinshiStatusViewModel.reload()
+    }
+
     val onRefreshGallery: () -> Unit = {
+        Timber.d("Test>>> onRefreshGallery")
         collectionViewModel.loadingState.value = LoadingUiState.Loading("Refreshing")
+        lazyDoujinshis.refresh()
+        coroutineContext.launch {
+            galleryState.scrollToItem(0)
+        }
+    }
+
+    val onReset: () -> Unit = {
         lazyDoujinshis.refresh()
         coroutineContext.launch {
             galleryState.scrollToItem(0)
@@ -77,9 +92,16 @@ fun CollectionPage(
         Timber.d("Test>>> Loading dialog: not show")
     }
 
+    val reset by collectionViewModel.reset
+    if (reset) {
+        Timber.d("Test>>> reset")
+        collectionViewModel.reset.value = false
+        onReset()
+    }
+
     Scaffold(
         topBar = {
-            Header(onRefreshGallery)
+            Header(onRefreshGallery, collectionViewModel = collectionViewModel)
         },
         containerColor = Black
     ) {
@@ -88,7 +110,8 @@ fun CollectionPage(
             lazyDoujinshis,
             galleryState,
             loadingState,
-            onDoujinshiSelected
+            onDoujinshiSelected,
+            doujinshiStatusViewModel
         )
     }
 }
@@ -100,8 +123,20 @@ private fun Gallery(
     galleryState: LazyStaggeredGridState,
     loadingState: LoadingUiState,
     onDoujinshiSelected: (String) -> Unit,
+    doujinshiStatusViewModel: DoujinshiStatusViewModel,
 ) {
     if (lazyDoujinshis.itemCount > 0) {
+        val favoriteIds by remember {
+            doujinshiStatusViewModel.favoriteIds
+        }
+        val downloadedIds by remember {
+            doujinshiStatusViewModel.downloadedIds
+        }
+        val readIds by remember {
+            doujinshiStatusViewModel.readIds
+        }
+        Timber.d("favoriteIds=$favoriteIds\ndownloadedIds=$downloadedIds\nreadIds=$readIds")
+
         LazyVerticalStaggeredGrid(
             modifier = Modifier
                 .padding(paddingValues)
@@ -153,6 +188,9 @@ private fun Gallery(
                                 is GalleryUiState.DoujinshiItem -> DoujinshiCard(
                                     item,
                                     onDoujinshiSelected = onDoujinshiSelected,
+                                    isFavorite = favoriteIds.contains(item.doujinshi.id),
+                                    isDownloaded = downloadedIds.contains(item.doujinshi.id),
+                                    isRead = readIds.contains(item.doujinshi.id)
                                 )
                             }
                         }
@@ -184,7 +222,7 @@ private fun GalleryTitle(title: GalleryUiState.Title) {
 private fun Header(
     onRefreshGallery: () -> Unit,
     modifier: Modifier = Modifier,
-    collectionViewModel: CollectionViewModel = hiltViewModel()
+    collectionViewModel: CollectionViewModel
 ) {
     Box(
         modifier = modifier

@@ -37,4 +37,10 @@ interface DoujinshiRepository {
     suspend fun setDownloadedDoujinshi(doujinshi: Doujinshi, isDownloaded: Boolean): Boolean
 
     suspend fun isDoujinshiDownloaded(doujinshiId: String): Resource<Boolean>
+
+    suspend fun getDownloadedDoujinshis(): List<String>
+
+    suspend fun getFavoriteDoujinshis(): List<String>
+
+    suspend fun getReadDoujinshis(): List<String>
 }

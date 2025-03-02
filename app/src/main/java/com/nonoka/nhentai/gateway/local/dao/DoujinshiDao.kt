@@ -14,7 +14,16 @@ import com.nonoka.nhentai.gateway.local.model.DoujinshiModel.Companion.TABLE_NAM
 @Dao
 interface DoujinshiDao {
     @Query("select * from $TABLE_NAME where $LAST_READ_PAGE is not null or $IS_FAVORITE = 1 or $IS_DOWNLOADED = 1 order by rowid desc limit :take offset :skip")
-    suspend fun getCollectedDoujinshis(skip: Int, take: Int): List<DoujinshiModel>
+    suspend fun getDoujinshis(skip: Int, take: Int): List<DoujinshiModel>
+
+    @Query("select $ID from $TABLE_NAME where $IS_DOWNLOADED = 1")
+    suspend fun getDownloadedDoujinshis(): List<String>
+
+    @Query("select $ID from $TABLE_NAME where $IS_FAVORITE = 1")
+    suspend fun getFavoriteDoujinshis(): List<String>
+
+    @Query("select $ID from $TABLE_NAME where $LAST_READ_PAGE is not null")
+    suspend fun getReadDoujinshis(): List<String>
 
     @Query("select count($ID) > 0 from $TABLE_NAME where $ID = :doujinshiId")
     suspend fun hasDoujinshi(doujinshiId: String): Boolean

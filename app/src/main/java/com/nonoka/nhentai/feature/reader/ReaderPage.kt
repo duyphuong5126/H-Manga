@@ -31,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,6 +56,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import coil.compose.AsyncImage
 import com.nonoka.nhentai.R
+import com.nonoka.nhentai.feature.collection.CollectionViewModel
 import com.nonoka.nhentai.ui.shared.SpaceItemDecoration
 import com.nonoka.nhentai.ui.shared.zoomable.ZoomableBookLayout
 import com.nonoka.nhentai.ui.shared.zoomable.ZoomableRecyclerView
@@ -82,10 +84,14 @@ fun ReaderPage(
     onPageSelected: (Int) -> Unit,
     startIndex: Int = -1,
     viewModel: ReaderViewModel = hiltViewModel(),
+    collectionViewModel: CollectionViewModel,
 ) {
     viewModel.init(doujinshiId, startIndex)
     val thumbnailListState = rememberLazyListState()
     val coroutineContext = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        collectionViewModel.reset()
+    }
     Scaffold(
         containerColor = Black,
     ) {

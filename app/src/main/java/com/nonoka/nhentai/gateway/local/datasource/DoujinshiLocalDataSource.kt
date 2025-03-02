@@ -25,6 +25,12 @@ interface DoujinshiLocalDataSource {
     suspend fun setDownloadedDoujinshi(doujinshi: Doujinshi, isDownloaded: Boolean): Boolean
 
     suspend fun getDownloadedStatus(doujinshiId: String): Boolean
+
+    suspend fun getDownloadedDoujinshis(): List<String>
+
+    suspend fun getFavoriteDoujinshis(): List<String>
+
+    suspend fun getReadDoujinshis(): List<String>
 }
 
 class DoujinshiLocalDataSourceImpl @Inject constructor(
@@ -36,7 +42,7 @@ class DoujinshiLocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun getCollectedDoujinshis(skip: Int, take: Int): List<Doujinshi> {
-        return doujinshiDao.getCollectedDoujinshis(skip, take).map {
+        return doujinshiDao.getDoujinshis(skip, take).map {
             Gson().fromJson(it.json, Doujinshi::class.java)
         }
     }
@@ -112,4 +118,15 @@ class DoujinshiLocalDataSourceImpl @Inject constructor(
         return doujinshiDao.getDownloadedStatus(doujinshiId)
     }
 
+    override suspend fun getDownloadedDoujinshis(): List<String> {
+        return doujinshiDao.getDownloadedDoujinshis()
+    }
+
+    override suspend fun getFavoriteDoujinshis(): List<String> {
+        return doujinshiDao.getFavoriteDoujinshis()
+    }
+
+    override suspend fun getReadDoujinshis(): List<String> {
+        return doujinshiDao.getReadDoujinshis()
+    }
 }

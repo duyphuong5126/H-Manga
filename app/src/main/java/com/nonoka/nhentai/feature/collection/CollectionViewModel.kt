@@ -17,9 +17,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.DecimalFormat
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CollectionViewModel @Inject constructor(
     private val doujinshiRepository: DoujinshiRepository,
@@ -27,21 +32,34 @@ class CollectionViewModel @Inject constructor(
 ) : ViewModel(), PagingDataLoader<GalleryUiState> {
     private val decimalFormat = DecimalFormat("#,###")
 
-    val collectionFlow = Pager(
-        PagingConfig(
-            pageSize = 25,
-            prefetchDistance = 5,
-            initialLoadSize = 25,
-        )
-    ) {
-        PagingDataSource(this)
-    }.flow.cachedIn(viewModelScope)
+    private val refreshTrigger = MutableStateFlow(Unit) // Initial trigger
+
+    val collectionFlow = refreshTrigger.flatMapLatest {
+        Pager(
+            PagingConfig(
+                pageSize = 25,
+                prefetchDistance = 5,
+                initialLoadSize = 25,
+            )
+        ) {
+            PagingDataSource(this)
+        }.flow.cachedIn(viewModelScope)
+    }
 
     val collectionCountLabel = mutableStateOf("")
 
     val loadingState = mutableStateOf<LoadingUiState>(LoadingUiState.Idle)
 
+    val reset = mutableStateOf(false)
+
+    fun reset() {
+        Timber.d("Test>>> reset")
+        reset.value = true
+        refreshTrigger.value = Unit // Emit a new trigger
+    }
+
     override suspend fun loadPage(pageIndex: Int): List<GalleryUiState> {
+        Timber.d("loadPage $pageIndex")
         val pageData = ArrayList<GalleryUiState>()
         try {
             val result = doujinshiRepository.getCollectionPage(pageIndex)

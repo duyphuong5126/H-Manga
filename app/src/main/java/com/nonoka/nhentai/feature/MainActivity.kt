@@ -20,6 +20,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -38,6 +39,7 @@ import com.nonoka.nhentai.R
 import com.nonoka.nhentai.domain.entity.PAGE_INDEX
 import com.nonoka.nhentai.domain.entity.TAG
 import com.nonoka.nhentai.feature.collection.CollectionPage
+import com.nonoka.nhentai.feature.collection.CollectionViewModel
 import com.nonoka.nhentai.feature.doujinshi_page.DoujinshiPage
 import com.nonoka.nhentai.feature.home.HomePage
 import com.nonoka.nhentai.feature.home.HomeViewModel
@@ -54,6 +56,7 @@ import com.nonoka.nhentai.ui.theme.White
 import com.nonoka.nhentai.ui.theme.normalIconSize
 import com.nonoka.nhentai.ui.theme.smallSpace
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -63,6 +66,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val homeViewModel: HomeViewModel = hiltViewModel()
+            val collectionViewModel: CollectionViewModel = hiltViewModel()
+            val doujinshiStatusViewModel: DoujinshiStatusViewModel = hiltViewModel()
+            LaunchedEffect(Unit) {
+                Timber.d("reload doujinshi status list (initial launch)")
+                doujinshiStatusViewModel.reload()
+            }
             NHentaiTheme {
                 Scaffold(
                     bottomBar = {
@@ -143,7 +152,8 @@ class MainActivity : ComponentActivity() {
                                     onSelectedTagApplied = {
                                         backStackEntry.savedStateHandle.remove<String>(TAG)
                                     },
-                                    homeViewModel = homeViewModel
+                                    homeViewModel = homeViewModel,
+                                    doujinshiStatusViewModel = doujinshiStatusViewModel
                                 )
                             }
 
@@ -165,6 +175,8 @@ class MainActivity : ComponentActivity() {
                                             popUpTo(route)
                                         }
                                     },
+                                    doujinshiStatusViewModel = doujinshiStatusViewModel,
+                                    collectionViewModel = collectionViewModel,
                                 )
                             }
 
@@ -204,7 +216,8 @@ class MainActivity : ComponentActivity() {
                                             }
                                         },
                                         lastReadPage = pageIndex,
-                                        viewModel = hiltViewModel(this@MainActivity)
+                                        viewModel = hiltViewModel(this@MainActivity),
+                                        collectionViewModel = collectionViewModel,
                                     )
                                 }
                             }
@@ -233,7 +246,8 @@ class MainActivity : ComponentActivity() {
                                                 .previousBackStackEntry
                                                 ?.savedStateHandle
                                                 ?.set(PAGE_INDEX, index)
-                                        }
+                                        },
+                                        collectionViewModel = collectionViewModel
                                     )
                                 }
                             }
@@ -298,7 +312,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     scrollBarStyle = WebView.SCROLLBARS_OUTSIDE_OVERLAY
-                    setScrollbarFadingEnabled(false)
+                    isScrollbarFadingEnabled = false
                     dataCrawler.registerRequester(this::loadUrl)
                 }
             },
