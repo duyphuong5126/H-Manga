@@ -17,7 +17,6 @@ import com.nonoka.nhentai.feature.reader.ReaderPageModel.LocalPage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,14 +47,8 @@ class ReaderViewModel @Inject constructor(
 
     private var currentDoujinshi: Doujinshi? = null
 
-    fun init(doujinshiId: String, startIndex: Int = -1) {
+    fun init(doujinshiId: String) {
         Timber.d("Load doujinshi $doujinshiId")
-        if (startIndex >= 0) {
-            viewModelScope.launch(defaultDispatcher) {
-                delay(1000)
-                focusingIndexRequest.emit(startIndex)
-            }
-        }
         viewModelScope.launch(mainDispatcher) {
             doujinshiRepository.getDoujinshi(doujinshiId)
                 .doOnSuccess(this@ReaderViewModel::processDoujinshiData)

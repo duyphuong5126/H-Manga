@@ -74,6 +74,7 @@ import com.nonoka.nhentai.ui.theme.smallRadius
 import com.nonoka.nhentai.ui.theme.smallSpace
 import com.nonoka.nhentai.ui.theme.tinySpace
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 const val thumbnailScrollOffset = 2
 
@@ -86,7 +87,7 @@ fun ReaderPage(
     viewModel: ReaderViewModel = hiltViewModel(),
     collectionViewModel: CollectionViewModel,
 ) {
-    viewModel.init(doujinshiId, startIndex)
+    viewModel.init(doujinshiId)
     val thumbnailListState = rememberLazyListState()
     val coroutineContext = rememberCoroutineScope()
     LaunchedEffect(Unit) {
@@ -111,6 +112,7 @@ fun ReaderPage(
                         }
                         onPageSelected(index)
                     },
+                    startIndex = startIndex
                 )
 
                 val barsVisible by remember {
@@ -300,6 +302,7 @@ private fun BottomBar(
 @Composable
 private fun Reader(
     readerState: ReaderState,
+    startIndex: Int = -1,
     onFocusedIndexChanged: (Int) -> Unit,
     viewModel: ReaderViewModel = hiltViewModel(),
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
@@ -312,6 +315,15 @@ private fun Reader(
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
 
+                val layoutManager =
+                    LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false).apply {
+                        // Enable item prefetching
+                        isItemPrefetchEnabled = true
+
+                        // Set the number of items to prefetch
+                        initialPrefetchItemCount = 3 // Adjust this number as needed
+                    }
+
                 val reader = ZoomableRecyclerView(context).apply {
                     layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -322,14 +334,6 @@ private fun Reader(
 
                     addItemDecoration(SpaceItemDecoration(context, R.dimen.app_medium_space))
 
-                    val layoutManager =
-                        LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false).apply {
-                            // Enable item prefetching
-                            isItemPrefetchEnabled = true
-
-                            // Set the number of items to prefetch
-                            initialPrefetchItemCount = 3 // Adjust this number as needed
-                        }
                     this.layoutManager = layoutManager
 
                     val scrollListener = object : OnScrollListener() {
@@ -351,6 +355,11 @@ private fun Reader(
                 }
 
                 addView(reader)
+
+                Timber.d("Test>>> startIndex=$startIndex")
+                if (startIndex > 0) {
+                    layoutManager.scrollToPosition(startIndex)
+                }
 
                 lifecycleOwner.lifecycleScope.launch {
                     lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
