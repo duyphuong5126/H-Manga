@@ -29,14 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.nonoka.nhentai.R
 import com.nonoka.nhentai.feature.DoujinshiStatusViewModel
 import com.nonoka.nhentai.ui.shared.DoujinshiCard
 import com.nonoka.nhentai.ui.shared.LoadingDialog
-import com.nonoka.nhentai.ui.shared.LoadingDialogContent
 import com.nonoka.nhentai.ui.shared.model.GalleryUiState
 import com.nonoka.nhentai.ui.shared.model.LoadingUiState
 import com.nonoka.nhentai.ui.theme.Black
@@ -59,45 +55,36 @@ fun CollectionPage(
     doujinshiStatusViewModel: DoujinshiStatusViewModel,
 ) {
     val coroutineContext = rememberCoroutineScope()
-    val lazyDoujinshis = collectionViewModel.collectionFlow.collectAsLazyPagingItems()
 
     val galleryState = rememberLazyStaggeredGridState()
 
     LaunchedEffect(Unit) {
-        collectionViewModel.reset.value = false
+        collectionViewModel.loadMore()
         doujinshiStatusViewModel.reload()
     }
 
     val onRefreshGallery: () -> Unit = {
-        Timber.d("Test>>> onRefreshGallery")
-        collectionViewModel.loadingState.value = LoadingUiState.Loading("Refreshing")
-        lazyDoujinshis.refresh()
+        Timber.d("Collection>>> onRefreshGallery")
         coroutineContext.launch {
             galleryState.scrollToItem(0)
         }
-    }
-
-    val onReset: () -> Unit = {
-        lazyDoujinshis.refresh()
-        coroutineContext.launch {
-            galleryState.scrollToItem(0)
-        }
+        collectionViewModel.resetList()
     }
 
     val loadingState by collectionViewModel.loadingState
     if (loadingState is LoadingUiState.Loading) {
-        Timber.d("Test>>> Loading dialog: show")
+        Timber.d("Collection>>> Loading dialog: show")
         LoadingDialog(message = (loadingState as LoadingUiState.Loading).message)
     } else {
-        Timber.d("Test>>> Loading dialog: not show")
+        Timber.d("Collection>>> Loading dialog: not show")
     }
 
-    val reset by collectionViewModel.reset
+    /*val reset by collectionViewModel.reset
     if (reset) {
         Timber.d("Test>>> reset")
         collectionViewModel.reset.value = false
-        onReset()
-    }
+        onRefreshGallery()
+    }*/
 
     Scaffold(
         topBar = {
@@ -106,10 +93,9 @@ fun CollectionPage(
         containerColor = Black
     ) {
         Gallery(
+            collectionViewModel,
             it,
-            lazyDoujinshis,
             galleryState,
-            loadingState,
             onDoujinshiSelected,
             doujinshiStatusViewModel
         )
@@ -118,14 +104,21 @@ fun CollectionPage(
 
 @Composable
 private fun Gallery(
+    viewModel: CollectionViewModel,
     paddingValues: PaddingValues,
-    lazyDoujinshis: LazyPagingItems<GalleryUiState>,
     galleryState: LazyStaggeredGridState,
-    loadingState: LoadingUiState,
     onDoujinshiSelected: (String) -> Unit,
     doujinshiStatusViewModel: DoujinshiStatusViewModel,
 ) {
-    if (lazyDoujinshis.itemCount > 0) {
+    val lazyDoujinshis = viewModel.galleryItems
+    val loadingState by viewModel.loadingState
+    val firstVisibleIndex = galleryState.firstVisibleItemIndex
+    val itemCount = lazyDoujinshis.count { it is GalleryUiState.DoujinshiItem }
+    Timber.d("Collection>>> itemCount=$itemCount, canScrollForward=${galleryState.canScrollForward}")
+    if (itemCount > 0 && (firstVisibleIndex >= itemCount - 5 || !galleryState.canScrollForward)) {
+        viewModel.loadMore()
+    }
+    if (lazyDoujinshis.size > 0) {
         val favoriteIds by remember {
             doujinshiStatusViewModel.favoriteIds
         }
@@ -135,7 +128,7 @@ private fun Gallery(
         val readIds by remember {
             doujinshiStatusViewModel.readIds
         }
-        Timber.d("favoriteIds=$favoriteIds\ndownloadedIds=$downloadedIds\nreadIds=$readIds")
+        Timber.d("Collection>>> favoriteIds=$favoriteIds\ndownloadedIds=$downloadedIds\nreadIds=$readIds")
 
         LazyVerticalStaggeredGrid(
             modifier = Modifier
@@ -147,58 +140,38 @@ private fun Gallery(
             verticalItemSpacing = smallSpace,
             horizontalArrangement = Arrangement.spacedBy(smallSpace),
             content = {
-                val realCount =
-                    lazyDoujinshis.itemCount + if (loadingState is LoadingUiState.Loading) 1 else 0
                 items(
-                    count = realCount,
+                    count = lazyDoujinshis.size,
                     key = { index ->
-                        when {
-                            realCount > lazyDoujinshis.itemCount && index == realCount - 1 -> "Loading footer"
-
-                            else -> {
-                                when (val item = lazyDoujinshis[index] as GalleryUiState) {
-                                    is GalleryUiState.Title -> item.title
-                                    is GalleryUiState.DoujinshiItem -> item.doujinshi.id
-                                }
-                            }
+                        when (val item = lazyDoujinshis[index]) {
+                            is GalleryUiState.Title -> item.title
+                            is GalleryUiState.DoujinshiItem -> item.doujinshi.id
                         }
                     },
                     span = { index ->
-                        if (realCount > lazyDoujinshis.itemCount && index == realCount - 1) {
-                            StaggeredGridItemSpan.FullLine
-                        } else {
-                            when (lazyDoujinshis[index] as GalleryUiState) {
-                                is GalleryUiState.Title -> StaggeredGridItemSpan.FullLine
-                                is GalleryUiState.DoujinshiItem -> StaggeredGridItemSpan.SingleLane
-                            }
+                        when (lazyDoujinshis[index]) {
+                            is GalleryUiState.Title -> StaggeredGridItemSpan.FullLine
+                            is GalleryUiState.DoujinshiItem -> StaggeredGridItemSpan.SingleLane
                         }
                     },
                 ) { index ->
-                    when {
-                        realCount > lazyDoujinshis.itemCount && index == realCount - 1 -> {
-                            LoadingDialogContent(
-                                modifier = Modifier.padding(bottom = mediumSpace),
-                                message = "Loading, please wait."
+                    when (val item = lazyDoujinshis[index]) {
+                        is GalleryUiState.Title -> GalleryTitle(item)
+                        is GalleryUiState.DoujinshiItem -> {
+                            Timber.d("Collection>>> doujin title=${item.doujinshi.title.prettyName}")
+                            DoujinshiCard(
+                                item,
+                                onDoujinshiSelected = onDoujinshiSelected,
+                                isFavorite = favoriteIds.contains(item.doujinshi.id),
+                                isDownloaded = downloadedIds.contains(item.doujinshi.id),
+                                isRead = readIds.contains(item.doujinshi.id)
                             )
-                        }
-
-                        else -> {
-                            when (val item = lazyDoujinshis[index] as GalleryUiState) {
-                                is GalleryUiState.Title -> GalleryTitle(item)
-                                is GalleryUiState.DoujinshiItem -> DoujinshiCard(
-                                    item,
-                                    onDoujinshiSelected = onDoujinshiSelected,
-                                    isFavorite = favoriteIds.contains(item.doujinshi.id),
-                                    isDownloaded = downloadedIds.contains(item.doujinshi.id),
-                                    isRead = readIds.contains(item.doujinshi.id)
-                                )
-                            }
                         }
                     }
                 }
             },
         )
-    } else if (lazyDoujinshis.loadState.refresh == LoadState.Loading) {
+    } else if (loadingState is LoadingUiState.Loading) {
         LoadingDialog(message = "Loading, please wait.")
     } else {
         Image(
@@ -211,6 +184,7 @@ private fun Gallery(
 
 @Composable
 private fun GalleryTitle(title: GalleryUiState.Title) {
+    Timber.d("Collection>>> title=${title.title}")
     Text(
         text = title.title,
         style = MaterialTheme.typography.bodyNormalBold.copy(color = White),

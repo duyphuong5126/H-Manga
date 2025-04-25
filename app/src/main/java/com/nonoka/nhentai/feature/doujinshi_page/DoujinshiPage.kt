@@ -312,7 +312,7 @@ fun DoujinshiPage(
                     var progressData: Data? = null
                     if (downloadRequestId != null) {
                         val workInfo: WorkInfo? by WorkManager.getInstance(context)
-                            // requestId is the WorkRequest id
+                            //todo: requestId is the WorkRequest id
                             .getWorkInfoByIdLiveData(downloadRequestId!!)
                             .observeAsState()
                         progressData = workInfo?.progress
@@ -330,7 +330,7 @@ fun DoujinshiPage(
                             Button(
                                 onClick = {
                                     viewModel.toggleFavoriteStatus(doujinshi.origin) {
-                                        collectionViewModel.reset()
+                                        //todo: collectionViewModel.reset.value = true
                                     }
                                 },
                                 shape = RoundedCornerShape(mediumRadius),
@@ -433,7 +433,7 @@ fun DoujinshiPage(
                                     val complete = progress == total
                                     if (complete) {
                                         viewModel.loadDownloadedStatus(doujinshi.id) {
-                                            collectionViewModel.reset()
+                                            //todo: collectionViewModel.reset.value = true
                                         }
                                     }
                                     val progressLabel =
@@ -509,7 +509,7 @@ fun DoujinshiPage(
                                     },
                                     onAnswerYes = {
                                         viewModel.resetLastReadPage(doujinshi.id) {
-                                            collectionViewModel.reset()
+                                            //todo: collectionViewModel.reset.value = true
                                         }
                                     }
                                 )
@@ -556,7 +556,7 @@ fun DoujinshiPage(
                                 onAnswerYes = {
                                     deleteClickId.value = null
                                     viewModel.deleteDownloadedData(doujinshi.origin) {
-                                        collectionViewModel.reset()
+                                        //todo: collectionViewModel.reset.value = true
                                     }
                                 }
                             )

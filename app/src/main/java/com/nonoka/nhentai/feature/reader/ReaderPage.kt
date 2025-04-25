@@ -91,7 +91,7 @@ fun ReaderPage(
     val thumbnailListState = rememberLazyListState()
     val coroutineContext = rememberCoroutineScope()
     LaunchedEffect(Unit) {
-        collectionViewModel.reset()
+        //todo: collectionViewModel.reset.value = true
     }
     Scaffold(
         containerColor = Black,
