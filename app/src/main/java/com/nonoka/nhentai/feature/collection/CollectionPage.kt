@@ -65,9 +65,9 @@ fun CollectionPage(
 
     val onRefreshGallery: () -> Unit = {
         Timber.d("Collection>>> onRefreshGallery")
-        coroutineContext.launch {
+        /*coroutineContext.launch {
             galleryState.scrollToItem(0)
-        }
+        }*/
         collectionViewModel.resetList()
     }
 
@@ -221,7 +221,7 @@ private fun Header(
                 modifier = Modifier
                     .height(14.dp)
                     .clickable {
-                        onRefreshGallery()
+                        //onRefreshGallery()
                     },
             )
 

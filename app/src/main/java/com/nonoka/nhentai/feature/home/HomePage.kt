@@ -292,8 +292,10 @@ private fun Gallery(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = Grey24),
-            verticalArrangement = Arrangement.Bottom
+            verticalArrangement = Arrangement.Top
         ) {
+            GalleryHeader(onRefreshGallery, homeViewModel = homeViewModel)
+
             Image(
                 modifier = Modifier
                     .fillMaxWidth(),
